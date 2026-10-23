@@ -12,7 +12,7 @@ PKG     := migration-package
 
 .DEFAULT_GOAL := help
 .PHONY: help check test selftest handover metrics review package-check \
-        package-apply snapshot sync-docs pre-push hooks clean
+        package-apply snapshot sync-docs pre-push hooks backup clean
 
 # ── 帮助 ──────────────────────────────────────────────────────────────
 help:
@@ -27,6 +27,7 @@ help:
 	@echo "    make selftest      各脚本内置自检（闸门/开轮/八角/脱敏/推送）"
 	@echo "    make pre-push      推之前自查（历史密钥 + 远端是否 private）"
 	@echo "    make hooks         安装 git pre-push 钩子（本地文件，换机需重装）"
+	@echo "    make backup        本地备份（bundle + 快照归档，逐份还原验证）"
 	@echo "    make metrics       三轨指标看板"
 	@echo "    make review DECISION='...'  八角审查（生成 8 份提示词）"
 	@echo ""
@@ -62,6 +63,9 @@ selftest:
 	@echo "── 推送闸门（检测器正样本自检）──"
 	$(PY) $(SCRIPTS)/pre_push_scan.py --self-test
 	@echo ""
+	@echo "── 备份验证逻辑自检 ──"
+	$(PY) $(SCRIPTS)/make_backup.py --self-test
+	@echo ""
 	@echo "── 判据自检 + 全量门禁（内含全量回归，约 60 秒）──"
 	$(PY) $(SCRIPTS)/pre_release_check.py
 
@@ -82,6 +86,12 @@ pre-push:
 
 hooks:
 	$(PY) $(SCRIPTS)/pre_push_scan.py --install-hook
+
+# ── 备份 ──────────────────────────────────────────────────────────────
+# 远端不覆盖 .gitignore 的 _trash/（历史快照归档只此一份），故本地另备一份。
+# 每份产物都做还原验证：文件存在不算备份，能还原且一致才算。
+backup:
+	$(PY) $(SCRIPTS)/make_backup.py
 
 # ── 交付 ──────────────────────────────────────────────────────────────
 package-check:

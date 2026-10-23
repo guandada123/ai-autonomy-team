@@ -49,7 +49,7 @@ OK, BAD, ERR = 0, 1, 2
 PROBES = {
     "OpenAI 风格密钥 sk-…": "sk-" + "a" * 24,
     "AWS Access Key": "AKIA" + "A1B2C3D4E5F6G7H8",
-    "私钥块": "-----BEGIN RSA " + "PRIVATE KEY-----",
+    "私钥块（表头+正文）": "-----BEGIN RSA " + "PRIVATE KEY-----\n" + "A" * 120,
     "Bearer token": "Authorization: Bearer " + "a" * 24,
     "apiKey（JSON）": '{"apiKey": "' + "a" * 16 + '"}',
     "api_key（JSON）": '{"api_key": "' + "a" * 16 + '"}',
@@ -68,6 +68,9 @@ NEGATIVES = [
     ("40 位 commit sha", "5a3c9f1e8b7d6c5a4f3e2d1c0b9a8f7e6d5c4b3a"),
     ("token 用量数字", "这一轮 token 用量 126100，成本 0.42 元"),
     ("正文提到 api_key 这个词", "把 api_key 写进 .env，不要提交"),
+    # 裸表头不含密钥正文 —— 刻意不算命中：本仓一个历史快照就带着裸表头，
+    # 若把它判成密钥，等于逼着人给 snapshots/ 开白名单，那才是真失守。
+    ("只有私钥表头、没有正文", "-----BEGIN RSA " + "PRIVATE KEY-----"),
 ]
 
 
