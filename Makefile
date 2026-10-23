@@ -12,6 +12,7 @@ PKG     := migration-package
 
 .DEFAULT_GOAL := help
 .PHONY: help check test selftest handover metrics review package-check \
+        recompute v11-compare \
         package-apply snapshot sync-docs pre-push hooks backup backup-list veto-list coverage clean
 
 # ── 帮助 ──────────────────────────────────────────────────────────────
@@ -39,6 +40,7 @@ help:
 	@echo "    make sync-docs      把文档里的数字同步为实际值"
 	@echo "    make coverage       覆盖率基线（开发期，需装 coverage；见 tools/README.md）"
 	@echo "    make veto-list      列出 24h 否决窗口内待裁的结论（人工否决权入口）"
+	@echo "    make recompute      题库 v1.1 真值重算检查（漂移即红，先跑它再出分）"
 	@echo ""
 	@echo "  清理："
 	@echo "    make clean          清 _trash 下的 scratch（不动冻结基线）"
@@ -113,6 +115,17 @@ snapshot:
 
 sync-docs:
 	$(PY) $(SCRIPTS)/sync_doc_numbers.py
+
+# ── 题库 v1.1：重算检查 + 同条件配对比较（审计用，不进门禁）──────────────
+# 为什么单独：v1 的教训是「冻结只校验哈希，证明不了还对」。v1.1 必须先重算再出分。
+recompute:
+	$(PY) audit/baseline/v1.1/recompute_truth.py
+
+# 两臂须同条件（同一份提示词、同一套访问权限）；单臂与多臂都必须重跑
+v11-compare:
+	$(PY) audit/baseline/v1.1/compare_v11.py \
+		--single audit/baseline/v1.1/arm-M1.json \
+		--multi  audit/baseline/v1.1/multi-answers.json
 
 # ── 否决窗口（人工否决权；无需调度器，想看时跑）──────────────────────────
 veto-list:

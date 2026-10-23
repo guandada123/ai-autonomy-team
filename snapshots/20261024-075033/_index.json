@@ -1,7 +1,7 @@
 {
- "created_at": "2026-10-24T07:01:14",
- "label": "题库冻结v1",
- "file_count": 104,
+ "created_at": "2026-10-24T07:50:33",
+ "label": "",
+ "file_count": 107,
  "files": {
   "scripts/build_package.py": {
    "sha256": "b2dad8c4b0adc07c8cc367c51c292263c2789cf6501a0a7481c80260de23f494",
@@ -390,6 +390,18 @@
   "docs/decisions/D-0057-题库v1冻结.md": {
    "sha256": "1a47a009b3849d4a8c1ec5022439fa50edcc4b63a6417f7e70c5ec0af949f385",
    "bytes": 3687
+  },
+  "docs/decisions/D-0058-对照实验设计一轮三席.md": {
+   "sha256": "91b69ab24a3ebb919b377a3144ac8716c8f4a2054987bfcb43cd193b11235b2f",
+   "bytes": 4702
+  },
+  "docs/decisions/D-0059-对照实验首轮不可判定.md": {
+   "sha256": "d7cfb9561d845f97255292259d1ae57126e2fdf5948930914fd4202fcf11b732",
+   "bytes": 4327
+  },
+  "docs/decisions/D-0060-题库重锚与v2立项.md": {
+   "sha256": "0873bbc1432f29a7b662e2f23c540a80a651c93aa3213263c32d6e166810b284",
+   "bytes": 4371
   },
   "docs/decisions/TEMPLATE.md": {
    "sha256": "0bbc33940a540ae0e983817d9b1cf6daf6502ff233074d5023a3466511867e6e",

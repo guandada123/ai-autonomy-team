@@ -1,0 +1,43 @@
+{
+  "_note": "v1.1 第 1 席（S1，有据可查条件）。回传原文转录，未改任何数值。",
+  "_caveat": "自报 forbidden_paths_read=false；证据中引用 audit/baseline 之外的仓库文件。",
+  "seat": "S1",
+  "used_tools": true,
+  "answers": {
+    "T02": 39, "T03": 73.7, "T04": 58, "T05": 54, "T06": [73, 6049], "T07": [36, 18],
+    "T08": 9.75, "T09": 10.9, "Q14": 18, "Q15": 34,
+    "Q22": 4, "Q23": 50, "Q25": 87, "Q26": 86, "Q28": 3435, "Q29": "70.5x50.5",
+    "Q30": "90x70", "Q31": null,
+    "Q11": "D-0059", "Q12": 7, "Q13": 20, "Q16": 28, "Q17": 6, "Q18": 6, "Q19": 654, "Q20": "2026-10-23"
+  },
+  "evidence": {
+    "T02": "clone 0633 bundle → rev-list --count HEAD = 39",
+    "T03": "两份 tar 合计 73.7 MB",
+    "T04": "git ls-tree 156d33d docs/decisions | grep 'D-.*\\.md' | wc -l = 58（TEMPLATE 另计）",
+    "T05": "python3 scripts/regress.py → 54/54",
+    "T06": "D-0051:34「6,049 / 73%」",
+    "T07": "calibration.json 36 条 / should_hit 18",
+    "T08": "(90−70.5)/2 = 9.75",
+    "T09": "−5.44−(−16.34) = 10.9",
+    "Q14": "git ls-tree 156d33d .learnings 中 L-*.md = 18",
+    "Q15": "runs/round* 目录 = 34",
+    "Q22": "real-runs/2026-10-22/券商对照快照.json holdings 3 只 + 模拟 1 只 = 4",
+    "Q25": "2026-10-22 审计文档「87 自动化」",
+    "Q26": "2026-10-22 审计文档「覆盖率 86 硬门槛」",
+    "Q28": "heldout.json H05「3435→840 条」",
+    "Q29": "heldout.json H02「70.5×50.5」",
+    "Q30": "heldout.json H02「90×70」",
+    "Q31": "（无盘上源）",
+    "Q11": "docs/decisions 最后一份 = D-0059",
+    "Q12": "protocol 7 份",
+    "Q13": "T-01…T-20 目录 = 20",
+    "Q16": "scripts 顶层 .py = 28",
+    "Q17": "git 跟踪 6 个",
+    "Q18": "templates 6 份",
+    "Q19": "git ls-tree -r 156d33d | grep '\\.md$' | wc -l = 654。注意：git 默认 core.quotePath 会把中文名转义成 \"...\"，grep '\\.md$' 会漏计（只数到 284），须用 -z 或 core.quotePath=false",
+    "Q20": "首次提交 2026-10-23"
+  },
+  "unknown": [
+    {"q": "Q31", "why": "全仓 grep 无该次回测样本数（只在会话记忆里）"}
+  ]
+}
