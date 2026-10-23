@@ -879,7 +879,7 @@ def main():
     # ★ 扩样（D-0012/扩样草案）：make_tasks_20.py 生成的每组夹具必须能被硬裁判加载
     #   （算术 10/10 + 判断层 pending）。生成器改动或夹具损坏在此拦截。
     #   自检过程会在包内临时写 _selfcheck-* 文件并在结束前删除；若中途崩溃留下
-    #   残留，第 53 项（幂等守门）会红 —— 这是特性。
+    #   残留，第 54 项（幂等守门）会红 —— 这是特性。
     rc_sc, out_sc = run(["scripts/make_tasks_20.py", "--out", "migration-package/fixtures/tasks",
                          "--self-check"], ROOT)
     s.check(49, "20 条留出任务批自检（生成器 + 每组 算术10/10 + pending）",
@@ -945,13 +945,27 @@ def main():
             and r4 == 0 and "human_veto" in o4 and r5 == 2,
             f"rc={r1},{r2},{r3},{r4},{r5}")
 
-    # ==================== 第 53 项：回归幂等守门 ====================
+    # ==================== 第 53 项：题库 v1 未漂移 ====================
+    # ★ 2026-10-24（D-0057）：题库已冻结。改任何一份作答/真值/判分文件 =
+    #   换了一张试卷，此前所有分数作废。用 sha256 锚住，而不是靠"我记得没改"。
+    man = json.loads((ROOT / "audit/baseline/frozen-v1.json").read_text(encoding="utf-8"))
+    drift = []
+    for f in man["files"]:
+        fp = ROOT / f["path"]
+        if not fp.is_file():
+            drift.append(f"{f['path']} 缺失")
+        elif hashlib.sha256(fp.read_bytes()).hexdigest() != f["sha256"]:
+            drift.append(f"{f['path']} 内容已变")
+    s.check(53, f"题库 v1 未漂移（{len(man['files'])} 个文件 sha256 逐个比对）",
+            not drift, "一致" if not drift else "；".join(drift[:3]))
+
+    # ==================== 第 54 项：回归幂等守门 ====================
     # ★ F11 的守门项。全部夹具项都已在上面跑完；若任何一项把机器产出写回了
     #   包内（而非 _trash/ 工作副本），包内 sha256 就会变，此条立刻变红。
     #   它把「回归套件是否自污染」从「靠人记得先重建 MANIFEST」变成可自动判定。
     rc, out = run(["gen_manifest.py", "--root", ".", "--check", "MANIFEST.json"], PKG)
     # 第 50/51 项只写 _trash，故「包内是否被污染」的判定仍可放在最后
-    s.expect(53, "回归幂等（跑完后包内仍与 MANIFEST 一致）", rc, out, 0, "完全一致")
+    s.expect(54, "回归幂等（跑完后包内仍与 MANIFEST 一致）", rc, out, 0, "完全一致")
 
     ok_all = all(i["ok"] for i in s.items)
     npass = sum(1 for i in s.items if i["ok"])
