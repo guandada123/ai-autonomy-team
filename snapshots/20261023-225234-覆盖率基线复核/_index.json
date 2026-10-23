@@ -1,7 +1,7 @@
 {
- "created_at": "2026-10-23T22:21:14",
- "label": "C批落地",
- "file_count": 95,
+ "created_at": "2026-10-23T22:52:34",
+ "label": "覆盖率基线复核",
+ "file_count": 97,
  "files": {
   "scripts/build_package.py": {
    "sha256": "9f82fb185416585e575971eed14e1d41eec9c5ac1ac37c373e42b400c3939b65",
@@ -112,8 +112,8 @@
    "bytes": 11300
   },
   "scripts/regress.py": {
-   "sha256": "da633867f92664fca42fd3048d98f34172e5aa9268af1f2ae00fbc02dc65482c",
-   "bytes": 54146
+   "sha256": "0bb510ff286019bf59989a7ff72fe9af970cfea851de1167f0088c60e8ed02c2",
+   "bytes": 55908
   },
   "scripts/secret_patterns.py": {
    "sha256": "c77c883691005f530cff2444c7acb0470dfadf595ae1c15dbc98b34857b56ef1",
@@ -354,6 +354,14 @@
   "docs/decisions/D-0049-审查AB批修复.md": {
    "sha256": "ffc71978227302e71bd55164eeff3f141716cbb9877c003310ed13b42fc6ea08",
    "bytes": 4041
+  },
+  "docs/decisions/D-0050-审查C批与C4不做.md": {
+   "sha256": "c795315eaccb0b10afba70734b22bfeb85e9f1c7b20308381189801b96748cc1",
+   "bytes": 3242
+  },
+  "docs/decisions/D-0051-覆盖率基线与L3回归.md": {
+   "sha256": "05a44f51458f27b992a72849d2f154fe0856e1247e2a6694114fe28ba5fa835f",
+   "bytes": 3369
   },
   "docs/decisions/TEMPLATE.md": {
    "sha256": "0bbc33940a540ae0e983817d9b1cf6daf6502ff233074d5023a3466511867e6e",

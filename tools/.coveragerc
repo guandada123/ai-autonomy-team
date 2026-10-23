@@ -1,0 +1,14 @@
+[run]
+# 每个子进程写自己的数据文件，最后 combine（关键：父进程不追踪子进程）
+parallel = true
+omit =
+    */snapshots/*
+    */.bak*
+    */__pycache__/*
+
+[report]
+sort = Stmts
+skip_empty = false
+exclude_lines =
+    pragma: no cover
+    if __name__ == .__main__.:

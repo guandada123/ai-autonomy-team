@@ -1161,18 +1161,21 @@ def self_test():
                not (rd2 / "preflight-exception.json").exists())
 
         rd3 = tdp / "runs" / "round92"
-        ok, lines, exc = preflight_gate(tdp, p_vfy, "", False, round_dir=rd3, who="tester")
+        ok, lines, exc = preflight_gate(tdp, p_vfy, "", False, round_dir=rd3, who="tester",
+                              skip_premise=True)
         expect("家族已实测 → 通过且无 exception",
                ok is True and not (rd3 / "preflight-exception.json").exists())
 
         rd4 = tdp / "runs" / "deep" / "round93"
-        ok, lines, exc = preflight_gate(tdp, p_unv, "", True, round_dir=rd4, who="")
+        ok, lines, exc = preflight_gate(tdp, p_unv, "", True, round_dir=rd4, who="",
+                              skip_premise=True)
         expect("目标目录多级不存在也不崩（自动建目录）",
                ok is True and (rd4 / "preflight-exception.json").is_file())
         expect("who 缺省时写 unspecified 而非空串",
                (load_json(rd4 / "preflight-exception.json") or {}).get("who") == "unspecified")
 
-        ok, lines, exc = preflight_gate(tdp, p_unv, "", True, round_dir=None, who="t")
+        ok, lines, exc = preflight_gate(tdp, p_unv, "", True, round_dir=None, who="t",
+                              skip_premise=True)
         expect("放行但无 round_dir → 显式告警而非假装写过",
                ok is True and any("无法留痕" in x for x in lines))
 

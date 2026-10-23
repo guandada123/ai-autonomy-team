@@ -13,9 +13,9 @@
 |---|---|
 | 交接自检 | 6/6 项通过（`verify_handover.py`） |
 | 发布门禁 | A–H 全过（8/8） |
-| 全量回归 | 50/50 |
+| 全量回归 | 51/51 |
 | 源码规模 | 29 个脚本（`scripts/` 27 + `judges/` 2）/ 约 13,900 行 |
-| 已有资产 | 33 轮运行记录 · 49 份决策 · 15 条经验教训 · 7 份协议 |
+| 已有资产 | 33 轮运行记录 · 50 份决策 · 15 条经验教训 · 7 份协议 |
 
 ---
 
@@ -53,6 +53,7 @@ make test           # 等价于 python3 scripts/regress.py
 | 推远端前 | `make pre-push`（历史密钥 + 远端是否 private） |
 | 装推送钩子（换机后） | `make hooks` |
 | 本地备份 | `make backup`（bundle + 归档 tar，逐份还原验证）；`make backup-list` 只列不生成；另有月度自动化 |
+| 覆盖率基线（开发期） | `make coverage`（零依赖承诺不受影响；需自备 coverage，见 `tools/README.md`） |
 | 改完源码同步到包 | `make package-apply` |
 | 打真源快照 | `make snapshot LABEL='改口径'` |
 | 全部入口 | `make help` |
@@ -79,7 +80,7 @@ make test           # 等价于 python3 scripts/regress.py
 scripts/               ★ 唯一源码树（24 个脚本 + judges/ 2 个）
 migration-package/config/  契约参数（★ 在包内，工作区根没有；改这个 = 改判据口径）
 docs/protocol/         7 份工作协议
-docs/decisions/        49 份决策记录（编号到 D-0050；D-0017 未建，以文件数为准）
+docs/decisions/        50 份决策记录（编号到 D-0051；D-0017 未建，以文件数为准）
 .learnings/            15 条经验教训（L-XXXX）
 templates/             席位提示词模板
 fixtures/frozen/       冻结基线（回归第 8 项依赖，不可删）
@@ -115,7 +116,7 @@ _trash/  _archive/     ⊘ 不入库：scratch 可重建，快照归档只此一
 vim scripts/xxx.py
 
 # 改完必须三件套
-make test           # 50 项回归
+make test           # 51 项回归
 make package-apply  # 同步到包（否则 D 项红）
 make check          # 8 项门禁
 

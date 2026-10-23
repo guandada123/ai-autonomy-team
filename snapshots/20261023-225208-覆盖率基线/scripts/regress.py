@@ -886,12 +886,36 @@ def main():
             rc_sc == 0 and "20/20" in out_sc,
             f"rc={rc_sc} / 20/20={'20/20' in out_sc}")
 
-    # ==================== 第 50 项：回归幂等守门 ====================
+    # ==================== 第 50 项：L3 前提探针 ====================
+    # ★ 2026-10-23 覆盖率基线发现：premise_probe.py 从未被任何自动测试执行（0%）。
+    #   L3 前提审查是方案里唯一的新意，却只靠 --calibrate 的 20 条自标样本"证明"。
+    #   这里用一张坏卡与一张好卡把判定与退出码钉住 —— 只写 _trash，不碰包内。
+    bad_card = {"decision": "做一件事", "beneficiary": "我们", "metric": "无",
+                "do_nothing_cost": "待定"}
+    good_card = {"decision": "给发布流程接 CI",
+                 "beneficiary": "负责夜间发布的值班同学",
+                 "metric": {"name": "周返工次数", "baseline": "3 次/周",
+                            "method": "CI 失败记录"},
+                 "do_nothing_cost": {"description": "每月约两次手工返工",
+                                     "comparable": True}}
+    p_bad, p_good = TMP / "premise-bad.json", TMP / "premise-good.json"
+    p_bad.write_text(json.dumps(bad_card, ensure_ascii=False), encoding="utf-8")
+    p_good.write_text(json.dumps(good_card, ensure_ascii=False), encoding="utf-8")
+    rc_b, out_b = run(["scripts/premise_probe.py", "--card", str(p_bad)])
+    rc_g, out_g = run(["scripts/premise_probe.py", "--card", str(p_good)])
+    s.check(50, "L3 前提探针：坏卡命中 3 条 / 好卡 0 命中",
+            rc_b == 1 and "命中 3 条" in out_b and "terminate_proposed" in out_b
+            and rc_g == 0 and "命中 0 条" in out_g,
+            f"坏卡 rc={rc_b} 命中3={'命中 3 条' in out_b} / "
+            f"好卡 rc={rc_g} 命中0={'命中 0 条' in out_g}")
+
+    # ==================== 第 51 项：回归幂等守门 ====================
     # ★ F11 的守门项。全部夹具项都已在上面跑完；若任何一项把机器产出写回了
     #   包内（而非 _trash/ 工作副本），包内 sha256 就会变，此条立刻变红。
     #   它把「回归套件是否自污染」从「靠人记得先重建 MANIFEST」变成可自动判定。
     rc, out = run(["gen_manifest.py", "--root", ".", "--check", "MANIFEST.json"], PKG)
-    s.expect(50, "回归幂等（跑完后包内仍与 MANIFEST 一致）", rc, out, 0, "完全一致")
+    # 第 50 项只写 _trash，故「包内是否被污染」的判定仍可放在最后
+    s.expect(51, "回归幂等（跑完后包内仍与 MANIFEST 一致）", rc, out, 0, "完全一致")
 
     ok_all = all(i["ok"] for i in s.items)
     npass = sum(1 for i in s.items if i["ok"])

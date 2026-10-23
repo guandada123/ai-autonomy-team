@@ -35,3 +35,8 @@ venv/
 # reviews/                  八角审查的真实产出，覆盖增量的原始依据
 # real-runs/                真实账本对账证据
 # fixtures/frozen/          验收基线，regress 第 8 项依赖
+
+# 覆盖率（开发期，不入库）
+.coverage
+.coverage.*
+coverage.xml
