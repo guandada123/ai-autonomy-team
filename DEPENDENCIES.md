@@ -73,13 +73,17 @@ python3 scripts/verify_handover.py      # 5 项环境自检，一条命令回答
 
 ### 配置文件清单
 
+> ⚠️ **下表的 `config/` 在 `migration-package/` 内，工作区根没有 config/**。
+> 脚本的默认值是**相对 cwd** 的 `config/params.json`，因此在包根执行才对；
+> 曾因假设它在工作区根，`params_sha` 恒为 `nohash`（F22，见 `new_round.py:394`）。
+
 | 文件 | 大小 | 作用 | 改动影响 |
 |---|---|---|---|
-| `config/params.json` | 25 KB | 契约参数：`contract_version`、`seat_contract.families`、三轨指标定义 | **改判据口径**。必须重跑 `make test` |
-| `config/read_domains.json` | 9 KB | 每个脚本能读哪些域 | 文本约束（不是物理屏障，见 `L-0003`） |
-| `config/write_domains.json` | 1.3 KB | 每个脚本能写哪些域 | 同上 |
-| `config/automations.json` | 3.6 KB | 自动化任务登记 | 不影响判据 |
-| `config/models.json.example` | 1.8 KB | 模型路由示例（**示例，不是生效配置**） | 仅参考 |
+| `migration-package/config/params.json` | 25 KB | 契约参数：`contract_version`、`seat_contract.families`、三轨指标定义 | **改判据口径**。必须重跑 `make test` |
+| `migration-package/config/read_domains.json` | 9 KB | 每个脚本能读哪些域 | 文本约束（不是物理屏障，见 `L-0003`） |
+| `migration-package/config/write_domains.json` | 1.3 KB | 每个脚本能写哪些域 | 同上 |
+| `migration-package/config/automations.json` | 3.6 KB | 自动化任务登记 | 不影响判据 |
+| `migration-package/config/models.json.example` | 1.8 KB | 模型路由示例（**示例，不是生效配置**） | 仅参考 |
 
 ### 加载顺序
 
@@ -181,7 +185,7 @@ python3 migration-package/gen_manifest.py --root . --check MANIFEST.json
 |---|---|
 | `fixtures/frozen/truth.json.frozen` | `regress` 第 8 项 FAIL（不是跳过，是 FAIL——刻意设计） |
 | `migration-package/MANIFEST.json` | 包完整性校验无基准 |
-| `config/params.json` | 所有判据口径丢失 |
+| `migration-package/config/params.json` | 所有判据口径丢失 |
 
 ---
 

@@ -46,7 +46,7 @@ make test           # 等价于 python3 scripts/regress.py
 | 发版前检查 | `make check` |
 | 跑全量回归 | `make test` |
 | 看三轨指标 | `make metrics` |
-| 开一轮评审 | `python3 scripts/new_round.py --round 34 --params config/params.json` |
+| 开一轮评审 | `python3 scripts/new_round.py --round 34 --params migration-package/config/params.json` |
 | 八角审查一个决定 | `make review DECISION='要不要把 X 接进发版门禁'` |
 | 改完源码同步到包 | `make package-apply` |
 | 打真源快照 | `make snapshot LABEL='改口径'` |
@@ -72,7 +72,7 @@ make test           # 等价于 python3 scripts/regress.py
 
 ```
 scripts/               ★ 唯一源码树（24 个脚本 + judges/ 2 个）
-config/                契约参数（改这个 = 改判据口径）
+migration-package/config/  契约参数（★ 在包内，工作区根没有；改这个 = 改判据口径）
 docs/protocol/         7 份工作协议
 docs/decisions/        43 份决策记录（编号到 D-0044；D-0017 未建，以文件数为准）
 .learnings/            13 条经验教训（L-XXXX）

@@ -116,8 +116,8 @@
 | `judges/seat_check.py` | 2364 | 校验席位输出是否满足契约（字段、类型、枚举）；聚合时防伪造（同家族票数、cross_family 标记） | 不判断结论对错；不生成输出 |
 | `judges/verify.py` | 1223 | 硬裁判 JD-01：按 spec 逐字段比对期望值，输出 verdict | 不解释"为什么错"；不做模糊匹配 |
 | `inspect_agent_routing.py` | 238 | 判定子代理**实际**被路由到哪个模型家族（读运行时记录，不采信子代理自述） | 不修改路由；跨家族判定依赖本机会话缓存，换机须人工重跑 |
-| `config/params.json` | 25 KB | 契约参数：`contract_version`、`seat_contract.families`、三轨指标定义 | 不是运行时状态；改它等于改判据口径，必须重跑回归 |
-| `config/read_domains.json` / `write_domains.json` | 9 KB / 1.3 KB | 声明每个脚本能读哪些域、能写哪些域 | 不是访问控制（文本约束，不是物理屏障） |
+| `migration-package/config/params.json` | 25 KB | 契约参数：`contract_version`、`seat_contract.families`、三轨指标定义 | 不是运行时状态；改它等于改判据口径，必须重跑回归 |
+| `migration-package/config/read_domains.json` / `write_domains.json` | 9 KB / 1.3 KB | 声明每个脚本能读哪些域、能写哪些域 | 不是访问控制（文本约束，不是物理屏障） |
 
 > `inspect_agent_routing.py` 的输出会写回 `params.json` 的 `seat_contract.families`，是 `new_round` 开轮闸门的**唯一数据来源**：家族未实测则拒绝开轮（除非显式 `--allow-unverified-families` 并留痕）。
 
@@ -221,7 +221,7 @@ ai-autonomy-team/
 │       ├── seat_check.py      席位契约
 │       └── verify.py          硬裁判
 │
-├── config/                    ← 契约参数（源码树的一部分，不在包里）
+├── (无根 config/)             ← 契约参数物理在 migration-package/config/，勿在根找
 ├── docs/
 │   ├── protocol/              ← 7 份工作协议（规范正文）
 │   ├── decisions/             ← 43 份决策记录（编号到 D-0044；D-0017 未建）
@@ -270,7 +270,7 @@ ai-autonomy-team/
 
 ```
 ① 开轮
-   new_round.py --round N --params config/params.json
+   new_round.py --round N --params config/params.json      # 在 migration-package/ 内执行
      ├─ preflight 闸门：家族实测？前提卡？
      │    ├─ 不通过 → EXIT_BLOCKED(4)，**不创建任何目录**
      │    └─ 放行 → 写 preflight-exception.json（who/when/reason）

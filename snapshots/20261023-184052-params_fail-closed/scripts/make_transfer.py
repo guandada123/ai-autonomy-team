@@ -201,7 +201,10 @@ def main():
     print("  下一步（Mac 上）：")
     print(f"    unzip {out.name} && cd {TOP}")
     print("    cd migration-package && python3 precheck.py")
-    print("    cd .. && python3 scripts/regress.py   # 预期 45/45，再跑一次仍 45/45")
+    # ★ 这里刻意不写「预期 N/N」：回归项数会随版本增长，写死的数字注定在某一版后变成
+    #   错误指令（2026-10-23 审计时仍写着 45/45，实际已 50）。要验的是"全绿 + 幂等"，
+    #   项数由 regress.py 自己打印，读输出即可。
+    print("    cd .. && python3 scripts/regress.py   # 预期全绿；连跑两次结果相同（幂等）")
     print("    cd migration-package && python3 inspect_agent_routing.py --json")
     return 0
 

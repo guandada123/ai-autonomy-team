@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-10-23T18:29:54+08:00",
+  "generated_at": "2026-10-23T18:40:52+08:00",
   "root": "migration-package/",
   "note": "sha256 用于跨机完整性校验。newline=MIXED 的文本文件会导致证据链跨平台断裂，须修正。",
   "stats": {
     "file_count": 1099,
-    "total_bytes": 7927001,
+    "total_bytes": 7929202,
     "mixed_newline_files": []
   },
   "files": [
@@ -1528,8 +1528,8 @@
     },
     {
       "path": "new_round.py",
-      "size": 55735,
-      "sha256": "1171f681ac9b1d9c28a8323358379500e2408a423a49cb8852c097b2a4e63da7",
+      "size": 57936,
+      "sha256": "e3638743b6088bfe42d6160534453616577e2c6800eb58d7e35ba1dfc9ba31e7",
       "newline": "LF"
     },
     {

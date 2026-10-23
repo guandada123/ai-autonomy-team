@@ -902,7 +902,27 @@ def main():
     #   原实现用 root/args.params，而 --root 指工作区根、params 在包内
     #   → 永远读不到 → 提示词的「字数预算」长期显示「（未配置）」却不报错。
     #   同一处错误也会让 F5 的读取域段静默降级，故一并根治。
-    params = load_json(Path.cwd() / args.params) or {}
+    # ★ 2026-10-23 补 fail-closed：路径基准修对了，但**缺失仍静默降级** ——
+    #   `load_json(...) or {}` 会把「路径写错 / 文件不在」变成一个空 dict，
+    #   于是字数预算显示「未配置」、读取域段降级，全程 rc=0。
+    #   这与 F22 同一类：路径猜错然后无声降级。改为读不到即 rc=2。
+    params_file = Path(args.params)
+    if not params_file.is_absolute():
+        params_file = Path.cwd() / params_file
+    if not params_file.is_file():
+        print(
+            f"[ERR] 读不到参数文件：{params_file}\n"
+            f"      默认值 `config/params.json` 是相对**当前目录**的，而它实际在 "
+            f"migration-package/ 内。\n"
+            f"      解法：在包根执行（cd migration-package），或显式 "
+            f"--params migration-package/config/params.json",
+            file=sys.stderr,
+        )
+        return EXIT_ERROR
+    params = load_json(params_file)
+    if params is None:
+        print(f"[ERR] 参数文件无法解析（JSON 语法错？）：{params_file}", file=sys.stderr)
+        return EXIT_ERROR
 
     round_dir.mkdir(parents=True, exist_ok=True)
     for d in REQUIRED_DIRS:
@@ -1002,6 +1022,28 @@ def self_test():
     expect("同输入同种子（可复现）", s1 == s2, s1)
     expect("参数变化 → 种子变化", s1 != s3)
     expect("种子为 8 位", len(s1) == 8)
+
+    print("\n【参数缺失必须 fail-closed（2026-10-23）】")
+    # 旧行为：load_json(...) or {} —— 路径写错时静默变空参数，字数预算显示「未配置」、rc=0。
+    with tempfile.TemporaryDirectory() as td:
+        import contextlib
+        import io
+        old_argv, old_cwd = sys.argv, Path.cwd()
+        try:
+            os.chdir(td)                      # 空目录里没有 config/params.json
+            sys.argv = ["new_round.py", "--round", "99",
+                        "--runs-dir", str(Path(td) / "runs"),
+                        "--params", "config/params.json", "--preflight", "off"]
+            buf = io.StringIO()
+            with contextlib.redirect_stderr(buf):
+                rc = main()
+            expect("缺 params → EXIT_ERROR 且不建轮次目录",
+                   rc == EXIT_ERROR and not (Path(td) / "runs").exists(), f"rc={rc}")
+            expect("报错里给出包内正确路径",
+                   "migration-package/config/params.json" in buf.getvalue())
+        finally:
+            os.chdir(old_cwd)
+            sys.argv = old_argv
 
     print("\n【幂等写盘】")
     with tempfile.TemporaryDirectory() as td:
