@@ -1,7 +1,7 @@
 {
- "created_at": "2026-10-23T18:41:24",
- "label": "目标机清单澄清",
- "file_count": 87,
+ "created_at": "2026-10-23T18:53:26",
+ "label": "D-0045 备份数据核对",
+ "file_count": 88,
  "files": {
   "scripts/build_package.py": {
    "sha256": "daf1b81acac029e89b419dbc07d904bdef993e988a1b7117f4629939ec114556",
@@ -322,6 +322,10 @@
   "docs/decisions/D-0044-计划前置.md": {
    "sha256": "a5d396c5567ac35fe2d2e5e636233f7e395e90ddcf6ecae1dffe0848de159f4e",
    "bytes": 2906
+  },
+  "docs/decisions/D-0045-仓库整库私有.md": {
+   "sha256": "484615e2c15c3cc06e69e4d72afe531827861632d5bc46a8cdbf331d6cff46c5",
+   "bytes": 4356
   },
   "docs/decisions/TEMPLATE.md": {
    "sha256": "0bbc33940a540ae0e983817d9b1cf6daf6502ff233074d5023a3466511867e6e",
