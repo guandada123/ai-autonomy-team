@@ -15,7 +15,7 @@ D-0045 定了「整库推私有远端」，但远端**不覆盖** `.gitignore` �
 | 产物 | 内容 | 验证方式 |
 |---|---|---|
 | `*.bundle`（`git bundle --all`） | 全部 git 历史（不含未跟踪 / 被忽略文件） | `git clone` 到临时目录，比对 HEAD / 提交数 / 受控文件数 |
-| `snapshots-archive-*.tar.gz` | `_trash/snapshots-archive/` 全部文件 | `tar tzf` 文件条目数 == 源文件数；抽 1 个文件比对 sha256 |
+| `snapshots-archive-*.tar.gz` | `_trash/snapshots-archive/` 全部文件 | `tar tzf` **文件数**（`isfile()`）== 源文件数；抽 1 个文件比对 sha256。条目数另报（含目录），因为 `tar tzf | wc -l` 会数进目录 |
 
 **不含**：`outputs/`、`audit/` 之外的本机临时件、以及任何未被 git 跟踪且不在
 `_trash/snapshots-archive/` 下的内容（如 `.workbuddy/`）。
@@ -86,15 +86,39 @@ def verify_bundle(path, expect):
         return True, f"HEAD {got[0]} / 提交 {got[1]} / 文件 {got[2]} 三项一致"
 
 
+def tar_counts(path):
+    """返回 (文件数, 条目数, 目录数)。
+
+    ★ 文件数只数 `isfile()`——目录条目不算文件。这条语义必须可单独验证：
+      2348 那份 9,197 文件 / 10,024 条目（827 目录），两个口径差 8.6%，
+      曾让人误判"备份不完整"（D-0055）。
+    """
+    with tarfile.open(path, "r:gz") as tf:
+        members = tf.getmembers()
+    return (sum(1 for m in members if m.isfile()),
+            len(members),
+            sum(1 for m in members if m.isdir()))
+
+
+def tar_names(path):
+    """tar 内的文件名列表（只含文件，不含目录条目）。"""
+    with tarfile.open(path, "r:gz") as tf:
+        return [m.name for m in tf.getmembers() if m.isfile()]
+
+
 def verify_tar(path, src_file_count):
-    """条目数 == 源文件数，并抽 1 个文件比 sha256。"""
+    """文件数 == 源文件数，并抽 1 个文件比 sha256。
+
+    同时报出条目数（含目录），让 `tar tzf | wc -l` 的数与工具的数能对上。
+    """
     try:
-        with tarfile.open(path, "r:gz") as tf:
-            names = [m.name for m in tf.getmembers() if m.isfile()]
+        n_files, n_entries, n_dirs = tar_counts(path)
+        names = tar_names(path)
     except (OSError, tarfile.TarError) as e:
         return False, f"tar 不可读：{e}"
-    if len(names) != src_file_count:
-        return False, f"条目数 {len(names)} ≠ 源文件数 {src_file_count}"
+    if n_files != src_file_count:
+        return False, (f"文件数 {n_files} ≠ 源文件数 {src_file_count}"
+                       f"（条目 {n_entries} = 文件 {n_files} + 目录 {n_dirs}）")
     sample = next((n for n in names if n.endswith(".md")), names[0] if names else None)
     if not sample:
         return False, "tar 内没有文件"
@@ -108,7 +132,8 @@ def verify_tar(path, src_file_count):
         return False, f"抽样文件在源里找不到：{sample}"
     if hashlib.sha256(data).hexdigest() != hashlib.sha256(src.read_bytes()).hexdigest():
         return False, f"抽样 sha256 不一致：{sample}"
-    return True, f"{len(names)} 个文件；抽样 {Path(sample).name} sha256 一致"
+    return True, (f"{n_files} 个文件 / {n_entries} 个条目（含 {n_dirs} 个目录）；"
+                  f"抽样 {Path(sample).name} sha256 一致")
 
 
 def self_test():
@@ -134,15 +159,25 @@ def self_test():
         ok, _ = verify_bundle(good, wrong)
         cases.append(("期望值不符应被拒", not ok))
 
+        # gz 不能追加，故一次写好：1 个目录 + 1 个文件
         fake_tar = Path(td) / "fake.tar.gz"
         with tarfile.open(fake_tar, "w:gz") as tf:
+            d = tarfile.TarInfo("snapshots-archive/x")
+            d.type = tarfile.DIRTYPE
+            tf.addfile(d)
             payload = b"hello"
             info = tarfile.TarInfo("snapshots-archive/x/readme.md")
             info.size = len(payload)
             import io
             tf.addfile(info, io.BytesIO(payload))
         ok, _ = verify_tar(fake_tar, 999)
-        cases.append(("tar 条目数不符应被拒", not ok))
+        cases.append(("tar 文件数不符应被拒", not ok))
+
+        # ★ 2026-10-24 补：目录条目**不算**文件缺失。
+        #   2348 那份 9,197 文件 / 10,024 条目（827 目录）；若过滤条件被改窄，
+        #   会把"条目≠文件"误报成备份不完整——正是 D-0055 记的那个坑。
+        cases.append(("tar 计数口径：2 条目 = 1 文件 + 1 目录（目录不算文件）",
+                      tar_counts(fake_tar) == (1, 2, 1)))
 
     bad_n = 0
     for name, ok in cases:
