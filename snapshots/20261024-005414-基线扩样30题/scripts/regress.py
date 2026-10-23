@@ -879,7 +879,7 @@ def main():
     # ★ 扩样（D-0012/扩样草案）：make_tasks_20.py 生成的每组夹具必须能被硬裁判加载
     #   （算术 10/10 + 判断层 pending）。生成器改动或夹具损坏在此拦截。
     #   自检过程会在包内临时写 _selfcheck-* 文件并在结束前删除；若中途崩溃留下
-    #   残留，第 54 项（幂等守门）会红 —— 这是特性。
+    #   残留，第 53 项（幂等守门）会红 —— 这是特性。
     rc_sc, out_sc = run(["scripts/make_tasks_20.py", "--out", "migration-package/fixtures/tasks",
                          "--self-check"], ROOT)
     s.check(49, "20 条留出任务批自检（生成器 + 每组 算术10/10 + pending）",
@@ -925,7 +925,7 @@ def main():
             and cj6.get("fp", 0) >= 1,
             f"n={cj.get('n')} accuracy={cj.get('accuracy')} / th=6 fp={cj6.get('fp')}")
 
-    # ==================== 第 53 项：24h 否决窗口载体 ====================
+    # ==================== 第 52 项：24h 否决窗口载体 ====================
     # ★ 2026-10-24（D-0054）：方案里「超时视为接受」原先**无载体**——33 轮
     #   verdict-layered.json 里 veto_deadline 0 处、无脚本读取。veto_sweep 的核心承诺是
     #   「否决权不因没人跑扫描而悄悄过期」：必须显式 --settle 才算接受。
@@ -940,18 +940,18 @@ def main():
                   "--reason", "回归测试否决"])
     r5, o5 = run(["scripts/veto_sweep.py", "--reject", str(v), "--who", "tester",
                   "--reason", "第二次应被拒"])
-    s.check(53, "24h 否决窗口：未盖戳可暴露→盖戳→窗口内可列→否决→不可重复否决",
+    s.check(52, "24h 否决窗口：未盖戳可暴露→盖戳→窗口内可列→否决→不可重复否决",
             r1 == 0 and "未盖" in o1 and r2 == 0 and r3 == 1 and "可否决" in o3
             and r4 == 0 and "human_veto" in o4 and r5 == 2,
             f"rc={r1},{r2},{r3},{r4},{r5}")
 
-    # ==================== 第 54 项：回归幂等守门 ====================
+    # ==================== 第 53 项：回归幂等守门 ====================
     # ★ F11 的守门项。全部夹具项都已在上面跑完；若任何一项把机器产出写回了
     #   包内（而非 _trash/ 工作副本），包内 sha256 就会变，此条立刻变红。
     #   它把「回归套件是否自污染」从「靠人记得先重建 MANIFEST」变成可自动判定。
     rc, out = run(["gen_manifest.py", "--root", ".", "--check", "MANIFEST.json"], PKG)
     # 第 50/51 项只写 _trash，故「包内是否被污染」的判定仍可放在最后
-    s.expect(54, "回归幂等（跑完后包内仍与 MANIFEST 一致）", rc, out, 0, "完全一致")
+    s.expect(53, "回归幂等（跑完后包内仍与 MANIFEST 一致）", rc, out, 0, "完全一致")
 
     ok_all = all(i["ok"] for i in s.items)
     npass = sum(1 for i in s.items if i["ok"])

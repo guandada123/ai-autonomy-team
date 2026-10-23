@@ -1,7 +1,7 @@
 {
- "created_at": "2026-10-24T00:31:58",
- "label": "四项口径落定",
- "file_count": 101,
+ "created_at": "2026-10-24T00:54:14",
+ "label": "基线扩样30题",
+ "file_count": 103,
  "files": {
   "scripts/build_package.py": {
    "sha256": "b2dad8c4b0adc07c8cc367c51c292263c2789cf6501a0a7481c80260de23f494",
@@ -112,7 +112,7 @@
    "bytes": 11300
   },
   "scripts/regress.py": {
-   "sha256": "7041b274e57ba993bc1679480bc70271f74a3dbea819e0c4f38e3454fc59efa9",
+   "sha256": "c9e19d842879500f846a4f43a8e45c5f7086fc9a278c30f2d5dda86000996aa4",
    "bytes": 58298
   },
   "scripts/secret_patterns.py": {
@@ -378,6 +378,14 @@
   "docs/decisions/D-0054-四项口径落定.md": {
    "sha256": "881ce284343af8508193b65c6eb033843979b46f6be4bc7ef99792d818531514",
    "bytes": 6780
+  },
+  "docs/decisions/D-0055-单agent基线首次实测.md": {
+   "sha256": "c3af97d420e28d1b13d6a7153778f0468f49125356c58be64cbf8c4f637d47ca",
+   "bytes": 3773
+  },
+  "docs/decisions/D-0056-基线扩样暴露题集敏感性.md": {
+   "sha256": "bfab2266b02ec23f82bd2e12614e3b9b0dde242fd4ad0a93fb32ccd9a7d312cd",
+   "bytes": 4475
   },
   "docs/decisions/TEMPLATE.md": {
    "sha256": "0bbc33940a540ae0e983817d9b1cf6daf6502ff233074d5023a3466511867e6e",
