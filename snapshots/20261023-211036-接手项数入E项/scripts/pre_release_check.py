@@ -63,7 +63,7 @@ def sh(cmd, cwd=None, timeout=None):
 def chk_docs(ctx=None):
     """文档一致性。ctx 由 main 传入前几项的实测数，用于校验文档里的 `N/N` 声明。
 
-    ★ 为什么它现在最后跑：E 项要拿「回归 / 门禁 / 判据自检」的**实跑项数**去比，
+    ★ 为什么它现在最后跑：E 项要拿「回归 / 门禁 / 判据自检 / 接手自检」的**实跑项数**去比，
       而这些数只有跑完 B/C 才知道。挪到最后不改字母、不改 8 项的计数，
       只是执行顺序变了 —— 打印顺序仍按 A→H（main 里排序后输出）。
     """
@@ -73,6 +73,10 @@ def chk_docs(ctx=None):
             cmd += ["--expect", f"{k}={ctx[k]}"]
     if ctx and "gates" in ctx:
         cmd += ["--expect", f"gates={ctx['gates']}"]
+    # 接手自检的项数：问脚本自己（--count 只读 CHECKS 长度），不重跑回归
+    rc_h, out_h = sh([PY, str(SCRIPTS / "verify_handover.py"), "--count"])
+    if rc_h == 0 and out_h.strip().isdigit():
+        cmd += ["--expect", f"handover={out_h.strip()}"]
     rc, out = sh(cmd)
     ok = rc == 0
     # 失败时优先报「具体哪一行不一致」，而不是脚本末尾那句通用提示：

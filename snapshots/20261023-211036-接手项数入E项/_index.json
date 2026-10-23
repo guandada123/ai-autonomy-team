@@ -1,7 +1,7 @@
 {
- "created_at": "2026-10-23T20:53:52",
- "label": "CI首跑修正",
- "file_count": 91,
+ "created_at": "2026-10-23T21:10:36",
+ "label": "接手项数入E项",
+ "file_count": 92,
  "files": {
   "scripts/build_package.py": {
    "sha256": "daf1b81acac029e89b419dbc07d904bdef993e988a1b7117f4629939ec114556",
@@ -16,8 +16,8 @@
    "bytes": 15106
   },
   "scripts/check_docs_consistency.py": {
-   "sha256": "50a4ce58e6447ba876d72a5f1e67e58854b94d4ab976a9b17c35cfdabd9fff17",
-   "bytes": 12670
+   "sha256": "d6285ee58232a451aa3fca2aa7ff1ff442d7aecf486fa9be35857df30eb86c21",
+   "bytes": 12937
   },
   "scripts/field_provenance.py": {
    "sha256": "7926bba3821fd39f01e9045238f33b72a1550250f25a7c694165e656050b9b1c",
@@ -52,8 +52,8 @@
    "bytes": 41768
   },
   "scripts/make_backup.py": {
-   "sha256": "4e9c7ef5d9fc0efbbc2a90e82c1b92b431615e5c5561eaacfe70852658b550b6",
-   "bytes": 10871
+   "sha256": "9b6b3f48b2e7336a62d4247d56a32ecfa663206e35b63b53c7492a8628218c70",
+   "bytes": 11374
   },
   "scripts/make_fixtures.py": {
    "sha256": "1f7329d2cc180b6e9bfe982b65b9f519bfb31c513444f5207359faaae4cdff2e",
@@ -92,8 +92,8 @@
    "bytes": 10152
   },
   "scripts/pre_release_check.py": {
-   "sha256": "e7dc198a54678ebc0f3df66f7baee3b6b68561a26250a837c35d63068acc1f03",
-   "bytes": 11977
+   "sha256": "371adf93dfca4f77b85165873128ae0ecf064a98a6c07cd4f9c8be62247dc566",
+   "bytes": 12268
   },
   "scripts/premise_probe.py": {
    "sha256": "a4e112a8ac9dc7f04529a9693e3a798aaa00b9625854cf880f77dc92a34d2245",
@@ -128,8 +128,8 @@
    "bytes": 13505
   },
   "scripts/verify_handover.py": {
-   "sha256": "a076376b525c868adc5a354c462b490df43c5eaafbbe78424008a4f456458e87",
-   "bytes": 9533
+   "sha256": "f044ac0d86c9f4e226e0b9213bb7a231832bf47ed9b4b56448a509ad47965e6e",
+   "bytes": 9982
   },
   "docs/protocol/01-架构.md": {
    "sha256": "dce409a542fe35608195486c86bbed3d8037817a90cac348d45275f93e268e1c",
@@ -332,12 +332,16 @@
    "bytes": 2906
   },
   "docs/decisions/D-0045-仓库整库私有.md": {
-   "sha256": "e5b0d5eaee123f005f235c65bf59d2eeb27f2c00e9ef695f6ed6be035ac60b36",
-   "bytes": 7487
+   "sha256": "1a69169043a8ee0d3d25d9099c3a736a521ddd86e91d81246c21afc78358e47c",
+   "bytes": 8091
   },
   "docs/decisions/D-0046-接最小CI与钩子检查.md": {
-   "sha256": "086373411d700b8a07f02f3b31d83788bb70c2f525bb40d62bc8872d91f8e390",
-   "bytes": 5264
+   "sha256": "b100c8252afba717dd7d9f6d45301cca57506aaa019209aa41a4c70c6adc7454",
+   "bytes": 5567
+  },
+  "docs/decisions/D-0047-接手项数纳入门禁.md": {
+   "sha256": "0bbeb98f0b535ee228ad50ce8aae0be4c378263dc7859428d07aaf490a55990f",
+   "bytes": 3472
   },
   "docs/decisions/TEMPLATE.md": {
    "sha256": "0bbc33940a540ae0e983817d9b1cf6daf6502ff233074d5023a3466511867e6e",

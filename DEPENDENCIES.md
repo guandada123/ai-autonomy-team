@@ -133,12 +133,13 @@ python3 scripts/real_recon.py --portfolio /path/to/portfolio.json --json
 ### 怎么自己验证
 
 ```bash
-# 1) 干净目录里跑（不带 _trash / _archive，模拟新机器）
-rsync -a --exclude=_trash --exclude=_archive --exclude=.git \
-      ai-autonomy-team/ /tmp/aiteam-clean/
-
+# 1) 干净目录里跑（真正的"新机器"：clone 天然不带 _trash / _archive，但一定带 .git）
+git clone --no-hardlinks . /tmp/aiteam-clean
 cd /tmp/aiteam-clean
-python3 scripts/verify_handover.py     # 期望：5/5 通过
+
+python3 scripts/verify_handover.py     # 期望：5/6 —— 第 6 项红是正常的（钩子还没装）
+make hooks                             # 钩子不入库（D-0045），新机器必须先跑这条
+python3 scripts/verify_handover.py     # 期望：6/6
 python3 scripts/pre_release_check.py   # 期望：8/8
 python3 scripts/regress.py             # 期望：50/50
 
@@ -146,16 +147,21 @@ python3 scripts/regress.py             # 期望：50/50
 # 3) 断开外置盘后跑（证明无外部挂载依赖）
 ```
 
+> 2026-10-23 修正：旧版用 `rsync --exclude=.git` 模拟新机器，**这个模拟是错的**——
+> 真实的接手者拿到的是 clone，`.git` 一定在；而没有 `.git` 的副本里第 6 项
+> 「推送钩子」永远红且**无法修复**（装不上钩子）。模拟方式错了，会把真检查报成假缺陷。
+
 ### 2026-10-23 实测结果
 
 在 `/tmp/aiteam-clean`（`_trash` 与 `_archive` 均不存在）跑的：
 
 | 检查 | 结果 | 说明 |
 |---|---|---|
-| 交接自检 | **5/5 通过** | 含"第三方依赖命中 0" |
+| 交接自检（首跑） | **5/6** | 第 6 项「推送钩子未安装」——新 clone 的必然状态，不是缺陷 |
+| 交接自检（`make hooks` 后） | **6/6** | 钩子装好后全绿 |
 | 发布门禁 | **8/8 通过** | 含 H 真源快照（快照已入库） |
 | 全量回归 | **50/50 通过** | 含第 8 项冻结基线逐字节比对 |
-| 目录体积 | 16 MB | 原工作区 96 MB（含 `_trash` 71 MB） |
+| 目录体积 | 27 MB | 原工作区 127 MB（含 `_trash` 98 MB）；其中 `.git` 9.4 MB、`snapshots/` 3.3 MB |
 
 **这条验证抓到并修掉了一个真缺口**：原先 A–H 的 **H 项（真源快照）依赖 `_trash/snapshots/`**，而 `_trash` 不入库 → 新 clone 的仓库 H 项必红，即"门禁无法在干净环境全过"。已把快照目录迁到顶层 `snapshots/`，并同步改 `snapshot_sources.py` 与 `pre_release_check.py` 的路径。
 

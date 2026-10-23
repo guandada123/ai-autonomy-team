@@ -32,12 +32,13 @@
      「N 条经验 / N 份决策 / N 轮运行 / N 份协议」是否等于磁盘实际条数。
      `docs/*.md` **不在**本项范围：那是历史审计记录，写的是当时的事实，
      拿今天的磁盘去判它错，会把"历史正确"报成红，反而掩盖真问题。
-  E. 配对计数：同一行里的 `N/N`（如「全量回归 50/50」「门禁 8/8」「判据自检 27/27」）
-     是否等于**本次实跑**的项数。实测值由调用方用 `--expect NAME=N` 传入
-     （pre_release_check 会传 regress / gates / criteria 三个）——
+  E. 配对计数：同一行里的 `N/N`（如「全量回归 50/50」「门禁 8/8」「判据自检 27/27」
+     「接手自检 6/6」）是否等于**本次实跑**的项数。实测值由调用方用 `--expect NAME=N`
+     传入（pre_release_check 会传 regress / gates / criteria / handover 四个）——
      不传则本项跳过：宁可少查，也不自己猜一个数来比。
-     ⚠️ 已知未覆盖：`verify_handover.py` 的 `5/5`。它内部会自己跑一遍回归，
-        把它纳入门禁等于让门禁时长翻倍，故只做人工核对（2026-10-23 决策）。
+     `handover` 的项数由 `verify_handover.py --count` 自报（只读 CHECKS 长度），
+     不重跑回归 —— 2026-10-23 曾把它列为"已知未覆盖"，理由是重跑会让门禁时长翻倍；
+     实际不需要重跑：项数是脚本自己的常量，让它说话即可。
 
 退出码：0 全部一致 / 1 存在不一致（仅 --strict 时）/ 2 环境错误
 """
@@ -74,6 +75,8 @@ PAIR_MARKERS = [
     (re.compile(r"回归|regress"), "regress"),
     (re.compile(r"门禁|pre_release_check"), "gates"),
     (re.compile(r"判据自检|octagon"), "criteria"),
+    # 放最后：含「接手」的行若同时提到门禁，按更具体的那个算
+    (re.compile(r"接手自检|handover"), "handover"),
 ]
 
 

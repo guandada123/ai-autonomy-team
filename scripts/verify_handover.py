@@ -179,7 +179,15 @@ READING = """\
 def main():
     ap = argparse.ArgumentParser(description="接手验收：一条命令判断这套东西能不能用")
     ap.add_argument("-q", "--quiet", action="store_true")
+    ap.add_argument("--count", action="store_true",
+                    help="只打印检查项数（供门禁核对文档里的 N/N 声明，不跑任何检查）")
     args = ap.parse_args()
+
+    # 门禁要核对「接手自检 6/6」这类声明，但它不能为此再跑一遍回归（时长翻倍）。
+    # 项数是脚本自己的事实，让它自报即可 —— 单一真源，文档只管对齐。
+    if args.count:
+        print(len(CHECKS))
+        return 0
 
     if not PKG.is_dir():
         print(f"[ERR] 找不到 {PKG}——请在 ai-autonomy-team 工作区内运行", file=sys.stderr)
