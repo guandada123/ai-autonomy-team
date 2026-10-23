@@ -50,7 +50,7 @@ make test           # 等价于 python3 scripts/regress.py
 | 八角审查一个决定 | `make review DECISION='要不要把 X 接进发版门禁'` |
 | 推远端前 | `make pre-push`（历史密钥 + 远端是否 private） |
 | 装推送钩子（换机后） | `make hooks` |
-| 本地备份 | `make backup`（bundle + 归档 tar，逐份还原验证） |
+| 本地备份 | `make backup`（bundle + 归档 tar，逐份还原验证）；另有月度自动化 |
 | 改完源码同步到包 | `make package-apply` |
 | 打真源快照 | `make snapshot LABEL='改口径'` |
 | 全部入口 | `make help` |
