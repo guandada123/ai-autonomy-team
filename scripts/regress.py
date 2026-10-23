@@ -24,6 +24,7 @@ import json
 import shutil
 import subprocess
 import sys
+from datetime import datetime
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent   # 本脚本在 scripts/ 下，上跳一级才是工作区根
@@ -42,6 +43,7 @@ RECORD_SELFTEST = f"{ROUND1}/adjudication-record.SELFTEST-PLUMBING-ONLY.json"
 #   第一次跑是绿的」——一套非幂等的回归。
 #   现在：包内夹具只含【输入】；机器产出全部落在 _trash/ 的工作副本里。
 FIXT_SRC = PKG / "fixtures/regress"                      # 只读来源
+TMP = ROOT / "_trash/tmp-regress"                        # scratch 根（不入库）
 TMP_FIXT = ROOT / "_trash/tmp-regress/fixtures"          # 工作副本（可写）
 FIXT = "../_trash/tmp-regress/fixtures"                  # 供 CLI 用的相对路径（cwd=PKG）
 
@@ -73,6 +75,28 @@ class Suite:
         self.check(no, name, ok, d)
 
 
+def move_stale_fixtures():
+    """把工作副本里「源已不存在」的文件改名到 stale-<ts>/（不删除）。
+
+    ★ 2026-10-23 修（代码审查 C-9）：`copytree(dirs_exist_ok=True)` 是合并式复制，
+      上游删除/改名夹具后，旧副本仍留在工作目录里 —— 测试可能继续读旧文件而"通过"。
+      项目禁止删除，故只做改名，现场仍可回查。
+    """
+    if not TMP_FIXT.is_dir():
+        return []
+    src = {p.relative_to(FIXT_SRC).as_posix() for p in FIXT_SRC.rglob("*") if p.is_file()}
+    stale = [p for p in TMP_FIXT.rglob("*")
+             if p.is_file() and p.relative_to(TMP_FIXT).as_posix() not in src]
+    if not stale:
+        return []
+    dest = TMP / f"stale-{datetime.now().strftime('%Y%m%d-%H%M%S-%f')}"
+    for p in stale:
+        tgt = dest / p.relative_to(TMP_FIXT)
+        tgt.parent.mkdir(parents=True, exist_ok=True)
+        p.rename(tgt)
+    return stale
+
+
 def main():
     ap = argparse.ArgumentParser(description="30 项全量回归验收")
     ap.add_argument("--json", action="store_true")
@@ -85,6 +109,10 @@ def main():
     scratch.mkdir(parents=True, exist_ok=True)
 
     # ★ 夹具工作副本（合并式复制；删除的唯一去向是改名到 _trash/，故此处不出删）
+    #   复制前先把「源已没有」的陈旧文件搬走，避免测试读旧夹具（C-9）
+    _stale = move_stale_fixtures()
+    if _stale:
+        print(f"[fixtures] 移出 {len(_stale)} 个陈旧文件 → {TMP}/stale-*")
     shutil.copytree(FIXT_SRC, TMP_FIXT, dirs_exist_ok=True)
 
     def jrun(extra, tag):
@@ -155,7 +183,6 @@ def main():
     s.expect(11, "目标机预检", rc, out, 0, "结果：")
 
     # ==================== 本轮新增：第 12–21 项 ====================
-    TMP = ROOT / "_trash/tmp-regress"
     TMP.mkdir(parents=True, exist_ok=True)
     SC = ["judges/seat_check.py", "--params", "config/params.json",
           "--spec", "fixtures/spec/adjudication.json"]

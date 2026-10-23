@@ -1118,6 +1118,17 @@ def check_round(round_dir, params, adj_spec, strict_warnings=False, stage="all",
                      "False → 本轮 XJ-01 线索按同家族降权（其决策权重本就为 0）；"
                      "None → 记录不足以判定。家族由模型 id 关键词推断，非自报。"),
         }
+    else:
+        # ★ 2026-10-23 修（代码审查 C-8）：原来 routing 为空时整段跳过、字段留 None，
+        #   输出与「检查通过」无法区分。这里显式标 status=skipped —— 没有证据不等于合格。
+        xj_family_check = {
+            "source": "未注入 routing（--routing-json 未提供，或文件读取失败）",
+            "ex_families": [],
+            "xj_families": [],
+            "cross_family": None,
+            "status": "skipped",
+            "note": "家族独立性未核验：这不等于通过，只说明没有证据。",
+        }
 
     return {
         "check": "seat_contract",
@@ -2287,10 +2298,13 @@ def main():
     roots = tuple(dict.fromkeys(
         p for p in (Path(args.round_dir), pkg, pkg.parent, Path.cwd()) if p))
 
+    routing_map = _load_routing(args.routing_json) if args.routing_json else None
+    if args.routing_json and not routing_map:
+        print("[WARN] --routing-json 已提供但读不出任何路由：家族校验 status=skipped"
+              "（这不等于通过，只是没有证据）", file=sys.stderr)
     report = check_round(args.round_dir, params, adj, args.strict_warnings,
                          stage=args.stage, rd=rd, pkg_root=pkg, roots=roots,
-                         routing=(_load_routing(args.routing_json)
-                                  if args.routing_json else None))
+                         routing=routing_map)
     report["params_sha256"] = sha256_of(args.params)
     report["spec_sha256"] = sha256_of(args.spec)
 

@@ -113,8 +113,7 @@
 
 | 模块 | 行数 | 职责 | **明确不负责** |
 |---|---|---|---|
-| `judges/seat_check.py` | 2364 | 校验席位输出是否满足契约（字段、类型、枚举）；聚合时防伪造（同家族票数、cross_family 标记） | 不判断结论对错；不生成输出 |
-| `judges/verify.py` | 1234 || `migration-package/config/read_domains.json` / `write_domains.json` | 9 KB / 1.3 KB | 声明每个脚本能读哪些域、能写哪些域 | 不是访问控制（文本约束，不是物理屏障） |
+| `judges/seat_check.py` | 2378 || `judges/verify.py` | 1234 || `migration-package/config/read_domains.json` / `write_domains.json` | 9 KB / 1.3 KB | 声明每个脚本能读哪些域、能写哪些域 | 不是访问控制（文本约束，不是物理屏障） |
 
 > `inspect_agent_routing.py` 的输出会写回 `params.json` 的 `seat_contract.families`，是 `new_round` 开轮闸门的**唯一数据来源**：家族未实测则拒绝开轮（除非显式 `--allow-unverified-families` 并留痕）。
 
@@ -124,9 +123,7 @@
 
 | 模块 | 行数 | 职责 | **明确不负责** |
 |---|---|---|---|
-| `new_round.py` | 1178 || `octagon.py` | 951 |
-### L2 度量层
-
+| `new_round.py` | 1194 |
 | 模块 | 行数 | 职责 | **明确不负责** |
 |---|---|---|---|
 | `metrics.py` | 732 |
@@ -134,8 +131,7 @@
 
 | 模块 | 行数 | 检查什么 | 何时跑 |
 |---|---|---|---|
-| `regress.py` | 889 || `check_docs_consistency.py` | 328 |**A–H 门禁清单**（`make check`）：
-
+| `regress.py` | 916 |
 | 项 | 检查 | 失败的典型原因 |
 |---|---|---|
 | A 文档一致性 | docs 数字 vs 磁盘 | 改了文件但没跑 `make sync-docs` |
@@ -199,7 +195,7 @@ ai-autonomy-team/
 ├── (无根 config/)             ← 契约参数物理在 migration-package/config/，勿在根找
 ├── docs/
 │   ├── protocol/              ← 7 份工作协议（规范正文）
-│   ├── decisions/             ← 48 份决策记录（编号到 D-0049；D-0017 未建）
+│   ├── decisions/             ← 49 份决策记录（编号到 D-0050；D-0017 未建）
 │   └── *.md                   ← 32 份分析/审计/复盘（历史存档）
 ├── .learnings/                ← 15 条经验教训（L-XXXX，跨项目通用）
 ├── templates/                 ← 席位提示词模板（new_round 渲染用）

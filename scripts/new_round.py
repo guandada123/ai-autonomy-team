@@ -756,7 +756,7 @@ def _commit_exception(round_dir, exc):
 
 
 def preflight_gate(root, params_path, card_path, allow_unverified,
-                   round_dir=None, who="", reason=""):
+                   round_dir=None, who="", reason="", skip_premise=False):
     """开轮前闸门（D-0034/D-0035）：家族 + 前提卡。
 
     返回 `(ok, lines, exception)`：
@@ -800,8 +800,14 @@ def preflight_gate(root, params_path, card_path, allow_unverified,
     else:
         lines.append(f"[preflight] 家族已实测：{fam.get('verified_at') or '未记时间'}")
 
-    if not card_path:
-        lines.append("[preflight] 未提供前提卡（--premise-card）——本轮不做前提审查")
+    # ★ 2026-10-23 修（代码审查 C-7）：原来「没传卡」与「helper 缺失」都只记一行就放行，
+    #   等于 L3 前提审查默认关闭。改为：跳过必须显式 --skip-premise；helper 缺失直接失败。
+    if skip_premise:
+        lines.append("[preflight] 显式跳过前提审查（--skip-premise）：本轮不产出 L3 结论")
+    elif not card_path:
+        ok = False
+        lines.append("[preflight] 未提供前提卡（--premise-card）——L3 前提审查是开轮闸门的一部分；"
+                     "确需跳过请加 --skip-premise（会记录为显式跳过，不记为放行例外）")
     else:
         try:
             card = json.loads(Path(card_path).expanduser().read_text(encoding="utf-8"))
@@ -810,7 +816,9 @@ def preflight_gate(root, params_path, card_path, allow_unverified,
         import importlib.util as _u
         helper = root / "scripts" / "premise_probe.py"
         if not helper.is_file():
-            lines.append("[preflight] 找不到 premise_probe.py，跳过前提审查")
+            # 判据文件缺失时"跳过"等于静默关闸；这里直接失败，让人去修路径
+            return False, lines + [f"[preflight] 找不到前提审查器：{helper}"
+                                   "（缺文件不等于无需审查）"], None
         else:
             spec = _u.spec_from_file_location("_premise", helper)
             mod = _u.module_from_spec(spec); spec.loader.exec_module(mod)
@@ -852,7 +860,9 @@ def main():
     ap.add_argument("--self-test", action="store_true")
     # ★ D-0034/D-0035：开轮前闸门。auto = 仅当目标目录是本包 runs/ 时启用
     ap.add_argument("--preflight", choices=["auto", "on", "off"], default="auto")
-    ap.add_argument("--premise-card", default="")
+    ap.add_argument("--premise-card", default="", help="前提卡 JSON（L3 前提审查的输入）")
+    ap.add_argument("--skip-premise", action="store_true",
+                    help="显式跳过前提审查（默认不跳：没卡即闸门不通过）")
     ap.add_argument("--allow-unverified-families", action="store_true")
     # ★ P0-1：放行必须可审计。who 默认取环境用户，reason 允许留空但会在记录里显式标注缺失
     ap.add_argument("--who", default=os.environ.get("USER") or os.environ.get("USERNAME") or "",
@@ -913,7 +923,8 @@ def main():
             params_path = Path.cwd() / params_path
         pf_ok, pf_lines, pf_exc = preflight_gate(
             root, params_path, args.premise_card, args.allow_unverified_families,
-            round_dir=round_dir, who=args.who, reason=args.reason)
+            round_dir=round_dir, who=args.who, reason=args.reason,
+            skip_premise=args.skip_premise)
         for ln in pf_lines:
             print(ln)
         if not pf_ok:
@@ -1125,13 +1136,14 @@ def self_test():
                                                           "verified_at": "2026-10-22T10:00"}}})
 
         rd = tdp / "runs" / "round90"
-        ok, lines, exc = preflight_gate(tdp, p_unv, "", False, round_dir=rd, who="tester")
+        ok, lines, exc = preflight_gate(tdp, p_unv, "", False, round_dir=rd, who="tester",
+                              skip_premise=True)
         expect("未实测且不放行 → 拒绝", ok is False)
         expect("拒绝时不产 exception（不留下「开过」的假象）",
                not (rd / "preflight-exception.json").exists() and exc is None)
 
-        ok, lines, exc = preflight_gate(tdp, p_unv, "", True, round_dir=rd,
-                                        who="tester", reason="单模型环境临时放行")
+        ok, lines, exc = preflight_gate(tdp, p_unv, "", True, round_dir=rd, who="tester",
+                                        reason="单模型环境临时放行", skip_premise=True)
         fp = rd / "preflight-exception.json"
         expect("放行 → 通过", ok is True)
         expect("放行 → 文件真的落盘（原实现只 print）", fp.is_file())
@@ -1142,24 +1154,28 @@ def self_test():
         expect("放行 → 返回值即落盘内容（不另存一份）", exc == _d)
 
         rd2 = tdp / "runs" / "round91"
-        ok, lines, exc = preflight_gate(tdp, p_one, "", False, round_dir=rd2, who="tester")
+        ok, lines, exc = preflight_gate(tdp, p_one, "", False, round_dir=rd2, who="tester",
+                              skip_premise=True)
         expect("单模型环境（min_families=1）不拦", ok is True)
         expect("单模型不算例外，不产 exception",
                not (rd2 / "preflight-exception.json").exists())
 
         rd3 = tdp / "runs" / "round92"
-        ok, lines, exc = preflight_gate(tdp, p_vfy, "", False, round_dir=rd3, who="tester")
+        ok, lines, exc = preflight_gate(tdp, p_vfy, "", False, round_dir=rd3, who="tester",
+                              skip_premise=True)
         expect("家族已实测 → 通过且无 exception",
                ok is True and not (rd3 / "preflight-exception.json").exists())
 
         rd4 = tdp / "runs" / "deep" / "round93"
-        ok, lines, exc = preflight_gate(tdp, p_unv, "", True, round_dir=rd4, who="")
+        ok, lines, exc = preflight_gate(tdp, p_unv, "", True, round_dir=rd4, who="",
+                              skip_premise=True)
         expect("目标目录多级不存在也不崩（自动建目录）",
                ok is True and (rd4 / "preflight-exception.json").is_file())
         expect("who 缺省时写 unspecified 而非空串",
                (load_json(rd4 / "preflight-exception.json") or {}).get("who") == "unspecified")
 
-        ok, lines, exc = preflight_gate(tdp, p_unv, "", True, round_dir=None, who="t")
+        ok, lines, exc = preflight_gate(tdp, p_unv, "", True, round_dir=None, who="t",
+                              skip_premise=True)
         expect("放行但无 round_dir → 显式告警而非假装写过",
                ok is True and any("无法留痕" in x for x in lines))
 
