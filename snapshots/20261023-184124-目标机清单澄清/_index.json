@@ -1,6 +1,6 @@
 {
- "created_at": "2026-10-23T18:30:58",
- "label": "遗留项收口-M3M4-A系列",
+ "created_at": "2026-10-23T18:41:24",
+ "label": "目标机清单澄清",
  "file_count": 87,
  "files": {
   "scripts/build_package.py": {
@@ -76,8 +76,8 @@
    "bytes": 33277
   },
   "scripts/new_round.py": {
-   "sha256": "1171f681ac9b1d9c28a8323358379500e2408a423a49cb8852c097b2a4e63da7",
-   "bytes": 55735
+   "sha256": "e3638743b6088bfe42d6160534453616577e2c6800eb58d7e35ba1dfc9ba31e7",
+   "bytes": 57936
   },
   "scripts/octagon.py": {
    "sha256": "86e6ceb3d0f0579b09dad8097ab39f7f0011ece06f19ac4c7c204a47c19aab76",
@@ -96,8 +96,8 @@
    "bytes": 17283
   },
   "scripts/redact_report.py": {
-   "sha256": "5a71a8d7a61a65f6628f0faf385e36a2fdf2dc9f1a0ca3066880685aa65cfbfe",
-   "bytes": 6149
+   "sha256": "b0557dfa5ba2659b0f9da12495a4deabbcbb29664a5620a160b3e5c913a9b2dc",
+   "bytes": 11300
   },
   "scripts/regress.py": {
    "sha256": "e762b3d89717aa9d419f05b4d1b93fab06e51453037fe5d40edc0d9f535f7e27",
