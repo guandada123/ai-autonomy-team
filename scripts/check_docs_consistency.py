@@ -102,7 +102,7 @@ def _near_manifest(line, hit):
     i = line.find(hit)
     if i < 0:
         return False
-    head = line[max(0, i - 10):i]
+    head = line[max(0, i - 6):i]
     tail = line[i + len(hit):i + len(hit) + 6]
     return ("字节" in head or "包体" in head or "MANIFEST" in head
             or bool(re.match(r"\s*(?:字节|B\b)", tail)))
@@ -135,7 +135,7 @@ def check_manifest_numbers(problems):
                 # 历史标记：与 sync_doc_numbers.HIST_MARKERS 保持一致。
                 # 旧规则含 `为 \d`，会把「| 当前值 | ... 原始为 X |」这类行整体跳过，
                 # 而该行前半部分正是需要校验的当前值 —— 属漏检缺陷（2026-10-21 修）。
-                if not re.search(r"原始|原为|审计时|对齐前|此前|当时|→", line):
+                if not re.search(r"原始|原为|审计时|对齐前|此前|当时|上次|上轮|前值|→", line):
                     problems.append(
                         ("A", f"{p.name}: 出现 {hit}", f"MANIFEST 实际 {fmt(tb)}（该行无限定词）"))
     return checked

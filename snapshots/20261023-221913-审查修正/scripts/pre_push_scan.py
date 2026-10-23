@@ -52,7 +52,7 @@ PROBES = {
     "私钥块（表头+正文）": "-----BEGIN RSA " + "PRIVATE KEY-----\n" + "A" * 120,
     "Bearer token": "Authorization: Bearer " + "a" * 24,
     # 2026-10-23 补（C-3）：项目密钥/云厂商 secret/webhook/JWT 四类新模式的样本
-    "OpenAI 项目密钥 sk-proj-…": "sk-proj-" + "a" * 32,
+    "项目密钥 sk-proj-/sk-ant-/sk-or-…": "sk-ant-api03-" + "a" * 32,
     "AWS Secret Access Key 赋值": "aws_secret_access_key = " + "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
     "Slack Incoming Webhook": "https://hooks.slack.com/services/" + "T00000000/B00000000/" + "a" * 24,
     "JWT": "eyJ" + "a" * 20 + "." + "b" * 20 + "." + "c" * 20,

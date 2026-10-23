@@ -1,7 +1,7 @@
 {
- "created_at": "2026-10-23T21:40:37",
- "label": "代码审查A+B",
- "file_count": 94,
+ "created_at": "2026-10-23T22:19:13",
+ "label": "审查修正",
+ "file_count": 95,
  "files": {
   "scripts/build_package.py": {
    "sha256": "9f82fb185416585e575971eed14e1d41eec9c5ac1ac37c373e42b400c3939b65",
@@ -16,16 +16,16 @@
    "bytes": 15106
   },
   "scripts/check_docs_consistency.py": {
-   "sha256": "15c6ecf8301c41c95829fc9fc99fea7af6486cee4d5e470d3de2235d5bf3921e",
-   "bytes": 15218
+   "sha256": "024defabd00f52ab11d15c1c8c3d391b78efb1b1b895b0fd8da18c1f1a96cd03",
+   "bytes": 15238
   },
   "scripts/field_provenance.py": {
    "sha256": "7926bba3821fd39f01e9045238f33b72a1550250f25a7c694165e656050b9b1c",
    "bytes": 7518
   },
   "scripts/fsutil.py": {
-   "sha256": "49b0069e869a5a9c563cc33b9ed5df112d9ff362f09f7daeca74c99988abc327",
-   "bytes": 1660
+   "sha256": "6c61df8a9a52b2af42d1eebac6eecff9428a1222e173f195107e3e655ede070e",
+   "bytes": 2059
   },
   "scripts/inspect_agent_routing.py": {
    "sha256": "23df35834b0e5aa663209957ad9753fafc06075e0bc3e04aa2020c082c5724b6",
@@ -48,8 +48,8 @@
    "bytes": 113524
   },
   "scripts/judges/verify.py": {
-   "sha256": "e7eca7021f50b82351cc85db28f70f787bf244933eab7ee88d15547b1ff0fea7",
-   "bytes": 53469
+   "sha256": "9d68533d0da55e672cf15ddd476a5e8a2b5d1113a53c8d1fbe1d515ed01ae519",
+   "bytes": 53577
   },
   "scripts/judges/verify.py.bak-20261020-2200": {
    "sha256": "4479ffe8902acc1051c9d3c3ee75dc8c9427e4f6ae8dfb68bbb9d63ce4fd6c37",
@@ -92,8 +92,8 @@
    "bytes": 47373
   },
   "scripts/pre_push_scan.py": {
-   "sha256": "9dc39602c2f03cbb8eda2251fa65a19b19be75b5f8a86fc5c52c1460bf723f4f",
-   "bytes": 11637
+   "sha256": "d79be2c220e6d9e5e74df5ee6a0c98b7499e62f276f7213d58303310ec5ae82d",
+   "bytes": 11650
   },
   "scripts/pre_release_check.py": {
    "sha256": "371adf93dfca4f77b85165873128ae0ecf064a98a6c07cd4f9c8be62247dc566",
@@ -116,16 +116,16 @@
    "bytes": 52884
   },
   "scripts/secret_patterns.py": {
-   "sha256": "e089a4992dc5b16937adc1401cfaa2d3d91f4b34c1d23285e6919197a3af41ba",
-   "bytes": 4964
+   "sha256": "c77c883691005f530cff2444c7acb0470dfadf595ae1c15dbc98b34857b56ef1",
+   "bytes": 4979
   },
   "scripts/snapshot_sources.py": {
    "sha256": "cb2c2b228b42b5b5b1e4ef2d3cc7c45463637dca0bfdad064877bda91a5e4873",
    "bytes": 15825
   },
   "scripts/sync_doc_numbers.py": {
-   "sha256": "9dacd1bd5b81add4622a9645eff06320f8d282d9c7451f2541f4ea49f5f3c38a",
-   "bytes": 8245
+   "sha256": "fcd64cab03e783a322d7b8f4f2800d9f8a69a31f65188930b5ad6a473eb3644a",
+   "bytes": 8274
   },
   "scripts/team_metrics.py": {
    "sha256": "65607e125e4966898b120291a45b438d129663ace21048bafa8d77ebc11fb094",
@@ -350,6 +350,10 @@
   "docs/decisions/D-0048-代码行数表纳入门禁.md": {
    "sha256": "e6cb8615ede0baafcb166419cddda2136a95b76dc3dea3b7ea7f2cf8eed9e434",
    "bytes": 3547
+  },
+  "docs/decisions/D-0049-审查AB批修复.md": {
+   "sha256": "ffc71978227302e71bd55164eeff3f141716cbb9877c003310ed13b42fc6ea08",
+   "bytes": 4041
   },
   "docs/decisions/TEMPLATE.md": {
    "sha256": "0bbc33940a540ae0e983817d9b1cf6daf6502ff233074d5023a3466511867e6e",

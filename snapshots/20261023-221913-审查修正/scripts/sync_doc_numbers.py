@@ -39,7 +39,7 @@ DOCS = ROOT / "docs"
 MANIFEST = ROOT / "migration-package" / "MANIFEST.json"
 
 # 出现这些词的行，其数字视为「历史值」，不改
-HIST_MARKERS = ("原始", "原为", "审计时", "对齐前", "此前", "当时", "→")
+HIST_MARKERS = ("原始", "原为", "审计时", "对齐前", "此前", "当时", "上次", "上轮", "前值", "→")
 # ★ 2026-10-23 修（C-2）：原写死 `7,` 前缀，包体过 8 MB 后同步静默失效。
 #   改为任意千分位大数 + 同行上下文（字节/MANIFEST）限定，避免误改 token 总量。
 NUM_PAT = re.compile(r"\b\d{1,3}(?:,\d{3}){2,}\b")
@@ -64,7 +64,7 @@ def _near_manifest(line, hit):
     i = line.find(hit)
     if i < 0:
         return False
-    head = line[max(0, i - 10):i]
+    head = line[max(0, i - 6):i]
     tail = line[i + len(hit):i + len(hit) + 6]
     return ("字节" in head or "包体" in head or "MANIFEST" in head
             or bool(re.match(r"\s*(?:字节|B\b)", tail)))

@@ -53,7 +53,7 @@ SECRET_PATTERNS = [
     # ---- 2026-10-23 补（代码审查 C-3）----
     # OpenAI 项目/服务账号密钥形如 `sk-proj-…`，前缀后有连字符，
     # 原 `sk-[A-Za-z0-9]{20,}` 数不到 20 位就断，**整类漏检**（实测未命中）。
-    (re.compile(r"\bsk-(?:proj|svcacct|admin)-[A-Za-z0-9_-]{20,}"), "OpenAI 项目密钥 sk-proj-…"),
+    (re.compile(r"\bsk-(?:proj|svcacct|admin|ant|or)-[A-Za-z0-9_-]{20,}"), "项目密钥 sk-proj-/sk-ant-/sk-or-…"),
     (re.compile(r"(?i)\baws_secret_access_key\s*[:=]\s*[\"']?[A-Za-z0-9/+=]{40}"),
      "AWS Secret Access Key 赋值"),
     (re.compile(r"https://hooks\.slack\.com/services/[A-Za-z0-9/]{20,}"), "Slack Incoming Webhook"),
