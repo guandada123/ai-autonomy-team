@@ -32,6 +32,12 @@
      「N 条经验 / N 份决策 / N 轮运行 / N 份协议」是否等于磁盘实际条数。
      `docs/*.md` **不在**本项范围：那是历史审计记录，写的是当时的事实，
      拿今天的磁盘去判它错，会把"历史正确"报成红，反而掩盖真问题。
+  E. 配对计数：同一行里的 `N/N`（如「全量回归 50/50」「门禁 8/8」「判据自检 27/27」）
+     是否等于**本次实跑**的项数。实测值由调用方用 `--expect NAME=N` 传入
+     （pre_release_check 会传 regress / gates / criteria 三个）——
+     不传则本项跳过：宁可少查，也不自己猜一个数来比。
+     ⚠️ 已知未覆盖：`verify_handover.py` 的 `5/5`。它内部会自己跑一遍回归，
+        把它纳入门禁等于让门禁时长翻倍，故只做人工核对（2026-10-23 决策）。
 
 退出码：0 全部一致 / 1 存在不一致（仅 --strict 时）/ 2 环境错误
 """
@@ -61,6 +67,13 @@ COUNT_RULES = [
      lambda: len([d for d in (PKG / "runs").glob("round*") if d.is_dir()])),
     (re.compile(r"(\d+)\s*份协议"), "协议份数",
      lambda: len(list((DOCS / "protocol").glob("*.md")))),
+]
+
+# E 项：行内出现这些词，才认为同行的 `N/N` 是在说「项数」
+PAIR_MARKERS = [
+    (re.compile(r"回归|regress"), "regress"),
+    (re.compile(r"门禁|pre_release_check"), "gates"),
+    (re.compile(r"判据自检|octagon"), "criteria"),
 ]
 
 
@@ -170,11 +183,58 @@ def check_count_claims(problems):
     return checked
 
 
+def check_paired_counts(problems, expects):
+    """E. 同一行 `N/N` 的声明 vs 本次实跑的项数。
+
+    只认「形如 50/50、8/8、27/27 的同一个数出现两次」——
+    退出码说明里的 `0/1/2`、`0/1/2/3/4` 天然不匹配（分子分母不同），不会被误抓。
+    行内还需命中某个工具标记（回归 / 门禁 / 判据自检），否则「1/1」这类
+    与项数无关的比值会被误判。
+    """
+    if not expects:
+        return 0
+    checked = 0
+    pair_re = re.compile(r"(\d+)/\1")
+    for name in STATUS_DOCS:
+        p = ROOT / name
+        if not p.exists():
+            continue
+        for lineno, line in enumerate(p.read_text(encoding="utf-8").splitlines(), 1):
+            nums = pair_re.findall(line)
+            if not nums:
+                continue
+            key = next((k for rx, k in PAIR_MARKERS if rx.search(line)), None)
+            if key is None or key not in expects:
+                continue
+            if re.search(r"原始|原为|审计时|对齐前|此前|当时", line):
+                continue
+            for n in nums:
+                checked += 1
+                if int(n) != expects[key]:
+                    problems.append(
+                        ("E", f"{name}:{lineno} 声明 {n}/{n}（{key}）",
+                         f"本次实跑 {expects[key]}/{expects[key]}"))
+    return checked
+
+
 def main():
     ap = argparse.ArgumentParser(description="文档与磁盘一致性校验（只读）")
     ap.add_argument("--strict", action="store_true", help="存在不一致时 exit 1（CI 用）")
     ap.add_argument("-q", "--quiet", action="store_true", help="只输出结论")
+    ap.add_argument("--expect", action="append", default=[], metavar="NAME=N",
+                    help="配对计数的实测值，可重复：--expect regress=50 --expect gates=8")
     args = ap.parse_args()
+
+    expects = {}
+    for item in args.expect:
+        if "=" not in item:
+            print(f"[ERR] --expect 需要 NAME=N 形式：{item}", file=sys.stderr)
+            return ERR
+        k, v = item.split("=", 1)
+        if not v.isdigit():
+            print(f"[ERR] --expect 的值必须是整数：{item}", file=sys.stderr)
+            return ERR
+        expects[k.strip()] = int(v)
 
     if not DOCS.is_dir() or not PKG.is_dir():
         print(f"[ERR] 目录缺失：{DOCS} 或 {PKG}", file=sys.stderr)
@@ -185,6 +245,7 @@ def main():
     b = check_index_line_counts(problems)
     c = check_contract_version(problems)
     d = check_count_claims(problems)
+    e = check_paired_counts(problems, expects)
 
     if not args.quiet:
         print("[check_docs_consistency] 文档 ↔ 磁盘一致性")
@@ -192,6 +253,7 @@ def main():
         print(f"  B. 索引行数        : 校验 {b} 处")
         print(f"  C. 契约版本        : 校验 {c} 处")
         print(f"  D. 计数声明        : 校验 {d} 处")
+        print(f"  E. 配对计数        : 校验 {e} 处" + ("" if expects else "（未传 --expect，已跳过）"))
         print()
 
     if problems:
@@ -202,16 +264,16 @@ def main():
         kinds = {k for k, _, _ in problems}
         if "A" in kinds:
             print("\n[A 类可自动修复] python3 scripts/sync_doc_numbers.py", file=sys.stderr)
-        if kinds & {"B", "C", "D"}:
-            print("[B/C/D 类需人工] B=索引行数（改文档后重跑索引同步），C=契约版本声明，"
-                  "D=计数声明（改文档数字以匹配磁盘，别改磁盘去凑文档）",
+        if kinds & {"B", "C", "D", "E"}:
+            print("[B/C/D/E 类需人工] B=索引行数，C=契约版本，D=计数声明，E=配对计数，\n"
+                  "除 B 需重跑索引外，其余一律改文档数字去匹配实跑结果，别反过来凑",
                   file=sys.stderr)
         if args.strict:
             return BAD
         print("\n（非 --strict 模式：仅报告，不返回失败码）", file=sys.stderr)
         return OK
 
-    print(f"[PASS] 全部一致（合计校验 {a + b + c + d} 处）")
+    print(f"[PASS] 全部一致（合计校验 {a + b + c + d + e} 处）")
     return OK
 
 

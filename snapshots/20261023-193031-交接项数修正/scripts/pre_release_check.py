@@ -60,11 +60,28 @@ def sh(cmd, cwd=None, timeout=None):
     return p.returncode, (p.stdout or "") + (p.stderr or "")
 
 
-def chk_docs():
-    rc, out = sh([PY, str(SCRIPTS / "check_docs_consistency.py"), "--strict"])
+def chk_docs(ctx=None):
+    """文档一致性。ctx 由 main 传入前几项的实测数，用于校验文档里的 `N/N` 声明。
+
+    ★ 为什么它现在最后跑：E 项要拿「回归 / 门禁 / 判据自检」的**实跑项数**去比，
+      而这些数只有跑完 B/C 才知道。挪到最后不改字母、不改 8 项的计数，
+      只是执行顺序变了 —— 打印顺序仍按 A→H（main 里排序后输出）。
+    """
+    cmd = [PY, str(SCRIPTS / "check_docs_consistency.py"), "--strict"]
+    for k in ("regress", "criteria"):
+        if ctx and k in ctx:
+            cmd += ["--expect", f"{k}={ctx[k]}"]
+    if ctx and "gates" in ctx:
+        cmd += ["--expect", f"gates={ctx['gates']}"]
+    rc, out = sh(cmd)
     ok = rc == 0
-    tail = [ln for ln in out.strip().splitlines() if ln.strip()][-1] if out.strip() else ""
-    return ok, tail
+    # 失败时优先报「具体哪一行不一致」，而不是脚本末尾那句通用提示：
+    # 只给提示等于告诉人"有事"却不说"在哪"，还得自己去翻输出（2026-10-23 实测）。
+    problems = [ln.strip() for ln in out.splitlines() if re.match(r"^\s*\[[A-E]\]\s", ln)]
+    if ok:
+        tail = [ln for ln in out.strip().splitlines() if ln.strip()][-1] if out.strip() else ""
+        return True, tail
+    return False, problems[0] if problems else (out.strip()[-160:] or "无输出")
 
 
 def chk_regress():
@@ -209,12 +226,27 @@ def main():
         print(f"[ERR] 包目录缺失: {PKG}", file=sys.stderr)
         return 2
 
-    rows, failed = [], []
-    for name, fn in CHECKS:
+    # 执行顺序：A（文档一致性）放最后 —— 它要用 B/C 的实测项数校验文档里的 N/N 声明。
+    # 打印顺序仍按 CHECKS 原序（A→H），对外看起来没变。
+    order = [c for c in CHECKS if c[1] is not chk_docs] + [c for c in CHECKS if c[1] is chk_docs]
+    results = {}
+    ctx = {"gates": len(CHECKS)}
+    for name, fn in order:
         try:
-            ok, detail = fn()
+            ok, detail = (fn(ctx) if fn is chk_docs else fn())
         except Exception as e:                       # 单项异常不拖垮整体
             ok, detail = False, f"检查异常: {type(e).__name__}: {e}"
+        results[name] = (ok, detail)
+        # 把 B/C 的实测项数喂给 A
+        m = re.search(r"^(\d+)/(\d+)", detail.strip())
+        if m and m.group(1) == m.group(2):
+            key = {"B 全量回归": "regress", "C 判据自检": "criteria"}.get(name)
+            if key:
+                ctx[key] = int(m.group(1))
+
+    rows, failed = [], []
+    for name, _ in CHECKS:
+        ok, detail = results[name]
         rows.append((name, ok, detail))
         if not ok:
             failed.append(name)
