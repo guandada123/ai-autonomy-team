@@ -193,7 +193,7 @@ ai-autonomy-team/
 ├── (无根 config/)             ← 契约参数物理在 migration-package/config/，勿在根找
 ├── docs/
 │   ├── protocol/              ← 7 份工作协议（规范正文）
-│   ├── decisions/             ← 51 份决策记录（编号到 D-0052；D-0017 未建）
+│   ├── decisions/             ← 52 份决策记录（编号到 D-0053；D-0017 未建）
 │   └── *.md                   ← 32 份分析/审计/复盘（历史存档）
 ├── .learnings/                ← 15 条经验教训（L-XXXX，跨项目通用）
 ├── templates/                 ← 席位提示词模板（new_round 渲染用）

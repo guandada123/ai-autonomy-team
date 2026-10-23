@@ -1,7 +1,7 @@
 {
- "created_at": "2026-10-23T23:28:02",
- "label": "校准集扩样36",
- "file_count": 98,
+ "created_at": "2026-10-23T23:46:52",
+ "label": "F项决策",
+ "file_count": 99,
  "files": {
   "scripts/build_package.py": {
    "sha256": "9f82fb185416585e575971eed14e1d41eec9c5ac1ac37c373e42b400c3939b65",
@@ -96,8 +96,8 @@
    "bytes": 11650
   },
   "scripts/pre_release_check.py": {
-   "sha256": "371adf93dfca4f77b85165873128ae0ecf064a98a6c07cd4f9c8be62247dc566",
-   "bytes": 12268
+   "sha256": "b4dd557f1dd7d241f58a5256345d2736942831141dabb8a51b52335e022685a7",
+   "bytes": 13212
   },
   "scripts/premise_probe.py": {
    "sha256": "a4e112a8ac9dc7f04529a9693e3a798aaa00b9625854cf880f77dc92a34d2245",
@@ -366,6 +366,10 @@
   "docs/decisions/D-0052-L3校准集扩样与阈值结论推翻.md": {
    "sha256": "16c890641f3e64ee7145d1cee1c861118a9806aabe0c4e11ee5c1632cf7fc0c0",
    "bytes": 5251
+  },
+  "docs/decisions/D-0053-决策编号检查覆盖根级文档.md": {
+   "sha256": "57fb288ebbc229cd4eb56d6b80485078afb59b202ef7d27754ec2b21cac285a7",
+   "bytes": 3458
   },
   "docs/decisions/TEMPLATE.md": {
    "sha256": "0bbc33940a540ae0e983817d9b1cf6daf6502ff233074d5023a3466511867e6e",

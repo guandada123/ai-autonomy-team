@@ -132,22 +132,37 @@ def chk_secrets():
     return not hits, ("无命中" if not hits else f"{len(hits)} 处: " + "; ".join(hits[:3]))
 
 
+# 「编号故意留空」的写法：D-XXXX 未建 / 缺失 / 保留编号 …（示例一律占位，不用真编号）
+INTENTIONAL_ABSENT = re.compile(r"D-\d{4}\s*[（(]?\s*(?:未建|未创建|缺失|不存在|保留编号|未使用)")
+
+
 def chk_decision_ids():
     dec = DOCS / "decisions"
     have = {m.group(0) for p in dec.glob("*.md")
             for m in [re.search(r"D-\d{4}", p.name)] if m}
-    used = set()
+    used, intentional = set(), set()
+
+    # ★ 2026-10-23 修（D-0053）：根级四份文档原先**不在扫描范围**——README/ARCHITECTURE
+    #   里写着「D-XXXX 未建」却从不被检查，等于这四份文档的引用是盲区。
+    targets = [ROOT / n for n in ("README.md", "ARCHITECTURE.md", "DEPENDENCIES.md", "M4-接续指南.md")
+               if (ROOT / n).is_file()]
     for base in (DOCS, SCRIPTS, PKG / "judges", PKG / "protocol", PKG / "config"):
-        if not base.is_dir():
+        if base.is_dir():
+            targets += [p for p in base.rglob("*")
+                        if p.is_file() and p.suffix.lower() in {".md", ".py", ".json"}]
+
+    for p in targets:
+        try:
+            text = p.read_text(encoding="utf-8", errors="replace")
+        except OSError:
             continue
-        for p in base.rglob("*"):
-            if p.is_file() and p.suffix.lower() in {".md", ".py", ".json"}:
-                try:
-                    used |= set(re.findall(r"D-\d{4}", p.read_text(encoding="utf-8", errors="replace")))
-                except OSError:
-                    pass
-    missing = sorted(used - have)
-    return not missing, ("全覆盖" if not missing else f"缺文件: {', '.join(missing)}")
+        used |= set(re.findall(r"D-\d{4}", text))
+        # 标注了「未建」的编号是故意留空，不算缺文件——但只有标注过的才算
+        intentional |= {m.group(0)[:6] for m in INTENTIONAL_ABSENT.finditer(text)}
+
+    missing = sorted(used - have - intentional)
+    note = f"（{','.join(sorted(intentional))} 已标注未建）" if intentional else ""
+    return not missing, (("全覆盖" if not missing else f"缺文件: {', '.join(missing)}") + note)
 
 
 def chk_todo():
