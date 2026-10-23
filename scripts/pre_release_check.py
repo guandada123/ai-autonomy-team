@@ -141,10 +141,15 @@ def chk_todo():
 
 
 def chk_snapshot():
-    """真源快照：既要存在，也要与当前真源一致（否则等于「改了没备份」）。"""
-    snap = ROOT / "_trash" / "snapshots"
+    """真源快照：既要存在，也要与当前真源一致（否则等于「改了没备份」）。
+
+    2026-10-23：路径从 `_trash/snapshots` 迁到 `snapshots`（与 snapshot_sources.py 同步）。
+    原路径在 _trash 下、不入版本控制，导致新 clone 的仓库 H 项必红 ——
+    「门禁无法在干净环境全过」本身就是缺陷。
+    """
+    snap = ROOT / "snapshots"
     if not snap.is_dir():
-        return False, "无快照目录（先跑 snapshot_sources.py）"
+        return False, "无快照目录（先跑 snapshot_sources.py，或 make snapshot）"
     dirs = sorted([d for d in snap.iterdir() if d.is_dir()])
     if not dirs:
         return False, "无快照"

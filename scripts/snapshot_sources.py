@@ -16,7 +16,7 @@
 
 ## 用法
 
-    python3 scripts/snapshot_sources.py                  # 打快照 → _trash/snapshots/<ts>/
+    python3 scripts/snapshot_sources.py                  # 打快照 → snapshots/<ts>/
     python3 scripts/snapshot_sources.py --verify         # 对比最近快照，报告改动/新增/删除
     python3 scripts/snapshot_sources.py --list           # 列出已有快照
     python3 scripts/snapshot_sources.py --label 改口径   # 给快照加标签
@@ -33,7 +33,12 @@ from datetime import datetime
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-SNAP_ROOT = ROOT / "_trash" / "snapshots"
+# 2026-10-23：从 `_trash/snapshots` 迁到 `snapshots`。
+# 理由同 L-0009：H 项（pre_release_check）依赖「最近快照与真源一致」，
+# 而 _trash 整体不入版本控制 —— 新 clone 的仓库 H 项必红，等于门禁无法
+# 在干净环境里全过。快照是验收依赖，必须住在交付物里。
+# 历史快照（77 个 / 69MB）留在 `_trash/snapshots-archive/`，不入库。
+SNAP_ROOT = ROOT / "snapshots"
 SOURCES = ["scripts", "docs/protocol", "docs/decisions", "templates"]
 SKIP_SUFFIX = {".pyc", ".bak"}
 SKIP_DIRS = {"__pycache__", ".pytest_cache"}
@@ -147,7 +152,7 @@ def listing():
 def mirror(dest, all_snaps=False):
     """把快照复制到外部位置（缓解「快照目录自身丢失即无回滚来源」的单点依赖）。
 
-    why：快照存在 `_trash/snapshots/`，与真源同盘。磁盘故障或误删该目录时，
+    why：快照与真源同盘。磁盘故障或误删该目录时，
     回滚来源与待恢复对象一起消失。本命令提供显式外拷出口，供拷到外部盘/另一台机。
 
     dest 是**目标根目录**（不是具体快照目录），会在其下创建 `<快照名>/`。
