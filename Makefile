@@ -49,11 +49,13 @@ test:
 
 selftest:
 	@echo "── 开轮器（含 preflight 闸门）──"
-	@cd $(PKG) && $(PY) new_round.py --self-test | tail -2
+	cd $(PKG) && $(PY) new_round.py --self-test
+	@echo ""
 	@echo "── 八角审查 ──"
-	@$(PY) $(SCRIPTS)/octagon.py --self-test | tail -2
-	@echo "── 判据自检 ──"
-	@$(PY) $(SCRIPTS)/pre_release_check.py 2>&1 | grep -E "^\[C\]|判据" | head -2 || true
+	$(PY) $(SCRIPTS)/octagon.py --self-test
+	@echo ""
+	@echo "── 判据自检 + 全量门禁（含 50 项回归，约 60 秒）──"
+	$(PY) $(SCRIPTS)/pre_release_check.py
 
 # ── 观测 ──────────────────────────────────────────────────────────────
 metrics:
