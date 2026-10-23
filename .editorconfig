@@ -18,7 +18,14 @@ indent_size = 2
 [Makefile]
 indent_style = tab
 
-[*.{frozen,jsonl}]
-# 冻结基线与日志：逐字节比对的对象，任何自动格式化都不能碰
-trim_trailing_whitespace = false
-insert_final_newline = false
+# ── 关于 *.frozen / *.jsonl ────────────────────────────────────────────
+# 这两类文件参与逐字节比对（truth.json.frozen 是 regress 第 8 项的基线），
+# **不要手工格式化**。
+#
+# 但不要为它们单独关掉末尾换行：实测 truth.json.frozen 最后 1 字节是 0x0A，
+# 即它本身就以换行结尾。此前这里写过 `insert_final_newline = false`，
+# 与文件实际相反 —— 遵守 editorconfig 的编辑器一保存就会删掉那个换行，
+# regress 第 8 项随即变红，而修复动作变成"把编辑器改坏的东西改回来"。
+# （2026-10-23 审计修正：配置必须与文件实际一致，不能凭"冻结文件不该有换行"的直觉。）
+#
+# 故此处**不设任何覆盖**，沿用上面的全局规则（LF + 末尾一个换行 + 去行尾空白）。
