@@ -153,7 +153,9 @@ python3 scripts/regress.py             # 期望：50/50
 | 全量回归 | **50/50 通过** | 含第 8 项冻结基线逐字节比对 |
 | 目录体积 | 16 MB | 原工作区 96 MB（含 `_trash` 71 MB） |
 
-**这条验证抓到并修掉了一个真缺口**：原先 A–H 的 **H 项（真源快照）依赖 `_trash/snapshots/`**，而 `_trash` 不入库 → 新 clone 的仓库 H 项必红，即"门禁无法在干净环境全过"。已把快照目录迁到顶层 `snapshots/`（最近 2 个入库，历史 77 个留在 `_trash/snapshots-archive/`），并同步改 `snapshot_sources.py` 与 `pre_release_check.py` 的路径。
+**这条验证抓到并修掉了一个真缺口**：原先 A–H 的 **H 项（真源快照）依赖 `_trash/snapshots/`**，而 `_trash` 不入库 → 新 clone 的仓库 H 项必红，即"门禁无法在干净环境全过"。已把快照目录迁到顶层 `snapshots/`，并同步改 `snapshot_sources.py` 与 `pre_release_check.py` 的路径。
+
+迁到顶层后新增一个问题：`snapshots/` 入库，每打一次快照 +1.0 MB / 87 文件，无上限就天天涨。故 `snapshot_sources.py` 默认在打完快照后 `prune --keep 3`，更早的移到 `_trash/snapshots-archive/`（**移动不删除**，本机可查）。`--list` 会提示归档数量与取回命令。
 
 这与 `L-0009`「验收套件依赖必须是交付物的一部分」是同一条教训的**第二个实例**（第一个是冻结基线）。两次都是"依赖住在名为 `_trash` 的目录里"。
 

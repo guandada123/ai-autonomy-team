@@ -16,10 +16,19 @@
 
 ## 用法
 
-    python3 scripts/snapshot_sources.py                  # 打快照 → snapshots/<ts>/
+    python3 scripts/snapshot_sources.py                  # 打快照 → snapshots/<ts>/（并保留最近 3 个）
     python3 scripts/snapshot_sources.py --verify         # 对比最近快照，报告改动/新增/删除
-    python3 scripts/snapshot_sources.py --list           # 列出已有快照
+    python3 scripts/snapshot_sources.py --list           # 列出已有快照（含归档数量提示）
     python3 scripts/snapshot_sources.py --label 改口径   # 给快照加标签
+    python3 scripts/snapshot_sources.py --no-prune       # 打完不清理（快照会持续累积）
+    python3 scripts/snapshot_sources.py --prune-keep 2   # 改保留数为 2
+    python3 scripts/snapshot_sources.py --self-test      # 自检 prune 逻辑（用临时目录）
+
+## 保留策略
+
+`snapshots/` 入库，所以不能无限增长：每打一次快照约 +1.0MB / 87 文件。
+默认只保留最近 3 个，更早的**移动**（不删除）到 `_trash/snapshots-archive/`。
+归档不入库、本机可查，也可 `cp -R` 取回。
 
 退出码：0 成功 / 1 --verify 发现差异 / 2 环境错误
 """
@@ -39,6 +48,10 @@ ROOT = Path(__file__).resolve().parent.parent
 # 在干净环境里全过。快照是验收依赖，必须住在交付物里。
 # 历史快照（77 个 / 69MB）留在 `_trash/snapshots-archive/`，不入库。
 SNAP_ROOT = ROOT / "snapshots"
+# 超出保留数的快照移到这里。**只移动，不删除** —— 归档目录在 _trash/ 下（不入库），
+# 本机仍可查、可回滚。历史回滚的主责已交给 git（2026-10-23 建仓之后），
+# 快照的职责变成「H 项的比对基准」（见 ARCHITECTURE 目录结构一节）。
+ARCHIVE_ROOT = ROOT / "_trash" / "snapshots-archive"
 SOURCES = ["scripts", "docs/protocol", "docs/decisions", "templates"]
 SKIP_SUFFIX = {".pyc", ".bak"}
 SKIP_DIRS = {"__pycache__", ".pytest_cache"}
@@ -101,6 +114,58 @@ def snapshot(label=""):
     return dst
 
 
+def prune(keep=3, snap_root=None, archive_root=None, quiet=False):
+    """只保留最近 keep 个快照在 snapshots/，其余移到归档目录。返回 (moved, kept)。
+
+    ★ **不删除任何文件**，只移动。归档在 _trash/ 下（不入库），本机仍可查。
+
+    keep 指的是**入库保留数**。默认 3：H 项只用最近 1 个，留 3 个是为了
+    「最新那个坏了还能退一个」；再多就是纯占体积 —— 每快照约 1.0MB，
+    而快照入 git 后每次提交都要带上，不管就等于每天涨几 MB。
+
+    keep < 1 直接拒绝：那会把 H 项唯一的比对基准也移走，门禁必然红。
+    """
+    sr = snap_root if snap_root is not None else SNAP_ROOT
+    ar = archive_root if archive_root is not None else ARCHIVE_ROOT
+
+    if keep < 1:
+        print(
+            f"[ERR] keep={keep} 不合法：必须 ≥ 1。移走全部快照会让 H 项失去比对基准。",
+            file=sys.stderr,
+        )
+        return None, 0
+    if not sr.is_dir():
+        return [], 0
+
+    snaps = sorted([d for d in sr.iterdir() if d.is_dir()])
+    if len(snaps) <= keep:
+        return [], len(snaps)
+
+    ar.mkdir(parents=True, exist_ok=True)
+    moved, skipped = [], []
+    for d in snaps[:-keep]:
+        dst = ar / d.name
+        if dst.exists():
+            # 同一秒打过两次同名快照时会出现。不覆盖归档里的旧的那份 ——
+            # 覆盖等于静默丢一个历史状态，而"保留历史"正是归档的唯一目的。
+            skipped.append(d.name)
+            continue
+        shutil.move(str(d), str(dst))
+        moved.append(d.name)
+
+    if not quiet:
+        if moved:
+            print(f"[PRUNE] 移出 {len(moved)} 个旧快照 → {ar.relative_to(ROOT)}/")
+            for n in moved:
+                print(f"        · {n}")
+        if skipped:
+            print(f"[PRUNE] ⚠️ {len(skipped)} 个同名快照已在归档中，未覆盖（需人工确认）")
+            for n in skipped:
+                print(f"        · {n}")
+        print(f"        入库保留 {keep} 个（原有 {len(snaps)} 个）")
+    return moved, len(snaps) - len(moved)
+
+
 def latest():
     if not SNAP_ROOT.is_dir():
         return None
@@ -146,6 +211,16 @@ def listing():
             print(f"  {d.name:<32} {meta['file_count']:>3} 文件  {meta.get('label') or ''}")
         else:
             print(f"  {d.name:<32} （无索引）")
+
+    # ★ 归档提示（2026-10-23 审计 M5）：不加这段的话，想找历史状态的人只会看到
+    #   入库的那几个，以为更早的全没了 —— 而实际上它们都在 _trash 下好好待着。
+    if ARCHIVE_ROOT.is_dir():
+        arch = sorted([x for x in ARCHIVE_ROOT.iterdir() if x.is_dir()])
+        if arch:
+            print()
+            print(f"  另有 {len(arch)} 个历史快照已归档在 {ARCHIVE_ROOT.relative_to(ROOT)}/（不入库）")
+            print(f"  最近归档: {arch[-1].name}")
+            print("  取回其一: cp -R <上述路径>/<快照名> snapshots/")
     return 0
 
 
@@ -194,6 +269,78 @@ def snaplast(snaps):
 
 
 
+def self_test():
+    """自检 prune 逻辑。全程用临时目录，**不碰真实 snapshots**。"""
+    import contextlib
+    import io
+    import tempfile
+
+    n_ok, fails = 0, []
+
+    def expect(label, cond, detail=""):
+        nonlocal n_ok
+        if cond:
+            n_ok += 1
+            print(f"  [PASS] {label}" + (f"  {detail}" if detail else ""))
+        else:
+            fails.append(label)
+            print(f"  [FAIL] {label}  {detail}")
+
+    with tempfile.TemporaryDirectory() as td:
+        td = Path(td)
+        sr, ar = td / "snaps", td / "archive"
+        sr.mkdir()
+
+        # ① keep < 1 必须拒绝（否则会把 H 项的基准也移走）
+        with contextlib.redirect_stderr(io.StringIO()):
+            moved, _ = prune(0, sr, ar, quiet=True)
+        expect("keep=0 被拒绝（返回 None）", moved is None)
+        expect("keep=0 时未创建归档目录", not ar.exists())
+
+        # ② 空目录
+        moved, kept = prune(3, sr, ar, quiet=True)
+        expect("空目录 → 无移动、kept=0", (moved, kept) == ([], 0))
+
+        # ③ 不足 keep 时不动
+        for name in ["20260101-000001-a", "20260101-000002-b"]:
+            (sr / name).mkdir()
+        moved, kept = prune(3, sr, ar, quiet=True)
+        expect("2 个快照 / keep=3 → 不动", (moved, kept) == ([], 2))
+        expect("两个都还在 snapshots/", len(list(sr.iterdir())) == 2)
+
+        # ④ 超出时移走最旧的，且是移动不是删除
+        for name in ["20260101-000003-c", "20260101-000004-d", "20260101-000005-e"]:
+            (sr / name).mkdir()
+        moved, kept = prune(3, sr, ar, quiet=True)
+        expect("5 个快照 / keep=3 → 移 2 个", len(moved) == 2 and kept == 3, f"moved={moved}")
+        expect("移走的是最旧两个", moved == ["20260101-000001-a", "20260101-000002-b"])
+        expect("snapshots/ 剩 3 个", len(list(sr.iterdir())) == 3)
+        expect(
+            "归档里能找回（移动而非删除）",
+            (ar / "20260101-000001-a").is_dir() and (ar / "20260101-000002-b").is_dir(),
+        )
+
+        # ⑤ 同名冲突：不覆盖归档里已有的那份
+        (sr / "20260101-000000-z").mkdir()
+        (ar / "20260101-000000-z").mkdir()
+        (ar / "20260101-000000-z" / "marker.txt").write_text("旧的那份", encoding="utf-8")
+        moved, _ = prune(3, sr, ar, quiet=True)
+        expect("同名冲突 → 不移动", "20260101-000000-z" not in moved, f"moved={moved}")
+        expect(
+            "归档里的旧内容未被覆盖",
+            (ar / "20260101-000000-z" / "marker.txt").read_text(encoding="utf-8") == "旧的那份",
+        )
+
+    print()
+    if fails:
+        print(f"[FAIL] 自检未通过：{len(fails)}/{n_ok + len(fails)} 项失败")
+        for f in fails:
+            print(f"  · {f}")
+        return 1
+    print(f"[PASS] 自检通过：{n_ok}/{n_ok} 项")
+    return 0
+
+
 def main():
     ap = argparse.ArgumentParser(description="真源快照 / 差异核验")
     ap.add_argument("--verify", action="store_true", help="对比最近快照")
@@ -203,8 +350,16 @@ def main():
                     help="把快照复制到外部目录（缓解单点依赖）")
     ap.add_argument("--mirror-all", action="store_true",
                     help="配合 --mirror：镜像全部快照而非仅最新")
+    ap.add_argument("--prune-keep", type=int, default=3, metavar="N",
+                    help="打完快照后只保留最近 N 个入库，其余移到归档（默认 3）")
+    ap.add_argument("--no-prune", action="store_true",
+                    help="打完不清理，保留全部（快照会持续累积，谨慎使用）")
+    ap.add_argument("--self-test", action="store_true",
+                    help="自检 prune 逻辑（用临时目录，不碰真实快照）")
     args = ap.parse_args()
 
+    if args.self_test:
+        return self_test()
     if not (ROOT / "scripts").is_dir():
         print(f"[ERR] 目录缺失: {ROOT / 'scripts'}", file=sys.stderr)
         return 2
@@ -215,6 +370,10 @@ def main():
     if args.verify:
         return verify()
     snapshot(args.label)
+    if not args.no_prune:
+        moved, _ = prune(args.prune_keep)
+        if moved is None:          # keep 非法
+            return 2
     return 0
 
 

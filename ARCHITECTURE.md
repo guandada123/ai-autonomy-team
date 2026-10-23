@@ -229,7 +229,7 @@ ai-autonomy-team/
 ├── .learnings/                ← 12 条经验教训（L-XXXX，跨项目通用）
 ├── templates/                 ← 席位提示词模板（new_round 渲染用）
 ├── fixtures/frozen/           ← ★ 冻结基线（regress 第 8 项依赖，必须入库）
-├── snapshots/                 ← ★ 真源快照（H 项依赖；只留最近 2 个入库）
+├── snapshots/                 ← ★ 真源快照（H 项依赖；默认留最近 3 个，超出自动归档）
 │
 ├── migration-package/         ← ⚠️ 构建产物（build_package.py 生成）
 │   ├── MANIFEST.json          逐文件 sha256
@@ -259,7 +259,10 @@ ai-autonomy-team/
 ### 关于 `snapshots/` 的两点容易误解
 
 1. **它覆盖什么**：`SOURCES = ["scripts", "docs/protocol", "docs/decisions", "templates"]`——只有这 4 个目录。**根目录的 README/ARCHITECTURE/DEPENDENCIES 不在快照范围**，改它们不会让 H 项变红，也不会被备份。理由是它们讲"怎么用这个项目"，不是判据口径的载体。
-2. **为什么只留 2 个**：`H` 项只需要"最近一个快照与真源一致"。**历史回滚由 git 承担**，快照不再是唯一回滚来源（这正是 2026-10-23 建 git 之后职责的重新划分）。更早的 79 个快照在 `_trash/snapshots-archive/`，不入库但本机仍可查。
+2. **为什么只留 3 个，且怎么保证不涨**：`H` 项只需要"最近一个快照与真源一致"。**历史回滚由 git 承担**，快照不再是唯一回滚来源（这正是 2026-10-23 建 git 之后职责的重新划分）。
+   `snapshot_sources.py` 打完快照后会自动 `prune --keep 3`：更早的**移动**（不是删除）到 `_trash/snapshots-archive/`，本机可查、可用 `cp -R` 取回，`--list` 会提示归档数量。
+   留 3 而非 1，是为了"最新那个坏了还能退一个"；再多就是纯占体积（每快照约 1.0 MB，且入库后每次提交都带上）。
+   要临时保留全部：`--no-prune`；要改保留数：`--prune-keep N`（`N < 1` 会被拒绝，否则 H 项失去基准）。
 
 ---
 
