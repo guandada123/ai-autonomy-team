@@ -1,0 +1,88 @@
+{
+  "seat": "EX-02",
+  "round": 17,
+  "conclusion": "380.00 的『完全闭合』是定义性同义反复：Σ(bill − ledger) 恒等于 bill_total − ledger_total，只要 excluded 留空，amount_diff_total 必然等于 380.00，它不提供任何归因证据。真实缺口有两处被两个金额字段同时吞掉：费用差合计 15.33（T091 0.03、T092/T093 各 7.65）在任何字段中不可见；T095 的 260.00 是股息现金流而非成交金额，属类别错置。我方口径：diff_count 6，amount_diff_total=120.00（仅 T091 成交金额差），excluded_amount_total=260.00（T095），excluded_categories=['权益分派（股息入账）']。",
+  "strongest_counter_arguments": [
+    {
+      "target": "ANON-A",
+      "argument": "主张 amount_diff_total=380.00、excluded_categories=[] 即『核对完成』。这是把恒等式误读为发现：6 个差异单号的 amount 差绝对值之和必然等于 raw_total_gap（本任务 120.00+260.00+4×0.00=380.00），因为逐单号求和与全表合计差在代数上是同一件事。因此『380.00 已全部解释』不能证明分类正确，只能证明你没有排除任何一项。真正未被任何字段覆盖的是 15.33 的费用差——它们是 D 款明列的差异（费用列不同），却在 C 款的两个金额字段里都落不到地。",
+      "reverse_evidence": "若 TASK.md 或裁决层明示 amount_diff_total 的定义就是『账户现金总差额的全量分解』且 excluded 只收纳非现金事项，则 380.00 与 [] 成立，我撤回。"
+    },
+    {
+      "target": "ANON-B",
+      "argument": "主张日期列应取 settle_date，从而 T096 不再是差异、diff_count=5。我复算了这条反事实分支：若统一改用 settle_date，T089（09-03 vs 09-04）、T090（09-05 vs 09-06）、T091（09-07 vs 09-08）、T092（09-09 vs 09-10）、T093（09-11 vs 09-12）五笔全部新增日期差，而 T096 因 ledger.date=2026-09-16=settle_date 反而不差——差异单号变成 7 个（T089–T095），不是 5 个。『5』只有在逐行切换基准时才凑得出，属于不可复现的算法。",
+      "reverse_evidence": "若能给出统一、逐行一致的日期基准并复算出 5 个差异单号，我撤回此反论。"
+    },
+    {
+      "target": "ANON-C",
+      "argument": "主张 T094 送转『amount 为 0，不算差异』。这是把『金额为零』当成『无差异』：D 款判据是四列不完全相同，T094 股数 0 vs 30 是实质持仓错账（10 送 3 未更新），剔掉它会让 diff_count 掉到 5，而 summary 中没有任何字段能反映这 30 股。",
+      "reverse_evidence": "若裁决层明示『仅现金金额变化才可入 diffs』，则 T094 应剔除，我方该条反论失效。"
+    }
+  ],
+  "what_would_change_my_mind": "若裁决层把 amount 明确定义为『账户现金净流入（含股息）』，或提供 categories 白名单规定 excluded 仅收纳非现金权益事项，则 T095 的 260.00 应计入 amount_diff_total，我改为 380.00 / excluded=[]。",
+  "evidence": [
+    {
+      "pointer": "fixtures/tasks/T-12/bill.csv#T095（trade_date=2026-09-15, side=股息入账, amount=260.00, fee_total=0.00）",
+      "what_it_shows": "该单号在 ledger.csv 中不存在，是唯一 260.00 的来源；其 side 为『股息入账』而非买入/卖出，属权益现金流，与其余 7 条成交单号不同类。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-12/ledger.csv#fee_total 列 vs bill.csv#fee_total 列逐单号相减",
+      "what_it_shows": "T091 差 0.03（11.70−11.73）、T092 差 7.65（5.00−12.65）、T093 差 7.65，合计费用差 15.33；三笔的 amount 列分别差 120.00 与 0.00/0.00，故 15.33 无法进入 amount_diff_total 或 excluded_amount_total 任一字段。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-12/ledger.csv#date 列 vs bill.csv#trade_date 列（T089–T096 全表）",
+      "what_it_shows": "7 行中 6 行的 ledger.date 等于 trade_date，仅 T096 等于 settle_date（09-16）；反向若以 settle_date 为基准，T089–T093 五笔将同时变成日期差，差异单号由 6 变 7 而非 5。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-12/bill.csv#amount 列合计 − ledger.csv#amount 列合计",
+      "what_it_shows": "147200.00 − 146820.00 = 380.00，与逐单号 amount 差绝对值之和（120.00+260.00）恒等，证明『闭合』是代数必然而非核对结果。"
+    }
+  ],
+  "falsification": "若裁决层将 amount 定义为含股息的账户现金净流入，或明示 excluded 仅限非现金事项，则我把 T095 归入 excluded 的判断为错，amount_diff_total 应为 380.00；另若存在两套账之外的第三方现金流（如红利税），260.00 本身也需重算。",
+  "reads": [
+    {"path": "runs/round17/prompts/EX-02.md", "purpose": "确认对立面席位的 KPI、输出字段与『最强反论』要求"},
+    {"path": "runs/round17/prompts/EX-01.md", "purpose": "确认同轮其他席位的 stance 选项与字数预算，校准反论靶点"},
+    {"path": "runs/round17/prompts/EX-03.md", "purpose": "确认落地席位的成本/回滚字段，判断其论证可被攻击的位置"},
+    {"path": "fixtures/tasks/T-12/TASK.md", "purpose": "抽取 A/B/C/D 四款判据，寻找可被反向利用的措辞空白"},
+    {"path": "fixtures/tasks/T-12/ledger.csv", "purpose": "逐行复算合计、费用差与日期基准"},
+    {"path": "fixtures/tasks/T-12/bill.csv", "purpose": "逐行复算合计、单侧存在项与 settle_date 分支"},
+    {"path": "protocol/02-辩论协议.md", "purpose": "核对『强制反对』与证据制聚合规则，确认反论须附反证条件"},
+    {"path": "protocol/03-结构审计七查.md", "purpose": "核对第 5 查待签项 ADJ-001/ADJ-002 与共识失效代价判据"}
+  ],
+  "dissent": [
+    {
+      "against": "ANON-A",
+      "reason": "以 amount_diff_total=380.00 与 excluded_categories=[] 作为『核对完成』的证据。该等式在代数上恒成立，无法区分『分类正确』与『未做分类』；且它使 15.33 的费用差在输出中彻底消失。",
+      "reverse_evidence": "若存在一个反例：某差异单号被正确排除后 amount_diff_total 仍等于 raw_total_gap，则本反论不成立。"
+    },
+    {
+      "against": "ANON-B",
+      "reason": "以 settle_date 为日期基准推出 diff_count=5，实际复算为 7（T089–T093 新增日期差，T096 反而不差），『5』依赖逐行切换基准。",
+      "reverse_evidence": "若能给出统一基准并复算出 5，则本反论撤回。"
+    }
+  ],
+  "confidence": "medium",
+  "needs_more_data": [
+    "缺规则：excluded_amount_total 的『取差额』未定义符号——T095 可写 −260.00（ledger 0 − bill 260）或 260.00；本任务两解同值纯属单侧存在，规则缺口未闭合。",
+    "缺规则：费用差 15.33 无承载字段，是否应设 fee_diff_total 并由裁判判 pass/fail 未定义。",
+    "缺数据：无券商现金流水/红利税明细，无法验证 T095 的 260.00 是税前还是税后到账，故 260.00 的可比性未知。"
+  ],
+  "stance": [
+    {"axis": "ADJ-001", "choice": "count"},
+    {"axis": "DIFFSET", "choice": "6"}
+  ],
+  "summary": {
+    "ledger_rows": 7,
+    "bill_rows": 8,
+    "ledger_total": 146820.00,
+    "bill_total": 147200.00,
+    "raw_total_gap": 380.00,
+    "dedup_removed_txn_count": 0,
+    "dedup_amount": 0.00,
+    "diff_count": 6,
+    "amount_diff_total": 120.00,
+    "excluded_amount_total": 260.00,
+    "excluded_categories": ["权益分派（股息入账）"]
+  },
+  "usage": {"tokens": 13500, "minutes": 9, "source": "self_report"}
+}

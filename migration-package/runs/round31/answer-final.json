@@ -1,0 +1,106 @@
+{
+ "task_id": "T-11",
+ "round": 31,
+ "aggregated_by": "PM-01",
+ "summary": {
+  "ledger_rows": 5,
+  "bill_rows": 8,
+  "ledger_total": 256800.0,
+  "bill_total": 333440.0,
+  "raw_total_gap": 76640.0,
+  "dedup_removed_txn_count": 0,
+  "dedup_amount": 0.0,
+  "diff_count": 6,
+  "amount_diff_total": 76640.0,
+  "excluded_amount_total": 0.0,
+  "fee_diff_total": 19.79,
+  "excluded_categories": [
+   "股数差（送转未更新）",
+   "日期差（入账日≠成交日）"
+  ]
+ },
+ "diffs": [
+  {
+   "id": "T083",
+   "category": "成交价口径差（委托价记账）"
+  },
+  {
+   "id": "T084",
+   "category": "单侧缺失·交易（中签买入）"
+  },
+  {
+   "id": "T085",
+   "category": "单侧缺失·非交易（股息入账）"
+  },
+  {
+   "id": "T086",
+   "category": "股数差（送转未更新）"
+  },
+  {
+   "id": "T087",
+   "category": "单侧缺失·非交易（股息入账）"
+  },
+  {
+   "id": "T088",
+   "category": "日期差（入账日≠成交日）"
+  }
+ ],
+ "categories": {
+  "成交价口径差（委托价记账）": [
+   "T083"
+  ],
+  "单侧缺失·交易（中签买入）": [
+   "T084"
+  ],
+  "单侧缺失·非交易（股息入账）": [
+   "T085",
+   "T087"
+  ],
+  "股数差（送转未更新）": [
+   "T086"
+  ],
+  "日期差（入账日≠成交日）": [
+   "T088"
+  ]
+ },
+ "falsification": "本结论在以下任一条件成立时即为错：①交割单「日期」列若被规范锁定为 settle_date 而非 trade_date，则差异清单应为 7 条（T081/T082 入列、T088 出列，PM 已实测复现），diff_count=6 作废，但 amount_diff_total 仍为 76640.00；②若 T085 的 600519 被证实属他户串户而非本方漏记，其 260.00 应从金额差异中剔除，amount_diff_total 变 76380.00；③若「费用」口径被要求计入 amount 后再比对，或要求还原最低佣金 5 元，T083 的 120.00 与 T088 的 5.14 需重算；④若任一侧 txn_id 实际存在分批成交造成的重复行（本轮两表各自 txn_id 均唯一，故 dedup=0），dedup_amount 与逐项差额求和将不再闭合于 raw_total_gap；⑤若 excluded_categories 的口径被限定为「金额>0 的排除」，则本表两项零金额排除应改回 []，excluded_amount_total 仍为 0.00。",
+ "diff_preserved": [
+  {
+   "side": "多数",
+   "conclusion": "EX-01 与 EX-03（2/3 席）：逐字执行契约 D、日期列取 bill.trade_date（依 TASK『按成交日列示』），差异 6 单 T083/T084/T085/T086/T087/T088；amount_diff_total=76640.00、excluded_amount_total=0.00、dedup 0 单 0.00 元。PM 用 Decimal 独立复算，逐单差额 120.00＋76000.00＋260.00＋0.00＋260.00＋0.00=76640.00，与 raw_total_gap 闭合，一致。",
+   "falsification": "若规范把交割单「日期」列授权为 settle_date，则本例应得 7 条（T081/T082 入列、T088 出列），本条作废；若 T085 的 600519 被证实为他户串户，260.00 应剔除；若「费用」需还原最低佣金或并入 amount 后再比对，T083/T088 差额需重算。"
+  },
+  {
+   "side": "少数",
+   "conclusion": "EX-02（1/3 席）：剔除 T088 得 5 单，股息 520.00 与股数差（0.00）列入「不计入」，amount_diff_total=76120.00、excluded_amount_total=520.00、excluded_categories=[\"非成交口径（股息入账）\",\"股数差（送转未更新）\"]；并主张 diff_count=6 是契约未定义日期列所致的选择性产物，且 amount_diff_total 恒等于 raw_total_gap、不携带归因信息。",
+   "falsification": "若 TASK『按成交日列示』被承认为日期列的正式授权并逐字执行契约 D（EX-02 自己的 reverse_evidence 已认此项让步），则 5 条即错、回到 6 条；若股息 amount 属契约 D 的可比「成交金额」口径，则 520.00 不得排除；若存在重复单号或多空/双向差额使逐项求和不等于总差，则「恒等式无信息量」的核心论断失效。"
+  },
+  {
+   "side": "少数",
+   "conclusion": "EX-02 的方法论反证（EX-03 dissent 亦部分呼应，保留备查）：两表 txn_id 无重复、逐单差额同号且覆盖全部单侧与双向差，故 amount_diff_total 必然等于 bill_total−ledger_total=76640.00；该字段「通过校验」不携带任何归因质量信息，验收必须落在「条数＋分类＋排除项」三项联合。",
+   "falsification": "若存在重复单号、或多空/双向差额抵销，使逐项差额之和不等于 raw_total_gap，则该恒等性被打破，本论断随之失效。"
+  },
+  {
+   "side": "少数",
+   "conclusion": "EX-02 的表外异常提示（不改变四列口径下的答案，仅记风险）：T082 为 100 股 × 1680.00 元/股、金额 168000.00、佣金 42.00 内部自洽，但 1680 元/股的 000651 在经济上不合理；四列全等 ⇒ 按契约不入差异清单，即「表内一致」不等于「表外正确」。",
+   "falsification": "若把 price 纳入比对维度，或引入独立行情基准作为第二判据，则该行应入列，本条攻击成立；若 T082 的 1680.00 经复核为真实成交价（如老价位/复权前数据），则异常提示不成立。"
+  }
+ ],
+ "aggregation_inputs": [
+  {
+   "seat": "EX-01",
+   "sha256": "56e3b338a10c3e754a9c857783fda94912cc03b29f7597cbcdf65adcb6a71fea",
+   "seat_check_status": "valid"
+  },
+  {
+   "seat": "EX-02",
+   "sha256": "4d7cd709a270c07f17a50e9f451261037906d801418525d9251ae2d7f1575ef8",
+   "seat_check_status": "valid"
+  },
+  {
+   "seat": "EX-03",
+   "sha256": "7ef72df442b3396c56587534fa506d2a454589ce8686d230632a484c976284a0",
+   "seat_check_status": "valid"
+  }
+ ]
+}

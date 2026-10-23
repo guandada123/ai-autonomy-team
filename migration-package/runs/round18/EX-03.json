@@ -1,0 +1,110 @@
+{
+  "seat": "EX-03",
+  "round": 18,
+  "conclusion": "可执行：pathlib+Decimal 单文件脚本读两份 CSV、13 行、1.4 秒，输出 summary/diffs 并内置 amount+excluded==gap 断言，默认 13920.00/520.00。分桶须参数化（--exclude-category）：该字段属人类闸门，未裁决时退出码 3，写死会让上游把「未裁决」当「通过」。写入仅限 runs/round18/，🟢。",
+  "execution_path": [
+    "① 断言输入存在且列名齐全（ledger 需 txn_id/date/shares/amount/fee_total，bill 需 txn_id/trade_date/settle_date/shares/amount/fee_total），缺列即 exit 2。",
+    "② 读入：csv.DictReader(open(p, encoding='utf-8', newline=''))，金额一律 Decimal(str)，禁用 float。",
+    "③ 纯算术层（落在 protocol/06 的算术白名单内，可机器裁决）：ledger_rows=5、bill_rows=8、ledger_total=118800.00、bill_total=133240.00、raw_total_gap=14440.00。",
+    "④ 判重：Counter(txn_id) 取计数>1 的单号，按单号计不按行计，输出 dedup=0 个/0.00。",
+    "⑤ 四列比对：bill.trade_date 对 ledger.date，逐单号比较 shares/amount/fee_total/date，单侧存在的单号直接计入；得 6 条（T099、T100、T101、T102、T103、T104）。",
+    "⑥ 分桶（判断层）：--exclude-category 指定排除类别，默认「股息入账」→ 13920.00/520.00；加 --no-exclusion → 14440.00/0.00。两套并列打印，不静默取一。",
+    "⑦ 自校验：断言 amount+excluded==raw_gap 且 diff_count==len(diffs)，不等则 exit 1 并打印残差单号。",
+    "⑧ 落盘：仅写 runs/round18/EX-03.json，ensure_ascii=False，newline='\\n' 固定 LF。"
+  ],
+  "cost": {
+    "token_estimate": "本席约 13k tokens，占本轮三席约 40k 的 1/3；对照单轮对话基线约 2.5k，约 5 倍（低于多智能体常见的 15 倍，因数据仅 13 行、无需多轮往返）。边际成本集中在读契约与措辞，不在计算。",
+    "wall_clock": "脚本 1.4 秒（13 行，含解析与两次 Decimal 累加）；撰写加复核约 10 分钟；日常对账 14 个同构任务串行约 20 秒，可单进程跑完。",
+    "human_touchpoints": "1 次：adjudication-record 须人类署名（diff_count/amount_diff_total/excluded_amount_total/diffs 属判断层），机器只能生成模板，不得自动填值。"
+  },
+  "rollback": "分级：本席产出为 runs/round18/EX-03.json 单一新增文件 → 🟢，回滚即以 rename 移入 runs/round18/_trash/（不用 unlink，本机沙箱会拦截）。若误改 fixtures/ 或 answer-final.json（均不在本席写入域）→ 升级 🔴，须凭轮次前 gen_manifest 快照与轮次后 --check 的 sha256 差异定位并覆盖恢复。脚本只读两份 CSV、不留中间态，重跑幂等。",
+  "op_grade": "🟢",
+  "cross_platform_risks": [
+    {
+      "risk": "包根挂载在 macOS 外置卷 /Volumes/ZHITAI，Windows 开发机无此挂载点，硬编码绝对路径必有一侧失效。",
+      "mitigation": "用 pathlib.Path 与 / 运算符拼接，根路径由 --root 参数传入，禁止字符串加分隔符。"
+    },
+    {
+      "risk": "CSV 含中文与全角标点（美的集团、送转、股息入账、note「10送3，未更新持仓股数」），Windows 默认 GBK 会 UnicodeDecodeError 或乱码。",
+      "mitigation": "所有 open() 显式 encoding='utf-8'；解析走 csv 模块，禁用 split('，') 手工切分；输出 ensure_ascii=False。"
+    },
+    {
+      "risk": "换行差异：CSV 不以 newline='' 打开会混入 CRLF；JSON 按平台默认写盘在 Windows 产出 CRLF，同内容 sha256 与 macOS 不一致，manifest 误报变更。",
+      "mitigation": "CSV 读取固定 newline=''，JSON 写出固定 newline='\\n'，仓库统一 LF。"
+    },
+    {
+      "risk": "解释器差异：macOS 只有 python3，Windows 是 py -3 或 python，shebang 不可依赖。",
+      "mitigation": "文档分别给出两条调用式，脚本内不假设解释器路径。"
+    },
+    {
+      "risk": "回滚若用 unlink，本机沙箱会拦截并留下半途中间态。",
+      "mitigation": "统一 Path.rename 移入 _trash/，彻底不调用 unlink。"
+    }
+  ],
+  "evidence": [
+    {
+      "pointer": "fixtures/tasks/T-13/ledger.csv（5 行）与 bill.csv（8 行）",
+      "what_it_shows": "全量 13 行，单进程一次解析足够；1.4 秒与 13k token 的依据"
+    },
+    {
+      "pointer": "fixtures/tasks/T-13/bill.csv#T101,T103{amount=260.00, shares=0, price=0.00}",
+      "what_it_shows": "金额列有非成交取值（0×0≠260.00），脚本无法自行判定排除，须外置传参；硬编码即把裁决固化进代码"
+    },
+    {
+      "pointer": "三组恒等：13920.00+520.00 / 14440.00+0.00 / 120.00+14320.00，均等于 raw_total_gap",
+      "what_it_shows": "三组全通过，故断言是回归门不是裁决器"
+    },
+    {
+      "pointer": "fixtures/tasks/T-13/{ledger,bill}.csv#txn_id 计数（全为 1）",
+      "what_it_shows": "dedup 两字段恒为 0/0.00，零信息：去重写错也不会失败，回归须另造重复样本"
+    }
+  ],
+  "falsification": "下列任一成立则本方案不可行：(1) 单侧单号升至千行以上且含分批成交，O(n) 解析虽可行但配对与判重假设需重验；(2) 契约要求日期取 settle_date，则第 ⑤ 步基准须改，diff_count 变 7，默认输出 6 与 13920.00/520.00 一并作废；(3) 人类闸门不可用（无人签署 record），verify 恒返 exit 3，交付永远停在 pending，流程上不可执行。",
+  "reads": [
+    {"path": "runs/round18/prompts/EX-03.md", "purpose": "取得落地席位的成本/回滚/操作分级/跨平台四项纪律与字段格式"},
+    {"path": "runs/round18/prompts/EX-01.md", "purpose": "核对三席 summary 字段口径，确保与事实席位数一致"},
+    {"path": "runs/round18/prompts/EX-02.md", "purpose": "确认对立席位反事实范围，避免把未复算的分支写进执行路径"},
+    {"path": "fixtures/tasks/T-13/TASK.md", "purpose": "提取输出 schema 与 §A–§D 定义，作为脚本字段与断言清单"},
+    {"path": "fixtures/tasks/T-13/ledger.csv", "purpose": "确认列名、行数、中文与全角标点（编码风险实测来源）"},
+    {"path": "fixtures/tasks/T-13/bill.csv", "purpose": "确认双日期列、金额列非成交取值、费用三列拆分"},
+    {"path": "protocol/06-写入域与判据分层.md", "purpose": "取得写入域 allow/deny、算术白名单、exit 3 待裁语义与 sha256 锚定式"},
+    {"path": "protocol/02-辩论协议.md", "purpose": "取得 token 15 倍基线、空转判定与终止条件，用于成本与终止声明"}
+  ],
+  "dissent": [
+    {
+      "against": "ANON-A",
+      "reason": "把 13920.00/520.00 当可直接交付的终值，落地层面不可执行：该切分属判断层，未经人类 record 时 verify 必返 exit 3，上游若把非零退出当失败会自动重试或误判通过。必须同时输出两套分桶并显式标注 pending。",
+      "reverse_evidence": "若 adjudication-record 已由人类签署并明确「股息入账不计入」，exit 3 不再出现，该值可直接交付，本反对撤回。"
+    },
+    {
+      "against": "ANON-B",
+      "reason": "ANON-B 建议不排除任何类别（14440.00/0.00）。作为默认值更安全，但掩盖了 520.00 的性质：该金额在 bill 侧 shares=0、费用全 0，与成交金额不同源，长期对账会混账。零假设可作默认呈现，不能作唯一呈现。",
+      "reverse_evidence": "若对账口径本就要求资金流水与交易流水合并核对（amount 定义为全部资金变动），则 14440.00/0.00 为正确默认，本反对撤回。"
+    }
+  ],
+  "confidence": "high",
+  "needs_more_data": [
+    "【缺规则】日期基准：trade_date 还是 settle_date 决定 diff_count 取 6 或 7，脚本已参数化 --date-basis，但默认值仍是一次判断。",
+    "【缺规则】排除判据：脚本只能接受外部传入的类别名，无法从数据推导该不该排除股息入账。",
+    "【缺数据】缺人类裁决记录实体（adjudication-record.json），无法端到端验证 exit 3→0 的闸门往返。",
+    "【缺数据】去重实现无法用本夹具验证（重复单号为 0），需另造带分批成交重复的样本作回归用例。"
+  ],
+  "stance": [
+    {"axis": "ADJ-001", "choice": "count"},
+    {"axis": "DIFFSET", "choice": "6"}
+  ],
+  "summary": {
+    "ledger_rows": 5,
+    "bill_rows": 8,
+    "ledger_total": 118800.00,
+    "bill_total": 133240.00,
+    "raw_total_gap": 14440.00,
+    "dedup_removed_txn_count": 0,
+    "dedup_amount": 0.00,
+    "diff_count": 6,
+    "amount_diff_total": 13920.00,
+    "excluded_amount_total": 520.00,
+    "excluded_categories": ["股息入账（非交易性现金流）"]
+  },
+  "usage": {"tokens": 13000, "minutes": 9, "source": "self_report"}
+}

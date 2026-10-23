@@ -1,0 +1,102 @@
+{
+ "task_id": "T-05",
+ "round": 12,
+ "aggregated_by": "PM-01",
+ "summary": {
+  "ledger_rows": 7,
+  "bill_rows": 8,
+  "ledger_total": 181800.0,
+  "bill_total": 182180.0,
+  "raw_total_gap": 380.0,
+  "dedup_removed_txn_count": 0,
+  "dedup_amount": 0.0,
+  "diff_count": 6,
+  "amount_diff_total": 380.0,
+  "excluded_amount_total": 0.0,
+  "fee_diff_total": 26.55,
+  "excluded_categories": [
+   "FEE_ONLY_DIFF",
+   "SHARE_QTY_DIFF",
+   "BOOKING_DATE_DIFF"
+  ]
+ },
+ "diffs": [
+  {
+   "id": "T035",
+   "category": "AMOUNT_PRICE_DIFF"
+  },
+  {
+   "id": "T036",
+   "category": "FEE_ONLY_DIFF"
+  },
+  {
+   "id": "T037",
+   "category": "FEE_ONLY_DIFF"
+  },
+  {
+   "id": "T038",
+   "category": "SHARE_QTY_DIFF"
+  },
+  {
+   "id": "T039",
+   "category": "ONE_SIDED_MISSING"
+  },
+  {
+   "id": "T040",
+   "category": "BOOKING_DATE_DIFF"
+  }
+ ],
+ "categories": {
+  "AMOUNT_PRICE_DIFF": [
+   "T035"
+  ],
+  "FEE_ONLY_DIFF": [
+   "T036",
+   "T037"
+  ],
+  "SHARE_QTY_DIFF": [
+   "T038"
+  ],
+  "ONE_SIDED_MISSING": [
+   "T039"
+  ],
+  "BOOKING_DATE_DIFF": [
+   "T040"
+  ]
+ },
+ "falsification": "本结论在以下任一条件下为错：(1) 若 ledger.date 的法定配对列是 bill.settle_date 而非 trade_date，则差异单号变为 T033/T034/T035/T036/T037/T038/T039 共 7 条（T040 四列全等退出清单），diff_count=6 不成立；(2) 若契约 D 条「仅单侧存在的单号亦为差异单号」被裁定不适用于股息/送转等非成交类权益变动，则 T039 应移出 amount_diff_total，正确值为 amount_diff_total=120.00、excluded_amount_total=260.00、diff_count=5；(3) 若 T035 的「委托价 vs 成交价」120.00 被判为计价口径差而排除，则 amount_diff_total=260.00、excluded_amount_total=120.00；(4) 若 T036 与 T037 被认定为分批成交重复，则 dedup_removed_txn_count=1、dedup_amount=26000.00，两金额字段需整体重算；(5) 若 fee_total 列被隐含纳入金额差异口径，则 amount_diff_total 需再加 26.55（含 T035 的 0.03）；(6) 若 amount 列需做含费/净额换算后再比对，四个金额字段全部改变。",
+ "diff_preserved": [
+  {
+   "side": "多数",
+   "conclusion": "ADJ-001=count：T039（股息入账 260.00）为仅单侧存在单号，依 TASK.md §D 计入差异清单并取其该侧 amount，amount_diff_total=380.00、excluded_amount_total=0.00。三席 summary 数值在此完全一致（EX-02、EX-03 标签为 count；EX-01 标签为 exclude 但其数值同为 380.00/0.00）。",
+   "falsification": "若判分口径认定权益类现金流不属于成交核对范围，则 T039 应入 excluded，正确值为 5 / 120.00 / 260.00。"
+  },
+  {
+   "side": "少数",
+   "conclusion": "ADJ-001=exclude：EX-01 标签主张把 T039 排除在金额差异之外（仅体现在 excluded_categories 非空）。其反推数值签名却与 count 相同（excluded_amount_total=0.00），故该标签在本轮数据上无对应的数值实现，仅作为立场记录保留。",
+   "falsification": "若 excluded_amount_total 应为 260.00 且 amount_diff_total 应为 120.00，则多数结论的 380.00 是把「漏记」与「成交金额不符」两类错误混算，少数标签才是正确分类。"
+  },
+  {
+   "side": "少数",
+   "conclusion": "EX-03 的 excluded_categories=[]：主张 6 条差异全部归入「计入金额差异」，无排除类别。数值上与 380.00/0.00 自洽，但会使 T036/T037（改费用列）、T038（改股数列）、T040（改日期列）四类结构性差异被贴上金额标签。",
+   "falsification": "若判分只断言 diff_count 与两个金额字段、不校验类别语义，则 [] 与非空类别不可区分，本条反对无边际增益。"
+  },
+  {
+   "side": "少数",
+   "conclusion": "settle_date 基准反事实：EX-01 称 diff_count 应为 8、EX-02 称应为 11，XJ-01 独立复算为 7。PM-01 复算确认为 7（T040 因 date=09-15 等于 settle_date 退出清单，T033/T034 进入）。两席的反事实数字均未经复算，但均不改变其主结论（trade_date 基准下 6 条）。",
+   "falsification": "若日期列法定配对确为 settle_date，则主结论 diff_count=6 失效，应采用 7（该值不在 DIFFSET 选项空间 7/6/5/4 内则须报 out_of_space）。"
+  },
+  {
+   "side": "多数",
+   "conclusion": "契约缺口（三席共同暴露，无人反对）：fee_total 差额合计 26.55（T036 13.26 + T037 13.26 + T035 0.03）在 summary 全部字段中无落点，因为 amount_diff_total / excluded_amount_total 均定义在 amount 列。该缺口不改变任何数值，但使 summary 可被误读为「差异已全部归因」。",
+   "falsification": "若契约存在隐含的费用差异字段或判分要求 fee_total 差额单列，则本缺口表述为错，应补字段而非记为待办。"
+  }
+ ],
+ "aggregation_inputs": [
+  {
+   "seat": "EX-01",
+   "sha256": "23450b2ec0dc43f0cee724d13e3453e4b7df215f90887ba8569ed53bc6755842",
+   "seat_check_status": "valid"
+  }
+ ]
+}

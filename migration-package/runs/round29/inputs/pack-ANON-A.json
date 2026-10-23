@@ -1,0 +1,200 @@
+{
+  "conclusion": "落地：recondiff.py（python3 + pathlib + Decimal）先冻结 7 个算术层字段，再按 txn_id 逐号比对四列得 6 条清单，金额单取 amount（T075=120.00，非并入费用后的 120.03），写候选文件校验后原子改名；分级 🟡，回滚用快照 + _trash，禁 unlink。",
+  "execution_path": [
+    "1. 读入：pathlib.Path 定位 fixtures/tasks/T-10/{ledger,bill}.csv，open(newline='', encoding='utf-8')，金额一律 Decimal 解析，禁止 float 运算。",
+    "2. 算术层：len(rows) → ledger_rows=5 / bill_rows=8；sum(amount) → 271800.00 / 286240.00；gap=14440.00；按 txn_id 分组，组内行数>1 才记重复（本数据 0 组）→ dedup_removed_txn_count=0、dedup_amount=0.00。",
+    "3. 对齐键：以 txn_id 为唯一键（禁止按四列相似判重，否则 T076/T080 会被误并、dedup 误记 13800.00），日期取 bill.trade_date。",
+    "4. 差异判定：逐号比 shares/amount/fee_total/date 四列，单侧存在按该侧 amount 记差额 → 6 条：120.00、13800.00、260.00、0.00、260.00、0.00。",
+    "5. 口径层：amount_diff_total=14440.00、excluded_amount_total=0.00、excluded_categories=[]（本席 stance=count）；若人类裁决 exclude，只改这两个数与类别名，清单不动。",
+    "6. 自检断言：diff_count==len(diffs)；categories 并集==diffs 的 id 集合且无重复；金额 quantize('0.01')；费用差 5.17（99.89−94.72）不得进入金额差。",
+    "7. 落盘：json.dump(ensure_ascii=False, indent=2)，以 newline='\\n' 写出候选文件；回归比对通过后原子替换 answer.json，旧版移入 [deny-domain path redacted]_trash/。"
+  ],
+  "cost": {
+    "token_estimate": "单席产出约 13–16k；三辩论席合计 39–48k，含裁判与聚合一轮约 55–75k，占 per_task_token_hard_cap=160000 的 34%–47%；脚本执行零 token。",
+    "wall_clock": "脚本执行 <1s（13 行数据）；单席 11–13 分钟；含契约校验与裁判一轮 30–45 分钟。",
+    "human_touchpoints": "3 次：发起子代理（物理限制，脚本无法发起）、就 ADJ-001/DIFFSET 签署裁决记录、确认 answer.json 覆盖写盘。若采纳 exclude 口径，裁决由可选变必需，人工次数不变但阻塞点前移。"
+  },
+  "rollback": "三级：①写盘前——候选文件与现值并存，answer.json 不动，回滚=候选移入 _trash/（不 unlink）；②写盘后同轮——从开轮基线快照恢复上一版 answer.json；③跨轮污染——若错误数字已进入聚合产物，以本轮席位 JSON 的 sha256 列表重跑聚合，并在决策日志留痕。脚本不原地改写锁定文件，故不存在改坏后无法判定原值的情形。",
+  "op_grade": "🟡",
+  "cross_platform_risks": [
+    {
+      "risk": "解释器路径：Windows 常用 py -3 / python，目标机 macOS 只有 python3",
+      "mitigation": "shebang 用 #!/usr/bin/env python3，文档统一写 python3，不硬编码绝对路径"
+    },
+    {
+      "risk": "路径拼接：字符串 '+' 在 Windows 会混用 \\\\ 与 /",
+      "mitigation": "一律 pathlib.Path 的 / 运算，输出用 as_posix()"
+    },
+    {
+      "risk": "换行：Windows 默认写 CRLF，使 JSON 指纹与基线漂移",
+      "mitigation": "open(..., 'w', newline='\\n', encoding='utf-8')"
+    },
+    {
+      "risk": "编码：Windows 默认 cp936 读中文 note 会乱码并改变类别名",
+      "mitigation": "读写均显式 encoding='utf-8'，json.dump 加 ensure_ascii=False"
+    },
+    {
+      "risk": "浮点：amount 用 float 产生 120.03000000000001 一类尾差，断言误报",
+      "mitigation": "Decimal(str(x)) 全程，比较用 quantize('0.01') 严格相等"
+    },
+    {
+      "risk": "删除：unlink 清理旧版会被沙箱拦截并断掉回滚链",
+      "mitigation": "改为 rename 到 _trash/ 并带时间戳"
+    },
+    {
+      "risk": "文件名大小写：macOS APFS 默认大小写不敏感，T-10 与 t-10 可能互相覆盖",
+      "mitigation": "路径常量集中一处、精确大小写，启动时断言目录存在"
+    }
+  ],
+  "evidence": [
+    {
+      "pointer": "protocol/06-写入域与判据分层.md#§2.3",
+      "what_it_shows": "白名单仅 7 个算术字段，diff 类字段被机械拒载（exit 2）→ 自动化边界到此。"
+    },
+    {
+      "pointer": "protocol/06#§2.4",
+      "what_it_shows": "float 实测 0.020000000000436557 ≠ 0.02 → 金额须 Decimal + quantize 断言。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-10/bill.csv#T075",
+      "what_it_shows": "45120.00/11.73 对 45000.00/11.70：只取 amount=120.00，并入费用则得 120.03。"
+    },
+    {
+      "pointer": "protocol/07#§6.1",
+      "what_it_shows": "tokens 求和、minutes 取最大、未申报记 missing 不记 0 → cost 段口径。"
+    }
+  ],
+  "diffs": [
+    {
+      "id": "T075",
+      "category": "价格差异-成交价大于记账价"
+    },
+    {
+      "id": "T076",
+      "category": "单侧存在-券商独有"
+    },
+    {
+      "id": "T077",
+      "category": "单侧存在-券商独有"
+    },
+    {
+      "id": "T078",
+      "category": "股数差异-送转未更新"
+    },
+    {
+      "id": "T079",
+      "category": "单侧存在-券商独有"
+    },
+    {
+      "id": "T080",
+      "category": "日期差异-入账日与成交日"
+    }
+  ],
+  "categories": {
+    "价格差异-成交价大于记账价": [
+      "T075"
+    ],
+    "单侧存在-券商独有": [
+      "T076",
+      "T077",
+      "T079"
+    ],
+    "股数差异-送转未更新": [
+      "T078"
+    ],
+    "日期差异-入账日与成交日": [
+      "T080"
+    ]
+  },
+  "summary": {
+    "ledger_rows": 5,
+    "bill_rows": 8,
+    "ledger_total": 271800.0,
+    "bill_total": 286240.0,
+    "raw_total_gap": 14440.0,
+    "dedup_removed_txn_count": 0,
+    "dedup_amount": 0.0,
+    "diff_count": 6,
+    "amount_diff_total": 14440.0,
+    "excluded_amount_total": 0.0,
+    "excluded_categories": []
+  },
+  "falsification": "三种情况下不可行：①写入目标落在被 deny 的前缀（如 [deny-domain path redacted]），此时「先备份后写」的链路不成立，只能产出候选文件交人类落盘；②裁判要求 diff 类字段也由机器裁决——白名单会拒载（exit 2），脚本无法越过，须人工签署；③数据涨到万行级，「逐号人工复核四列」的工时假设失效，须改抽样+异常报表，成本上修。",
+  "reads": [
+    {
+      "path": "fixtures/tasks/T-10/TASK.md",
+      "purpose": "确认输出字段、四列口径与「金额取原始值不做净额换算」约束"
+    },
+    {
+      "path": "fixtures/tasks/T-10/ledger.csv",
+      "purpose": "逐行复算 5 行金额与费用，验证算术逻辑"
+    },
+    {
+      "path": "fixtures/tasks/T-10/bill.csv",
+      "purpose": "逐行复算 8 行金额与三费分解，确认费用差 5.17 不进金额差"
+    },
+    {
+      "path": "protocol/06-写入域与判据分层.md",
+      "purpose": "确定自动化白名单、Decimal 闸门与写入域回滚边界"
+    },
+    {
+      "path": "protocol/07-轮次与指标.md",
+      "purpose": "确认 usage 与预算定义式（求和 vs 取最大）"
+    },
+    {
+      "path": "protocol/02-辩论协议.md",
+      "purpose": "确认每席必交反对与终止条件，估算人工介入次数"
+    },
+    {
+      "path": "protocol/",
+      "purpose": "列举协议文件，定位写入域与指标两份"
+    },
+    {
+      "path": "[deny-domain path redacted]prompts/ANON-A.md",
+      "purpose": "读取本席字段（execution_path/cost/rollback/op_grade）与操作分级要求"
+    },
+    {
+      "path": "[deny-domain path redacted]prompts/",
+      "purpose": "同批次读取三份席位提示词（含本席）以对齐字段与操作分级要求"
+    },
+    {
+      "path": "[deny-domain path redacted]inputs/",
+      "purpose": "确认无同伴产出包可复用（空目录）"
+    }
+  ],
+  "dissent": [
+    {
+      "against": "ANON-A",
+      "reason": "若把「Σ差额==raw_total_gap」写成脚本成功断言，流水线会在分类错误时也全绿：该等式在全部差额同号时恒成立，对分类不敏感，等于用永不失败的检查冒充回归门。",
+      "reverse_evidence": "若能给出存在异号差额（abs 与 signed 不等）的反例数据使该断言可失败，则可保留为有效回归项。"
+    },
+    {
+      "against": "ANON-B",
+      "reason": "主张排除股息 520.00 会把可选口径变成每轮必需的人工裁决：脚本无法自证哪些类别可排除，只能等签署，阻塞点前移且无法无人值守，方案由 🟡 升 🔴。",
+      "reverse_evidence": "若 excluded 类别集合被固定为封箱配置（变更须走决策日志），则排除口径不增加人工次数，我的反对失效。"
+    }
+  ],
+  "confidence": "high",
+  "needs_more_data": [
+    "【缺规则】日期列对齐口径未定（trade_date vs settle_date）：脚本必须硬编码其一，属配置假设，需裁决后写入常量。",
+    "【缺规则】excluded_categories 无封闭枚举，脚本无法自动分类，只能透传人类裁决值。",
+    "【缺规则】本轮 answer.json 的写入落点未在提示词内明示，只能按 [deny-domain path redacted] 推断。",
+    "【缺数据】T078 送转真实股数（30 或 300）缺持仓明细，影响该条分类措辞，不影响金额字段。",
+    "【缺数据】T077/T079 派息方案明细缺失，脚本层无法判定其是否重复。"
+  ],
+  "stance": [
+    {
+      "axis": "ADJ-001",
+      "choice": "count"
+    },
+    {
+      "axis": "DIFFSET",
+      "choice": "6"
+    }
+  ],
+  "usage": {
+    "tokens": 15200,
+    "minutes": 13,
+    "source": "self_report"
+  }
+}

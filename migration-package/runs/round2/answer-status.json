@@ -1,0 +1,29 @@
+{
+  "task_id": "SYNTH-RECON-001",
+  "spec_layer": "all",
+  "adjudication_state": "adjudicated",
+  "adjudication_state_definition": "fail := 任一物化判据 not ok；pending := 无 --record 且 spec 含 ≥1 判断项；adjudicated := 有 --record 且 lint_record 通过且物化判据全部 ok；not_applicable := spec 不含判断项（verdict=pass）",
+  "pending_items": [],
+  "pending_count": 0,
+  "answered_items": [
+    "ADJ-001",
+    "ADJ-002"
+  ],
+  "verdict": "adjudicated",
+  "answer": {
+    "path": "runs/round2/answer-final.json",
+    "sha256": "d98b99c4913888a8309c1f5a5b3606d1b4da290cc1a5cf05d91f7a64fd43f550"
+  },
+  "spec": {
+    "path": "fixtures/spec/adjudication.json",
+    "sha256": "e2ee19583d1220b43f2549cd26ae6249f61d243d71c836ff994c8903ec764393"
+  },
+  "record": {
+    "path": "runs/round2/adjudication-record.json",
+    "sha256": "ac3c9ccf9143aa7152112430824f82eac35e2cd5570085197bb0b8d0e378dd58"
+  },
+  "source_verdict": null,
+  "generated_by": "judges/verify.py",
+  "provenance": "post_hoc_derived",
+  "ts": "2026-10-20T02:44:01+08:00"
+}

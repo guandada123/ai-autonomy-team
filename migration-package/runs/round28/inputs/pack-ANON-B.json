@@ -1,0 +1,181 @@
+{
+  "conclusion": "我方主张 7 条。账单有 trade_date 与 settle_date 两个日期候选，契约未指定；取 settle_date 得 7 条（T065–T071），金额三值（380/380/0）与 6 派逐分相同，分歧无法被金额吸收。更硬一层：07 选项表把「6」定义为「跨月不列入」，本夹具 6 条却含跨月项 T072，指标会把立场反推成相反语义。",
+  "summary": {
+    "ledger_rows": 7,
+    "bill_rows": 8,
+    "ledger_total": 163800.0,
+    "bill_total": 164180.0,
+    "raw_total_gap": 380.0,
+    "dedup_removed_txn_count": 0,
+    "dedup_amount": 0.0,
+    "diff_count": 7,
+    "amount_diff_total": 380.0,
+    "excluded_amount_total": 0.0,
+    "excluded_categories": [
+      "费用差-漏过户费",
+      "数量差-送转未更新",
+      "日期口径差-入账日与成交日错位"
+    ]
+  },
+  "diffs": [
+    {
+      "id": "T065",
+      "category": "日期口径差-入账日与成交日错位"
+    },
+    {
+      "id": "T066",
+      "category": "日期口径差-入账日与成交日错位"
+    },
+    {
+      "id": "T067",
+      "category": "金额差-成交价不符"
+    },
+    {
+      "id": "T068",
+      "category": "费用差-漏过户费"
+    },
+    {
+      "id": "T069",
+      "category": "费用差-漏过户费"
+    },
+    {
+      "id": "T070",
+      "category": "数量差-送转未更新"
+    },
+    {
+      "id": "T071",
+      "category": "单侧缺失-现金分红"
+    }
+  ],
+  "categories": {
+    "日期口径差-入账日与成交日错位": [
+      "T065",
+      "T066"
+    ],
+    "金额差-成交价不符": [
+      "T067"
+    ],
+    "费用差-漏过户费": [
+      "T068",
+      "T069"
+    ],
+    "数量差-送转未更新": [
+      "T070"
+    ],
+    "单侧缺失-现金分红": [
+      "T071"
+    ]
+  },
+  "strongest_counter_arguments": [
+    {
+      "target": "ANON-A：以 bill.trade_date 为日期基准得 6 条，并称该映射是契约唯一解",
+      "argument": "那不是契约解，是未声明的口径选择。自记账只有一个 date（入账日），账单有 trade_date 与 settle_date 两列。与「入账时点」同基的是交割日（A股 T+1 交收），故 settle_date 并非异想。选定后 T065–T069 五行出现日期差、T072 归一致，总数 7；而 6 与 7 的金额三值完全相同，说明 6 派拿不出算术证据压倒 7，只拿出「我这样理解」。一个金额为 0、却改变清单条数 17% 的口径选择，不能靠字面直觉定案。",
+      "reverse_evidence": "若 TASK.md 明示「日期」指成交日，或 T065/T066 的「正常」被证明不覆盖日期列，则本论证作废。"
+    },
+    {
+      "target": "ANON-B：把 6 固化为脚本默认值，以「可复跑」替代口径裁决",
+      "argument": "默认值就是一次隐性实质裁决，且藏在代码而非产出字段里。其一，ADJ-001/DIFFSET 由默认参数决定，人类闸门看到已定型结果，只能确认不能选择——06 §2.6.1（L198-L200）所谓「不是人做了裁决，是人确认了机器的裁决」。其二，若下轮改默认值，diff_count 由 6 变 7，指标会记该席位「翻边」，而真相是参数漂移：翻边率被自己的实现污染。可复跑只保证同错同现。",
+      "reverse_evidence": "若 answer 契约有承载日期口径的显式字段，且 metrics 能区分参数变更与立场变更，则本反对不成立。"
+    },
+    {
+      "target": "ANON-A 与 ANON-B 的共同前提：diff_count 存在某个「正确值」",
+      "argument": "06 §2.3 的 ARITHMETIC_ANCHOR_PATHS 白名单只含 7 个纯算术字段，diff_count/diffs/amount_diff_total/excluded_amount_total 被机械挡在算术层外，[答案来源引用已净化]。即「正确条数」在机器侧根本不存在，[答案来源引用已净化]，都是把判断项伪装成客观事实。",
+      "reverse_evidence": "[答案来源引用已净化]，或 diff_count 移入算术白名单，则前提成立。"
+    }
+  ],
+  "what_would_change_my_mind": "任一即可：①TASK.md 或字段命名明示「日期」= 成交日；②证明 T065/T066 的「正常」在 settle_date 读法下仍成立（该 note 语义上不覆盖日期列）。缺此二证，6 与 7 至少等价，而 7 更贴近账单列名（settle_date 与「交割」）。",
+  "evidence": [
+    {
+      "pointer": "fixtures/tasks/T-09/bill.csv#settle_date L2-L9",
+      "what_it_shows": "T065–T069 五行 settle_date≠ledger.date，T070–T072 一致 → 7 条"
+    },
+    {
+      "pointer": "protocol/07-轮次与指标.md#L89-L102",
+      "what_it_shows": "选项表以 T106、T104/T105 定义 7/6/5/4；三单号在 T-09 不存在 → 6 语义错位"
+    },
+    {
+      "pointer": "protocol/03-结构审计七查.md#L49 对读 07#L84-L95",
+      "what_it_shows": "03 待签项写 ADJ-001/ADJ-002，07 称其已合并、ADJ-003 退役 → 轴命名漂移"
+    },
+    {
+      "pointer": "protocol/06-写入域与判据分层.md#L103-L115",
+      "what_it_shows": "diff_count 不在算术白名单 → 无硬裁判，两读法无从收敛"
+    },
+    {
+      "pointer": "fixtures/tasks/T-09/TASK.md#L22",
+      "what_it_shows": "费率口径注明「不得据此反推期望值」→ 封死用费率反推日期口径"
+    }
+  ],
+  "falsification": "若 TASK.md 明示「日期」即成交日，或账单侧本不存在两个日期候选列，则 7 失去依据；若存在同号多行的分批成交（本次核验两表单号各 7/8 个、无重复），两读法条数都会变动，本论证需重算。",
+  "reads": [
+    {
+      "path": "[deny-domain path redacted]prompts/ANON-B.md",
+      "purpose": "确认对立面席位 KPI、steelman 纪律与匿名 target 命名"
+    },
+    {
+      "path": "[deny-domain path redacted]prompts/ANON-A.md",
+      "purpose": "确认字面主义席位硬性字段，避免我方产出被判不合格"
+    },
+    {
+      "path": "[deny-domain path redacted]prompts/ANON-C.md",
+      "purpose": "确认落地席位成本/回滚字段，作为攻击默认参数的靶子"
+    },
+    {
+      "path": "fixtures/tasks/T-09/TASK.md",
+      "purpose": "核查 §D「日期」是否存在可消歧表述，结论是没有"
+    },
+    {
+      "path": "fixtures/tasks/T-09/ledger.csv",
+      "purpose": "逐行取 date/shares/amount/fee_total，构造两套比对基线"
+    },
+    {
+      "path": "fixtures/tasks/T-09/bill.csv",
+      "purpose": "逐行取 trade_date/settle_date，验证 settle 读法条数为 7"
+    },
+    {
+      "path": "protocol/02-辩论协议.md",
+      "purpose": "确认强制反对与反证条件的格式要求"
+    },
+    {
+      "path": "protocol/03-结构审计七查.md",
+      "purpose": "比对第 5 查待签轴命名，发现 ADJ-002 漂移"
+    },
+    {
+      "path": "protocol/06-写入域与判据分层.md",
+      "purpose": "确认算术白名单，[答案来源引用已净化]"
+    },
+    {
+      "path": "protocol/07-轮次与指标.md",
+      "purpose": "核对 DIFFSET 四选项语义与 len(diffs)==option_id 断言"
+    }
+  ],
+  "dissent": [
+    {
+      "against": "ANON-A：以 note「正常」作为判别 6 与 7 的证据",
+      "reason": "note 是数据生产方备注，不是契约条款。用它反推哪一列该比，等于用被审对象的口供定标准；且 T067 note「按委托价记账」、T072「按交割日入账」正是口径偏差的自述，拿它消歧是循环论证。反过来说，T072 被特别标注「按交割日入账」，恰恰证明其他行的入账日并非交割日——这支持普遍错位，而非否认它。",
+      "reverse_evidence": "若契约明示 note 参与判定，或有第三方交收流水证明各行记账基准，则 note 可作判据，本反对不成立。"
+    }
+  ],
+  "confidence": "medium",
+  "needs_more_data": [
+    "缺规则：TASK.md §D 的「日期」未指定账单侧列名，两读法条数 6 vs 7、金额同值；属规则缺口，不得记为该席位判断失误",
+    "缺规则：DIFFSET 选项空间以 T104/T105/T106 为锚（另一夹具单号），本夹具无此单号，导致「6」被反推为「跨月不列入」而事实相反",
+    "缺规则：03 与 07 对 ADJ-002/ADJ-003 存废表述冲突，待签项清单与 stance 模板不同步",
+    "缺数据：缺券商交收流水与分红入账凭证，无法用外部证据判定 T071 的 260.00 是否已入他账"
+  ],
+  "stance": [
+    {
+      "axis": "ADJ-001",
+      "choice": "exclude"
+    },
+    {
+      "axis": "DIFFSET",
+      "choice": "7"
+    }
+  ],
+  "usage": {
+    "tokens": 27300,
+    "minutes": 16,
+    "source": "self_report"
+  }
+}

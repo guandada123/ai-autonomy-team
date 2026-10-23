@@ -1,0 +1,105 @@
+{
+ "task_id": "T-07",
+ "round": 30,
+ "aggregated_by": "PM-01",
+ "summary": {
+  "ledger_rows": 5,
+  "bill_rows": 8,
+  "ledger_total": 101820.0,
+  "bill_total": 128460.0,
+  "raw_total_gap": 26640.0,
+  "dedup_removed_txn_count": 0,
+  "dedup_amount": 0.0,
+  "diff_count": 6,
+  "amount_diff_total": 26640.0,
+  "excluded_amount_total": 0.0,
+  "fee_diff_total": 6.79,
+  "excluded_categories": [
+   "股数权益变动(仅股数·零金额)"
+  ]
+ },
+ "diffs": [
+  {
+   "id": "T051",
+   "category": "成交价差(按委托价记账)"
+  },
+  {
+   "id": "T052",
+   "category": "自记账遗漏(中签买入)"
+  },
+  {
+   "id": "T053",
+   "category": "自记账遗漏(股息)"
+  },
+  {
+   "id": "T054",
+   "category": "股数权益变动(仅股数·零金额)"
+  },
+  {
+   "id": "T055",
+   "category": "自记账遗漏(股息)"
+  },
+  {
+   "id": "T056",
+   "category": "入账日口径差(按交割日入账)"
+  }
+ ],
+ "categories": {
+  "成交价差(按委托价记账)": [
+   "T051"
+  ],
+  "自记账遗漏(中签买入)": [
+   "T052"
+  ],
+  "自记账遗漏(股息)": [
+   "T053",
+   "T055"
+  ],
+  "股数权益变动(仅股数·零金额)": [
+   "T054"
+  ],
+  "入账日口径差(按交割日入账)": [
+   "T056"
+  ]
+ },
+ "falsification": "本结论在下列任一条件下为错：①日期对照列若应取 settle_date 而非 trade_date（依据是 TASK 背景『交割单按成交日列示』），则 T049/T050 亦构成差异，diff_count 应为 7 而非 6（两个金额字段不变，因这两条差额均为 0.00）；②若契约 C 段被解释为『非成交类权益变动（T053/T055 股息）不得计入金额差异』，则 amount_diff_total 应为 26120.00、excluded_amount_total 应为 520.00；③若 T054 被裁决必须归入『计入金额差异』类别，则 excluded_categories 应为 []，两个金额字段不变（其差额恒为 0.00），故该条只影响类别清单、不影响任何金额；④若两份 CSV 中任一 txn_id 实际存在同键多行（本轮复算：ledger 5 行 5 键、bill 8 行 8 键，均无重复），则 dedup_removed_txn_count/dedup_amount 不再为 0/0.00。",
+ "diff_preserved": [
+  {
+   "side": "多数",
+   "conclusion": "EX-01 + EX-03：diff_count=6，全部差异一律计入，amount_diff_total=26640.00、excluded_amount_total=0.00、excluded_categories=[]。理由：契约 D 段『仅单侧存在亦为差异单号，差额取该侧 amount』已给出单侧项的差额取法，C 段只定义两个桶、未授权任何排除准则；且『计入+排除=raw_total_gap』在排除口径下同样闭合，闭合性不具判别力，故不构成排除的文本依据。",
+   "falsification": "若在 TASK.md 或人类裁决记录中找到『权益类不计入金额差异』的明文授权，或给出 excluded_categories 的判定准则（而非仅让席位自拟类别名），则多数口径失据，应改为排除口径 26120.00/520.00。"
+  },
+  {
+   "side": "少数",
+   "conclusion": "EX-02：diff_count=5、amount_diff_total=26000.00、excluded_amount_total=640.00，排除类别为『权益类非成交变动』（T053/T054/T055，520.00）与『成交价口径差』（T051，120.00），并把 T056 整体移出差异清单（理由：仅日期口径不同、差额 0.00，计入会使条数与金额两条轴脱钩）。",
+   "falsification": "若契约 D 段『股数/成交金额/费用/日期四列不完全相同即为差异单号』按字面执行，则 T056 必须入清单、diff_count 应为 6；同时 T051 的 120.00 是纯粹的成交金额差，把它归入『不计入金额差异』无任何文本依据，届时 26000.00/640.00 与 5 条清单同时为错。"
+  },
+  {
+   "side": "多数",
+   "conclusion": "三席在纯算术层完全一致（且与 PM-01 独立 Decimal 复算逐项吻合）：ledger_rows=5、bill_rows=8、ledger_total=101820.00、bill_total=128460.00、raw_total_gap=26640.00、dedup_removed_txn_count=0、dedup_amount=0.00。此层无分歧。",
+   "falsification": "若 CSV 被换版或读取时发生编码/换行破坏（如 CRLF 使末列带 \\r、GBK 误解码 note 列），行数与合计可能偏移；本轮以 utf-8 + newline='' + Decimal(原串) 读取，故该风险已显式排除。"
+  },
+  {
+   "side": "少数",
+   "conclusion": "EX-02 对指标的元批评（保留备查，不影响数值）：T052 单条占计入总额 97.6%（26000/26640），any 计入总额的『分类正确性』都会被单条主导；T054 金额恒为 0.00，却与 T052 同等计为『一条差异』，使 diff_count 与 amount_diff_total 两轴彻底脱钩。此批评成立，但它是关于 summary 指标可解释性的批评，不改变按契约字面算出的数值。",
+   "falsification": "若后续任务中单条最大占比长期低于 50%，则『单条主导』不成立；若 summary 约定明文要求条数与金额并列且不可互相分摊，则『两轴脱钩』的批评亦不成立。"
+  }
+ ],
+ "aggregation_inputs": [
+  {
+   "seat": "EX-01",
+   "sha256": "04174efe16acf167fbfdbe48429bd69735dc2cc4299bd808d1ac3266b1c5b589",
+   "seat_check_status": "valid"
+  },
+  {
+   "seat": "EX-02",
+   "sha256": "f9cd4750b45904295cb907c30a750eacd942a495c32b9176db56dcca85f57410",
+   "seat_check_status": "valid"
+  },
+  {
+   "seat": "EX-03",
+   "sha256": "f24ccdb802cc56a3ffdf8a7bab7ea3e1371317bac4b6971bd5bfe2cc2fed8bde",
+   "seat_check_status": "valid"
+  }
+ ]
+}

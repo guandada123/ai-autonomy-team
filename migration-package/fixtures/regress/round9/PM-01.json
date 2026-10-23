@@ -1,0 +1,34 @@
+{
+  "round": 2,
+  "board": [
+    {
+      "id": "R2-EX-01",
+      "owner": "EX-01",
+      "state": "通过",
+      "judge": "pass"
+    }
+  ],
+  "decision": "采纳 exclude",
+  "alternatives_rejected": [
+    {
+      "option": "count",
+      "why_not": "论据被数据证伪"
+    }
+  ],
+  "risk": {
+    "rating": "低",
+    "irreversible": "否",
+    "rollback": "轮次目录改名进 _trash/"
+  },
+  "diff_preserved": [
+    {
+      "side": "少数",
+      "conclusion": "X",
+      "falsification": "Y"
+    }
+  ],
+  "self_doubt": "我可能把弃权误当成未表态。",
+  "next": [
+    "由人签署裁决记录"
+  ]
+}

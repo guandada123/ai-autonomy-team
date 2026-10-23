@@ -1,0 +1,94 @@
+{
+  "task_id": "TASK-BROKER-006",
+  "layer": "adjudication",
+  "task_id_canonical": "T-06",
+  "layer_note": "合规确认项（非开放判断）。正确口径已写在 TASK.md，未裁决时 verdict=pending_adjudication（退出码 3）。",
+  "items": [
+    {
+      "id": "ADJ-001",
+      "kind": "compliance",
+      "question": "【合规确认】交易费用（佣金 + 印花税 + 过户费）是否计入「成本差异」金额？",
+      "paths_affected": [
+        "summary.amount_diff_total",
+        "summary.excluded_amount_total"
+      ],
+      "options": [
+        {
+          "id": "count",
+          "label": "计入成本差异（费用算作真实成本）",
+          "implies": {
+            "summary.amount_diff_total": 380.0,
+            "summary.excluded_amount_total": 0.0,
+            "summary.fee_diff_total": 0.55
+          }
+        },
+        {
+          "id": "exclude",
+          "label": "不计入（费用视为已解释的结算口径差异）",
+          "implies": {
+            "summary.amount_diff_total": 380.0,
+            "summary.excluded_amount_total": 0.0,
+            "summary.fee_diff_total": 0.0
+          }
+        }
+      ],
+      "status": "unresolved"
+    },
+    {
+      "id": "ADJ-002",
+      "kind": "compliance",
+      "question": "【合规确认】差异清单（`summary.diff_count` 与 `diffs`）应包含哪些条目？由一个选项同时决定：(a)「equity」类（2 条）是否列入；(b)「settlement_day」类（1 条）是否列入。",
+      "paths_affected": [
+        "summary.diff_count",
+        "diffs"
+      ],
+      "options": [
+        {
+          "id": "6",
+          "label": "两类都列入（equity + settlement_day）",
+          "implies": {
+            "summary.diff_count": 6
+          }
+        },
+        {
+          "id": "5",
+          "label": "只列入 equity 类",
+          "implies": {
+            "summary.diff_count": 5
+          }
+        },
+        {
+          "id": "4",
+          "label": "只列入 settlement_day 类",
+          "implies": {
+            "summary.diff_count": 4
+          }
+        },
+        {
+          "id": "3",
+          "label": "两类都不列入",
+          "implies": {
+            "summary.diff_count": 3
+          }
+        }
+      ],
+      "status": "unresolved"
+    }
+  ],
+  "adjudication_required": true,
+  "record_format": {
+    "_note": "由人填写，工具链不得自动生成。",
+    "required_fields": [
+      "task_id",
+      "source",
+      "recorded_by",
+      "recorded_at",
+      "decisions"
+    ],
+    "decision_fields": [
+      "id",
+      "chosen",
+      "rationale"
+    ]
+  }
+}

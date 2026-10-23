@@ -1,0 +1,116 @@
+{
+ "task_id": "TASK-BROKER-003",
+ "round": 7,
+ "aggregated_by": "PM-01",
+ "summary": {
+  "ledger_rows": 5,
+  "bill_rows": 8,
+  "ledger_total": 120820.0,
+  "bill_total": 147460.0,
+  "raw_total_gap": 26640.0,
+  "dedup_removed_txn_count": 0,
+  "dedup_amount": 0.0,
+  "diff_count": 6,
+  "amount_diff_total": 26640.0,
+  "excluded_amount_total": 0.0,
+  "fee_diff_total": 6.79,
+  "excluded_categories": [
+   "送转股数差",
+   "日期口径差"
+  ]
+ },
+ "diffs": [
+  {
+   "id": "T019",
+   "category": "价格差异"
+  },
+  {
+   "id": "T020",
+   "category": "单侧缺失-中签"
+  },
+  {
+   "id": "T021",
+   "category": "股息单侧"
+  },
+  {
+   "id": "T022",
+   "category": "送转股数差"
+  },
+  {
+   "id": "T023",
+   "category": "股息单侧"
+  },
+  {
+   "id": "T024",
+   "category": "日期口径差"
+  }
+ ],
+ "categories": {
+  "价格差异": [
+   "T019"
+  ],
+  "单侧缺失-中签": [
+   "T020"
+  ],
+  "股息单侧": [
+   "T021",
+   "T023"
+  ],
+  "送转股数差": [
+   "T022"
+  ],
+  "日期口径差": [
+   "T024"
+  ]
+ },
+ "falsification": "本结论在下列任一条件下被推翻：(1) 若 ledger.csv 或 bill.csv 的行数不为 5/8、或其 amount 列合计不等于 120820.00/147460.00（差额 26640.00），则全部算术字段作废；(2) 若任一 txn_id 在一侧出现多行（分批成交），则 dedup_removed_txn_count/dedup_amount=0 作废，且 T019–T024 的差额求和不再成立；(3) 若「差异单号」的日期比对基准取 settle_date 而非 trade_date，则 T024 不成差异，diff_count=5、diffs 与 categories 同步变更；(4) 若股息入账 260.00×2 被认定属于「计入金额差异」，则 amount_diff_total=26640.00、excluded_amount_total=0.00、excluded_categories=[]，本 summary 的 26120.00/520.00 被推翻（此为本轮未抹平的 count 口径少数意见）；(5) 若 T020 中签买入被判为非交易事件（不入金额差异），则 amount_diff_total=120.00；(6) 若两份输入文件在本轮之后被替换或版本不同，则全部结论需按新版本重算。",
+ "diff_preserved": [
+  {
+   "side": "多数",
+   "conclusion": "ADJ-001=exclude：两笔股息入账（bill T021/T023，各 260.00，合计 520.00）属非交易性现金流入，归入「不计入金额差异」类别；amount_diff_total=26120.00（=T019 价差 120.00 + T020 中签单侧 26000.00），excluded_amount_total=520.00，excluded_categories 非空。持有席位：EX-01、EX-02（2/3）。勾稽自证：26120.00+520.00=26640.00=raw_total_gap，闭合。",
+   "falsification": "若 TASK.md D 节「仅单侧存在的单号亦为差异单号，差额取该侧 amount」被硬裁判解释为不得按业务性质（股息/非交易）排除任何单侧单号，则 520.00 必须计入，本结论被证伪，26640.00/0.00 成立。"
+  },
+  {
+   "side": "少数",
+   "conclusion": "ADJ-001=count：按 D 节字面全额计入，amount_diff_total=26640.00，excluded_amount_total=0.00，excluded_categories=[]。持有席位：EX-03（声明 stance=count，1/3，但其 summary 数值实为 exclude 口径，见下一条）。",
+   "falsification": "若股息入账被会计政策或硬裁判确认为对账范围外的非交易现金流（即不构成成交金额差异），则 520.00 应排除，本结论被证伪，26120.00/520.00 成立。"
+  },
+  {
+   "side": "少数",
+   "conclusion": "EX-03 存在「声明与数值」自相矛盾，如实留痕不抹平：其 stance[ADJ-001]=count，但 summary.amount_diff_total=26120.00、excluded_amount_total=520.00、excluded_categories 非空，且 T020 26000.00 已计入而股息 520.00 被排除——这三项数值只能是 exclude 口径的结果，与其 count 声明不能同真。同时其 summary 金额以 JSON 字符串承载（\"120820.00\" 等），违反本轮数值纪律。",
+   "falsification": "若 EX-03 出具书面更正，声明其真实口径为 exclude（则 stance 为笔误，数值成立）或声明 summary 为笔误、真实为 26640.00/0.00（则 stance 成立、数值作废），本条矛盾消解；在两解之一被书面确认前，EX-03 的任一单值都不可单独采信。"
+  },
+  {
+   "side": "少数",
+   "conclusion": "XJ-01 的揭发（合计 114800.00/141440.00 各差 6020.00、id↔类别整体错位一档、『股息对冲』叙事、出现本数据不存在的 13800/13920）在文本层面成立，但其对象是 v1 虚构版而非本轮 v2 产出：114800 与 13800 仅出现于 runs/round7/rejected-fabricated/EX-0{1,2}.v1-fabricated.json，当前 runs/round7/EX-0{1,2,3}.json 已复算为 120820.00/147460.00 且 id 映射正确。故 XJ-01 的 evidence 指针（指向 runs/round7/EX-*.json）已失效，其作为线索权重 0，不进入 aggregation_inputs。",
+   "falsification": "若在当前 runs/round7/EX-0{1,2,3}.json 中能检出 114800.00、141440.00、13800 或 13920 任一数字，则本条「XJ-01 指向 v1 存档」被证伪，其批评应对 v2 生效、v2 产出需重新裁定。"
+  },
+  {
+   "side": "多数",
+   "conclusion": "全体一致且经我独立 Decimal 复算证实的部分：ledger_rows=5、bill_rows=8、ledger_total=120820.00、bill_total=147460.00、raw_total_gap=26640.00、dedup_removed_txn_count=0、dedup_amount=0.00、diff_count=6、差异单号集合={T019,T020,T021,T022,T023,T024}、T022 与 T024 的金额差额均为 0.00。",
+   "falsification": "若 CSV 解析存在列错位、行遗漏或 txn_id 重复（任一侧同号多行），或输入文件被替换，则上述一致性整体作废。"
+  }
+ ],
+ "aggregation_inputs": [
+  {
+   "seat": "EX-01",
+   "sha256": "d065e4946347998292eace16cc8375c3ed797e27587c408435b31631d0b4a060",
+   "seat_check_status": "valid"
+  },
+  {
+   "seat": "EX-02",
+   "sha256": "efe13e0c241357a322c1c24c6e61851f38d2ad4dbe6c38e865e976fca8493051",
+   "seat_check_status": "valid"
+  },
+  {
+   "seat": "EX-03",
+   "sha256": "e5485fb70f8d81fe69d02505ed1e10c944c9c5122ecbae1e21c8a793679e1429",
+   "seat_check_status": "valid"
+  }
+ ],
+ "redo": {
+  "triggered_by": "runs/round7/adjudication-record.json（ADJ-001=count，verdict=fail 于 adjudicated.json）",
+  "rule": "ADJ-001=count implies：amount_diff_total=26640.0、excluded=0.00（原 exclude 口径 26120.0/520.0 的 520.0 移回计入侧）",
+  "note": "机械改判：数值由裁决记录 × spec implies 唯一确定，verify 复核；零金额类别显式声明以满足 present 检查"
+ }
+}

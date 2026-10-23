@@ -1,0 +1,195 @@
+{
+  "seat": "EX-03",
+  "round": 22,
+  "conclusion": "落地版：读入两 CSV→Decimal 解析→按 txn_id 双侧索引→四列比对→归类→恒等式校验，5 步纯 Python 可复算，全程只读不改源。amount_diff_total=14440.00（含 T141/T143 的 520.00，漏记现金本期补记，避免下期重复付出识别成本）。唯一人工介入：确认 T140 与 T144 是否同笔。",
+  "execution_path": [
+    "1. 读入：csv.DictReader 打开 ledger.csv/bill.csv，显式 encoding='utf-8'、newline=''（实测两文件均无 BOM、纯 LF）；金额一律 Decimal(str)，禁止 float",
+    "2. 建索引：按 txn_id 建双侧 dict，同时用 Counter 统计单侧重复单号（本任务 ledger 5 行/bill 8 行，两侧 txn_id 均唯一 → dedup_removed_txn_count=0、dedup_amount=0.00）",
+    "3. 判定：逐 id 比对 shares / amount / fee_total / date 四列，任一项不等即为差异单号；仅单侧存在者亦计入，差额取该侧 amount（T140 13800.00、T141 260.00、T143 260.00）",
+    "4. 归类求和：amount_diff_total = 计入类 abs 差额之和（120.00+13800.00+260.00+0.00+260.00+0.00=14440.00）；excluded_amount_total = 不计入类差额之和（本判 0.00）；差额一律 quantize(Decimal('0.01'))",
+    "5. 校验：断言 amount_diff_total + excluded_amount_total == raw_total_gap == 14440.00；不成立则 HOLD 并输出残差，禁止为凑平而调整任何中间值"
+  ],
+  "cost": {
+    "token_estimate": "本席取证约 1.5 万 token；脚本化后单次对账 <2k token（纯 Python，无 LLM 调用），按每年 12 次月结计约 2.4 万 token/年",
+    "wall_clock": "脚本 <1 s；人工确认 T140/T144 约 5 min；整轮 6 席按 07 §6.1 取 max(usage.minutes) 计约 10 min",
+    "human_touchpoints": "1 次——确认 T140（中签买入 100 股 @138.00）与 T144（买入 100 股 @138.00）是否为同一笔缴款；其余 5 条可自动归类"
+  },
+  "rollback": "全流程只读输入：ledger.csv/bill.csv 只开读句柄、不写回，补记不落到自记账而写入独立的 runs/22 T-18/diff-table.csv；回滚 = 丢弃该新文件即可，源文件零改动。若已出具报告需撤回，保留旧文件、新建带 supersedes 标记的版本，不覆盖、不 unlink；无法确认可回滚时按 🟡 先备份到 _trash/ 再动。",
+  "op_grade": "🟡",
+  "cross_platform_risks": [
+    {
+      "risk": "编码：两文件为 UTF-8 中文列名且无 BOM（ledger 482 B、bill 923 B），Windows 默认 GBK 打开会抛 UnicodeDecodeError",
+      "mitigation": "open(..., encoding='utf-8', newline='') 显式声明；读取后断言首行含 'txn_id' 且能解出 6/13 列"
+    },
+    {
+      "risk": "换行：实测两文件 CRLF 计数为 0、LF 计数 6 与 9（行数+1），若用 newline=None 在 Windows 上会被转成 \\r\\n",
+      "mitigation": "csv 模块必须 newline=''；输出固定 \\n，写文件时 newline='' 并显式写 '\\n'"
+    },
+    {
+      "risk": "浮点：T139 自记账 fee 11.70 对交割单 11.73，float 相减得 -0.029999999999999805，会被误判为新的差异或掩盖 0.03 的真实差",
+      "mitigation": "全链路 Decimal(str(...))，比较前 quantize(0.01)，ROUND_HALF_UP；禁止 float 参与任何金额运算"
+    },
+    {
+      "risk": "路径：字符串拼接 'fixtures' + '/tasks' 在 Windows 产生混合分隔符，且包根路径含空格与中文（'2026-10-19-22-33-38'、'22 T-18'），shell 未加引号会截断",
+      "mitigation": "一律 pathlib.Path 拼接、避免 shell 传参；含空格路径必须双引号包裹"
+    },
+    {
+      "risk": "解释器与删除：macOS 目标机为 python3，脚本若写死 python 会失败；回滚若用 unlink 会被沙箱拦截",
+      "mitigation": "shebang 用 #!/usr/bin/env python3；回滚改为移动到 _trash/，不调用 unlink"
+    }
+  ],
+  "evidence": [
+    {
+      "pointer": "fixtures/tasks/T-18/ledger.csv#字节与换行",
+      "what_it_shows": "482B、LF=6、CRLF=0、无BOM，5行+表头，UTF-8"
+    },
+    {
+      "pointer": "fixtures/tasks/T-18/bill.csv#字节与换行",
+      "what_it_shows": "923B、LF=9、CRLF=0、无BOM，8行+表头，13列"
+    },
+    {
+      "pointer": "fixtures/tasks/T-18/ledger.csv#T139.fee_total",
+      "what_it_shows": "11.70对11.73差0.03，float会得-0.02999…，须Decimal"
+    },
+    {
+      "pointer": "fixtures/tasks/T-18/bill.csv#T140,T144的settle_date",
+      "what_it_shows": "09-10对09-16清算日不同但数值列全等，唯一人工裁决点"
+    }
+  ],
+  "falsification": "若对账不允许在独立差异表中补记、而必须直接改写 ledger.csv 回写生产账，则操作级别升为 🔴，须先出「方案/影响范围/回滚」三件套并由人签署后才能接生产数据，本方案的「只读可回滚」前提不成立；若输入实际为 GBK 编码、xls 二进制或含合并单元格，则本文的解析与编码路径全部失效。",
+  "reads": [
+    {
+      "path": "runs/round22/prompts/EX-03.md",
+      "purpose": "读取本席位提示词、操作分级、跨平台检查项与输出契约"
+    },
+    {
+      "path": "runs/round22/prompts/EX-01.md",
+      "purpose": "任务分配要求一次读三席提示词；用于确认 stance 选项空间与匿名化规则，同伴产出段为空，未取任何证据"
+    },
+    {
+      "path": "runs/round22/prompts/EX-02.md",
+      "purpose": "同上；确认软项与 usage 申报要求"
+    },
+    {
+      "path": "fixtures/tasks/T-18/TASK.md",
+      "purpose": "读取 summary 11 字段定义、四个易错点与 §D 判定口径，确认可脚本化的边界"
+    },
+    {
+      "path": "fixtures/tasks/T-18/ledger.csv",
+      "purpose": "逐行复算合计与差额，并实测字节数/换行/BOM 以支撑跨平台结论"
+    },
+    {
+      "path": "fixtures/tasks/T-18/bill.csv",
+      "purpose": "逐行复算合计，核查 13 列结构与 T140/T144 的清算日，评估人工介入点"
+    },
+    {
+      "path": "protocol/02-辩论协议.md",
+      "purpose": "确认 token 预算口径（多智能体约单轮 15 倍）与必交反对要求"
+    },
+    {
+      "path": "protocol/03-结构审计七查.md",
+      "purpose": "确认第 8 查写入域：席位不得写 fixtures/，故补记只能落到 runs/ 下新文件"
+    },
+    {
+      "path": "protocol/07-轮次与指标.md",
+      "purpose": "确认 usage 计量定义式（tokens 求和、minutes 取 max）与 §6.1 预算硬上限"
+    }
+  ],
+  "dissent": [
+    {
+      "against": "ANON-B",
+      "reason": "ANON-B 主张把 520.00 排除出金额差异。从执行成本看这是负收益：本期不补记，下期对账仍要重新发现同样两笔股息，一次性识别成本变成每期重复成本；而且 exclude 之后 amount_diff_total 与 raw_total_gap 之间留下 520.00 残差，每次月结都要额外写一条「残差说明」，人工介入次数从 1 次升到 2 次。",
+      "reverse_evidence": "若差异表能落盘并跨期结转，使被排除项在下一期自动带出、无需重新识别，则 ANON-B 的成本论证成立，我撤回此反对。"
+    },
+    {
+      "against": "ANON-A",
+      "reason": "ANON-A 的全额计入虽然结果与我一致，但它把 T142/T144 两条 0 差额条目也放进 diff_count=6，会让复核者去核对两个根本不涉及金额的单号；应把「金额差异」与「记账完整性缺陷」分开出表，否则 15 倍 token 的辩论成本换来的仍是混合清单。",
+      "reverse_evidence": "若下游复核流程只按单号逐条处理、不区分有无金额，则合并成一张表反而更省事，本反对不成立。"
+    }
+  ],
+  "confidence": "high",
+  "needs_more_data": [
+    "缺数据：T140 与 T144 的成交编号/资金流水号，用于把唯一的人工裁决点降为自动判定",
+    "缺数据：600519 在 2026-09 之前的期初持仓与分红实施公告，用于确认 T141/T143 各 260.00 的归属",
+    "缺规则：§D 未指明「日期」列对齐 trade_date 还是 settle_date；若按 settle_date 比，T144 不再是差异单号，diff_count 降为 5，脚本的比对键需随之改",
+    "缺规则：契约未规定补记应写入何处（自记账正文 vs 独立差异表），直接影响操作分级是 🟢 还是 🔴"
+  ],
+  "stance": [
+    {
+      "axis": "ADJ-001",
+      "choice": "count"
+    },
+    {
+      "axis": "DIFFSET",
+      "choice": "6"
+    }
+  ],
+  "diffs": [
+    {
+      "id": "T139",
+      "category": "价格差异"
+    },
+    {
+      "id": "T140",
+      "category": "整笔缺失"
+    },
+    {
+      "id": "T141",
+      "category": "现金分红漏记"
+    },
+    {
+      "id": "T142",
+      "category": "股数差异"
+    },
+    {
+      "id": "T143",
+      "category": "现金分红漏记"
+    },
+    {
+      "id": "T144",
+      "category": "日期口径差"
+    }
+  ],
+  "categories": {
+    "价格差异": [
+      "T139"
+    ],
+    "整笔缺失": [
+      "T140"
+    ],
+    "现金分红漏记": [
+      "T141",
+      "T143"
+    ],
+    "股数差异": [
+      "T142"
+    ],
+    "日期口径差": [
+      "T144"
+    ]
+  },
+  "summary": {
+    "ledger_rows": 5,
+    "bill_rows": 8,
+    "ledger_total": 256800.0,
+    "bill_total": 271240.0,
+    "raw_total_gap": 14440.0,
+    "dedup_removed_txn_count": 0,
+    "dedup_amount": 0.0,
+    "diff_count": 6,
+    "amount_diff_total": 14440.0,
+    "excluded_amount_total": 0.0,
+    "excluded_categories": []
+  },
+  "usage": {
+    "tokens": 15100,
+    "minutes": 8,
+    "source": "self_report"
+  },
+  "reads_path_normalized": {
+    "by": "orchestrator",
+    "date": "2026-10-20",
+    "count": 3,
+    "note": "目录重命名 'runs/22 T-18/' → 'runs/round22/'（编排层 zsh 分词失误，见 round-manifest.dir_rename_note）；reads 路径机械归一化，内容零改动，席位当时的申报对其物理现实完全准确"
+  }
+}

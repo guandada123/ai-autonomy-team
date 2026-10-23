@@ -1,0 +1,104 @@
+{
+  "seat": "EX-02",
+  "round": 33,
+  "conclusion": "6 条不是算出来的，是选出来的。契约 §D 只写「日期」，未指定比对 bill 的 trade_date 还是 settle_date；ledger.date 自陈为入账日（T152 恰等于 settle_date）。按交割日基准，T145/T146 同样差 1 日而 T152 无差，diff_count 应为 7。同一 1 日偏移被两套基准差别对待，6 是口径偏好而非算术事实，故我方取 7。",
+  "strongest_counter_arguments": [
+    {
+      "target": "ANON-A",
+      "argument": "6 条对日期列的选择高度敏感，且敏感性可精确证明：trade_date 基准得 {T147,T148,T149,T150,T151,T152}（6 条），settle_date 基准得 {T145,T146,T147,T148,T149,T150,T151}（7 条），两集合交集仅 5 个单号，T152 与 T145/T146 整组互换。多数派未做这个对照实验就宣布结论。更关键：T152 的 1 日差与 T145/T146 的 1 日差在 bill 里是同一现象（ledger.date 相对 settle_date 的偏移），一致性要求要么全列入（7）要么全不列入（5），6 恰是唯一不自洽的中间点。契约留白处被写成结论，等于把未决项伪装成已决项。",
+      "reverse_evidence": "若契约明文规定 ledger.date 按成交日对齐 trade_date（或 ledger.date 定义为成交日），则 6 为唯一正确值，本条作废。"
+    },
+    {
+      "target": "ANON-A",
+      "argument": "dedup 两字段的 0 是「按 txn_id 计」这条实现细节的产物，不是数据事实。T148 与 T149 除 txn_id 与 date 外逐字段相同（600036 卖出 500 股 @52.00、amount 26000.00、note 同为「只记佣金（漏印花税）」），正是同一笔卖出被双记的指纹。§B 把重复定义为同号多行，于是换号重录即免疫去重——该规则只能发现同号多行，发现不了同笔多号，而后者才是更常见的错记。按经济实质去重则 dedup_removed_txn_count=1、dedup_amount=26000.00，T149 退出清单、diff_count 落到 5，amount_diff_total 不变（其金额差本就 0.00）。多数派报 dedup=0 又报 T148/T149 为两条，等于承认「两笔」，两者不能同时为真而不加论证。",
+      "reverse_evidence": "若两文件含委托编号/成交序号等第二标识且证明 T148/T149 为两笔独立成交，则本条失效。"
+    },
+    {
+      "target": "ANON-A",
+      "argument": "ADJ-001 在本任务是空轴，任何「我选了 exclude 且有证据」的说法都不可证伪：T148/T149 的 amount 两侧同为 26000.00，费用差 26.52 依易错点 1、4 不得换算入金额，故 count 与 exclude 产出的 amount_diff_total 都是 380.00、excluded 都是 0.00。两选项数值不可区分，从 summary 反推只能得 abstain，翻边率在此轴上量到的是噪声。把不可辨识轴当已表态计入指标，是把假精度写进报表。",
+      "reverse_evidence": "若本任务 spec 的 ADJ-001 选项 implies 能产生非零口径差金额，则该轴可辨识，本条失效。"
+    }
+  ],
+  "what_would_change_my_mind": "① 契约明写日期比对以 trade_date 为准（或 ledger.date 即成交日）；② 给出 T148/T149 的独立成交编号；③ 若 §D 的「日期」被限定为仅跨月才算差，则 7 与 6 都应退到 5。三者任一成立，我放弃 7 条主张。",
+  "evidence": [
+    {
+      "pointer": "fixtures/tasks/T-19/bill.csv#T145,T146,T152 的 settle_date + fixtures/tasks/T-19/ledger.csv#同号 date",
+      "what_it_shows": "T145 09-05→交割 09-06、T146 09-07→09-08（均差 1 日）；T152 ledger 09-18 而成交 09-17、交割 09-18。同一偏移现象方向相反，取决于选哪列。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-19/TASK.md#D 差异的判定口径",
+      "what_it_shows": "原文只写「股数 / 成交金额 / 费用 / 日期」，未指定 bill 的哪一日期列 → 规则留白，构成 6/7 分歧的唯一来源。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-19/TASK.md#B 重复项字段",
+      "what_it_shows": "重复判定键写死为「同一 txn_id」，无「同笔换号」识别规则 → 规则缺口而非数据缺口。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-19/ledger.csv#T148,T149 + fixtures/tasks/T-19/bill.csv#T148,T149",
+      "what_it_shows": "除 txn_id/date 外字段逐一相同；fee 6.50 vs 19.76 差 13.26×2，amount 两侧均 26000.00 → 口径差不产生金额差。"
+    }
+  ],
+  "falsification": "若可读契约出现「日期以 bill.trade_date 为准」的明文（或 ledger.date 等价于成交日），则 7 条与「6 是口径偏好」的判断同时为错；若 bill 提供 T148/T149 的独立成交编号，则 dedup=1 的反论为错；若 §D 的日期被解释为仅跨月才算差，则 6 与 7 都应退到 5，我方数字方向性错误。",
+  "reads": [
+    {"path": "runs/round33/prompts/EX-02.md", "purpose": "取对立面席位的反向 KPI 设定与匿名化约束"},
+    {"path": "fixtures/tasks/T-19/TASK.md", "purpose": "逐条比对 §B/§C/§D 定义，定位规则留白"},
+    {"path": "fixtures/tasks/T-19/ledger.csv", "purpose": "取 7 行原始值并比对 note 列的口径自陈"},
+    {"path": "fixtures/tasks/T-19/bill.csv", "purpose": "取 8 行原始值，重点取双日期列与单侧单号 T151"},
+    {"path": "protocol/02-辩论协议.md", "purpose": "核对强制反对与「证据制而非投票制」的聚合规则"},
+    {"path": "protocol/07-轮次与指标.md", "purpose": "核对 stance 反推与立场语义冲突的触发条件"},
+    {"path": "protocol/", "purpose": "目录列举，确认协议文件清单（未读其余五份正文）"}
+  ],
+  "dissent": [
+    {
+      "against": "ANON-A",
+      "reason": "多数派 diff_count=6 建立在一个未声明的假设上：ledger.date 必须对齐 bill.trade_date。契约 §D 只写「日期」。该假设一旦松动，差异集合在 {T145,T146} 与 {T152} 之间整组互换，条数 6→7。以「6 条与 raw_gap 380.00 相符」为其辩护无效——两种情形金额合计都是 380.00（T145/T146 金额差为 0.00），即金额恒等对清单条数毫无约束力。",
+      "reverse_evidence": "契约出现「日期以成交日为准」的明文，或 ledger 存在任一 date==settle_date 且 note 标「正常」的行。"
+    },
+    {
+      "against": "ANON-C",
+      "reason": "若主张 T152 的 1 日差不算差异（从而给 5），须解释为何 T152 的 note「按交割日入账」与其余六行体例不同——这一行是被数据标记过的异常点，删掉它等于让唯一的自陈异常消失。删差异与列差异同样需要规则支撑，契约没给。",
+      "reverse_evidence": "若 §D 明文把日期差限定为跨月，或证明该 note 为模板套话（其余行同格式）。"
+    }
+  ],
+  "confidence": "medium",
+  "needs_more_data": [
+    "缺规则：§D「日期」未指定 bill 的列，直接决定 diff_count 为 6 还是 7；这是规则缺口，不是数据缺口。",
+    "缺规则：§B 重复判定键仅 txn_id，缺「同笔异号」规则；数据侧亦不足以裁决（见下条）。",
+    "缺数据：T148/T149 无委托编号/成交序号等第二标识，无法证否双记。",
+    "缺规则：ADJ-001 两选项在本夹具产出的 summary 数值相同，轴不可辨识，缺「不可辨识时如何记立场」的规则。"
+  ],
+  "stance": [
+    {"axis": "ADJ-001", "choice": "exclude"},
+    {"axis": "DIFFSET", "choice": "7"}
+  ],
+  "summary": {
+    "ledger_rows": 7,
+    "bill_rows": 8,
+    "ledger_total": 166800.00,
+    "bill_total": 167180.00,
+    "raw_total_gap": 380.00,
+    "dedup_removed_txn_count": 0,
+    "dedup_amount": 0.00,
+    "diff_count": 7,
+    "amount_diff_total": 380.00,
+    "excluded_amount_total": 0.00,
+    "excluded_categories": ["费用口径差"]
+  },
+  "diffs": [
+    {"id": "T145", "category": "入账日跨期"},
+    {"id": "T146", "category": "入账日跨期"},
+    {"id": "T147", "category": "金额不符"},
+    {"id": "T148", "category": "费用口径差"},
+    {"id": "T149", "category": "费用口径差"},
+    {"id": "T150", "category": "股数不符（送转未入账）"},
+    {"id": "T151", "category": "单侧缺失（股息入账）"}
+  ],
+  "categories": {
+    "入账日跨期": ["T145", "T146"],
+    "金额不符": ["T147"],
+    "费用口径差": ["T148", "T149"],
+    "股数不符（送转未入账）": ["T150"],
+    "单侧缺失（股息入账）": ["T151"]
+  },
+  "usage": {"tokens": 19000, "minutes": 7, "source": "self_report"}
+}

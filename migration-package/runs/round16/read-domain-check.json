@@ -1,0 +1,90 @@
+{
+  "check": "read_domain",
+  "round_dir": "runs/round16",
+  "round_role": "evidence_round",
+  "contract_version": "2.1",
+  "stage": "B",
+  "generated_at": "2026-10-20T15:27:48+08:00",
+  "read_domains": "config/read_domains.json",
+  "applied": true,
+  "verdict": "CLEAN",
+  "hits": [],
+  "per_seat": [
+    {
+      "seat": "AD-01",
+      "status": "invalid",
+      "declared_reads": [],
+      "evidence_derived": [],
+      "severity": "n/a"
+    },
+    {
+      "seat": "PM-01",
+      "status": "valid",
+      "declared_reads": [
+        {
+          "source": "reads[0]",
+          "declared": "runs/round16/prompts/PM-01.md",
+          "canonical": "runs/round16/prompts/PM-01.md",
+          "class": "allow"
+        },
+        {
+          "source": "reads[1]",
+          "declared": "fixtures/tasks/T-10/TASK.md",
+          "canonical": "fixtures/tasks/T-10/TASK.md",
+          "class": "unclassified"
+        },
+        {
+          "source": "reads[2]",
+          "declared": "fixtures/tasks/T-10/ledger.csv",
+          "canonical": "fixtures/tasks/T-10/ledger.csv",
+          "class": "unclassified"
+        },
+        {
+          "source": "reads[3]",
+          "declared": "fixtures/tasks/T-10/bill.csv",
+          "canonical": "fixtures/tasks/T-10/bill.csv",
+          "class": "unclassified"
+        },
+        {
+          "source": "reads[4]",
+          "declared": "runs/round16/EX-01.json",
+          "canonical": "runs/round16/EX-01.json",
+          "class": "allow"
+        },
+        {
+          "source": "reads[5]",
+          "declared": "runs/round16/EX-02.json",
+          "canonical": "runs/round16/EX-02.json",
+          "class": "allow"
+        },
+        {
+          "source": "reads[6]",
+          "declared": "runs/round16/EX-03.json",
+          "canonical": "runs/round16/EX-03.json",
+          "class": "allow"
+        },
+        {
+          "source": "reads[7]",
+          "declared": "runs/round16/seat-check.json",
+          "canonical": "runs/round16/seat-check.json",
+          "class": "allow"
+        },
+        {
+          "source": "reads[8]",
+          "declared": "runs/round16/",
+          "canonical": "runs/round16/",
+          "class": "allow"
+        }
+      ],
+      "evidence_derived": [],
+      "severity": "error"
+    }
+  ],
+  "summary": {
+    "seats": 2,
+    "hits": 0,
+    "seats_declaring_reads": 1
+  },
+  "boundary": "本文件是【声明式下界】：CLEAN 只说明「没有可检出的越界」，不说明「没有越界」。席位读取未申报的文件，对脚本完全不可见。",
+  "action": "PASS"
+}

@@ -1,0 +1,162 @@
+{
+  "seat": "EX-01",
+  "round": 23,
+  "conclusion": "按契约字面执行：两侧无重复单号（dedup=0），四列（股数/成交金额/费用/日期）不完全相同的非重复单号共 6 个——T155、T156、T157、T158、T159、T160；契约未给出任何排除口径差的例外，故 120.00 全额计入金额差异，amount_diff_total=380.00，恰好等于 raw_total_gap（120.00+260.00），账实可闭合。",
+  "evidence": [
+    {
+      "pointer": "fixtures/tasks/T-20/ledger.csv#amount(7行)",
+      "what_it_shows": "逐行累加=281800.00；T156/T157 fee 均19.00（漏印花税）"
+    },
+    {
+      "pointer": "fixtures/tasks/T-20/bill.csv#amount(8行)",
+      "what_it_shows": "逐行累加=282180.00 → raw_total_gap=380.00"
+    },
+    {
+      "pointer": "fixtures/tasks/T-20/bill.csv#T155,T159",
+      "what_it_shows": "45120−45000=120.00；单侧260.00；120+260=380 闭合"
+    },
+    {
+      "pointer": "fixtures/tasks/T-20/bill.csv#T160(trade_date,settle_date)",
+      "what_it_shows": "成交09-18/交割09-19，ledger 09-19：仅 trade_date 差1天"
+    },
+    {
+      "pointer": "fixtures/tasks/T-20/bill.csv#T158(shares)",
+      "what_it_shows": "送转 0 vs 30 股，金额贡献0"
+    }
+  ],
+  "diffs": [
+    {
+      "id": "T155",
+      "category": "金额口径差"
+    },
+    {
+      "id": "T156",
+      "category": "费用漏记"
+    },
+    {
+      "id": "T157",
+      "category": "费用漏记"
+    },
+    {
+      "id": "T158",
+      "category": "权益变动未入账"
+    },
+    {
+      "id": "T159",
+      "category": "单侧缺失_现金分红"
+    },
+    {
+      "id": "T160",
+      "category": "日期口径差"
+    }
+  ],
+  "categories": {
+    "金额口径差": [
+      "T155"
+    ],
+    "费用漏记": [
+      "T156",
+      "T157"
+    ],
+    "权益变动未入账": [
+      "T158"
+    ],
+    "单侧缺失_现金分红": [
+      "T159"
+    ],
+    "日期口径差": [
+      "T160"
+    ]
+  },
+  "summary": {
+    "ledger_rows": 7,
+    "bill_rows": 8,
+    "ledger_total": 281800.0,
+    "bill_total": 282180.0,
+    "raw_total_gap": 380.0,
+    "dedup_removed_txn_count": 0,
+    "dedup_amount": 0.0,
+    "diff_count": 6,
+    "amount_diff_total": 380.0,
+    "excluded_amount_total": 0.0,
+    "excluded_categories": []
+  },
+  "falsification": "若契约的『日期』列应比对 settle_date 而非 trade_date，则 T153–T157 各新增 1 天日期差异、T160 不再成立，diff_count 由 6 变 11，本结论被证伪；若把 120.00 判为不计入金额差异，则 amount_diff_total 应为 260.00 而非 380.00。",
+  "reads": [
+    {
+      "path": "runs/round23/prompts/EX-01.md",
+      "purpose": "读取本席位读取域、硬性字段与 stance 定义"
+    },
+    {
+      "path": "runs/round23/prompts/EX-02.md",
+      "purpose": "核对三席模板差异（对立面席位的字段要求）"
+    },
+    {
+      "path": "runs/round23/prompts/EX-03.md",
+      "purpose": "核对三席模板差异（落地席位字段要求）"
+    },
+    {
+      "path": "fixtures/tasks/T-20/TASK.md",
+      "purpose": "取 summary 十一字段计算方法与差异判定口径"
+    },
+    {
+      "path": "fixtures/tasks/T-20/ledger.csv",
+      "purpose": "逐行取自记账 7 行金额/费用/日期并累加"
+    },
+    {
+      "path": "fixtures/tasks/T-20/bill.csv",
+      "purpose": "逐行取交割单 8 行金额/费用/双日期并逐单比对"
+    },
+    {
+      "path": "protocol/02-辩论协议.md",
+      "purpose": "确认单轮阶段、输出契约与失败归因纪律"
+    },
+    {
+      "path": "protocol/03-结构审计七查.md",
+      "purpose": "确认写入域与席位读取域九查要求"
+    },
+    {
+      "path": "protocol/07-轮次与指标.md",
+      "purpose": "确认 stance 两轴反推规则与预算计量定义"
+    }
+  ],
+  "dissent": [
+    {
+      "against": "ANON-B",
+      "reason": "把 T160 排除在清单外（diff_count=5）缺乏契约依据：TASK.md 的差异判定口径明文含『日期』列，而 ledger 的 date=09-19 与 bill.trade_date=09-18 确不相同，属『四列不完全相同』；以经济实质相同为由剔除，等于在契约外新增一条排除规则。",
+      "reverse_evidence": "若契约明确写出『日期一律取交割日(settle_date)比对』，则 T160 不构成差异，我接受 5 条。"
+    },
+    {
+      "against": "ANON-C",
+      "reason": "『差额小/费用类差异不影响金额，可不入清单』的说法会把 T156/T157（各漏 38.76）与 T158（少 30 股）从账实核对中抹掉；这三条不贡献金额差异，但正是对账要交付的归因结果，删掉即失去核对价值。",
+      "reverse_evidence": "若把交付目标收窄为『只报金额差异』，则清单应只剩 T155/T159 两条，届时 6 条清单确实过宽。"
+    }
+  ],
+  "confidence": "high",
+  "needs_more_data": [
+    "缺规则：契约未规定『日期』列应取 bill.trade_date 还是 settle_date（唯一受影响项为 T160），本结论按最字面的 trade_date 执行",
+    "缺规则：ADJ-001『口径差是否计入金额差异』在契约正文无默认值，需裁决记录方可定稿",
+    "缺数据：无——两份 CSV 列完整、无空值，全部数字均可由原始行复算"
+  ],
+  "stance": [
+    {
+      "axis": "ADJ-001",
+      "choice": "count"
+    },
+    {
+      "axis": "DIFFSET",
+      "choice": "6"
+    }
+  ],
+  "usage": {
+    "tokens": 9600,
+    "minutes": 14,
+    "source": "self_report"
+  },
+  "reads_path_normalized": {
+    "by": "orchestrator",
+    "date": "2026-10-20",
+    "count": 3,
+    "note": "目录重命名 'runs/23 T-20/' → 'runs/round23/'（编排层 zsh 分词失误，见 round-manifest.dir_rename_note）；reads 路径机械归一化，内容零改动，席位当时的申报对其物理现实完全准确"
+  }
+}

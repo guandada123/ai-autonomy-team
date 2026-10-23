@@ -1,0 +1,60 @@
+{
+  "conclusion": "口径差差额恰等于税额且 note 列自证（2120/2000=1.06），故计入 excluded 不计金额差异；跨月项 T106 差额 0.00 仍占清单，diff_count=7。",
+  "evidence": [
+    {
+      "pointer": "fixtures/ledger.csv#T104,T105 + fixtures/bill.csv#T104,T105",
+      "what_it_shows": "台账 2120/1060 标 Y，账单 2000/1000 标 N；比值均 1.06，差额 120/60 恰为税额。"
+    },
+    {
+      "pointer": "fixtures/ledger.csv#T106 + fixtures/bill.csv#T106",
+      "what_it_shows": "两行金额同为 4800.00（差额 0.00），仅日期 09-30→10-01，属期间归属非金额差。"
+    },
+    {
+      "pointer": "fixtures/ledger.csv#T107（bill.csv 无此单号）",
+      "what_it_shows": "单边缺失 500.00；加 T101/T102 的 0.02 得 500.02，与 excluded 180.00 拼合。"
+    },
+    {
+      "pointer": "fixtures/TASK.md#L69-L76",
+      "what_it_shows": "契约明文定义 excluded_amount_total 与 excluded_categories 字段及算法，排除机制是内建结构。"
+    },
+    {
+      "pointer": "migration-package/[deny-domain path redacted] 与 migration-package/protocol/ 实读清单",
+      "what_it_shows": "[deny-domain path redacted] 含 verify.py(33781B) 等 5 文件，protocol/ 含 7 篇，全包 find 无空目录。"
+    }
+  ],
+  "falsification": "以下任一条成立，我的结论即错：(1) 若台账侧 T104/T105 的 tax_included 亦为 N，或出现第三个口径样本比值≠1.06，则 180.00 须移入 amount_diff_total，两字段变为 680.02 / 0.00；(2) 若 T107 以其他单号出现在账单且金额匹配，则 500.00 不属计入类，amount_diff_total 应降至 0.02；(3) 若「差异清单」被判定不收录重复项与跨月项，则 diff_count 应为 5 而非 7；(4) 若账单 T103 两行被认定为两笔独立交易，则 dedup_amount≠1200.00，raw_total_gap 的行级分解不再闭合。",
+  "dissent": [
+    {
+      "against": "ANON-C",
+      "reason": "称「五目录全为空、包内无 verify.py」不实：find -type d -empty 无输出，[deny-domain path redacted] 实含 verify.py 33781B。",
+      "reverse_evidence": "给出该路径下 `find migration-package -type d -empty` 的输出且五目录确为空，或证明该清单取自早于本包当前快照的旧状态；否则须从「包内为空」降级为「打包时未纳入」并重新取证。"
+    },
+    {
+      "against": "ANON-B",
+      "reason": "其反证④「契约不设 excluded 字段」被 TASK.md:74-76 否证；「排除靠契约外惯例」被 note 列「口径差异样本」否证。",
+      "reverse_evidence": "若 note 列属外部注入的非权威标注、或契约删除 excluded_* 两字段、或第三个口径样本比率≠1.06，则「数据内自证」不成立，我这条反对撤回，甲的自洽性反而占优。"
+    }
+  ],
+  "confidence": "high",
+  "needs_more_data": [
+    "T104/T105 的 tax_included=N 是制度性口径还是录入错误（决定 180.00 归属，本轮无新数据可闭合）",
+    "是否存在成文的舍入容差阈值（决定 T101/T102 的 0.02 计入或转入 excluded，影响仅 0.02）"
+  ],
+  "stance": [
+    {
+      "axis": "ADJ-001",
+      "choice": "exclude"
+    },
+    {
+      "axis": "DIFFSET",
+      "choice": "7"
+    }
+  ],
+  "summary": {
+    "amount_diff_total": 500.02,
+    "excluded_amount_total": 180.0,
+    "diff_count": 7,
+    "ledger_rows": 27,
+    "bill_rows": 27
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "note": "任务级事实表列 schema（D-0012）。缺失 = 001 默认布局。比对列必须两侧 CSV 都存在。",
+  "key": "txn_id",
+  "sides": [
+    {
+      "file": "ledger.csv",
+      "name": "自记账",
+      "date_col": "date",
+      "amount_col": "amount",
+      "compare": [
+        {
+          "col": "fee_total",
+          "label": "费用",
+          "agg": "sum",
+          "fmt": "money"
+        },
+        {
+          "col": "shares",
+          "label": "股数",
+          "agg": "sum",
+          "fmt": "int"
+        }
+      ]
+    },
+    {
+      "file": "bill.csv",
+      "name": "交割单",
+      "date_col": "trade_date",
+      "amount_col": "amount",
+      "compare": [
+        {
+          "col": "fee_total",
+          "label": "费用",
+          "agg": "sum",
+          "fmt": "money"
+        },
+        {
+          "col": "shares",
+          "label": "股数",
+          "agg": "sum",
+          "fmt": "int"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,70 @@
+{
+  "slug": "2026-10-22-5f3a17",
+  "generated_at": "2026-10-23T08:02:00+08:00",
+  "angles": 8,
+  "criteria": [
+    "C1",
+    "C2",
+    "C3",
+    "C4",
+    "C5"
+  ],
+  "pass_total": 40,
+  "cells_total": 40,
+  "column_pass": {
+    "C1": 8,
+    "C2": 8,
+    "C3": 8,
+    "C4": 8,
+    "C5": 8
+  },
+  "solo_criteria": [],
+  "actions_total": 7,
+  "actions_unique": 7,
+  "actions_change_level": 4,
+  "actions_no_data": false,
+  "unique_items": [
+    {
+      "angle": 1,
+      "angle_name": "主推",
+      "text": "新门禁编号需避让已有的 I（字母占位已被非门禁项占用）",
+      "level": "minor"
+    },
+    {
+      "angle": 2,
+      "angle_name": "反对",
+      "text": "先补测 pre_release_check 基线耗时，否则「增加耗时」无法观测",
+      "level": "change"
+    },
+    {
+      "angle": 4,
+      "angle_name": "前提",
+      "text": "先跑 ≥1 次真实决策闭环，再决定是否设为必跑",
+      "level": "change"
+    },
+    {
+      "angle": 5,
+      "angle_name": "受益方",
+      "text": "补记未被点名的受影响者：将来接手的人、被门禁阻断后临时补 40 格的人",
+      "level": "minor"
+    },
+    {
+      "angle": 6,
+      "angle_name": "依赖与外部性",
+      "text": "卡点是人不是代码：能否稳定坐下来填 40 格",
+      "level": "minor"
+    },
+    {
+      "angle": 7,
+      "angle_name": "风险与不可逆",
+      "text": "重跑覆盖风险的验证方法（填一格 → 重跑 → 看是否保留）",
+      "level": "change"
+    },
+    {
+      "angle": 8,
+      "angle_name": "度量与证伪",
+      "text": "「40 格全填合格」与真审查在度量口径下不可区分，需额外留痕才能归因",
+      "level": "change"
+    }
+  ]
+}

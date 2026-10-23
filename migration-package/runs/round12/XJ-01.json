@@ -1,0 +1,182 @@
+{
+  "seat": "XJ-01",
+  "round": 12,
+  "conclusion": "本轮分歧清单共 4 项。三席 CSV 复算数值（ledger 7/181800.00、bill 8/182180.00、gap 380.00、dedup 0/0.00、diff_count 6、amount_diff_total 380.00、excluded_amount_total 0.00）与本席脚本独立复算完全一致，无虚构迹象；但 ADJ-001 表态分裂（exclude vs count×2）与各自 summary 数值之间存在两处映射矛盾，费用差 26.55 在 TASK.md 的 summary 契约字段中无落点、三席披露程度不一，且 EX-02/EX-03 缺 diffs/categories 数组致其差异清单构成不可校验。",
+  "disagreements": [
+    {
+      "topic": "ADJ-001 表态标签与 summary 数值的映射矛盾",
+      "positions": [
+        {
+          "anon_id": "EX-01",
+          "stance": "ADJ-001=exclude，但其 summary 为 amount_diff_total=380.00 / excluded_amount_total=0.00——这是「count」的数值签名（protocol/07 L81 反推规则：count ⇔ excluded_amount_total==0）。其排除动作仅体现在 excluded_categories 非空（FEE_ONLY_DIFF/SHARE_QTY_DIFF/BOOKING_DATE_DIFF 三类零差额类别）"
+        },
+        {
+          "anon_id": "EX-02",
+          "stance": "ADJ-001=count，但 excluded_categories 非空（费用差异/股数差异/日期口径差异三类），与「全部计入」语义存在张力；数值侧 380.00/0.00 与 count 自洽"
+        },
+        {
+          "anon_id": "EX-03",
+          "stance": "ADJ-001=count 且 excluded_categories=[]，标签-数值-类别三者在三席中唯一完全自洽"
+        }
+      ],
+      "why_it_matters": "三席 summary 数值完全相同，ADJ-001 分裂在本数据上无任何数值后果——若硬裁判以 summary 数值反推 stance，EX-01 的 exclude 与 EX-02 的 count+非空 excluded_categories 均不可复现；若以 stance 标签为准，则同一份 excluded_categories 内容（EX-01 与 EX-02 实质相同的三类零差额排除）被贴上了相反标签。裁判需裁定以标签还是以数值为准。",
+      "decidable_by": "可执行裁判（校验 stance 标签与 summary/excluded_categories 的自洽性，不需人类闸门）"
+    },
+    {
+      "topic": "费用差 26.55 在 summary 契约字段中无落点，三席披露程度不一",
+      "positions": [
+        {
+          "anon_id": "EX-01",
+          "stance": "在 evidence 中按笔披露 13.26×2（T036/T037）与 0.03（T035），未在 conclusion 给出 26.55 合计"
+        },
+        {
+          "anon_id": "EX-02",
+          "stance": "唯一在 conclusion 明示 26.55（26.52+0.03）并警告「不显式披露则 summary 会被读成差异已全部归因」"
+        },
+        {
+          "anon_id": "EX-03",
+          "stance": "全文未提及 T036/T037 的 13.26 费用差，仅 evidence 中出现 T035 的费用 11.73 对 11.70；26.52 部分完全缺位"
+        }
+      ],
+      "why_it_matters": "TASK.md 的 amount_diff_total/excluded_amount_total 均定义在成交金额（amount 列）上，fee_total 差额 26.55 结构性无处安放；三席均将 T036/T037 计入 6 条差异（amount 差为 0），故数值校验抓不到任何问题。费用漏记 26.55 是否须显式披露、披露到什么粒度，是本次核对最重要的实质信息之一，只能靠披露要求约束。",
+      "decidable_by": "可执行裁判（若判分含「费用差须明示」的披露校验）；否则不可判定（需人类闸门裁定披露义务）"
+    },
+    {
+      "topic": "EX-02 与 EX-03 缺失 diffs[]/categories[] 数组",
+      "positions": [
+        {
+          "anon_id": "EX-01",
+          "stance": "含完整 diffs（6 条）与 categories（5 类）双向自洽数组"
+        },
+        {
+          "anon_id": "EX-02",
+          "stance": "顶层无 diffs/categories 字段；6 条差异的构成只能从散文推断，不可校验"
+        },
+        {
+          "anon_id": "EX-03",
+          "stance": "顶层无 diffs/categories 字段；execution_path 第 6 步声称「diffs 6 条与 categories 双向自洽」但输出中无对应数组"
+        }
+      ],
+      "why_it_matters": "TASK.md 约束 4 要求 diffs 每条含 id 与 category 且与 categories 自洽，diff_count 须等于 diffs 数组长度。EX-02/EX-03 的 diff_count=6 无法按契约校验。",
+      "decidable_by": "可执行裁判（结构完整性校验）"
+    },
+    {
+      "topic": "settle_date 基准反事实下的 diff_count，EX-01 与 EX-02 各给出不同且均不正确的数",
+      "positions": [
+        {
+          "anon_id": "EX-01",
+          "stance": "其 falsification 称若按 settle_date 比较，diff_count 应为 8"
+        },
+        {
+          "anon_id": "EX-02",
+          "stance": "其 dissent 称若按 settle_date 比较，T033–T037 五条全成日期差异，diff_count 应为 11"
+        },
+        {
+          "anon_id": "EX-01 与 EX-02 共同未检验处",
+          "stance": "本席脚本按 settle_date 基准实算为 7：T040 的 ledger.date=09-15 恰等于 settle_date=09-15，四列全等反而落出差异集"
+        }
+      ],
+      "why_it_matters": "两席均用这一反事实数字支撑「trade_date 对齐是唯一低残差解」的论证，但反事实算术未经复算，量化基础不牢（不改变最终结论，三席采 trade_date 基准与本席复算一致）。",
+      "decidable_by": "可执行裁判（脚本复算即可裁定 7 为唯一正确反事实值）"
+    }
+  ],
+  "overlooked_stances": [
+    "「T035 的 120.00 判为计价口径差并排除」的数值结局（260.00/120.00）被三席一致讨论又一致拒绝，但无任何席实际产出该组数供对照",
+    "settle_date 基准下 diff_count 的正确反事实值 7（含 T040 退出差异集）未被任何席报出：EX-01 报 8、EX-02 报 11",
+    "protocol/07 L81 显示 ADJ-001 存在第三个选项 abstain，三席均未使用亦未讨论其适用条件",
+    "EX-01 指出 T038「10送3」对应 +30 股无法用现有两文件自洽校验（缺持仓基准），该数据缺口未进入任何席的分歧框架"
+  ],
+  "presentation_controls": {
+    "anonymized": true,
+    "order_randomized": false,
+    "length_normalized": true
+  },
+  "self_caution": "① 我按文件名固定顺序 EX-01→EX-02→EX-03 读取原始产出，未做顺序随机化（order_randomized 如实填 false）；立场摘录做了长度压缩，但先行者效应未被本席消除。② 我的「反事实 diff_count=7」修正与三席共享同一个未明文的对齐选择（ledger.date 对 bill 的日期列）；若口径陷阱恰在日期配对，我的修正会与三席一起相关失效。③ 我对 ADJ-001「标签-数值矛盾」的判定依赖 protocol/07 L81/L110 反推规则适用于 T-05 的假设——示例数值来自其他任务，protocol/04 L61 只有 schema 无本轮 question 明文。我是跨家族评委、权重 0，以上皆为线索非判据。",
+  "note": "本产出为线索，非判据，决策权重为 0",
+  "evidence": [
+    {
+      "pointer": "fixtures/tasks/T-05/{ledger.csv,bill.csv}#本席 Decimal 脚本逐行复算",
+      "what_it_shows": "ledger 7 行 181800.00、bill 8 行 182180.00、gap 380.00；两侧 txn_id 均无重复；trade_date 基准下差异单号恰为 T035–T040 共 6 条；fee_total 差合计 0.03+13.26+13.26=26.55。三席全部 11 个 summary 数值与之逐一相符，无虚构迹象"
+    },
+    {
+      "pointer": "runs/round12/EX-01.json#stance[0].choice 与 #summary",
+      "what_it_shows": "stance ADJ-001=exclude，但 excluded_amount_total=0.00、amount_diff_total=380.00——与 protocol/07 L81 中 count 的数值签名相同"
+    },
+    {
+      "pointer": "runs/round12/EX-02.json#stance[0].choice 与 #summary.excluded_categories",
+      "what_it_shows": "stance=count 但 excluded_categories 非空，标签与排除动作并存，与 EX-01 实质内容相同而标签相反"
+    },
+    {
+      "pointer": "runs/round12/EX-02.json#conclusion 对照 EX-03.json 全文",
+      "what_it_shows": "26.55 仅 EX-02 明示合计；EX-01 仅按笔 13.26；EX-03 完全未提 T036/T037 费用差，披露粒度三级分化"
+    },
+    {
+      "pointer": "runs/round12/EX-02.json 与 EX-03.json 顶层字段清单",
+      "what_it_shows": "两席均无 diffs[]/categories[] 数组，TASK.md 约束 4 对二者不可执行校验；仅 EX-01 含完整数组"
+    },
+    {
+      "pointer": "EX-01.json#falsification（「应为 8」）与 EX-02.json#dissent[2]（「应为 11」）对照本席复算",
+      "what_it_shows": "settle_date 基准下实算差异单号为 7 条：T040 四列全等落出差异集，T033/T034 新入；两席反事实数字均与实算不符"
+    },
+    {
+      "pointer": "protocol/07-轮次与指标.md#L81,L110-L111",
+      "what_it_shows": "ADJ-001 选项 count/exclude/abstain，反推规则 count ⇔ excluded_amount_total==0；DIFFSET=summary.diff_count，选项空间 7/6/5/4"
+    }
+  ],
+  "falsification": "本席线索在以下条件下失效：(1) 若本轮 ADJ-001 的 question 明文与 protocol/07 L81 示例语义不同，则我对 EX-01「标签-数值矛盾」的指控错位；(2) 若日期列法定配对为 settle_date，则我的修正值 7 连同三席的 trade_date 对齐全部相关失效；(3) 若 EX-02/EX-03 的 diffs/categories 另文件存在而非缺失，「结构缺失」不成立；(4) 若费用差 26.55 契约另有隐含落点，「无落点」表述为错。任一成立，对应分歧条目应整体剔除。",
+  "reads": [
+    {
+      "path": "runs/round12/prompts/XJ-01.md",
+      "purpose": "读取本席职责、读取域、输出模板与硬性字段要求"
+    },
+    {
+      "path": "fixtures/tasks/T-05/TASK.md",
+      "purpose": "取得 summary 字段定义、四个易错点与差异判定口径"
+    },
+    {
+      "path": "fixtures/tasks/T-05/ledger.csv",
+      "purpose": "逐行读取 7 条自记账记录并复算"
+    },
+    {
+      "path": "fixtures/tasks/T-05/bill.csv",
+      "purpose": "逐行读取 8 条交割单记录并复算、逐笔比对四列"
+    },
+    {
+      "path": "runs/round12/EX-01.json",
+      "purpose": "读原始产出全文（非摘要）核对 summary/stance/结构"
+    },
+    {
+      "path": "runs/round12/EX-02.json",
+      "purpose": "读原始产出全文核对 26.55 披露与 excluded_categories 张力"
+    },
+    {
+      "path": "runs/round12/EX-03.json",
+      "purpose": "读原始产出全文核对费用差披露缺位与字段落差"
+    },
+    {
+      "path": "runs/round12/round-manifest.json",
+      "purpose": "确认轮次类型、契约版本 2.1 与 usage 硬字段要求"
+    },
+    {
+      "path": "protocol/07-轮次与指标.md#L81,L110-L111（grep 定位）",
+      "purpose": "核实 ADJ-001 选项空间与反推规则、DIFFSET 定义"
+    },
+    {
+      "path": "protocol/04-双裁判规范.md#L61（grep 定位）",
+      "purpose": "确认 ADJ-001 的 adjudication schema"
+    },
+    {
+      "path": "protocol/03-结构审计七查.md#L49（grep 定位）",
+      "purpose": "确认 ADJ-001 为当前待签金额口径项"
+    },
+    {
+      "path": "protocol/06-写入域与判据分层.md#L152（grep 定位）",
+      "purpose": "确认 stance 记录格式"
+    }
+  ],
+  "usage": {
+    "tokens": 32000,
+    "minutes": 13,
+    "source": "self_report"
+  }
+}

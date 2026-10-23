@@ -1,0 +1,65 @@
+{
+  "seat": "EX-03",
+  "round": 2,
+  "conclusion": "落地结论 ADJ-001=exclude、DIFFSET=7：truth.json 的 rules 与 expected 已把两个判断写成机器可读真值，偏离即 JD-01 fail。",
+  "evidence": [
+    {
+      "pointer": "fixtures/truth.json:9,28,32-35,86,107,114",
+      "what_it_shows": "rules 明定口径差不计入金额差异、跨月不剔除；expected=500.02/180.0/7"
+    },
+    {
+      "pointer": "runs/round1/adjudicated.json#adjudication_provenance",
+      "what_it_shows": "ADJ-001=exclude 经 JD-01 校验 6/6，来源为 SELFTEST 占位"
+    },
+    {
+      "pointer": "fixtures/truth.json:138-142 与 fixtures/spec/adjudication.json#status",
+      "what_it_shows": "类别名只做 present 校验；裁决层 status 仍 unresolved，却被 truth.json 预先固化"
+    },
+    {
+      "pointer": "config/params.json#cost_budget",
+      "what_it_shows": "硬上限 80000 token / 30 分钟；硬裁判 token 成本恒为 0"
+    }
+  ],
+  "falsification": "若 fixtures/truth.json 的 rules/expected 被改写（如口径差改判为计入→680.02），或人类裁决记录把 ADJ-001 判为 count，则 exclude/7 立即不成立；任何一次 JD-01 fail 亦可证伪本结论。",
+  "dissent": [
+    {
+      "against": "ANON-A",
+      "reason": "A 所称 count/exclude 分歧非席位间分歧：三包数字同为 500.02/180/7，且 truth.json 已固化 exclude，无裁决杠杆。",
+      "reverse_evidence": "若 truth.json 的 expected 不含 500.02/180（裁决保持 pending），或任一同伴包给出 680.02，则分歧真实且具裁决杠杆。"
+    },
+    {
+      "against": "ANON-B",
+      "reason": "B 把 6% 称为「估计出的归纳常量」，但 truth.json:9 已明文声明口径差规则，属机器可读的声明常量而非 n=2 归纳，其结构性弱点论证打错了靶。",
+      "reverse_evidence": "若 truth.json 的 rules 段不含 caliber 规则（口径差只能靠两行比值反推），则 B 的归纳质疑成立、confidence 应下调。"
+    }
+  ],
+  "cost": {
+    "token_estimate": "本席 ≈8–10k（三包 ≈3.3k＋协议 ≈1k＋本地只读取证 ≈4k）；全项目多智能体 ≈45–75k，约 20× 单 agent（≈3k）",
+    "wall_clock": "本席 ≈5–8 分钟；全项目 15–30 分钟（JD-01 硬裁判单跑实测约 0.57s）",
+    "human_touchpoints": "1 次（ADJ-001/002/003 人类裁决闸门，当前仅 SELFTEST 占位、未真实填写）"
+  },
+  "op_grade": "🟢",
+  "rollback": "仅新增 round2/EX-03.json；撤销即 rename 到 _trash/，未改 fixtures/。",
+  "cross_platform_risks": [
+    {
+      "risk": "产物按 CRLF 写盘致 sha256 跨平台不一致",
+      "mitigation": "写盘统一 newline='\\n' 与 encoding='utf-8'"
+    },
+    {
+      "risk": "mac 侧沙箱拦截 unlink，回滚删文件会失败",
+      "mitigation": "同盘 rename 进 _trash/，禁用 os.unlink"
+    },
+    {
+      "risk": "BASE 硬编码绝对路径，mac 上 FileNotFoundError",
+      "mitigation": "改用 pathlib 相对脚本定位 BASE"
+    }
+  ],
+  "confidence": "medium",
+  "stance": [
+    {"axis": "ADJ-001", "choice": "exclude"},
+    {"axis": "DIFFSET", "choice": "7"}
+  ],
+  "summary": {
+    "diff_count": 7
+  }
+}

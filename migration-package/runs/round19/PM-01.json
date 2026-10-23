@@ -1,0 +1,148 @@
+{
+  "seat": "PM-01",
+  "round": 19,
+  "board": [
+    {
+      "id": "T-14/EX-01",
+      "owner": "EX-01",
+      "state": "通过",
+      "next_action": "无需返工；其 count 立场作为多数结论备查",
+      "blocker": "无",
+      "evidence": "runs/round19/EX-01.json（sha256 22610ab9…ccb51，seat_check=valid，errors=[]）",
+      "judge": "pass",
+      "deadline": "2026-10-20T17:28+08:00（已达成）"
+    },
+    {
+      "id": "T-14/EX-02",
+      "owner": "EX-02",
+      "state": "通过",
+      "next_action": "采纳其金额分桶（exclude）；W_STANCE_MISMATCH 记录在案不返工",
+      "blocker": "无",
+      "evidence": "runs/round19/EX-02.json（sha256 57067ba9…8c7d4，seat_check=valid，errors=[]，warn=W_STANCE_MISMATCH）",
+      "judge": "pass",
+      "deadline": "2026-10-20T17:28+08:00（已达成）"
+    },
+    {
+      "id": "T-14/EX-03",
+      "owner": "EX-03",
+      "state": "通过",
+      "next_action": "无需返工；脚本断言层（fee 三列自洽 8/8、Decimal 全链路）作为复算佐证",
+      "blocker": "无",
+      "evidence": "runs/round19/EX-03.json（sha256 6ef1ce0c…14c1a，seat_check=valid，errors=[]）",
+      "judge": "pass",
+      "deadline": "2026-10-20T17:28+08:00（已达成）"
+    },
+    {
+      "id": "T-14/AD-01",
+      "owner": "AD-01",
+      "state": "阻塞",
+      "next_action": "下一轮补发红队席位，专攻「exclude 是否破坏 380.00 恒等」与「日期映射」两条已留痕分歧",
+      "blocker": "AD-01 本轮未产出（时序原因），无红队反审；本轮不得据此声称反对义务已履行",
+      "evidence": "runs/round19/ 无 AD-01.json（目录列举可核）",
+      "judge": "无",
+      "deadline": "round20 开轮"
+    },
+    {
+      "id": "T-14/XJ-01",
+      "owner": "XJ-01",
+      "state": "阻塞",
+      "next_action": "如需交叉裁判，须在 round20 补 XJ-01；本轮 unanimity 不可校验",
+      "blocker": "XJ-01 缺席，无产出；cross-judge 通道缺失",
+      "evidence": "runs/round19/ 无 XJ-01.json；seat-check 只覆盖 EX-01/02/03",
+      "judge": "无",
+      "deadline": "round20 开轮"
+    },
+    {
+      "id": "T-14/PM-01",
+      "owner": "PM-01",
+      "state": "待裁",
+      "next_action": "产出已落盘；ADJ-001（金额分桶）与 ADJ-002（清单范围）需人工签署后方可过账",
+      "blocker": "无（仅缺人工签字；PM 已按「有独立证据支持的少数」拍板暂定值）",
+      "evidence": "runs/round19/answer-final.json、runs/round19/PM-01.json",
+      "judge": "无",
+      "deadline": "人工签署时点（未定）"
+    }
+  ],
+  "decision": "暂定采纳：7/8 行、409420.00/409800.00、raw_total_gap=380.00、dedup=0 个/0.00、diff_count=6（T107/T108/T109/T110/T111/T112，日期按 trade_date）、amount_diff_total=120.00、excluded_amount_total=260.00、excluded_categories=[非交易事项-送转未更新股数, 非交易事项-股息入账]。金额轴采用少数席 EX-02 的 exclude 口径，多数席 EX-01/EX-03 的 count/380.00 全文保留备查。",
+  "basis": [
+    "独立复算（PM-01，python3+csv+Decimal，newline=''、utf-8）：ledger 7 行 amount 合计 409420.00，bill 8 行合计 409800.00，gap 380.00；两侧 15 个 txn_id 各自无重复 → dedup 0/0.00。三席算术层与本席复算逐项一致，算术分歧为零。",
+    "四列比对（shares/amount/fee_total/date）得差异集 {T107(金额+费用, Δ120.00), T108(费用, Δ0), T109(费用, Δ0), T110(股数 0↔30, Δ0), T111(单侧, Δ260.00), T112(日期, Δ0)}，Σabs=380.00，与 raw_total_gap 恒等。",
+    "§C 结构性要求把差异单号分入「计入」与「不计入」两类并列出 excluded_categories；若无可排除项，§C 的 excluded_amount_total / excluded_categories 成为死字段，与契约设置该字段的意图不符。",
+    "独立证据（EX-02 evidence[0]）：T111 side=股息入账、shares=0、price=0.00、commission/stamp_tax/transfer_fee 全 0，仅 260.00 现金流入，且 note 明写「现金分红，自记账无」——非成交事项，其处置为补记分红分录，而 T107 的 120.00 处置为调价；两类动作混算成一个 380.00 会产出不可执行的总数。",
+    "聚合规则适用：「有独立证据支持的少数 → 采纳，并保留多数结论备查」。EX-02 的少数有数据级证据（T111 零股零价零费）；多数侧的主依据是算术恒等（380.00≡raw_total_gap）与 §D 字面，恒等是算术属性而非分类依据，故不足以单独决定分桶。",
+    "采纳后仍保持总差闭合：amount_diff_total + excluded_amount_total = 120.00 + 260.00 = 380.00 = raw_total_gap，多数侧最担心的「恒等被破坏」在数值上并不成立，只是被拆成两桶呈现。",
+    "日期轴按 bill.trade_date 比对：T105–T109 五单 ledger.date 全等于 trade_date（全表 6/7），唯 T112 的 date=2026-09-19 等于 settle_date 且 note 自陈「按交割日入账」→ 判为个例记账错误，diff_count=6。三席在差异集上一致，无少数。"
+  ],
+  "alternatives_rejected": [
+    {
+      "option": "整体采纳多数 count 口径（amount_diff_total=380.00、excluded_amount_total=0.00、excluded_categories=[]）",
+      "why_not": "把两类处置动作相反的事项压进同一数字，且使 §C 专设的 exclude 字段永久为空；其对「必须保留恒等」的主张在拆桶后仍成立（120+260=380），不构成排除少数席的理由。已留痕保留其完整表述与证伪条件。"
+    },
+    {
+      "option": "按 settle_date 映射日期（diff_count=7，T105/T106 补入、T112 出列）",
+      "why_not": "全表 6/7 行的 ledger.date 等于 trade_date，仅 T112 例外且其 note 自陈违规；采用 settle 会把 note 标为「正常」的 T105/T106 判为异常、却放过自陈「按交割日入账」的 T112，自相矛盾。风险：契约未定义映射，属未裁规格假设（见 self_doubt）。"
+    },
+    {
+      "option": "进一步收缩清单范围（diff_count=4，把 T110/T111 移出「成交差异」清单）",
+      "why_not": "§D 定义「差异单号」为四列不完全相同或仅单侧存在，未限定为成交事项；移出会与 §D 字面冲突。仅把二者归入 exclude 类别、仍留在 diffs 中，可同时满足 §D 清单口径与 §C 分桶要求。"
+    },
+    {
+      "option": "按业务值去重（把 T108/T109 判为重复单号，dedup=1）",
+      "why_not": "§B 明写「按单号计，不按行计」；两单 txn_id 不同、日期不同，非分批成交同号多行。若按值去重，raw_total_gap 会由 380.00 变 14180.00，全字段错位。"
+    }
+  ],
+  "risk": {
+    "rating": "中",
+    "irreversible": "否",
+    "rollback": "三级：①未过账——answer-final.json 与 PM-01.json 均为新增文件，直接重写即可（无副作用）；②已过账未签署——按 round 前 ledger.csv/bill.csv 哈希与 answer-final.json 哈希为锚整体重放，旧版移入 _trash/<ts>/ 留档不覆盖（禁 unlink）；③已人工签署——裁决记录不回滚，只追加 superseded_by 指针。注：采纳 exclude 后若被裁决推翻，回滚成本为两桶合并（120+260→380），无数据丢失。"
+  },
+  "diff_preserved": [
+    {
+      "side": "多数",
+      "conclusion": "EX-01 / EX-03：amount_diff_total=380.00、excluded_amount_total=0.00、excluded_categories=[]；依据 §D 字面「仅单侧存在的单号亦为差异单号，差额取该单号在该侧的 amount」与 380.00≡raw_total_gap 的可自检闭合。",
+      "falsification": "若科目余额表/应收股利明细显示 260.00 已于前期确认入账（同一经济事项已计量），则 260 属重复计量而非缺口，380.00 为高估 → 该结论被证伪。",
+      "adopted": false
+    },
+    {
+      "side": "少数",
+      "conclusion": "EX-02：amount_diff_total=120.00、excluded_amount_total=260.00、excluded_categories 含「非交易事项-股息入账」；T111 零股零价零费、仅 260.00 现金流入，是权益分派而非成交，处置动作（补分录）与 T107（调价）不同。",
+      "falsification": "若下游仅用合计做阈值/重要性判断、不按性质分派动作，或裁决强制 amount_diff_total==raw_total_gap 且禁止任何排除，则本结论被证伪，应回到 380.00/0.00。",
+      "adopted": true
+    },
+    {
+      "side": "多数",
+      "conclusion": "三席一致：diff_count=6，日期按 bill.trade_date 比对。",
+      "falsification": "若「自记账一律按交割日入账」为书面政策，则应为 7 条（settle 读法），本结论被证伪。",
+      "adopted": true
+    },
+    {
+      "side": "少数",
+      "conclusion": "EX-02 附条件：若承认非交易事项单列，diff 清单应同步收缩至 4 条（T107/T108/T109/T112）。",
+      "falsification": "若 §D「差异单号」覆盖全部四列不等与单侧存在（含非成交事项），清单不应收缩，本条被证伪。",
+      "adopted": false
+    }
+  ],
+  "self_doubt": "我可能在四处错了：①把 §C 的「不计入」当成存在性授权——契约只写字段算法，没写准入条件，我用「字段不该是死字段」推出一条规则，这是意图推断而非文本依据，若评审要求纯字面执行，380.00 才对；②200 元级的 260.00 分红被排除后，报告金额 120.00 与账面总差 380.00 不再相等（虽可相加还原），若下游只读 amount_diff_total，会低估缺口 68%，这是一次可读性/合规取舍，我选了性质正确而非总量直观；③日期映射 trade_date 是我按 6/7 行同口径推定的，契约未定义，若裁决 settle，diff_count 应为 7；④我把 T110（amount=0 的送转）放进 excluded_categories，制造了一个零金额排除类别，若评审认为排除类别应只在有金额时出现，excluded_categories 应只保留「股息入账」一项——数值不受影响，但类别清单会被判错。",
+  "next": [
+    "把 answer-final.json / PM-01.json 交人工签署 ADJ-001（金额分桶 count|exclude）与 ADJ-002（清单范围 6|4），签署前一切数值为暂定值",
+    "round20 补 AD-01（红队）与 XJ-01（交叉裁判）：AD-01 专攻「exclude 是否构成对 §D 的越权」与「260.00 是否已在前期确认」，XJ-01 复核日期映射",
+    "向 fixture 维护方提规格缺陷：§D 的「日期」必须写明对应 bill 的 trade_date 还是 settle_date；§C 的「不计入金额差异」必须给出准入条件或枚举",
+    "若裁决强制恒等（count），将 answer-final.json 的 amount_diff_total 改回 380.00、excluded_amount_total=0.00、excluded_categories=[]，其余字段不动（diff 清单与日期口径不受影响）"
+  ],
+  "reads": [
+    {"path": "runs/round19/prompts/PM-01.md", "purpose": "逐字核对硬性字段与聚合规则、aggregation_inputs 约束"},
+    {"path": "fixtures/tasks/T-14/TASK.md", "purpose": "取 §A–§D 定义、四个易错点与差异判定口径"},
+    {"path": "fixtures/tasks/T-14/ledger.csv", "purpose": "7 行自记账原始值，用于 Decimal 独立复算"},
+    {"path": "fixtures/tasks/T-14/bill.csv", "purpose": "8 行交割单原始值（双日期列、费用三列），用于复算"},
+    {"path": "runs/round19/EX-01.json", "purpose": "读原始产出：算术层与 count 立场、dissent 与 falsification"},
+    {"path": "runs/round19/EX-02.json", "purpose": "读原始产出：算术层与 exclude 立场及其证据指针"},
+    {"path": "runs/round19/EX-03.json", "purpose": "读原始产出：算术层、脚本断言与 count 立场"},
+    {"path": "runs/round19/round-manifest.json", "purpose": "确认轮次类型、expected_seats、契约版本"},
+    {"path": "runs/round19/seat-check.json", "purpose": "取各席 status 与 sha256，确认 aggregation_admissible"},
+    {"path": "runs/round19/read-domain-check.json", "purpose": "确认读域检查 verdict=CLEAN"},
+    {"path": "protocol/06-写入域与判据分层.md", "purpose": "grep answer-final/aggregation_inputs 相关条款"},
+    {"path": "protocol/07-轮次与指标.md", "purpose": "grep 写入者硬门与 aggregation_inputs 字段要求"},
+    {"path": "fixtures/tasks/T-14/（仅目录列举 ls）", "purpose": "确认输入文件存在；truth.json 与 spec/ 仅出现在列举结果中，未打开"}
+  ],
+  "usage": {"tokens": 26000, "minutes": 11, "source": "self_report"}
+}

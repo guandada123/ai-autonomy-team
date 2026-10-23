@@ -1,0 +1,52 @@
+{
+  "_comment": "券商侧对照快照。数据来源：国金证券 APP 持仓页截图（2026-10-22 07:18，显示 2026-10-21 收盘数据）。截图存于同目录 证据-国金APP持仓-20261022-0718.jpg。所有金额单位为元，成本/现价单位为元/份。",
+  "source": "国金证券APP·持仓页截图",
+  "captured_at": "2026-10-22 07:18",
+  "market_data_as_of": "2026-10-21 收盘",
+  "broker": "GJ",
+  "summary": {
+    "total_assets": 41651.98,
+    "floating_pnl": -15409.89,
+    "daily_pnl": -166.00,
+    "daily_pct": -0.40,
+    "total_market_value": 31964.00,
+    "cash_available": 9687.98,
+    "cash_withdrawable": 9687.98,
+    "position_pct": 76.7
+  },
+  "holdings": [
+    {
+      "code": "600584",
+      "name": "长电科技",
+      "shares": 300,
+      "shares_available": 300,
+      "avg_cost": 86.421,
+      "current_price": 57.230,
+      "market_value": 17169.00,
+      "floating_pnl": -8771.51,
+      "pnl_pct": -33.780
+    },
+    {
+      "code": "588170",
+      "name": "科创半导体ETF",
+      "shares": 10000,
+      "shares_available": 10000,
+      "avg_cost": 1.000,
+      "current_price": 0.767,
+      "market_value": 7670.00,
+      "floating_pnl": -2340.00,
+      "pnl_pct": -23.340
+    },
+    {
+      "code": "002185",
+      "name": "华天科技",
+      "shares": 500,
+      "shares_available": 500,
+      "avg_cost": 22.829,
+      "current_price": 14.250,
+      "market_value": 7125.00,
+      "floating_pnl": -4298.38,
+      "pnl_pct": -37.580
+    }
+  ]
+}

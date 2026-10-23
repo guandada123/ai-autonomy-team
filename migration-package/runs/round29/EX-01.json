@@ -1,0 +1,173 @@
+{
+  "seat": "EX-01",
+  "round": 29,
+  "conclusion": "按 §D 字面执行、date 对齐 trade_date（背景明写交割单按成交日列示）：差异 6 条 T075/T076/T077/T078/T079/T080；abs 差额 120.00+13800.00+260.00+0.00+260.00+0.00=14440.00，恰等于 raw_total_gap；两表均无同号多行，dedup=0 / 0.00，无可排除类别。",
+  "evidence": [
+    {
+      "pointer": "fixtures/tasks/T-10/ledger.csv + fixtures/tasks/T-10/bill.csv",
+      "what_it_shows": "逐行 Decimal 复算：行 5/8、271800.00/286240.00、gap 14440.00、重复组 0。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-10/TASK.md#L83-L84",
+      "what_it_shows": "四列任一不同或单侧存在即差异 → 6 条，金额差 0.00 的 T078/T080 亦入清单。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-10/bill.csv#T075",
+      "what_it_shows": "45000.00/45.00/11.70 对 45120.00/45.12/11.73：金额差 120.00，费用差另列。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-10/bill.csv#trade_date,settle_date",
+      "what_it_shows": "settle 口径复算 7 条（T080 退出），非同伴所称 8 条。"
+    }
+  ],
+  "falsification": "若 §D 的「日期」须取 settle_date，清单变 7 条且与「交割单按成交日列示」冲突，本清单作废；若裁决认定 T075 的 120.00 属记账价口径不计入，则 amount_diff_total 降为 14320.00；若裁决认定股息 520.00 不属金额差，则降为 13920.00。三项任一成立，本结论的金额字段即错。",
+  "reads": [
+    {
+      "path": "runs/round29/prompts/EX-01.md",
+      "purpose": "读取本席读取域、硬性字段、字数预算与 stance 填法"
+    },
+    {
+      "path": "runs/round29/prompts/EX-02.md",
+      "purpose": "确认对立席位与事实席位共用同一契约，避免字段口径分歧"
+    },
+    {
+      "path": "runs/round29/prompts/EX-03.md",
+      "purpose": "确认落地席位的成本与回滚字段，判断其结论是否越出算术层"
+    },
+    {
+      "path": "fixtures/tasks/T-10/TASK.md",
+      "purpose": "逐条核对 §A-§D 的字段算法与四列判定口径"
+    },
+    {
+      "path": "fixtures/tasks/T-10/ledger.csv",
+      "purpose": "逐行复算 5 行金额、费用与单号唯一性"
+    },
+    {
+      "path": "fixtures/tasks/T-10/bill.csv",
+      "purpose": "逐行复算 8 行金额、三费分解与两种日期口径"
+    },
+    {
+      "path": "runs/round29/inputs/pack-ANON-A.json",
+      "purpose": "阅读匿名同伴的落地型产出，检查其算术层数字"
+    },
+    {
+      "path": "runs/round29/inputs/pack-ANON-B.json",
+      "purpose": "阅读匿名同伴的字面型产出，比对清单与金额"
+    },
+    {
+      "path": "runs/round29/inputs/pack-ANON-C.json",
+      "purpose": "阅读匿名同伴的对立型产出，定位其排除口径的可证伪点"
+    },
+    {
+      "path": "protocol/",
+      "purpose": "列举协议文件，定位写入域、辩论与指标三份"
+    },
+    {
+      "path": "protocol/02-辩论协议.md",
+      "purpose": "确认 evidence/falsification/dissent 的义务与聚合按证据不按人数"
+    },
+    {
+      "path": "protocol/06-写入域与判据分层.md",
+      "purpose": "查 §2.3 算术层白名单与 §2.4 金额 Decimal 闸门，判定哪些字段可机器裁决"
+    },
+    {
+      "path": "protocol/07-轮次与指标.md",
+      "purpose": "查 stance 反推规则、DIFFSET 取值域与任务相对性、usage 计量定义式"
+    }
+  ],
+  "dissent": [
+    {
+      "against": "ANON-C",
+      "reason": "以「按交割日对齐会得 8 条、越出选项空间」支持成交日口径，数值是错的：我复算为 7 条——settle 口径下 T073/T074 因日期差进入，而 T080 四列全同退出，净增 1 而非 2。结论方向可保留，但这条论据不可回读，且错误条数会污染下一轮对选项空间的推断。",
+      "reverse_evidence": "若能列出 settle 口径下 8 个差异单号并逐号给出触发列，我撤回本条。"
+    },
+    {
+      "against": "ANON-C",
+      "reason": "把 520.00 股息以「非交易现金流」剔出金额差：§D 明写单侧存在即差异、差额取该侧 amount，未设股息豁免；剔后 13920.00 与 raw gap 14440.00 不再对应，缺口只能靠席位自造规则解释，而 excluded_categories 无封闭枚举。",
+      "reverse_evidence": "若裁决给出封闭的排除类别表且明示非交易现金流不计入，则本条撤回。"
+    },
+    {
+      "against": "ANON-A",
+      "reason": "其把「T077/T079 是否重复」列为缺数据，属归因错位：§B 的判据是同一 txn_id 在一侧出现多行，两单号不同即可机器判定为不重复（实测重复组 0 个）。这是规则已覆盖、无需补数的一项，标成数据缺口会让补数清单虚增，并与「不得把数据不足伪装成结论」形成反向的同类错误——把可判定项伪装成数据缺口。",
+      "reverse_evidence": "若 §B 扩充为「同一经济事项换号重复亦算重复」并给出权益登记日字段，则该项确属缺数据，我撤回。"
+    }
+  ],
+  "confidence": "high",
+  "needs_more_data": [
+    "【缺规则】§D 只写「日期」一列，未指明对齐 trade_date 还是 settle_date；本席依背景「交割单按成交日列示」取 trade_date，属推断而非明文。",
+    "【缺规则】ADJ-001 的选项与各自 implies 不在本轮可读域内，无法机器确认「口径差」指 T075 的 120.00 还是 T080 的 0.00。",
+    "【缺规则】excluded_categories 无定义域与判定标准，同一数据可合规产出 14440.00/0.00、14320.00/120.00、13920.00/520.00 三套。",
+    "【缺数据】T078 送转：note 称「10送3」（1000 股应 +300），交割单 shares=30，差 10 倍；缺 09-10 收盘持仓，无法判 270 股归属（金额差 0.00 不受影响）。",
+    "【缺数据】600519 的持仓与派息记录在 ledger 全表缺失，无法核验 T077/T079 是否两次独立派息（金额差已按 260.00 计，不影响本结论字段）。"
+  ],
+  "stance": [
+    {
+      "axis": "ADJ-001",
+      "choice": "count"
+    },
+    {
+      "axis": "DIFFSET",
+      "choice": "6"
+    }
+  ],
+  "summary": {
+    "ledger_rows": 5,
+    "bill_rows": 8,
+    "ledger_total": 271800.00,
+    "bill_total": 286240.00,
+    "raw_total_gap": 14440.00,
+    "dedup_removed_txn_count": 0,
+    "dedup_amount": 0.00,
+    "diff_count": 6,
+    "amount_diff_total": 14440.00,
+    "excluded_amount_total": 0.00,
+    "excluded_categories": []
+  },
+  "diffs": [
+    {
+      "id": "T075",
+      "category": "金额差异-按委托价记账"
+    },
+    {
+      "id": "T076",
+      "category": "单侧存在-券商独有"
+    },
+    {
+      "id": "T077",
+      "category": "单侧存在-券商独有"
+    },
+    {
+      "id": "T078",
+      "category": "股数差异-送转未更新"
+    },
+    {
+      "id": "T079",
+      "category": "单侧存在-券商独有"
+    },
+    {
+      "id": "T080",
+      "category": "日期差异-按交割日入账"
+    }
+  ],
+  "categories": {
+    "金额差异-按委托价记账": [
+      "T075"
+    ],
+    "单侧存在-券商独有": [
+      "T076",
+      "T077",
+      "T079"
+    ],
+    "股数差异-送转未更新": [
+      "T078"
+    ],
+    "日期差异-按交割日入账": [
+      "T080"
+    ]
+  },
+  "usage": {
+    "tokens": 21500,
+    "minutes": 17,
+    "source": "self_report"
+  }
+}

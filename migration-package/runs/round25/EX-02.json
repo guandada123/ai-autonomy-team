@@ -1,0 +1,126 @@
+{
+  "seat": "EX-02",
+  "round": 25,
+  "conclusion": "算术与多数派同（7/8、181800.00/182180.00、gap 380.00、dedup 0/0.00、6 条），但金额轴须 exclude：T035 的 note 自认「按委托价记账」，是同一笔成交的两种计价基准，即口径差，故 amount_diff_total=260.00（仅 T039 漏记）、excluded=120.00。三包全选 count 而无一论证 T035，属相关收敛。",
+  "strongest_counter_arguments": [
+    {
+      "target": "ANON-A",
+      "argument": "最强版本：T035 不是两笔不同价格的成交，而是同一笔 45.12 被按 45.00 的委托价入账，note 两侧分别自述「按委托价记账」与「实际成交价」。ADJ-001 问的正是口径差是否计入，而本任务唯一带非零金额的口径差就是这 120.00；若它不算，该轴在 T-05 上无指称对象，count/exclude 退化为对同一个 0 的两种写法，与「选项由定义式生成、id 等于清单条数」的构造前提不相容。排除后 260.00+120.00 仍等于 380.00，闭环不破。",
+      "reverse_evidence": "若口径明写「口径差仅指含费/净额换算」，或能证明 T035 是两笔成交，则本条不成立，应回 380.00/0.00。"
+    },
+    {
+      "target": "ANON-A",
+      "argument": "「settle 对齐得 11 条」算术上不可能：并集仅 8 个单号，diff 为子集，上界 8。我 Decimal 实算 trade 对齐 6、settle 对齐 7（T040 在 settle 下转为无差异）。未复算的反事实若进入裁决材料，会让后续重算必然对不上。",
+      "reverse_evidence": "若并集大于 8 或 diff 可按行计（bill 仅 8 行），则此驳斥作废。"
+    },
+    {
+      "target": "ANON-B",
+      "argument": "其登记费用/股数/日期三类「不计入」却把 T035 计入 380.00，划分无可复用原则：以「金额差为零」作理由只是结果论，一旦某条日期差异带上金额即失效。真正判据是「是否同一事实的两种列示」，按此 T035 与 T040 同类，不可能一个计入一个不计入。",
+      "reverse_evidence": "若契约明写「按差额是否为零决定计入」，则其划分成立。"
+    },
+    {
+      "target": "ANON-C",
+      "argument": "[] 与我的口径数值不可区分（两金额之和同为 380.00），因而被当成零成本最简读数；但它预先裁定口径差计入，一旦样本变化即与 exclude 的裁决冲突。简化不是中立，是替裁决先做了决定。",
+      "reverse_evidence": "若判分只取两个金额值、不追类别语义，则两读数等价，此反对无增益。"
+    }
+  ],
+  "what_would_change_my_mind": "任一成立我改报 380.00/0.00：口径明写「不含计价基准」；或 T035 实为两笔成交；或新增条款要求四列差异一律计入。反之若明写「口径差一律不计入」，我仍主张 diff_count=6（清单保留 T035 并标口径差），不放宽到 5。",
+  "evidence": [
+    {
+      "pointer": "fixtures/tasks/T-05/ledger.csv#T035(note=按委托价记账) 对 bill.csv#T035(实际成交价)",
+      "what_it_shows": "金额差 120.00 由计价基准不同产生，非两笔成交"
+    },
+    {
+      "pointer": "fixtures/tasks/T-05/{ledger,bill}.csv#amount 与 txn_id",
+      "what_it_shows": "181800.00/182180.00，gap 380.00=120.00+260.00；各 1 次、并集 8，dedup 0/0.00"
+    },
+    {
+      "pointer": "fixtures/tasks/T-05/bill.csv#T039(单侧,股息入账,260.00)",
+      "what_it_shows": "无对侧基准可比，属真实漏记，须计入"
+    },
+    {
+      "pointer": "fixtures/tasks/T-05/bill.csv#T036/T037/#T038/#T040",
+      "what_it_shows": "费用差各 13.26（合计 26.55 含 T035 的 0.03）、股数差 30、日期差 1 天，amount 差额均 0.00"
+    }
+  ],
+  "falsification": "以下任一成立我即错：口径差在本任务其实是不含金额的 T040（则两轴取值得同一对数字，我的 exclude 失去指称）；裁决认定「按委托价记账」是记账错误而非口径差（120.00 应计入）；日期须按 settle_date 对齐（清单为 7 条，diff_count=6 错，金额分解不变）。",
+  "reads": [
+    {"path": "runs/round25/prompts/EX-02.md", "purpose": "本席对立面职责、KPI 反向设定与硬性字段"},
+    {"path": "runs/round25/prompts/EX-01.md", "purpose": "同轮模板，确认视角分化边界"},
+    {"path": "runs/round25/prompts/EX-03.md", "purpose": "同轮模板，确认视角分化边界"},
+    {"path": "fixtures/tasks/T-05/TASK.md", "purpose": "逐字核对 A–D 条，找支持与反驳排除口径的条款"},
+    {"path": "fixtures/tasks/T-05/ledger.csv", "purpose": "逐行复算并读 note 判定记账基准"},
+    {"path": "fixtures/tasks/T-05/bill.csv", "purpose": "逐行复算、读费用三拆与两侧 note"},
+    {"path": "protocol/02-辩论协议.md", "purpose": "确认强制反对与证据制聚合"},
+    {"path": "protocol/07-轮次与指标.md", "purpose": "查 ADJ-001 反推规则、DIFFSET 取值域"},
+    {"path": "protocol/06-写入域与判据分层.md", "purpose": "确认金额与清单字段属判断层、无机器真值"},
+    {"path": "protocol/03-结构审计七查.md", "purpose": "查外部钩子与共识失效代价"},
+    {"path": "protocol/（目录列举，得 01–07；01/04/05 未展开）", "purpose": "确认协议文件清单"},
+    {"path": "runs/round25/inputs/pack-ANON-A.json", "purpose": "取其结论与反论，构造最强反驳"},
+    {"path": "runs/round25/inputs/pack-ANON-B.json", "purpose": "取其分类方案，检验原则自洽性"},
+    {"path": "runs/round25/inputs/pack-ANON-C.json", "purpose": "取其 [] 读数，检验可迁移性"}
+  ],
+  "dissent": [
+    {
+      "against": "ANON-A｜diff_count=6 且 T035 计入金额（380.00）",
+      "reason": "算术我完全复现，反对的是归类：380.00 把「同一成交两种基准」的 120.00 与「整笔漏记」的 260.00 并入一个字段，下游无法区分该改价格还是该补分录。三席在 count 上全一致却给出三套不同 excluded_categories，说明这份一致来自共用输入与默会假设。",
+      "reverse_evidence": "若找到「计价基准差不得排除」的明文，或 T035 属两笔成交的证据，则本条不成立。"
+    },
+    {
+      "against": "ANON-A｜「settle 对齐得 11 条」",
+      "reason": "并集仅 8，上界 8；实算 settle 对齐 7、trade 对齐 6。该数须撤销，否则断言层会反复失败。",
+      "reverse_evidence": "若并集>8 或 diff 可按行计，则撤销本条。"
+    },
+    {
+      "against": "ANON-B｜excluded_categories 列三类而 T035 仍计入",
+      "reason": "原则不对称：以金额差为零作不计入的理由是结果论，解释不了 T035 与 T040 同为基准差却分属两侧，也无法预判一条带金额的日期差异该归哪边。",
+      "reverse_evidence": "若契约明写按差额是否为零决定计入，则其划分正确。"
+    },
+    {
+      "against": "ANON-C｜excluded_categories=[]",
+      "reason": "[] 等价于「不排除任何类别」，已预先裁定口径差计入，却以数值不可区分为由称其零成本；样本一变即与 exclude 的裁决相冲突。",
+      "reverse_evidence": "若判分只取两个金额值，则两读数等价，本条无增益。"
+    }
+  ],
+  "confidence": "medium",
+  "needs_more_data": [
+    "【缺规则】「口径差」在本任务中的所指未落地：契约未列举类别，我只能由 T035 的 note 与金额非零性反推",
+    "【缺规则】excluded_amount_total「取差额」未定符号，按（自记账−交割单）T035 应记 −120.00",
+    "【缺规则】日期列应对 trade_date 还是 settle_date 未规定，两种分别为 6 与 7",
+    "【缺数据】无持仓流水：T038 记 30 股与 note「10送3」的 300 股不符，无法判定哪列错",
+    "【缺数据】无分红公告与税率，T039 的 260.00 税前/税后不可判"
+  ],
+  "stance": [
+    {"axis": "ADJ-001", "choice": "exclude"},
+    {"axis": "DIFFSET", "choice": "6"}
+  ],
+  "summary": {
+    "ledger_rows": 7,
+    "bill_rows": 8,
+    "ledger_total": 181800.00,
+    "bill_total": 182180.00,
+    "raw_total_gap": 380.00,
+    "dedup_removed_txn_count": 0,
+    "dedup_amount": 0.00,
+    "diff_count": 6,
+    "amount_diff_total": 260.00,
+    "excluded_amount_total": 120.00,
+    "excluded_categories": ["计价口径差异", "费用差异", "股数差异", "日期口径差异"]
+  },
+  "diffs": [
+    {"id": "T035", "category": "计价口径差异"},
+    {"id": "T036", "category": "费用差异"},
+    {"id": "T037", "category": "费用差异"},
+    {"id": "T038", "category": "股数差异"},
+    {"id": "T039", "category": "单侧缺失"},
+    {"id": "T040", "category": "日期口径差异"}
+  ],
+  "categories": {
+    "计价口径差异": ["T035"],
+    "费用差异": ["T036", "T037"],
+    "股数差异": ["T038"],
+    "单侧缺失": ["T039"],
+    "日期口径差异": ["T040"]
+  },
+  "usage": {"tokens": 15000, "minutes": 10, "source": "self_report"}
+}

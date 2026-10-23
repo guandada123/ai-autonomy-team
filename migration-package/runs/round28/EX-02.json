@@ -1,0 +1,84 @@
+{
+  "seat": "EX-02",
+  "round": 28,
+  "conclusion": "settle_date 读法逐号复算恰 7 条（T065–T071），trade_date 读法 6 条；两分支 amount_diff 380.00、excluded 0.00、恒等式全同，无金额证据可判优劣。故「6 是唯一解」不成立，我方主张 7，并主张此项须由人类闸门裁决而非默认值替裁。",
+  "summary": {
+    "ledger_rows": 7,
+    "bill_rows": 8,
+    "ledger_total": 163800.00,
+    "bill_total": 164180.00,
+    "raw_total_gap": 380.00,
+    "dedup_removed_txn_count": 0,
+    "dedup_amount": 0.00,
+    "diff_count": 7,
+    "amount_diff_total": 380.00,
+    "excluded_amount_total": 0.00,
+    "excluded_categories": [
+      "费用差-漏过户费",
+      "数量差-送转未更新",
+      "日期口径差-入账日与成交日错位"
+    ]
+  },
+  "strongest_counter_arguments": [
+    {
+      "target": "ANON-A：以 TASK.md L8「按成交日列示」为唯一解依据，得 6 条",
+      "argument": "L8 在「背景」段，是描述账单如何排版；§D 是「差异的判定口径」的规范段，规范性条款只写「日期」，未指名列。用描述性句子补规范性缺口，等于拿被审对象的版式说明当判定规则。更要紧的一层：账本列 date 的定义是「入账日」，它与「成交日」本非同义量；把入账日直接与成交日对齐，是把两个语义不同的列当成同一坐标来比。A股 T+1 交收下，与「何时该入账」可对齐的是 settle_date（交割日，资金/证券实际交收）。L8 说的是清单按成交日列示，不是「账本日期应等于成交日」——这两句之间缺一个前提，而该前提正是争议本身。且两读法的金额三值完全相同（380.00/380.00/0.00），A 派拿不出算术证据，只能拿解释。",
+      "reverse_evidence": "若 §D 或任何可读规范条款明示「日期=成交日」，或账本 date 的定义被改写为成交日，则本反论作废，我接受 6。"
+    },
+    {
+      "target": "ANON-C：把 6/7 之争降级为 --date-col 开关、默认 trade_date，以「可复跑 + 留痕」替代裁决",
+      "argument": "参数化不消除裁决，只把它藏进默认值。其一，默认值决定 answer 的全部判断层字段，人类闸门看到的是已定型结果，只能确认不能选择；06 §2.6.1 明说这种闸门「不是人做了裁决，是人确认了机器的裁决」。其二，两次复跑 sha 相同只证明同错同现，不证明口径正确——幂等性是工程属性，不是判据。其三，若下轮默认值切成 settle，diff_count 由 6 变 7，07 §4.2 的翻边率会把这个参数漂移记成该席位「翻边」，指标被自己的实现污染；而 07 全文没有任何字段承载「本轮默认口径」，漂移不可见。",
+      "reverse_evidence": "若 answer 契约存在承载日期口径的字段、且 metrics 能把「参数变更」与「立场变更」区分开，则参数化的边际成本大于收益，本反对撤回。"
+    },
+    {
+      "target": "ANON-A 与 ANON-C 的共同前提：diff_count 有一个机器可判的正确值",
+      "argument": "06 §2.3 的 ARITHMETIC_ANCHOR_PATHS 只含 7 个纯算术字段，diff_count / diffs / amount_diff_total / excluded_amount_total 被机械挡在算术层之外，adjudication 层又禁止携带 expected——机器侧根本不存在「正确条数」这个量。两方都在把自己的条数说成结论，而不是说成一个待裁选项。差别只在：把待裁项写成 6 并设为默认值，会让闸门看起来已经闭合。",
+      "reverse_evidence": "若 diff_count 被移入算术白名单，或 spec 的判断层出现 expected 键，则「存在机器可判正确值」成立，本反对撤回。"
+    }
+  ],
+  "what_would_change_my_mind": "§D 明示「日期」取成交日（而非背景段的 L8）；或账单侧根本不存在第二个日期候选列；或本任务 spec 的 DIFFSET 空间不含 7（则 7 记 out_of_space，我改为在空间内取最接近读法，并把该规则缺口记入 needs_more_data，而不是改口称 6 已被证明）。",
+  "evidence": [
+    {"pointer": "bill.csv#settle_date L2-L9 对 ledger.csv#date（Decimal 复算）", "what_it_shows": "T065–T069 不等、T070–T072 相等 → 恰 7 条（T065–T071）"},
+    {"pointer": "同一次复算的 trade_date 分支", "what_it_shows": "6 条；两分支 abs 差额和同为 380.00、excluded 0.00 → 金额不可分辨"},
+    {"pointer": "fixtures/tasks/T-09/TASK.md#L22", "what_it_shows": "费率口径「不得据此反推期望值」→ 封死用金额反推日期列"},
+    {"pointer": "protocol/07-轮次与指标.md#L81-L98", "what_it_shows": "ADJ-001 常量任务相对；L95-L98 承认 T-09 类空间另给 → 口径未被契约钉死"}
+  ],
+  "falsification": "若 §D 明示成交日、或账单侧不存在第二个日期候选列，则 7 失去依据，本立场作废；若出现同号多行（分批成交），两读法条数均须重算，本组数字作废（本次复算两表单号唯一，各 7/8 个）。",
+  "reads": [
+    {"path": "runs/round28/prompts/EX-02.md", "purpose": "本席位 KPI、steelman 纪律、匿名 target 命名与硬性字段"},
+    {"path": "runs/round28/prompts/EX-01.md", "purpose": "确认字面主义席位字段与 DIFFSET 选项空间写法"},
+    {"path": "runs/round28/prompts/EX-03.md", "purpose": "确认落地席位字段，作为攻击默认值方案的靶子"},
+    {"path": "fixtures/tasks/T-09/TASK.md", "purpose": "逐条核查 §D「日期」是否存在可消歧表述，结论是没有；并取 A/B/C 计算法"},
+    {"path": "fixtures/tasks/T-09/ledger.csv", "purpose": "逐行取 date/shares/amount/fee_total，构造两套比对基线"},
+    {"path": "fixtures/tasks/T-09/bill.csv", "purpose": "逐行取 trade_date/settle_date，实测两读法分别为 6/7 条"},
+    {"path": "runs/round28/inputs/pack-ANON-A.json", "purpose": "读 6 条派的最强版本，定位其证据链断点"},
+    {"path": "runs/round28/inputs/pack-ANON-B.json", "purpose": "读 7 条派论证，避免重复其薄弱处（如以 note 反推列义）"},
+    {"path": "runs/round28/inputs/pack-ANON-C.json", "purpose": "读参数化方案的复跑证据与成本口径"},
+    {"path": "protocol/02-辩论协议.md", "purpose": "确认每席必交反对及「EX-02 被说服算失职」的评分语义"},
+    {"path": "protocol/06-写入域与判据分层.md", "purpose": "确认判断层禁 expected、算术白名单含哪 7 个字段"},
+    {"path": "protocol/07-轮次与指标.md", "purpose": "确认 ADJ-001 任务相对反推、DIFFSET 取值、翻边率与语义冲突判据"}
+  ],
+  "dissent": [
+    {
+      "against": "ANON-C：主张以默认参数 + 复跑留痕替代口径裁决，并称此为「把不可裁决显式化为参数」",
+      "reason": "显式化的是参数，不是裁决：默认值一变，判断层全部字段随之变，而产出里没有字段记录本轮用的是哪一列；于是「人签了裁决」与「人签了机器默认值」在产出上不可区分。复跑幂等只覆盖同输入同输出，不覆盖口径正确性。把最需要人表态的一步做成命令行开关，是把闸门降级为回车键。",
+      "reverse_evidence": "若能出示 answer 契约中承载 date-col 的字段定义、且 metrics 能据该字段区分参数变更与立场翻边，则本反对撤回。"
+    }
+  ],
+  "confidence": "medium",
+  "needs_more_data": [
+    "缺规则：§D 的「日期」未指名字段，两读法条数 6 vs 7、金额同值（380.00/0.00）；这是规则缺口，不得记为该席位判断失误",
+    "缺规则：本席位提示词给的 DIFFSET 空间是 {7,6,5,4}，而 07#L95-L98 称 T-09 类无跨月单号任务由生成器另给（如 [6,5,4,3]）；spec 在禁读域，无法核对 7 是否在本任务空间内——若不在，7 会被判 out_of_space，需由审计给出本任务真实空间",
+    "缺规则：口径裁决应落在 answer 的哪个字段，现契约无承载位（07 与 06 均未定义），导致任何口径选择都无法随产出被审计",
+    "缺数据：无券商交收流水与分红入账凭证，T071 的 260.00 是否已入他账无法外部核实；若已入他账，amount_diff_total 不再是 380.00"
+  ],
+  "stance": [
+    {"axis": "ADJ-001", "choice": "exclude"},
+    {"axis": "DIFFSET", "choice": "7"}
+  ],
+  "usage": {
+    "tokens": 28200,
+    "minutes": 15,
+    "source": "self_report"
+  }
+}

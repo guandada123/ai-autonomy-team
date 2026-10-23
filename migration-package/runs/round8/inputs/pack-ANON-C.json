@@ -1,0 +1,170 @@
+{
+  "conclusion": "6 条差异 = T003/T004/T005/T006/T007/T008，日期基准取 trade_date（T001/T002/T003/T006 记账日均等于成交日，仅 T008 等于交割日）。计入金额差异：T003 价差 120.00 + T004 漏记 26000.00 = 26120.00；不计入 520.00（T005/T007 股息 260.00×2），T006 送转仅股数差、T008 仅日期错位，金额差 0。校验：26640.00 = 26120.00 + 520.00，两侧 txn_id 无重复。",
+  "strongest_counter_arguments": [
+    {
+      "target": "ANON-A",
+      "argument": "若 amount 列对所有行（含股息）一律视为可比金额，则 raw_total_gap 26640.00 应被差异清单全额解释，任何 excluded 都是人为缩小核对范围。",
+      "reverse_evidence": "T005 的 code=600519 在自记账中无任何成交/持仓，其 amount 无法与任何自记账行构成『同一笔』比对。"
+    },
+    {
+      "target": "ANON-B",
+      "argument": "若日期列以交割日为准，T001/T002/T003 三条日期差异成立，diff_count=7。",
+      "reverse_evidence": "这三笔记账日恰好逐一等于成交日，连续三次巧合的解释力低于 T008 单点偏离。"
+    }
+  ],
+  "what_would_change_my_mind": "看到同构样本的 excluded 固定为 0.00（说明该口径不存在），或 TASK 把股息/送转明确列为成交金额的可比行；以及任一处 ledger 记账日落在 settle_date 上（说明日期基准本是交割日）。",
+  "evidence": [
+    {
+      "pointer": "fixtures/tasks/T-01/bill.csv#L6,L8 (T005,T007)",
+      "what_it_shows": "side=股息入账、shares=0、price=0.00、amount=260.00：非成交现金流，两笔 520.00 是 excluded_amount_total 的唯一来源。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-01/ledger.csv#L2-L5 的 date 列 vs bill.csv#L2-L4,L7 的 trade_date 列",
+      "what_it_shows": "T001/T002/T003/T006 记账日与成交日逐行相等；对照 settle_date 则 T001-T003 三条全不等——日期基准只能是 trade_date。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-01/ledger.csv#L6 note + bill.csv#L9 note (T008)",
+      "what_it_shows": "『按交割日入账』对『按成交日列示』：记账日 09-18 等于 settle_date、晚于 trade_date 09-17，amount 两侧均 13800.00，属口径偏差。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-01/bill.csv#L4 (T003)",
+      "what_it_shows": "45.12/45120.00 对 ledger 45.00/45000.00，差额 120.00；fee 11.73 对 11.70 仅 0.03，不得并入金额差额。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-01/bill.csv#L5 (T004)",
+      "what_it_shows": "中签买入 500@52.00=26000.00，ledger 无该单号，差额取该侧 26000.00。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-01/bill.csv#L7 (T006) vs ledger.csv#L5 (T006)",
+      "what_it_shows": "shares 30 对 0（10送3 未更新持仓），amount 均 0.00：仅股数差异，金额差 0。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-01/{ledger,bill}.csv#全列 Decimal 合计与 txn_id 频次",
+      "what_it_shows": "5 行/8 行，114800.00/141440.00，gap 26640.00；txn_id 两侧均无重复 → dedup 0；26640.00=120.00+26000.00+260.00+260.00。"
+    }
+  ],
+  "falsification": "若交割单对股息行的 amount 也定义为可比成交金额，则我的 26120.00 应为 26640.00、excluded 应为 0.00；若日期基准须取 settle_date，则 diff_count 应为 7 而非 6。二者任一成立，本席结论即被推翻。",
+  "reads": [
+    {
+      "path": "[deny-domain path redacted]prompts/ANON-C.md",
+      "purpose": "席位身份、读取域、字段契约与字数预算"
+    },
+    {
+      "path": "fixtures/tasks/T-01/TASK.md",
+      "purpose": "任务定义、字段算法与差异判定口径（D 节四列）"
+    },
+    {
+      "path": "fixtures/tasks/T-01/ledger.csv",
+      "purpose": "自记账 5 行原始数据：日期、股数、金额、费用、note"
+    },
+    {
+      "path": "fixtures/tasks/T-01/bill.csv",
+      "purpose": "交割单 8 行原始数据：trade_date/settle_date、费用拆分、note"
+    },
+    {
+      "path": "protocol/02-辩论协议.md",
+      "purpose": "输出契约（dissent/reads/falsification）与证据制聚合规则"
+    },
+    {
+      "path": "protocol/07-轮次与指标.md",
+      "purpose": "stance 轴（ADJ-001/DIFFSET）反推规则与选项语义"
+    },
+    {
+      "path": "protocol/03-结构审计七查.md",
+      "purpose": "检索 stance 时命中片段：ADJ-001/002 待签项说明"
+    },
+    {
+      "path": "protocol/04-双裁判规范.md",
+      "purpose": "检索 stance 时命中片段：pending/options 字段形态"
+    },
+    {
+      "path": "protocol/06-写入域与判据分层.md",
+      "purpose": "检索 stance 时命中片段：adjudication 记录样例"
+    },
+    {
+      "path": "[deny-domain path redacted]inputs/",
+      "purpose": "确认本轮无额外输入（目录为空）"
+    }
+  ],
+  "confidence": "medium",
+  "needs_more_data": [
+    "600519 在自记账侧的持仓/资金流水（判定 T005 股息 260.00 是否属本次核对范围）",
+    "成交回报/委托记录（确认 T003 的 45.00 与 45.12 是价差而非部分成交或笔误）"
+  ],
+  "stance": [
+    {
+      "axis": "ADJ-001",
+      "choice": "exclude"
+    },
+    {
+      "axis": "DIFFSET",
+      "choice": "6"
+    }
+  ],
+  "summary": {
+    "ledger_rows": 5,
+    "bill_rows": 8,
+    "ledger_total": 114800.0,
+    "bill_total": 141440.0,
+    "raw_total_gap": 26640.0,
+    "dedup_removed_txn_count": 0,
+    "dedup_amount": 0.0,
+    "diff_count": 6,
+    "amount_diff_total": 26120.0,
+    "excluded_amount_total": 520.0,
+    "excluded_categories": [
+      "非交易资金流水",
+      "股本权益变动",
+      "日期口径"
+    ]
+  },
+  "diffs": [
+    {
+      "id": "T003",
+      "category": "成交价差"
+    },
+    {
+      "id": "T004",
+      "category": "漏记交易"
+    },
+    {
+      "id": "T005",
+      "category": "非交易资金流水"
+    },
+    {
+      "id": "T006",
+      "category": "股本权益变动"
+    },
+    {
+      "id": "T007",
+      "category": "非交易资金流水"
+    },
+    {
+      "id": "T008",
+      "category": "日期口径"
+    }
+  ],
+  "categories": {
+    "成交价差": [
+      "T003"
+    ],
+    "漏记交易": [
+      "T004"
+    ],
+    "非交易资金流水": [
+      "T005",
+      "T007"
+    ],
+    "股本权益变动": [
+      "T006"
+    ],
+    "日期口径": [
+      "T008"
+    ]
+  },
+  "usage": {
+    "tokens": 19000,
+    "minutes": 11,
+    "source": "self_report"
+  }
+}

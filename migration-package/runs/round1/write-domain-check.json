@@ -1,0 +1,117 @@
+{
+  "generated_at": "2026-10-16T16:37:16+08:00",
+  "kind": "write_domain_check",
+  "deny_prefixes": [
+    "fixtures/",
+    "outputs/",
+    "docs/",
+    "protocol/",
+    "prompts/",
+    "config/",
+    "judges/"
+  ],
+  "allow_prefixes": [
+    "runs/round"
+  ],
+  "changed_under_deny": [],
+  "changed_under_allow": [
+    {
+      "path": "runs/round1/AD-01.json",
+      "sha256": "c393b16788de2dd70b4291954178726f2a18b3b77130f39cceb35d48aeb55bb3"
+    },
+    {
+      "path": "runs/round1/EX-01.json",
+      "sha256": "81df475001e3e4ec09783d689a4cc84401257e0f8a494b93149fe0a473db6c6a"
+    },
+    {
+      "path": "runs/round1/EX-02.json",
+      "sha256": "baf2f1c19510c3f03ad2782209a3ffae2de3feb7e0ae5df33dc1091bb4c5d705"
+    },
+    {
+      "path": "runs/round1/EX-03.json",
+      "sha256": "09abd79785c06941c9d32e3646237a8d16862a48811a036cb631571b260e4997"
+    },
+    {
+      "path": "runs/round1/adjudicated.json",
+      "sha256": "f111ebec7ff9ce55857ce5434634865fa57624caae1f853a626856a42940d223"
+    },
+    {
+      "path": "runs/round1/adjudication-record.SELFTEST-PLUMBING-ONLY.json",
+      "sha256": "4e8031a3eb7542bf849bd2c14402d7956b0e5e5fec0cd3cd8371009d4ac5b8ef"
+    },
+    {
+      "path": "runs/round1/adjudication-record.TEMPLATE.md",
+      "sha256": "62a2bfc768fc9420ff1aac83c98db83e9035909dbc7695f162b7e80a408bb5e2"
+    },
+    {
+      "path": "runs/round1/answer-final.json",
+      "sha256": "a21bf8e2a24a46d20cc77cca462bfcea4f6cf63c99496dbe044c91afdeb4606d"
+    },
+    {
+      "path": "runs/round1/evidence-boundary-violation/.EX-03-scratch/_recon_copy.py",
+      "sha256": "df0d589b77f2448edaad96c9a211b1fdeea3fe037eebb741cd8e66c9d79b0fde"
+    },
+    {
+      "path": "runs/round1/evidence-boundary-violation/.EX-03-scratch/_regen.json",
+      "sha256": "373e58f39bbf4d8bab7d974f047e8f1bbcdee49abf450c4282f79c9a92f923e7"
+    },
+    {
+      "path": "runs/round1/evidence-boundary-violation/.EX-03-scratch/_regen_verdict.json",
+      "sha256": "7d8ad35c61b7299d12824fbfeef699b54e0a9c974ab3c711c6d6c7d9a2216266"
+    },
+    {
+      "path": "runs/round1/evidence-boundary-violation/.EX-03-scratch/probe.py",
+      "sha256": "2ed5bbe5c5a2c5debd075d38e861b1a8b2ee2516b378f75e1d084f7101f4393f"
+    },
+    {
+      "path": "runs/round1/evidence-boundary-violation/.EX-03-scratch/probe2.py",
+      "sha256": "5518fc3af1c6a4599bcde812274d4f0ae819fbc269a42b74b9ad938ae5e3fb83"
+    },
+    {
+      "path": "runs/round1/evidence-boundary-violation/.EX-03-scratch/probe3.py",
+      "sha256": "a8f74c73c055fbf49d5ba6355064afc0a454877d68f31304923e591cb40d7468"
+    },
+    {
+      "path": "runs/round1/evidence-boundary-violation/.EX-03-scratch/probe4.py",
+      "sha256": "e2a8eb883d32399d18a4ecd072d6619adb2ac6650fa7e1e86fb94780b61def9e"
+    },
+    {
+      "path": "runs/round1/evidence-boundary-violation/_ex02_compute.py.EX-02-越权写入",
+      "sha256": "e7bf760971555508d534ad15618e1a82c909ae258a519b77913a5aa9ba2fa9da"
+    },
+    {
+      "path": "runs/round1/evidence-boundary-violation/recon.py.EX-03-越权写入",
+      "sha256": "31a49141b80e4abdec90e4234b3a60f498d83c31fa8c6e40067c3a39ba9b4087"
+    },
+    {
+      "path": "runs/round1/pending-adjudication.json",
+      "sha256": "658d8843bdb1a7a8adca3b37a2539b7765ebc2c17a8fc16cbcce3974b7486170"
+    },
+    {
+      "path": "runs/round1/truth-snapshot.json",
+      "sha256": "03b41c4927991adb011e65e99a2f22ad0b8fa3ca9b0a05b65c5335b1f0d33fe4"
+    },
+    {
+      "path": "runs/round1/verdict-arithmetic.json",
+      "sha256": "f3412d747e100e48092428eaba6ea45edc95c79313ee8e7170965421e64ef4a7"
+    },
+    {
+      "path": "runs/round1/verdict-final.json",
+      "sha256": "fc4edff2ca83439521fda1b45fb2d649844a988ce7969e832e9c6cd61031e11b"
+    },
+    {
+      "path": "runs/round1/verdict-legacy-recheck.json",
+      "sha256": "38d5f9f421a3f54c5cd30e7bf32c20a4b36aaecb74195c1276a622bbb2a8589f"
+    },
+    {
+      "path": "runs/round1/wd-baseline.json",
+      "sha256": "918a80b314f9475761e5f5e2048a03d156c1c407dc2379d796b0d406602b5159"
+    },
+    {
+      "path": "runs/round1/write-domain-check.json",
+      "sha256": "ba843c3bc5f3f0b5f92ebadf1f7df4812c9f70a99f301dcf1238f0ee34d9196c"
+    }
+  ],
+  "verdict": "CLEAN",
+  "note": "verdict=HIT 表示共享/禁止目录在轮次期间发生变化（结构事实）。是否为授权再生成，须由 PM 在 docs/decisions/ 留痕裁定；本脚本不判语义。"
+}

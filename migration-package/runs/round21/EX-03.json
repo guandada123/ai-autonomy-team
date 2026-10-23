@@ -1,0 +1,193 @@
+{
+  "seat": "EX-03",
+  "round": 21,
+  "conclusion": "可执行版本：单脚本 Decimal 一次性复算 + 目录化差异清单，操作等级 🟢；ADJ-001 建议 count（fail-closed），因 exclude 会把人工介入从 1 次推到 3 次，且排除动作在金额层不可见、不可机器验证。",
+  "execution_path": [
+    "1. python3 以 csv.DictReader(open(p, newline='', encoding='utf-8')) 读两份 CSV；路径全部用 pathlib 拼接（轮次目录名含空格）",
+    "2. 全链路 Decimal(str(x))：复算 ledger_rows/bill_rows、ledger_total/bill_total、raw_total_gap、dedup 两个字段",
+    "3. 按 §D 四列做并集比对：union(txn_id)=8，逐 id 比较 shares/amount/fee_total/date，得 6 条差异",
+    "4. 写 answer.json（json.dump ensure_ascii=False，文件 newline='\\n'），并断言 raw_total_gap == Σ(按单号带符号差)：本例 14440.00 vs 14440.00 通过",
+    "5. 交人类闸门：填 adjudication-record.json（仅 ADJ-001 一项），verify.py --record 重跑取 verdict=adjudicated"
+  ],
+  "cost": {
+    "token_estimate": "三席合计 ≈ 10.0k tokens（本席 ≈ 3.2k，另两席 3.4k/3.6k）；按协议多智能体 ≈ 单轮对话 15×，单任务预算须按 10k 量级设硬上限",
+    "wall_clock": "复算脚本 < 1 s；三席并行提案 7–9 min；人类闸门约 5 min；单轮合计 ≈ 15 min",
+    "human_touchpoints": "1 次（ADJ-001 记一笔）；若改走 exclude，需 +2 次（T131/T136 逐条口径归属确认），合计 3 次"
+  },
+  "rollback": "产物仅 answer.json 一个文件，覆盖即回滚，无外部副作用。步骤：①运行前记 answer.json 的 sha256 快照；②重跑脚本幂等覆盖；③若已 --record，重跑不带 --record 即回到 pending_adjudication（退出码 3），adjudication-record.json 原样保留不删。脚本不调用 unlink（本机沙箱拦截），确需清理一律移入 _trash/。",
+  "op_grade": "🟢",
+  "cross_platform_risks": [
+    {
+      "risk": "轮次目录名形如 `21 T-17` 含空格，shell 字符串拼接路径会断",
+      "mitigation": "一律 pathlib.Path 拼接，不在 shell 里裸拼；命令行整体加引号"
+    },
+    {
+      "risk": "Windows 开发机 open() 默认 GBK，读 UTF-8 CSV 会乱码",
+      "mitigation": "所有 open 显式 encoding='utf-8'；json.dump 用 ensure_ascii=False"
+    },
+    {
+      "risk": "csv 读取未设 newline='' 时，Windows 的 CRLF 会被读成多余空行，行数虚高",
+      "mitigation": "csv.DictReader(open(p, newline='', encoding='utf-8'))"
+    },
+    {
+      "risk": "float 求和噪声（如 0.020000000000436557）与 Decimal 校验器 scale=2 不等",
+      "mitigation": "全链路 Decimal(str(x))，绝不 float 累加"
+    },
+    {
+      "risk": "解释器名：macOS 为 python3，Windows 为 python / py -3",
+      "mitigation": "文档写 python3；脚本内不硬编码解释器路径，派生用 sys.executable"
+    },
+    {
+      "risk": "输出换行：Windows 上写 '\\n' 会转 CRLF",
+      "mitigation": "写文件显式 newline='\\n'，落盘后校验是否为纯 LF"
+    },
+    {
+      "risk": "Windows 侧无法物理隔离 deny 目录（attrib +R 是软屏障，进程可自清）",
+      "mitigation": "只依赖第 8/9 查的检测能力，不在 Windows 上声称已隔离"
+    }
+  ],
+  "evidence": [
+    {
+      "pointer": "fixtures/tasks/T-17/ledger.csv#note",
+      "what_it_shows": "T131/T134/T136 三条 note 自述口径来源，另三条写「自记账无」；6/6 条可零推断归因"
+    },
+    {
+      "pointer": "fixtures/tasks/T-17/bill.csv#fee_total",
+      "what_it_shows": "8 行分项之和全部等于 fee_total，费用列可自校验，无需外部费率表"
+    },
+    {
+      "pointer": "fixtures/tasks/T-17/bill.csv#T131,fee_total + ledger 同号",
+      "what_it_shows": "唯一费用差 0.03 可由 11.25→11.28 解释，过户费两侧均 0.45"
+    }
+  ],
+  "falsification": "若 T131/T136 的 note 为空或语义歧义，则「6/6 零推断归因」不成立，人工介入升到 3–4 次，count 的 fail-closed 成本优势消失；若核对结果需回写券商或账务系统（而非仅落 answer.json），操作等级由 🟢 升 🔴，本方案不可照此执行，须先出「方案/影响范围/回滚」三件套。",
+  "reads": [
+    {
+      "path": "runs/round21/prompts/EX-03.md",
+      "purpose": "读取本席位落地/成本职责、操作分级与跨平台必查项"
+    },
+    {
+      "path": "runs/round21/prompts/EX-01.md",
+      "purpose": "核对本轮其他席位的硬性字段与 stance 选项空间（仅查契约）"
+    },
+    {
+      "path": "runs/round21/prompts/EX-02.md",
+      "purpose": "核对 strongest_counter_arguments 的匿名 target 规则，避免本席误写席位名"
+    },
+    {
+      "path": "fixtures/tasks/T-17/TASK.md",
+      "purpose": "取输出路径 answer.json、11 个 summary 字段、四条约束，评估执行步骤与产物面"
+    },
+    {
+      "path": "fixtures/tasks/T-17/ledger.csv",
+      "purpose": "逐行复算 5 行并读 note，评估归因是否需要外部信息"
+    },
+    {
+      "path": "fixtures/tasks/T-17/bill.csv",
+      "purpose": "逐行复算 8 行并校验费用分项自洽性，评估是否需接费率表"
+    },
+    {
+      "path": "protocol/06-写入域与判据分层.md",
+      "purpose": "确认 answer-only 产物面与人类闸门（verify.py --record）的实际往返成本"
+    },
+    {
+      "path": "protocol/02-辩论协议.md",
+      "purpose": "取 token 预算条款与终止条件，用于成本估算"
+    },
+    {
+      "path": "protocol/07-轮次与指标.md",
+      "purpose": "确认 DIFFSET=summary.diff_count 的反推规则（读到 §4.4）"
+    }
+  ],
+  "dissent": [
+    {
+      "against": "ANON-B",
+      "reason": "反对「排除口径差更审慎」。排除路径下 T136 的排除额为 0.00，任何人都无法从 11 个 summary 字段验证「T136 已被正确排除」——排除动作只改 diff_count 与 excluded_categories 两个字段，金额层零痕迹。为一次不可验证的分类，付出人工介入 1→3 次与一条不可回放的判断分支，净信息为负。",
+      "reverse_evidence": "若 spec 的 exclude 选项 implies 直接给出被排除的 id 列表（而非仅金额），则排除动作可被机器验证，本成本论证失效。"
+    }
+  ],
+  "confidence": "high",
+  "needs_more_data": [
+    "缺规则：§D「日期」列未指定 trade_date 或 settle_date，两种取法分别得 6 条与 5 条，执行路径第 3 步的结论随此摇摆",
+    "缺规则：ADJ-001 的 count/exclude 无客观判据，人类闸门只能凭 note 自由文本裁量",
+    "缺数据：无（产物仅 answer.json，不依赖行情、费率表或外部接口；费用分项已自校验）"
+  ],
+  "stance": [
+    {
+      "axis": "ADJ-001",
+      "choice": "count"
+    },
+    {
+      "axis": "DIFFSET",
+      "choice": "6"
+    }
+  ],
+  "summary": {
+    "ledger_rows": 5,
+    "bill_rows": 8,
+    "ledger_total": 243820.0,
+    "bill_total": 258260.0,
+    "raw_total_gap": 14440.0,
+    "dedup_removed_txn_count": 0,
+    "dedup_amount": 0.0,
+    "diff_count": 6,
+    "amount_diff_total": 14440.0,
+    "excluded_amount_total": 0.0,
+    "excluded_categories": []
+  },
+  "diffs": [
+    {
+      "id": "T131",
+      "category": "价格口径差"
+    },
+    {
+      "id": "T132",
+      "category": "单侧缺失-中签买入"
+    },
+    {
+      "id": "T133",
+      "category": "单侧缺失-现金分红"
+    },
+    {
+      "id": "T134",
+      "category": "股数不一致-送转未登记"
+    },
+    {
+      "id": "T135",
+      "category": "单侧缺失-现金分红"
+    },
+    {
+      "id": "T136",
+      "category": "日期口径差"
+    }
+  ],
+  "categories": {
+    "价格口径差": [
+      "T131"
+    ],
+    "单侧缺失-中签买入": [
+      "T132"
+    ],
+    "单侧缺失-现金分红": [
+      "T133",
+      "T135"
+    ],
+    "股数不一致-送转未登记": [
+      "T134"
+    ],
+    "日期口径差": [
+      "T136"
+    ]
+  },
+  "usage": {
+    "tokens": 3200,
+    "minutes": 6,
+    "source": "self_report"
+  },
+  "reads_path_normalized": {
+    "by": "orchestrator",
+    "date": "2026-10-20",
+    "count": 3,
+    "note": "目录重命名 'runs/21 T-17/' → 'runs/round21/'（编排层 zsh 分词失误，见 round-manifest.dir_rename_note）；reads 路径机械归一化，内容零改动，席位当时的申报对其物理现实完全准确"
+  }
+}

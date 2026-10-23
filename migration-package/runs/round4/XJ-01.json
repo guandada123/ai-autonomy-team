@@ -1,0 +1,174 @@
+{
+  "seat": "XJ-01",
+  "round": 4,
+  "conclusion": "本轮分歧清单共 5 项：①T208 是否为差异单号（diff_count 7 vs 8，且两席「去重后四列无差」的断言与费用列数据相抵触）；②dedup_amount 对「多出行」的两种解释（15000 vs 30000）；③ADJ-001 轴覆盖范围在三席间不一致（仅 T210 / T207+T210），且一席表态与数值存在表面张力；④excluded_amount_total 的「差额」口径三种取法（58.06 / 0 / 4360）；⑤日期比对基准列全体一致默认 trade_date，属共享隐含假设，且任务背景「自记账按交割日入账」与 ledger 数据自相矛盾无人标记。",
+  "disagreements": [
+    {
+      "topic": "T208 是否为差异单号，diff_count 取 7 还是 8",
+      "positions": [
+        {
+          "anon_id": "A",
+          "stance": "diff_count=7，T208 去重后按单号总量比对「四列无差」，属定义 B 重复、只由 dedup_amount 表达，再入 diffs 属双重计入"
+        },
+        {
+          "anon_id": "B",
+          "stance": "diff_count=7，T208 去重后与自记账一致，不计差异"
+        },
+        {
+          "anon_id": "C",
+          "stance": "diff_count=8，T208 入差异清单，其证据含去重后费用差 7.54−7.50=0.04"
+        }
+      ],
+      "why_it_matters": "数据事实：bill 侧 T208 两行 fee_total 合计 3.77+3.77=7.54，ledger 侧为 7.50，费用列确实不同——A、B 两席「四列无差/完全一致」的断言与费用列数据相抵触，但契约易错点 3 只规定重复项金额由 dedup_amount 表达，未明言重复单号能否进入 diffs 清单。两席共享同一断言，符合「一致但可能共享盲区」的形态。",
+      "decidable_by": "可执行裁判（7.50≠7.54 脚本可验；重复单号是否可入 diffs 属契约解释，由裁判裁断）"
+    },
+    {
+      "topic": "dedup_amount 语义：「多出行的金额合计」指多余行还是重复单号全部行",
+      "positions": [
+        {
+          "anon_id": "A",
+          "stance": "15000.00（被去除的 1 行金额）"
+        },
+        {
+          "anon_id": "B",
+          "stance": "30000.00（重复单号全部行合计）"
+        },
+        {
+          "anon_id": "C",
+          "stance": "30000.00（同 B）"
+        }
+      ],
+      "why_it_matters": "TASK 定义 B 仅写「多出行」二字，未消歧。2:1 的共识不能作判据（共识≠正确），且该字段无勾稽约束可交叉验证，属纯文本解释分歧。",
+      "decidable_by": "可执行裁判（对契约文本的解释裁断）"
+    },
+    {
+      "topic": "ADJ-001 轴的覆盖范围与单侧差异（T207/T210）是否计入金额差异",
+      "positions": [
+        {
+          "anon_id": "A",
+          "stance": "count（amount_diff_total=4480）；但其反方推演 4220/260 表明其理解的 ADJ-001 只覆盖 T210 股息"
+        },
+        {
+          "anon_id": "B",
+          "stance": "exclude，排除 T207+T210 两者，excluded_amount_total=4360"
+        },
+        {
+          "anon_id": "C",
+          "stance": "表态 exclude，但其 summary 的 amount_diff_total=4480 实际已把 T207/T210 计入"
+        }
+      ],
+      "why_it_matters": "同一轴标签下，三席对覆盖对象的理解不同（仅 T210 / T207+T210），且 C 的表态与其 summary 数值存在表面张力——这可能是轴义本身歧义导致的错位对照，而非某席内部矛盾。若不先澄清轴义，立场聚合会把三个不同问题当成同一问题投票。",
+      "decidable_by": "不可判定（需人类闸门：先由裁判澄清 ADJ-001 定义，再由数据判定）"
+    },
+    {
+      "topic": "excluded_amount_total 中「取差额」取的是什么差额",
+      "positions": [
+        {
+          "anon_id": "A",
+          "stance": "58.06（费用列差额之和：0.26+57.76+0.04）"
+        },
+        {
+          "anon_id": "B",
+          "stance": "0.00（amount 列差额，费用/日期/股数类均为 0）"
+        },
+        {
+          "anon_id": "C",
+          "stance": "4360.00（单侧缺失类取该侧 amount）"
+        }
+      ],
+      "why_it_matters": "定义 C 只写「取差额」未说明取哪个列的差额，三席三种取法、数值相差逾 4300 元，直接影响 excluded 勾稽呈现。三种解释各自都能自圆其说，恰是契约欠约束的信号。",
+      "decidable_by": "可执行裁判（契约文本解释）"
+    },
+    {
+      "topic": "日期列比对基准（ledger.date 对 bill.trade_date 还是 settle_date）",
+      "positions": [
+        {
+          "anon_id": "A",
+          "stance": "默认 trade_date 基准（故仅 T205 成日期差异），未在正文论证"
+        },
+        {
+          "anon_id": "B",
+          "stance": "同默认 trade_date，仅在其 falsification 中提及备选基准"
+        },
+        {
+          "anon_id": "C",
+          "stance": "同默认 trade_date，仅在其 falsification 中提及备选基准"
+        }
+      ],
+      "why_it_matters": "全体一致的隐含假设是共享盲区的最高危候选：①定义 D 未指明交割单用哪一日期列；②任务背景称「自记账按交割日入账」，但 ledger 中 T201/T202/T204/T208/T209 的 date 均等于 trade_date 而非 settle_date（如 T201 ledger=09-01 vs settle=09-02），背景陈述与数据自相矛盾，三席均未标记。若基准改为 settle_date，T201/T202/T204/T208/T209 全部构成日期差异，diff_count 与分类需整体重算。",
+      "decidable_by": "可执行裁判（需裁判先确认基准列，随后脚本可验）"
+    }
+  ],
+  "overlooked_stances": [
+    "任务背景「自记账按交割日入账」与 ledger 实际数据（date 多等于成交日）相矛盾——三席无人质疑这一矛盾对日期基准选择的含义",
+    "「重复单号能否进入 diffs 清单」是契约空白，两席各按相反默认行事，但无人把契约空白本身列为需人类闸门的点",
+    "T205 同时存在日期差与费用差（0.03）：一席把费用差并入日期类别、另一席归费用类但其 58.06 又不含 0.03——单一类别归一 vs 多重差异标注无人讨论",
+    "单侧单号 T207 的费用 5.04 在任何口径下的去向（是否参与 excluded）三席均未报告",
+    "EX-02 称费用并入会虚增 58.05（含 T205 的 0.03），与其自身 excluded_amount_total=0 及 excluded_categories 相互之间未做数值勾稽说明"
+  ],
+  "presentation_controls": {
+    "anonymized": true,
+    "order_randomized": false,
+    "length_normalized": false
+  },
+  "self_caution": "我收到的三份产出带真实席位文件名且按文件名顺序读取，我仅做了输出层匿名（anon_id 由我自行指定、映射不公开），未做读取顺序随机化与长度归一化，故后两项如实填 false。我属 GLM 家族、与三个产出席位不同源，但这不保证我的纠察有效：①我对「费用列差异」的敏感可能使我系统性偏向把更多单号计入差异的一方；②全体三席在 ledger_total=358800 / bill_total=363280 / raw_total_gap=4480 上的算术共识我已独立复算属实，但共识≠正确——日期基准、dedup 语义等契约解释层的三方一致默认，正是我最可能随之共舞的盲区。",
+  "note": "本产出为线索，非判据，决策权重为 0",
+  "evidence": [
+    {
+      "pointer": "fixtures/002/bill.csv#行8-9 txn_id=T208 fee_total 列 + fixtures/002/ledger.csv#行7 T208 fee_total 列",
+      "what_it_shows": "bill 侧 T208 两行费用合计 3.77+3.77=7.54，ledger 侧为 7.50，费用列存在 0.04 差额——据此可检验两席「去重后四列无差」断言的事实基础。"
+    },
+    {
+      "pointer": "runs/round4/EX-01.json#summary.excluded_amount_total / EX-02.json#summary.excluded_amount_total / EX-03.json#summary.excluded_amount_total",
+      "what_it_shows": "三席同一字段三种取值（58.06 / 0.0 / 4360.0），对应定义 C「取差额」的三种解释，契约欠约束。"
+    },
+    {
+      "pointer": "runs/round4/EX-01.json#summary.dedup_amount / EX-02.json#summary.dedup_amount / EX-03.json#summary.dedup_amount",
+      "what_it_shows": "dedup_amount 两值并存（30000 / 15000 / 30000），对应 TASK 定义 B「多出行」的两种读法。"
+    },
+    {
+      "pointer": "fixtures/002/ledger.csv#行2 T201 date=2026-09-01 vs fixtures/002/bill.csv#行2 T201 settle_date=2026-09-02",
+      "what_it_shows": "任务背景声称自记账按交割日入账，但该行 date 等于成交日而非交割日，背景陈述与数据矛盾，三席产出均未提及。"
+    },
+    {
+      "pointer": "runs/round4/EX-01.json#stance[ADJ-001]=exclude vs EX-01.json#summary.amount_diff_total=4480.0",
+      "what_it_shows": "该席表态 exclude 却在 amount_diff_total 中计入了单侧 4360.00——或为 ADJ-001 轴义歧义所致的错位对照，需裁判澄清轴义后再解读。"
+    }
+  ],
+  "falsification": "若 bill 侧 T208 两行费用合计实为 7.50（我读数有误）或契约明示重复单号豁免于差异判定，则分歧 1 不成立；若 TASK 定义 B/C/D 实际已明示「多出行」与「差额」口径及日期基准列，则分歧 2/4/5 属误报；若 ADJ-001 轴在三席提示词中有统一定义且覆盖 T207+T210，则分歧 3 中关于轴义歧义的观察不成立；若 ledger T201 date 实为 2026-09-02（我读数有误），则背景矛盾的证据失效。",
+  "reads": [
+    {
+      "path": "runs/round4/prompts/XJ-01.md",
+      "purpose": "本席位提示词：读取域、输出 schema、硬性字段与三控要求"
+    },
+    {
+      "path": "runs/round4/EX-01.json",
+      "purpose": "读取席位产出原文，提取其 diff_count、summary、stance 与证据结构"
+    },
+    {
+      "path": "runs/round4/EX-02.json",
+      "purpose": "读取席位产出原文，提取其反方论证与勾稽主张"
+    },
+    {
+      "path": "runs/round4/EX-03.json",
+      "purpose": "读取席位产出原文，提取其分类与执行路径"
+    },
+    {
+      "path": "fixtures/002/TASK.md",
+      "purpose": "核对三席引用的契约条款（定义 A-D、易错点 1-4）是否与原文一致"
+    },
+    {
+      "path": "fixtures/002/ledger.csv",
+      "purpose": "独立复算 ledger_total=358800 并核验 T208/T209/T205 关键列读数"
+    },
+    {
+      "path": "fixtures/002/bill.csv",
+      "purpose": "独立复算 bill_total=363280、raw_total_gap=4480，并核验 T208 费用合计与日期列"
+    }
+  ],
+  "usage": {
+    "tokens": 26000,
+    "minutes": 14,
+    "source": "self_report"
+  }
+}

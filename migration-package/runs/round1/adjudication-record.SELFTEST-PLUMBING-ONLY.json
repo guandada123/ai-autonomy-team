@@ -1,0 +1,20 @@
+{
+  "_WARNING": [
+    "★ 这不是人类裁决，仅用于验证「人类闸门往返」的管路是否通畅。",
+    "  文件名与 recorded_by 均已明示其身份，任何情况下不得当作决策依据。",
+    "  真正的裁决记录须由用户另存为 runs/round1/adjudication-record.json 并亲自填写，",
+    "  参见 runs/round1/adjudication-record.TEMPLATE.md。",
+    "  本文件的存在同时证明了 docs/protocol/06 中写明的那条边界：",
+    "  verify.py 只能校验声明字段，无法证明文件由人撰写。"
+  ],
+  "task_id": "SYNTH-RECON-001",
+  "source": "human_adjudication",
+  "recorded_by": "SELFTEST-PLUMBING-ONLY-NOT-A-HUMAN-DECISION",
+  "recorded_at": "2026-10-16T17:00:00+08:00",
+  "decisions": [
+    {"id": "ADJ-001", "chosen": "exclude",
+     "rationale": "【管路自检用，非真实裁决】选 exclude 以复现 answer-final.json 的既有数字"},
+    {"id": "ADJ-002", "chosen": "7",
+     "rationale": "【管路自检用，非真实裁决】ADJ-003 已随 F15 合并轴退役，现 DIFFSET 四选项取 7（两项都列入）"}
+  ]
+}

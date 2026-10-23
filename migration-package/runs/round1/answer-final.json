@@ -1,0 +1,38 @@
+{
+  "summary": {
+    "ledger_rows": 27,
+    "bill_rows": 27,
+    "ledger_total": 37490.50,
+    "bill_total": 38010.52,
+    "raw_total_gap": 520.02,
+    "dedup_removed_txn_count": 1,
+    "dedup_amount": 1200.00,
+    "diff_count": 7,
+    "amount_diff_total": 500.02,
+    "excluded_amount_total": 180.00,
+    "excluded_categories": ["口径差异", "跨月归属"]
+  },
+  "diffs": [
+    {"id": "T101", "category": "舍入差"},
+    {"id": "T102", "category": "舍入差"},
+    {"id": "T103", "category": "重复导入"},
+    {"id": "T104", "category": "口径差异"},
+    {"id": "T105", "category": "口径差异"},
+    {"id": "T106", "category": "跨月归属"},
+    {"id": "T107", "category": "账单缺失"}
+  ],
+  "categories": {
+    "舍入差": ["T101", "T102"],
+    "重复导入": ["T103"],
+    "口径差异": ["T104", "T105"],
+    "跨月归属": ["T106"],
+    "账单缺失": ["T107"]
+  },
+  "falsification": "本结论在以下任一条件成立时失效：(1) 若 T104/T105 的 tax_included 差异被证实为录入错误而非制度性口径，则 180.00 应移入 amount_diff_total（变为 680.02，excluded_amount_total 变为 0.00）；(2) 若 T107 的缺失按「存在性差异、不补零」处理，则 amount_diff_total 变为 0.02；(3) 若存在成文的「≤0.01 视为一致」容差约定，则舍入差应剔除，两字段变为 500.00 / 180.02；(4) 若 T103 的第二行是独立真实交易而非重复导入，则 dedup 应清零且 1200.00 进入金额差异；(5) 若含税/不含税并非同一经济价值，则 (1) 中的替换成立。以上任一前提被推翻，本归因即不成立。",
+  "pm_note": {
+    "writer": "PM-01",
+    "aggregation_rule_applied": "硬裁判通过 > 有独立证据支持的少数 > 无证据的多数",
+    "basis": "EX-01 与 EX-02 独立产出的归类结论一致（乙立场）；EX-02 为对立立场（甲）构造的论证为其最强形式，但未被任何独立证据支持，故不改变聚合结果。",
+    "dissent_preserved": true
+  }
+}

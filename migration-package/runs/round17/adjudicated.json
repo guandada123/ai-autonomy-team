@@ -1,0 +1,172 @@
+{
+  "task_id": "TASK-BROKER-012",
+  "verdict": "adjudicated",
+  "judge": "JD-01",
+  "judge_impl": "scripts/judge/verify.py (non-LLM, stdlib-only)",
+  "spec_layer": "all",
+  "summary": {
+    "total": 13,
+    "passed": 13,
+    "failed": 0,
+    "pending": 0
+  },
+  "checks": [
+    {
+      "name": "自记账行数",
+      "type": "numeric_equals",
+      "ok": true,
+      "expected": "7",
+      "actual": "实际 7 vs 期望 7",
+      "weight": 1
+    },
+    {
+      "name": "交割单原始行数",
+      "type": "numeric_equals",
+      "ok": true,
+      "expected": "8",
+      "actual": "实际 8 vs 期望 8",
+      "weight": 1
+    },
+    {
+      "name": "去重笔数",
+      "type": "numeric_equals",
+      "ok": true,
+      "expected": "0",
+      "actual": "实际 0 vs 期望 0",
+      "weight": 1
+    },
+    {
+      "name": "去重金额",
+      "type": "decimal_equals",
+      "ok": true,
+      "expected": "0.0",
+      "actual": "实际 0.00 vs 期望 0.00（Decimal 精确相等，scale=2）",
+      "weight": 1
+    },
+    {
+      "name": "自记账合计",
+      "type": "decimal_equals",
+      "ok": true,
+      "expected": "146820.0",
+      "actual": "实际 146820.00 vs 期望 146820.00（Decimal 精确相等，scale=2）",
+      "weight": 1
+    },
+    {
+      "name": "交割单合计",
+      "type": "decimal_equals",
+      "ok": true,
+      "expected": "147200.0",
+      "actual": "实际 147200.00 vs 期望 147200.00（Decimal 精确相等，scale=2）",
+      "weight": 1
+    },
+    {
+      "name": "总额差",
+      "type": "decimal_equals",
+      "ok": true,
+      "expected": "380.0",
+      "actual": "实际 380.00 vs 期望 380.00（Decimal 精确相等，scale=2）",
+      "weight": 1
+    },
+    {
+      "name": "必须声明排除类别",
+      "type": "present",
+      "ok": true,
+      "expected": "",
+      "actual": "存在且非空: [\"费用列差异（成交金额不变）\", \"股数差异（权益变动未更新）\", \"日期基准差异（成交日vs入账日）\"]",
+      "weight": 1
+    },
+    {
+      "name": "必须给出类别归属",
+      "type": "present",
+      "ok": true,
+      "expected": "",
+      "actual": "存在且非空: {\"成交金额差异（实际成交价与记账价不一致）\": [\"T091\"], \"费用列差异（成交金额不变）\": [\"T092\", \"T093\"], \"股数差异（权益变动未更新）\": [\"T094\"], \"单侧存在（交割单独有现金流入·股息入账）\":…",
+      "weight": 1
+    },
+    {
+      "name": "必须给出证伪条件",
+      "type": "present",
+      "ok": true,
+      "expected": "",
+      "actual": "存在且非空: 本结论在下列任一条件下为错：(1) 若裁决层认定『日期』列应取 settle_date（交割日）而非 trade_date（成交日），则 T096 不再是差异单号，且 T089–T093 五笔同时新增日期差，diff_count 会由 6 …",
+      "weight": 1
+    },
+    {
+      "name": "ADJ-001 → summary.amount_diff_total",
+      "type": "decimal_equals",
+      "ok": true,
+      "expected": "380.0",
+      "actual": "实际 380.00 vs 期望 380.00（Decimal 精确相等，scale=2）",
+      "weight": 1
+    },
+    {
+      "name": "ADJ-001 → summary.excluded_amount_total",
+      "type": "decimal_equals",
+      "ok": true,
+      "expected": "0.0",
+      "actual": "实际 0.00 vs 期望 0.00（Decimal 精确相等，scale=2）",
+      "weight": 1
+    },
+    {
+      "name": "ADJ-002 → summary.diff_count",
+      "type": "numeric_equals",
+      "ok": true,
+      "expected": "6",
+      "actual": "实际 6 vs 期望 6",
+      "weight": 1
+    }
+  ],
+  "pending": [],
+  "adjudication_source": "human",
+  "carries_undeclared_judgment": false,
+  "evidence": [
+    {
+      "label": "answer",
+      "path": "runs/round17/answer-final.json",
+      "sha256": "c4e6e08ca7d0dcef279e646d8fae63942bdc6be4fe71ccf40708f7848ddb13ff"
+    },
+    {
+      "label": "spec_arithmetic",
+      "path": "fixtures/tasks/T-12/spec/arithmetic.json",
+      "sha256": "6ae754945c1f0d4433197d290789439effab873a5ab327af3da0844eee35918e"
+    },
+    {
+      "label": "spec_adjudication",
+      "path": "fixtures/tasks/T-12/spec/adjudication.json",
+      "sha256": "271df2b2edfd799ede1d5ca37921b82f6ae721fcb65beb54ef4794e8942c4ac6"
+    },
+    {
+      "label": "adjudication_record",
+      "path": "runs/round17/adjudication-record.json",
+      "sha256": "1b7af7dada8d10fcae4fa62b79e1a80a8eed697fcc4945e57833dd4c21cd6cdd"
+    }
+  ],
+  "ts": "2026-10-20T19:42:20+08:00",
+  "override_policy": "本裁决不可被静默覆盖。PM 若要推进 fail 的动作，必须留痕：「覆盖 JD-01 的 fail 判定。风险评级：__。不可逆：__。理由：__。承担人：PM-01。」",
+  "adjudication_provenance": [
+    {
+      "id": "ADJ-001",
+      "chosen": "count",
+      "path": "summary.amount_diff_total",
+      "source": "human_adjudication",
+      "decided_by": "关",
+      "rationale": "与本人在 round4（TASK-BROKER-RECON-002）确立的裁决原则一致：少报不可逆——计入。excluded 桶不得成为藏差错的抽屉。"
+    },
+    {
+      "id": "ADJ-001",
+      "chosen": "count",
+      "path": "summary.excluded_amount_total",
+      "source": "human_adjudication",
+      "decided_by": "关",
+      "rationale": "与本人在 round4（TASK-BROKER-RECON-002）确立的裁决原则一致：少报不可逆——计入。excluded 桶不得成为藏差错的抽屉。"
+    },
+    {
+      "id": "ADJ-002",
+      "chosen": "6",
+      "path": "summary.diff_count",
+      "source": "human_adjudication",
+      "decided_by": "关",
+      "rationale": "diffs 是「需不需要跟进」的清单：零金额条目（送转/日期/费用差）留着才能暴露口径矛盾；剔除等于放弃复查。"
+    }
+  ]
+}

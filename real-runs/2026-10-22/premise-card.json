@@ -1,0 +1,13 @@
+{
+  "task": "清理 Claw 的定时任务：从 87 条里挑出最该停掉的 5 条",
+  "beneficiary": "我，每月看这 2264 次自动运行为什么跑、哪些是白跑的时候",
+  "metric": {
+    "name": "每月自动运行次数",
+    "baseline": 2264,
+    "method": "workbuddy.db 的 automation_runs 表按近 30 天计数"
+  },
+  "do_nothing_cost": {
+    "description": "继续按 2264 次/月跑，其中 55 次没成功；单次额度成本未实测，但『次数』可与停掉后对比",
+    "comparable": true
+  }
+}

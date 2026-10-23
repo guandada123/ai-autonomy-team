@@ -1,0 +1,170 @@
+{
+  "seat": "XJ-01",
+  "round": 11,
+  "conclusion": "本轮分歧清单共 4 项：①日期比对基准（trade_date vs settle_date）导致 DIFFSET 6 vs 7 之争，TASK.md D 段未指定日期列映射，两种基准都是数据的真实读法；②股息 520.00 归因三席三样：EX-02 计入（26640/0，stance=count）、EX-03 排除（26120/520，stance=exclude）、EX-01 summary 计入但 stance 报 exclude——EX-01 的 stance 与其自身 summary 相反（按 protocol/07 反推规则 excluded==0 → count）；③EX-03 的 falsification② 存在算术错误（settle 基准实得 7 条而非 8 条），且其用金额闭合反证条数的论证不成立——零金额差异（T025/T026/T030/T032 型）可在不破坏 gap 闭合的前提下自由增减；④三席 dissent 的 ANON-A/B/C 均为构建的对立立场（inputs/ 目录实测为空），其中 EX-01 归给 ANON-C 的「跨月」主张在本夹具无数据可支撑，属 strawman。独立复算确认：三席全部算术字段与原始 CSV 一致，本轮无虚构数字；EX-02 的 DIFFSET=7 在取值空间 {4,5,6,7} 内（protocol/07 明文），EX-03 称 8 超空间正确但推导错误。",
+  "disagreements": [
+    {
+      "topic": "日期比对基准：ledger.date 应对照 bill.trade_date 还是 settle_date（决定 DIFFSET=6 或 7）",
+      "positions": [
+        {
+          "anon_id": "EX-01",
+          "stance": "对照 trade_date，得 6 条差异（T027/T028/T029/T030/T031/T032），T025/T026 非差异；未论证为何选 trade_date，属通行默认"
+        },
+        {
+          "anon_id": "EX-02",
+          "stance": "对照 settle_date：TASK.md 定义 ledger.date 为「入账日」，资金入账发生在交割（T+1）；得 7 条（T025/T026/T027/T028/T029/T030/T031），T032 四列全同系口径制造的伪阳性"
+        },
+        {
+          "anon_id": "EX-03",
+          "stance": "对照 trade_date，得 6 条；其在 falsification 中承认基准切换会改变结论但误算为 8 条"
+        }
+      ],
+      "why_it_matters": "diff_count 与 diffs 清单整体随之翻转（6/7 各差一个零金额单号）；金额字段（26640 闭合）不受影响，但 DIFFSET 是 stance 两坐标之一，直接影响聚合。注意数据本身呈对称设计：ledger 5 行中 4 行（T025/T026/T027/T030）date 恰等于 trade_date，仅 T032 等于 settle_date——EX-02 自认这是其口径的强反证但称「3 行」，漏计 T030。",
+      "decidable_by": "可执行裁判（若 spec 定义 date↔列映射）；若 spec 同样未定义，则不可判定（需人类闸门）"
+    },
+    {
+      "topic": "股息入账 T029/T031（各 260.00）是否计入金额差异",
+      "positions": [
+        {
+          "anon_id": "EX-01",
+          "stance": "summary 将其计入 amount_diff_total（26640.00，excluded_categories 仅含零金额的送转/日期两类），但 stance 声明 ADJ-001=exclude——stance 与 summary 相互矛盾"
+        },
+        {
+          "anon_id": "EX-02",
+          "stance": "count：股息是券商侧真实入账、自记账零记录的现金流，降级为排除会让 520 元缺口从待补记清单消失；amount_diff_total=26640.00、excluded=0"
+        },
+        {
+          "anon_id": "EX-03",
+          "stance": "exclude：股息 shares=0、三费全 0，属资金流水而非成交金额，amount_diff_total=26120.00、excluded=520.00，并要求人类闸门裁定"
+        }
+      ],
+      "why_it_matters": "amount_diff_total 在 26640 与 26120 之间摆动，ADJ-001 坐标直接冲突；且 EX-01 的 stance/summary 不一致按 protocol/07 属 W_STANCE_MISMATCH 级信号，聚合前应先解决。",
+      "decidable_by": "stance/summary 一致性可执行裁判可判；股息语义归属不可判定（需人类闸门，TASK.md 明言「不预设该不该算差异」）"
+    },
+    {
+      "topic": "EX-03 以「闭合无余量」反证第 7 条差异不成立是否有效",
+      "positions": [
+        {
+          "anon_id": "EX-03",
+          "stance": "gap 26640.00 已被 6 条精确填满，多报一条必然使差额合计超过 gap"
+        },
+        {
+          "anon_id": "EX-01",
+          "stance": "其 6 条中 T030/T032 差额均为 0.00——零金额差异本身证明条数与闭合解耦"
+        }
+      ],
+      "why_it_matters": "EX-03 的论证混淆了「金额闭合」与「清单条数」两个约束；本夹具恰有 4 个零金额/零差额单号可充当第 7 条（EX-02 用的正是 T025/T026），闭合性无法排除 7 条。另 EX-03 falsification② 称 settle 基准得 8 条超出 {4,5,6,7}——8 确实超空间，但按逐单复算 settle 基准下 T032 因 date=settle_date 退出，实得 7 条，EX-03 的推导是算术错误。",
+      "decidable_by": "可执行裁判（纯算术，复算即判）"
+    },
+    {
+      "topic": "dissent 的真实性：ANON-A/B/C 是否 strawman",
+      "positions": [
+        {
+          "anon_id": "EX-01",
+          "stance": "dissent 目标含「把 T028 视作 T026 分批重复」「把 T030 送转折算金额」「跨月差异」三种立场"
+        },
+        {
+          "anon_id": "EX-02 与 EX-03",
+          "stance": "同样以未读到的 ANON 立场为靶（EX-02 自报 inputs 为空、无同伴产出可读）"
+        }
+      ],
+      "why_it_matters": "inputs/ 目录实测为空，三席的 ANON-A/B/C 均为自行构建的对立面。EX-01 归给 ANON-C 的「跨月」主张在本夹具无任何数据支撑（全表日期均在 2026-09）；EX-01 归给 ANON-A 的 dedup 主张与三席一致结论（dedup=0）无实质分歧。真实分歧可能只有两处（日期基准、股息归因），聚合时不应把 strawman 计入分歧度。",
+      "decidable_by": "可执行裁判（对照 round11 目录实际产出与 inputs 内容即判）"
+    }
+  ],
+  "overlooked_stances": [
+    "送转股数勾稽无人核查：T030（09-12 送转）前 ledger 已买入 100+500+1000=1600 股，10送3 应 +480 股（若含 09-09 中签 500 股则 +630），bill 仅 +30 股——三席都只记「股数不一致 0 vs 30」，无人检查送转比例本身是否对得上；若 +30 本身异常，T030 的归因会漏一层（线索非结论：此处是数据内部勾稽，不违反「不得据费率反推期望值」）",
+    "金额闭合与清单条数解耦：零金额差异可在任意 DIFFSET 下保持 gap 闭合，任何用「闭合性」限定条数上下界的论证均无效力",
+    "EX-02 的「5 行中 3 行 date=trade_date」漏计 T030（09-12=09-12，同日），实为 4/5——其自认的强反证比它承认的更强",
+    "三席对中签 T028 的归因完全一致（单侧遗漏 26000、非 T026 分批重复），该共识经复算成立；但按「共识≠正确」提示：结论依赖契约「同一 txn_id 出现多次才为重复」这一条文，若中签在上游本就使用独立单号，这是契约驱动而非数据驱动的判断"
+  ],
+  "presentation_controls": {
+    "anonymized": true,
+    "order_randomized": true,
+    "length_normalized": true
+  },
+  "self_caution": "我与产出席位可能共享误差相关性；我无法读 truth/spec/presentation，对日期基准与股息归属无法做最终裁决，以上全部是线索。我对 protocol/07 反推规则的引用基于表格文字，其示例数值（500.02/180.00/680.02）来自其他夹具，套用到 T-04 时只取了「excluded==0 → count」的模式，可能有误读。三席结论高度收敛（26640 闭合、dedup=0、无虚构），全体一致恰是高置信错误共识的温床，我仅以独立 Decimal 复算脚本作为抵消手段，脚本本身若有列错位/编码问题则我的复核同样失效。",
+  "note": "本产出为线索，非判据，决策权重为 0。本轮无 score 字段，XJ-01 豁免 stance。",
+  "falsification": "若我的复算脚本存在 bug（列错位、编码、Decimal 解析错误），则「三席无虚构」「settle 基准得 7 条」等判断全部失效；若 protocol/07 之外另有对 DIFFSET 取值域或 ADJ-001 反推规则的修订文本，则「7 在空间内」「EX-01 stance 不一致」两项作废；若三席的 ANON-A/B/C 实际来自我未发现的合法对手产出渠道，则「strawman」一项作废。",
+  "evidence": [
+    {
+      "pointer": "独立复算脚本（python3+Decimal，fixtures/tasks/T-04/ledger.csv 5 行 + bill.csv 8 行全量）",
+      "what_it_shows": "ledger_total=252800.00、bill_total=279440.00、raw_total_gap=26640.00；两侧 txn_id 均无重号（dedup=0 成立）；逐单差额：T027=120.00（另费用差 0.03）、T028=26000.00、T029=260.00、T031=260.00、T030/T032/T025/T026=0.00——三席全部金额字段与原始数据一致，本轮未见记忆值套用或虚构"
+    },
+    {
+      "pointer": "逐单复算的日期列比对输出",
+      "what_it_shows": "T025/T026 仅在 date-vs-settle 列不等（09-03≠09-04、09-05≠09-06），T032 仅在 date-vs-trade 列不等（09-16≠09-15），T030 仅 shares 不等（0≠30）——trade_date 基准得 6 条、settle_date 基准得 7 条，均为数据的真实读法，TASK.md D 段「日期」未指定对照哪一列"
+    },
+    {
+      "pointer": "protocol/07-轮次与指标.md：DIFFSET 取值域行「\"7\"/\"6\"/\"5\"/\"4\"/abstain/out_of_space」及「diff_count 落在 {4,5,6,7} 之外 → out_of_space」",
+      "what_it_shows": "EX-02 的 DIFFSET=7 在选项空间内，无需告警；EX-03 称 8 超空间方向正确，但其推导（settle 基准得 8）与复算不符——settle 基准下 T032 退出，实得 7"
+    },
+    {
+      "pointer": "EX-01.json summary（excluded_amount_total=\"0.00\"、amount_diff_total=\"26640.00\"、excluded_categories=[股数不符(送转),日期口径差]）对照其 stance ADJ-001=exclude，及 protocol/07 反推规则「excluded==0 → count」",
+      "what_it_shows": "EX-01 的 stance 声明与其自身 summary 相反，按 protocol/07 至少构成 W_STANCE_MISMATCH，聚合前应要求其澄清 ADJ-001 所指（是股息还是送转）"
+    },
+    {
+      "pointer": "runs/round11/inputs/ 目录 ls 结果（空）与三席 JSON 的 reads[]/dissent 字段",
+      "what_it_shows": "三席均无实际对手产出可读，其 dissent 目标 ANON-A/B/C 为构建立场；EX-01 归给 ANON-C 的「跨月」主张在本夹具无数据支撑（全表日期 2026-09-03 至 09-16），EX-01 的 evidence 中已自行给出同一反驳"
+    },
+    {
+      "pointer": "ledger.csv T025/T026/T027/T030 行的 date 与 bill.csv 对应 trade_date",
+      "what_it_shows": "ledger 5 行中 4 行 date 恰等于 trade_date（仅 T032 等于 settle_date），EX-02 称「5 行中 3 行」漏计 T030（09-12=09-12）——其自认的强反证实际更强，这既可能动摇也可能加固其立场，需裁判注意"
+    }
+  ],
+  "reads": [
+    {
+      "path": "runs/round11/prompts/XJ-01.md",
+      "purpose": "本席位职责、读取域/禁读域、输出契约与硬性字段要求"
+    },
+    {
+      "path": "fixtures/tasks/T-04/TASK.md",
+      "purpose": "字段定义、A/B/C/D 四段计算口径、四个易错点与差异判定口径（确认 D 段未指定日期列映射）"
+    },
+    {
+      "path": "fixtures/tasks/T-04/ledger.csv",
+      "purpose": "自记账 5 行逐行取值，供独立 Decimal 复算"
+    },
+    {
+      "path": "fixtures/tasks/T-04/bill.csv",
+      "purpose": "交割单 8 行逐行取值，供独立 Decimal 复算"
+    },
+    {
+      "path": "runs/round11/EX-01.json",
+      "purpose": "席位产出原文：核对 summary、stance、dissent 与 reads 申报"
+    },
+    {
+      "path": "runs/round11/EX-02.json",
+      "purpose": "席位产出原文：核对 DIFFSET=7 的 diffs 自洽性与日期语义论证"
+    },
+    {
+      "path": "runs/round11/EX-03.json",
+      "purpose": "席位产出原文：核对其 falsification 的 8 条推导与闭合性论证"
+    },
+    {
+      "path": "protocol/07-轮次与指标.md",
+      "purpose": "核实 DIFFSET 取值空间 {4,5,6,7} 与 ADJ-001 反推规则"
+    },
+    {
+      "path": "runs/round11/（目录列举，未进入 presentation/）",
+      "purpose": "确认可读产出全集；presentation/ 按规未列举未读取"
+    },
+    {
+      "path": "runs/round11/inputs/（目录列举）",
+      "purpose": "核实 EX-02 自报「inputs 为空」是否属实（属实），作为 strawman 判断依据"
+    },
+    {
+      "path": "runs/round11/prompts/（目录列举）",
+      "purpose": "确认本轮席位提示词清单"
+    },
+    {
+      "path": "protocol/（目录列举）",
+      "purpose": "定位 stance 取值域所在的协议文件"
+    }
+  ],
+  "usage": {
+    "tokens": 32000,
+    "minutes": 11,
+    "source": "self_report"
+  }
+}

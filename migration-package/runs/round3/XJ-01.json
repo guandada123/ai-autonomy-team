@@ -1,0 +1,98 @@
+{
+  "seat": "XJ-01",
+  "round": 3,
+  "conclusion": "本轮分歧清单共 6 项；三席在 500.02/180.00/7 上的一致不构成三重独立验证——C 的票源自答案键而非数据，A/B 收敛于同一条未经检验的前提（note 自证 + 6% 税额 ⇒ 口径差），有效独立票数≈2。",
+  "disagreements": [
+    {
+      "topic": "三席数字一致是否构成独立验证（结论的依据来源是否同源）",
+      "positions": [
+        {"anon_id": "A", "stance": "依据为数据内自证：note 标注「口径差异样本」+ 2120/2000=1060/1000=1.06 + tax_included 双侧翻转；另以包结构（文件字节数等 5 文件）作为辅证。"},
+        {"anon_id": "B", "stance": "依据为同一组数据，并额外引上一轮裁决记录的 ADJ-001=exclude，自注该记录来源为 SELFTEST 占位。"},
+        {"anon_id": "C", "stance": "不以数据推导为依据：直接以含 rules/expected 的真值文件为准，称「偏离即 fail」，未给任何行级金额分解。"}
+      ],
+      "why_it_matters": "一致票的确认价值取决于误差相关性。C 若源自答案键，其与 A/B 的一致只是同一答案被读了两次，不是两次独立检验；A、B 又各自引用了本轮禁读域（A 举证 judges 目录内容，B 举证上轮裁决记录），说明三票可能共享同一个包外权威通道。这正是「高置信度错误共识」的生成条件：一致不是因为都对，而是因为都在读同一个上游。把它当 3 票计入，会系统性高估本轮结论的可靠性。",
+      "decidable_by": "可执行裁判"
+    },
+    {
+      "topic": "ADJ-001（口径差是否计入金额差异）由谁裁：数据自证 / 契约内建 / 真值已固化",
+      "positions": [
+        {"anon_id": "A", "stance": "contract 的 excluded_* 字段是内建结构 + note 自证 → 已由数据与契约闭合。"},
+        {"anon_id": "B", "stance": "note + 双侧翻转 + 双样本精确 1.06 已足以裁定为制度性口径；继续悬置只徒增人工闸门与成本。"},
+        {"anon_id": "C", "stance": "真值文件 rules 已明文、expected 已固化 → 机器层面已决，JD-01 偏离即 fail。"}
+      ],
+      "why_it_matters": "按 protocol/06 §2.2–2.5，diff_count / diffs / amount_diff_total / excluded_amount_total 被白名单机械挡在算术层之外，属 adjudication 层，且该层 item 不得含 expected；未裁决应 exit 3。若 C 所述为真（判断项带 expected 并被当成判据），那不是权威，恰是 F1 缺陷的复现形态，应 exit 2 而非据此判 fail。三席给出了三种不同的「谁有权决定」，这直接决定 180.00 的归属能否被机器锁定——程序问题在此不是形式问题，它决定了实质答案由谁产出。",
+      "decidable_by": "可执行裁判"
+    },
+    {
+      "topic": "T104/T105 的实体问题（制度性口径 vs 录入错误）是否已闭合",
+      "positions": [
+        {"anon_id": "A", "stance": "未闭合：needs_more_data 明列「本轮无新数据可闭合」，但同时输出 500.02 且 confidence=high。"},
+        {"anon_id": "B", "stance": "已闭合：note 标注 + tax_included 双侧翻转 + 双样本精确 1.06 足以裁定；A 的悬置与确定数字自相矛盾。"},
+        {"anon_id": "C", "stance": "已闭合：真值已写死，无需再判。"}
+      ],
+      "why_it_matters": "同一个数字配了三种确定性等级，说明这个数字不是从确定性里推出来的，而是先有数字再配信心。若问题真未闭合，500.02 与 680.02 都不该以 high confidence 呈现；若已闭合，A 的 needs_more_data 就是虚设闸门。无论哪种，本轮「高置信一致」的置信度标注本身不可信——这是结论强于证据的典型形态。",
+      "decidable_by": "不可判定（需人类闸门）"
+    },
+    {
+      "topic": "diff_count=7 的构成（差额 0.00 的跨月项与重复行是否计入差异清单）",
+      "positions": [
+        {"anon_id": "A", "stance": "主张 7，但把「不收录重复项与跨月项 → 应为 5」写进可推翻条件，等于承认 7 依赖一条未论证的收录规则。"},
+        {"anon_id": "B", "stance": "直接把 T106 归为「跨月、差额 0」并计入 7，未论证「差额为 0 也叫一条差异」。"},
+        {"anon_id": "C", "stance": "称真值规则明定「跨月不剔除」，以规则代替论证。"}
+      ],
+      "why_it_matters": "diff_count 属判断层字段（白名单外），其值取决于「什么算一条差异」这个定义，而三席无一人正面给出该定义。三条论证强度不同的路径收敛到同一数字，说明 7 是共享定义的结果而非三次独立推导；若收录规则改为只收金额不符项，diff_count 降为 5，answer 整体形态随之改变。",
+      "decidable_by": "不可判定（需人类闸门）"
+    },
+    {
+      "topic": "本任务是否存在真实判断轴（决定多智能体流程是否值得）",
+      "positions": [
+        {"anon_id": "B", "stance": "存在：ADJ-001 是本题唯一真实判断轴，正因有分歧，独立检验才有价值；C 的成本论证以答案已知为前提，属循环。"},
+        {"anon_id": "C", "stance": "不存在实质分歧：三包数字相同、真值已固化，多智能体约 20× 浪费。"},
+        {"anon_id": "A", "stance": "未回应（其产出不含成本或流程评价）。"}
+      ],
+      "why_it_matters": "这是元层分歧。若判断轴真实存在，20× 成本换的是人类闸门之前的一次独立对撞；若不存在，整套流程只是把已写死的答案复述三遍。C 的前提「数字相同即无分歧」把一致当成了正确，恰与共享误差结论相反——而本包内三席正共享同一个上游通道，这个前提在本轮尤其危险。",
+      "decidable_by": "不可判定（需人类闸门）"
+    },
+    {
+      "topic": "结论是否可被独立复算（行级分解的有无）",
+      "positions": [
+        {"anon_id": "A", "stance": "给出可复算拼合：500.00（T107 单边缺失）+ 0.02（T101/T102）= 500.02；180.00 入 excluded；并给出 raw_total_gap 行级分解的闭合条件。"},
+        {"anon_id": "B", "stance": "同样给行级分解，并给完整性断言 1200 + (−679.98) = 520.02。"},
+        {"anon_id": "C", "stance": "只给真值指针与 7，无任何行级金额分解，不可复算，亦未给出任何可供裁判咬住的中间量。"}
+      ],
+      "why_it_matters": "可复算性是硬裁判唯一能咬住的东西。一票若不可复算，它在聚合中的信息量应视为 0 而不是 1/3，这会直接改变「7 比 0」的表决算术——也正是把三票当三票的最大代价。",
+      "decidable_by": "可执行裁判"
+    }
+  ],
+  "overlooked_stances": [
+    "contract 中反向条款从未被引用：TASK.md 明确「所有金额字段一律取原始值，不做含税/不含税换算」。把 2120 与 2000 视为同一笔并抹掉 180.00 差额，实质是先做含税归一再比较，与该条字面取向相反。A/B 只引 excluded_* 字段存在，C 不引契约；无人正面处理这一冲突。",
+    "第三种金额归属从未出现：若把 500.00 单边缺失归入 excluded（缺记录≠金额不符），则 amount_diff=0.02、excluded=680.00。这个组合三席都没提；而它同样满足 A/B 所用的「契约内建 excluded 字段」前提——说明该前提根本不足以唯一选出 500.02/180.00，A/B 的论证是欠定的。",
+    "0.02 是否属舍入容差：仅 A 在 needs_more_data 提及，B/C 未回应。若 0.02 属容差，amount_diff 应为 500.00；06 §2.4 只规定金额须用 decimal_equals，未规定容差阈值。",
+    "「note 列可能是出题标注而非业务事实」：A/B 都在 falsification 里列出这一可能，却都当作低概率旁支，无人正面检验；C 完全不看 note。整个 180.00 的排除压在一条 CSV 注释文本的证据地位上。",
+    "diff_count=5 的形态：只有 A 在可推翻条件里一笔带过，无人正面主张。即「只收金额不符项」这一定义从未获得辩护机会，却在缺席状态下被判负。",
+    "程序层：判断项若已带 expected，本应触发 exit 2 / pending。三席中只有 C 触及这一现象，且把它当作权威而非缺陷；最该被质疑的机制，恰是最少被讨论的。"
+  ],
+  "presentation_controls": {"anonymized": true, "order_randomized": false, "length_normalized": false},
+  "self_caution": "(1) 匿名标签不可靠：B 的 strongest_counter_arguments 中 target 写作 ANON-B，但 argument 所述内容（needs_more_data 里「T104/T105 是制度性口径还是录入错误」的悬置）出现在 A 包。故我这份清单里所有 A/B/C 归属都应视为低置信，请以内容而非标签回查原文。(2) 本轮我未读 ledger.csv / bill.csv，因此无法复核任何一个数字；本清单只针对推理结构。(3) B 包内残留「甲/乙」内部代称，说明匿名化只换了外层标签、未清洗角色指代。(4) 我自己是同源模型，可能共享「6% = 税额 = 口径差」这一先验，正因如此我无法判断它是被数据支持，还是被我补全后当作数据读出来的。(5) 未做长度归一化，亦无随机顺序证据，我的注意力分配可能受篇幅与呈现顺序影响。(6) 我读不到 round1/round2，无法判断「6% 规则」是何时、由谁、以何证据引入——这恰是本轮最该被查的一件事，而它在我的读取域之外。",
+  "note": "本产出为线索，非判据，决策权重为 0；不含 score，不表态，不判定谁对谁错。",
+  "evidence": [
+    {"pointer": "runs/round3/inputs/pack-ANON-C.json#conclusion", "what_it_shows": "C 的结论以真值文件的 rules/expected 为唯一依据（路径已被净化），且明确「偏离即 fail」——即判断层已被写成带 expected 的可比对量，未给行级分解。"},
+    {"pointer": "runs/round3/inputs/pack-ANON-B.json#evidence", "what_it_shows": "B 引上一轮裁决记录作为辅证，自注「SELFTEST-PLUMBING-ONLY，仅作交叉参考」——其权威来源是自检占位记录，而非实质裁决。"},
+    {"pointer": "runs/round3/inputs/pack-ANON-B.json#strongest_counter_arguments", "what_it_shows": "target 标为 ANON-B，但 argument 内容对应 A 包 needs_more_data 的悬置项——匿名标签与内容不对位。"},
+    {"pointer": "runs/round3/inputs/pack-ANON-A.json#needs_more_data", "what_it_shows": "A 自认「T104/T105 是制度性口径还是录入错误」本轮无新数据可闭合，同时仍给 500.02 与 confidence=high——结论确定性高于其自述证据状态。"},
+    {"pointer": "fixtures/TASK.md#L49-L51 与 #L69-L81", "what_it_shows": "contract 要求金额「一律取原始值，不做含税/不含税换算」，并说明不预设「该不该算差异」的判断；同时定义了 excluded_* 字段但未指定哪一类应进 excluded。三席均只引字段存在性，未处理反向取向。"},
+    {"pointer": "protocol/06-写入域与判据分层.md#L98-L136", "what_it_shows": "adjudication 层 item 不得含 expected；diff_count/diffs/amount_diff_total/excluded_amount_total 被白名单机械挡在算术层外；未裁决须 exit 3。据此，本轮主结论整体落在人类闸门内。"},
+    {"pointer": "protocol/04-双裁判规范.md#L86-L118", "what_it_shows": "硬裁判只对算术层有否决权，判断项一律交人类闸门；软裁判决策权重为 0。"}
+  ],
+  "falsification": "以下任一成立，我这份清单即失效或需重写：(1) 若三包确由互不可见的独立进程生成，且 C 结论文本中还原出的真值文件名属我误读，则第 1、2 项分歧与「有效独立票数≈2」不成立；(2) 若 TASK.md 另有条款明文规定口径差一律不计入金额差异，则「overlooked 第 1 条」失去依据；(3) 若 protocol 06 白名单在 round3 已变更、diff_count 等四路径可进算术层，则第 2、4 项的「不可由机器裁定」判断错误；(4) 若 B 包中 target=ANON-B 的段落确为 B 自我批评、而非标签错位，则我对匿名标签不可靠的警告应下调为提示。",
+  "reads": [
+    {"path": "runs/round3/prompts/XJ-01.md", "purpose": "读取本轮职责、读取域、输出契约与硬性字段要求"},
+    {"path": "fixtures/TASK.md", "purpose": "了解任务定义、字段算法与契约对「原始值/不做含税换算」的规定"},
+    {"path": "runs/round3/inputs/pack-ANON-A.json", "purpose": "读取匿名席位 A 的结论、证据、falsification、needs_more_data 与对 B/C 的反对意见"},
+    {"path": "runs/round3/inputs/pack-ANON-B.json", "purpose": "读取匿名席位 B 的结论、证据、对 A/C 的反对意见与置信度"},
+    {"path": "runs/round3/inputs/pack-ANON-C.json", "purpose": "读取匿名席位 C 的结论、证据、成本估计与对 A/B 的反对意见"},
+    {"path": "protocol/04-双裁判规范.md", "purpose": "确认软裁判权限边界、判据分层与「硬裁判只裁算术层」的规则"},
+    {"path": "protocol/06-写入域与判据分层.md", "purpose": "确认 adjudication 层不得含 expected、算术层路径白名单、未裁决退出码与读取域判定式"}
+  ],
+  "usage": {"tokens": 16800, "minutes": 11, "source": "self_report"}
+}

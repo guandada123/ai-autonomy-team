@@ -1,0 +1,148 @@
+{
+  "seat": "EX-03",
+  "round": 11,
+  "conclusion": "6 条差异单号（T027/T028/T029/T030/T031/T032）；amount_diff_total=26120.00、excluded=520.00（股息作口径外），两者之和 26640.00 与 raw_total_gap 完全闭合；无重复单号。方案可 csv+Decimal 一次跑穿，只读输入、单文件产出，回滚成本≈0。",
+  "execution_path": [
+    "1 读入：pathlib 定位两份 CSV，open(newline='', encoding='utf-8') + csv.DictReader，全程 Decimal 解析 amount/fee_total/price，禁用 float",
+    "2 去重：按 txn_id 计数，仅当同一侧 id 出现 >1 次才计入 dedup_removed_txn_count；本夹具两侧 id 全唯一 → 0 个、0.00",
+    "3 对齐：取两侧 id 并集，逐 id 比 shares / amount / fee_total / date(对 trade_date) 四列；仅单侧存在者直接记差异，差额取该侧 amount",
+    "4 分类：价格差异(按委托价记账)=T027｜单边存在-新股中签=T028｜单边存在-现金分红=T029,T031｜股数差异(送转未更新)=T030｜日期口径差异(按交割日入账)=T032",
+    "5 求和：excluded 类别只放 现金分红（非成交流水），其余进 amount_diff_total；两者都取 abs 差额，不取成交全额、不做含费净额换算",
+    "6 闭合断言（硬闸）：amount_diff_total + excluded_amount_total == raw_total_gap，且 diff_count == len(diffs)；不等即拒绝输出而不是调参",
+    "7 落盘：answer.json 用 LF 换行、utf-8 无 BOM，Decimal 统一 quantize('0.01') 后以字符串/两位小数输出"
+  ],
+  "cost": {
+    "token_estimate": "单席约 26k tokens（4 次读文件 + 2 次复算脚本 + 1 次自检）；若五席并行做同题，团队级约 130k–400k，按协议 15 倍口径折算相当于单轮对话的 15×",
+    "wall_clock": "约 9 分钟/席；其中读输入 2 分钟、写并跑复算脚本 3 分钟、口径判断与闭合校验 4 分钟",
+    "human_touchpoints": "1 次（必须人工裁定股息入账是否属于『成交金额差异』；这一条不裁定，amount_diff_total 会在 26120.00 与 26640.00 之间摆动，机器无法自决）"
+  },
+  "rollback": "输入只读，全程不写 fixtures/；唯一产物是 answer.json 单文件。发现口径错 → 把旧 answer.json mv 到 _trash/<时间戳>/（不 unlink，本机沙箱会拦），重跑同一脚本覆盖，无跨文件副作用、无外部调用，回滚为一次 mv + 一次重跑。",
+  "op_grade": "🟢",
+  "cross_platform_risks": [
+    {
+      "risk": "解释器：本机 Windows 默认 py/路径含空格，目标 macOS 为 python3",
+      "mitigation": "脚本头写 python3，调用处用 sys.executable 或 `python3 -X utf8`，不硬编码 /usr/bin/python3 之外的解释器绝对路径"
+    },
+    {
+      "risk": "路径拼接：字符串 + '/' 在两端表现不一致",
+      "mitigation": "统一 pathlib.Path，用 / 运算符与 .resolve()，不出现手工分隔符"
+    },
+    {
+      "risk": "换行：Windows 端 CRLF 会让 csv 末列多出 \\r，造成 note 列比较永假",
+      "mitigation": "读取 open(..., newline='')，输出端 newline='\\n' 固定 LF"
+    },
+    {
+      "risk": "编码：Windows 默认 GBK，读 UTF-8 中文股票名/备注会抛 UnicodeDecodeError 或静默乱码",
+      "mitigation": "所有 open 显式 encoding='utf-8'，输出 errors='strict' 以便早失败"
+    },
+    {
+      "risk": "删除：脚本若用 unlink 清理临时文件，本机沙箱会拦截导致中断",
+      "mitigation": "改为 shutil.move 到 _trash/，不调用 unlink/rmtree"
+    },
+    {
+      "risk": "shell：依赖 bash 特有语法（如 [[]]、<<<）在目标端 zsh/无 bash 环境失效",
+      "mitigation": "复算逻辑全部放 Python，shell 只做一行启动"
+    }
+  ],
+  "evidence": [
+    {
+      "pointer": "fixtures/tasks/T-04/ledger.csv#txn_id=T027 ↔ bill.csv#txn_id=T027",
+      "what_it_shows": "amount 45000.00 vs 45120.00（差额 120.00），fee_total 11.70 vs 11.73，系按委托价 45.00 记账、实际成交价 45.12"
+    },
+    {
+      "pointer": "fixtures/tasks/T-04/bill.csv#txn_id=T028",
+      "what_it_shows": "仅单侧存在，中签买入 500 股，amount 26000.00，自记账无此单"
+    },
+    {
+      "pointer": "fixtures/tasks/T-04/bill.csv#txn_id∈{T029,T031}",
+      "what_it_shows": "两笔股息入账各 260.00，合计 520.00，均仅单侧存在，shares=0 且 fee=0"
+    },
+    {
+      "pointer": "fixtures/tasks/T-04/ledger.csv#txn_id=T030 ↔ bill.csv#txn_id=T030",
+      "what_it_shows": "shares 0 vs 30（送转 +30 未更新），amount/fee/date 三列相同，故为差异但金额差 0.00"
+    },
+    {
+      "pointer": "fixtures/tasks/T-04/ledger.csv#txn_id=T032 ↔ bill.csv#txn_id=T032",
+      "what_it_shows": "ledger date 2026-09-16 等于 settle_date，而 trade_date 为 2026-09-15；amount 13800.00 与 fee 5.14 两侧相同，属日期口径差"
+    },
+    {
+      "pointer": "复算脚本输出（csv+Decimal，ledger.csv/bill.csv 全量 5+8 行）",
+      "what_it_shows": "ledger_total 252800.00、bill_total 279440.00、gap 26640.00 = 120.00+26000.00+260.00+0.00+260.00+0.00，闭合为 True；T025/T026 四列全等、差额 0.00，两侧 id 唯一故 dedup=0"
+    }
+  ],
+  "falsification": "三条可证伪条件：①若『现金分红』应计入成交金额差异，则 amount_diff_total/excluded_amount_total 应变为 26640.00/0.00 而非 26120.00/520.00；②若日期比对基准取 settle_date 而非 trade_date，则 T025(09-03 vs 09-04)、T026(09-05 vs 09-06) 也成差异，diff_count 升至 8、超出 {4,5,6,7} 选项空间；③若 T028 中签买入属『未成交/撤单』而非真实成交，则 gap 里 26000.00 不成立、闭合断言失败。任一条成立，我的 summary 即为错。",
+  "reads": [
+    {
+      "path": "runs/round11/prompts/EX-03.md",
+      "purpose": "读取席位职责、可读/禁读域、输出契约与字段硬性要求"
+    },
+    {
+      "path": "fixtures/tasks/T-04/TASK.md",
+      "purpose": "确认字段定义、A/B/C/D 四段计算口径、四个易错点与输出 schema"
+    },
+    {
+      "path": "fixtures/tasks/T-04/ledger.csv",
+      "purpose": "逐行读取 5 条自记账记录，取 amount/fee/date/shares 原始值"
+    },
+    {
+      "path": "fixtures/tasks/T-04/bill.csv",
+      "purpose": "逐行读取 8 条交割单记录，取 trade_date/settle_date/amount/fee 原始值"
+    },
+    {
+      "path": "protocol/02-辩论协议.md",
+      "purpose": "核对单轮四阶段、强制反对、输出契约字段（reads 与 evidence 的语义区分）"
+    },
+    {
+      "path": "protocol/07-轮次与指标.md",
+      "purpose": "核对 stance 两坐标取值域、DIFFSET 由 diff_count 反推的规则与 out_of_space 边界"
+    }
+  ],
+  "dissent": [
+    {
+      "against": "ANON-A",
+      "reason": "若其 diff_count 报 7，本夹具没有跨月样例可支撑第 7 条——缺口 26640.00 已被 6 条差异精确填满，多报一条必然使差额合计超过 gap，或需要把 T025/T026 之一误判为差异。",
+      "reverse_evidence": "T025（168000.00/43.68/2026-09-03）与 T026（26000.00/6.76/2026-09-05）在 shares/amount/fee/date 四列上与交割单逐列相等，脚本输出差额 0.00；且 120.00+26000.00+520.00+0.00+0.00 = 26640.00 与 gap 严格相等，闭合已无余量。"
+    },
+    {
+      "against": "ANON-B",
+      "reason": "若其把『股息入账』计入 amount_diff_total，等于把非成交流水当成交金额差异；这会让排除集为空、excluded_categories=[]，与该类目『现金分红，自记账无』的记账性质相悖，也使 ADJ-001 的金额轴失去存在意义。",
+      "reverse_evidence": "T029/T031 的 shares=0、commission=0、stamp_tax=0、transfer_fee=0，只有金额 260.00 变动，属资金流水而非成交；剔除后 excluded_amount_total=520.00，保留可解释的排除集。"
+    }
+  ],
+  "confidence": "medium",
+  "needs_more_data": [
+    "自记账的现金流水/银行流水账：确认 520.00 股息是否在别处单独入账（决定它是排除还是漏记）",
+    "持仓表或股数台账：核对 T030 送转后 601888 股数，确认 30 股差额是未更新还是真差异",
+    "券商对账单确认日期比对基准（trade_date vs settle_date），本夹具两种基准分别得出 6 与 8 条"
+  ],
+  "stance": [
+    {
+      "axis": "ADJ-001",
+      "choice": "exclude"
+    },
+    {
+      "axis": "DIFFSET",
+      "choice": "6"
+    }
+  ],
+  "summary": {
+    "ledger_rows": 5,
+    "bill_rows": 8,
+    "ledger_total": 252800.0,
+    "bill_total": 279440.0,
+    "raw_total_gap": 26640.0,
+    "dedup_removed_txn_count": 0,
+    "dedup_amount": 0.0,
+    "diff_count": 6,
+    "amount_diff_total": 26120.0,
+    "excluded_amount_total": 520.0,
+    "excluded_categories": [
+      "单边存在-现金分红"
+    ]
+  },
+  "usage": {
+    "tokens": 26000,
+    "minutes": 9,
+    "source": "self_report"
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "check": "read_domain",
+  "round_dir": "runs/round24",
+  "round_role": "revision_round",
+  "contract_version": "2.1",
+  "stage": "B",
+  "generated_at": "2026-10-20T21:11:15+08:00",
+  "read_domains": "config/read_domains.json",
+  "applied": true,
+  "verdict": "NO_DECLARATION",
+  "hits": [],
+  "per_seat": [
+    {
+      "seat": "AD-01",
+      "status": "invalid",
+      "declared_reads": [],
+      "evidence_derived": [],
+      "severity": "n/a"
+    },
+    {
+      "seat": "PM-01",
+      "status": "invalid",
+      "declared_reads": [],
+      "evidence_derived": [],
+      "severity": "n/a"
+    }
+  ],
+  "summary": {
+    "seats": 2,
+    "hits": 0,
+    "seats_declaring_reads": 0
+  },
+  "boundary": "本文件是【声明式下界】：CLEAN 只说明「没有可检出的越界」，不说明「没有越界」。席位读取未申报的文件，对脚本完全不可见。",
+  "action": "UNVERIFIED"
+}

@@ -1,0 +1,190 @@
+{
+  "seat": "EX-03",
+  "round": 20,
+  "conclusion": "可执行版本：Decimal 逐行复算后一次写盘 answer.json（6 条、amount_diff_total 380.00、excluded 0.00），并把费用轴 77.52 与股数轴 30 股作旁表同批输出，避免静默；操作分级 🟡，覆写前必须先备份。",
+  "execution_path": [
+    "1. 以 pathlib 定位 fixtures/tasks/T-16/{ledger,bill}.csv，open(..., newline='', encoding='utf-8') 读取，csv.DictReader 解析",
+    "2. 全部金额用 Decimal(str(v)) 载入，求和与差额一律 Decimal，仅在落盘时转数值",
+    "3. 按 txn_id 建两侧索引，Counter 校验重复（本夹具全为 1）；对 8 个单号逐列比对 shares/amount/fee_total/date",
+    "4. 生成 diffs 6 条与 categories 五类，断言 len(diffs)==summary.diff_count，且 amount_diff_total==sum(abs 差额)",
+    "5. 旁表 fees_side.csv（T123 0.03、T124 38.76、T125 38.76）与 shares_side.csv（T126 -30）与本表同批输出，不进 summary",
+    "6. 备份既有 answer.json → answer.json.bak-<UTC ts>，写新文件（LF、UTF-8、无 BOM），再第三方复读校验"
+  ],
+  "cost": {
+    "token_estimate": "单席约 5.5k token（3 份输入 + 2 份协议 + 1 段复算脚本）；三席并行约 17k，约为单轮对话的 15 倍量级，属预期而非异常",
+    "wall_clock": "本席实测约 10 分钟：读入 2 min、复算与断言 3 min、写盘与复读 5 min",
+    "human_touchpoints": "1 次（口径签字）：T123 的 120.00 是否计入金额差异；日期基准取 trade_date 还是 settle_date。此项不签字，落盘数字随时可能被推翻"
+  },
+  "rollback": "写盘前复制既有 answer.json 为 answer.json.bak-<UTC ts> 并存于本轮目录；校验失败即回填备份并重跑脚本。脚本不调用 unlink，废弃中间件移入 _trash/（本机沙箱拦截删除）。全部操作为同目录文件替换，不触碰 fixtures/ 与 outputs/。",
+  "op_grade": "🟡",
+  "cross_platform_risks": [
+    {
+      "risk": "解释器路径：脚本若写死 python 在 macOS 不存在（目标机为 Mac mini M4）",
+      "mitigation": "统一用 python3，并在脚本头注释最低版本；不写 shebang 绝对路径"
+    },
+    {
+      "risk": "路径拼接：字符串 + '/' 在跨机转移后失效",
+      "mitigation": "全部改用 pathlib.Path，禁止字符串拼接路径"
+    },
+    {
+      "risk": "换行：默认写出 CRLF 会使逐字节回归失败",
+      "mitigation": "写入时 newline=''，显式 '\\n'，落盘后校验无 \\r"
+    },
+    {
+      "risk": "编码：Windows 默认 GBK 读取中文 note 列会抛 UnicodeDecodeError",
+      "mitigation": "所有 open() 显式 encoding='utf-8'；输出无 BOM"
+    },
+    {
+      "risk": "浮点：float 累加 38.76 类金额会出现 76.99999 尾差，导致 diff_count 与合计不自洽",
+      "mitigation": "金额全程 Decimal，禁 float 中间量；断言时用 Decimal 比较而非 =="
+    }
+  ],
+  "evidence": [
+    {
+      "pointer": "fixtures/tasks/T-16/ledger.csv 与 bill.csv 的行数与 amount 合计",
+      "what_it_shows": "7 行/287820.00 对 8 行/288200.00；单次全表扫描即可完成，无需外部数据，复算成本 O(n)"
+    },
+    {
+      "pointer": "两表 T124、T125、T126 的费用与股数差异",
+      "what_it_shows": "77.52 费用少计与 30 股错记在 summary 中无字段承接 → 必须靠旁表落地，否则落地即丢失"
+    },
+    {
+      "pointer": "protocol/02-辩论协议.md §2 参数表",
+      "what_it_shows": "多智能体 token 约为单轮对话 15 倍、最大 3 轮；成本估算须以此为量级基准"
+    }
+  ],
+  "falsification": "若 answer.json 被自动报送至外部（不可逆外发），本方案分级须升为 🔴 并强制人工闸；若单席 wall-clock 超 15 分钟或三席 token 超 30k，则并行成本假设不成立，应降为单席串行。",
+  "reads": [
+    {
+      "path": "fixtures/tasks/T-16/TASK.md",
+      "purpose": "读取字段定义与差异判定口径（A/B/C/D 四节）"
+    },
+    {
+      "path": "fixtures/tasks/T-16/ledger.csv",
+      "purpose": "逐行取 amount/shares/fee_total/date 复算"
+    },
+    {
+      "path": "fixtures/tasks/T-16/bill.csv",
+      "purpose": "逐行取 amount/shares/fee_total/trade_date/settle_date 复算"
+    },
+    {
+      "path": "protocol/02-辩论协议.md",
+      "purpose": "确认单轮输出契约与强制反对要求"
+    },
+    {
+      "path": "protocol/03-结构审计七查.md",
+      "purpose": "确认外部钩子与读取域的判定方式"
+    },
+    {
+      "path": "protocol/07-轮次与指标.md",
+      "purpose": "确认 §4.1 立场反推规则与 DIFFSET 取值语义"
+    },
+    {
+      "path": "runs/round20/round-manifest.json",
+      "purpose": "核对本轮轮次类型、契约版本与预期席位"
+    },
+    {
+      "path": "runs/round20/prompts/EX-01.md",
+      "purpose": "读取本席位提示词与输出模板"
+    },
+    {
+      "path": "runs/round20/prompts/EX-02.md",
+      "purpose": "读取同轮模板以对齐字段契约（无同伴产出内容）"
+    },
+    {
+      "path": "runs/round20/prompts/EX-03.md",
+      "purpose": "读取同轮模板以对齐字段契约（无同伴产出内容）"
+    }
+  ],
+  "dissent": [
+    {
+      "against": "ANON-A",
+      "reason": "只把 summary 的 380.00 写盘、不附费用轴旁表，落地后 77.52 的费用少计无任何可查入口——契约字段不承接不等于风险不存在，交付物会静默丢失该项。",
+      "reverse_evidence": "若费用轴已由另一条流水（如资金流水）独立校验并留痕，则旁表为冗余，本条撤回。"
+    }
+  ],
+  "confidence": "high",
+  "needs_more_data": [
+    "[缺规则] answer.json 的落盘位置未声明（本轮目录还是任务目录），写错位置会被写入域检查判 HIT",
+    "[缺规则] 是否存在下游自动报送链路未声明，直接决定操作分级取 🟡 还是 🔴",
+    "[缺数据] 无 token/wall-clock 计量接口，usage 只能自述，无法交叉核验"
+  ],
+  "stance": [
+    {
+      "axis": "ADJ-001",
+      "choice": "count"
+    },
+    {
+      "axis": "DIFFSET",
+      "choice": "6"
+    }
+  ],
+  "summary": {
+    "ledger_rows": 7,
+    "bill_rows": 8,
+    "ledger_total": 287820.0,
+    "bill_total": 288200.0,
+    "raw_total_gap": 380.0,
+    "dedup_removed_txn_count": 0,
+    "dedup_amount": 0.0,
+    "diff_count": 6,
+    "amount_diff_total": 380.0,
+    "excluded_amount_total": 0.0,
+    "excluded_categories": []
+  },
+  "diffs": [
+    {
+      "id": "T123",
+      "category": "PRICE_BASIS_DIFF"
+    },
+    {
+      "id": "T124",
+      "category": "FEE_UNDERSTATED"
+    },
+    {
+      "id": "T125",
+      "category": "FEE_UNDERSTATED"
+    },
+    {
+      "id": "T126",
+      "category": "SHARES_MISMATCH"
+    },
+    {
+      "id": "T127",
+      "category": "BILL_ONLY"
+    },
+    {
+      "id": "T128",
+      "category": "DATE_BASIS_DIFF"
+    }
+  ],
+  "categories": {
+    "PRICE_BASIS_DIFF": [
+      "T123"
+    ],
+    "FEE_UNDERSTATED": [
+      "T124",
+      "T125"
+    ],
+    "SHARES_MISMATCH": [
+      "T126"
+    ],
+    "BILL_ONLY": [
+      "T127"
+    ],
+    "DATE_BASIS_DIFF": [
+      "T128"
+    ]
+  },
+  "usage": {
+    "tokens": 5800,
+    "minutes": 10,
+    "source": "self_report"
+  },
+  "reads_path_normalized": {
+    "by": "orchestrator",
+    "date": "2026-10-20",
+    "count": 4,
+    "note": "目录重命名 'runs/20 T-16/' → 'runs/round20/'（编排层 zsh 分词失误，见 round-manifest.dir_rename_note）；reads 路径机械归一化，内容零改动，席位当时的申报对其物理现实完全准确"
+  }
+}

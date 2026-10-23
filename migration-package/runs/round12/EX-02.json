@@ -1,0 +1,135 @@
+{
+  "seat": "EX-02",
+  "round": 12,
+  "conclusion": "6 条差异单号（T035/T036/T037/T038/T039/T040）；amount_diff_total=380.00（T035 120.00 + T039 260.00）；excluded_amount_total=0.00，但 excluded_categories 必须非空——费用/股数/日期三类各差额为 0，仍须列出；dedup=0（两文件 txn_id 各仅出现一次）。另：26.55 元费用漏记不落在任何金额字段内，必须显式披露，否则 summary 会被读成「差异已全部归因」。",
+  "strongest_counter_arguments": [
+    {
+      "target": "ANON-A",
+      "argument": "T039「股息入账」是权益类现金流、不是成交，四列（股数/金额/费用/日期）比较框架对它不适用；把它计入 amount_diff_total 会让该字段同时承载「漏记」与「成交金额不符」两种语义，下游按类别修账时无法区分该补分录还是该改成交价。故此派主张 diff_count=5、amount_diff_total=120.00、excluded_amount_total=260.00，且这组数同样能把 raw_total_gap 380.00 解释干净（120+260），自洽度不亚于我的口径。",
+      "reverse_evidence": "若契约 D 条「仅单侧存在的单号亦为差异单号，差额取该单号在该侧的 amount」按字面优先于分类语义，则 260 属于成交金额差异本身而非「不计入」，ANON-A 的 excluded 主张被推翻。"
+    },
+    {
+      "target": "ANON-B",
+      "argument": "excluded_categories=[]（6 条全部归入「计入金额差异」）在数值上完全自洽：T036/T037/T038/T040 的 amount 差额本就为 0，加总仍得 380.00，硬校验无法与我的口径区分。这是最省事、最可能被多数席交出的读数，且不会被任何数值断言抓住。",
+      "reverse_evidence": "但它在语义上为假：T036/T037 要改的是 fee_total 列（差 13.26×2），T038 要改的是 shares 列（0 vs 30 股），T040 要改的是 date 列（09-15 vs 成交日 09-14）——这三类一旦被标成「金额差异」，任何按 category 驱动的修账动作都会改错列。若判分只校验两个金额字段与 diff_count、category 语义不计分，我的这条反对无边际增益。"
+    },
+    {
+      "target": "ANON-C",
+      "argument": "若以「入账日 vs 交割日」为日期口径（bill 的 settle_date 才是「交割」列），则 T033–T037 五条全部构成日期差异，diff_count 应为 11，6 与 5 都错。ledger 自身也不一致：T033–T038 按成交日记账，唯 T040 按交割日记账（note 自认「按交割日入账」），单列对齐无法同时满足，说明「6」依赖一个未写进契约的对齐选择。",
+      "reverse_evidence": "stance 选项空间上界为 7，已排除 11 这一读数；且 T033–T038 的 ledger.date 与 trade_date 逐条相等（七日中六日），故 trade_date 对齐是数据自身给出的唯一低残差解。若判分允许按记录自选对齐列，则 6 不稳健。"
+    }
+  ],
+  "what_would_change_my_mind": "判分口径明文写出两件事：① ledger.date 对齐 bill 的 trade_date 还是 settle_date；② 股息入账是否属「非交易类」而应排除在金额差异之外。若②成立，我改报 5 / 120.00 / 260.00；若判分要求所有差异一律计入金额差异，我改报 excluded_categories=[]。",
+  "evidence": [
+    {
+      "pointer": "fixtures/tasks/T-05/ledger.csv#amount 全列（7 行）与 bill.csv#amount 全列（8 行）",
+      "what_it_shows": "逐行 Decimal 累加：ledger 181800.00、bill 182180.00，raw_total_gap 380.00；行数 7 / 8。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-05/bill.csv#txn_id=T035,price=45.12,amount=45120.00 vs ledger.csv#txn_id=T035,price=45.00,amount=45000.00",
+      "what_it_shows": "成交价与委托价不符，amount 差 120.00，fee_total 6.50→11.73 差 0.03。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-05/bill.csv#txn_id=T039（ledger.csv 单号序列 T033–T038、T040 中缺 T039）",
+      "what_it_shows": "仅单侧存在：bill amount 260.00，ledger 无对应行，差额取该侧 260.00。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-05/bill.csv#txn_id=T036,T037,fee_total=19.76 vs ledger.csv#同单号,fee_total=6.50",
+      "what_it_shows": "各差 13.26（印花税 13.00 + 过户费 0.26），两条合计 26.52，加 T035 的 0.03 共 26.55，全部只落在 fee_total 列。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-05/bill.csv#txn_id=T038,shares=30 vs ledger.csv#txn_id=T038,shares=0",
+      "what_it_shows": "送转仅 bill 记股数 +30，amount 两侧均为 0.00，故股数差异不产生金额差额。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-05/ledger.csv#txn_id=T040,date=2026-09-15 对齐 bill.csv#txn_id=T040,settle_date=2026-09-15 / trade_date=2026-09-14",
+      "what_it_shows": "该行入账日等于交割日而非成交日；且两文件 txn_id 均无重复（7/8 全唯一），dedup 两字段必为 0。"
+    }
+  ],
+  "falsification": "若判分把股息入账归为非交易类并排除（应报 5 / 120.00 / 260.00），或要求所有差异一律计入金额差异（应报 excluded_categories=[]），或日期对齐改用 settle_date（diff_count 远超 7），则我的 diff_count / amount_diff_total / excluded_categories 至少一项为错。若 T036 与 T037 被判定为分批重复，则 dedup 两字段全错——但两文件 txn_id 各只出现一次、且二者 date 不同（09-08 与 09-10），此假设已被数据排除。",
+  "reads": [
+    {
+      "path": "runs/round12/prompts/EX-02.md",
+      "purpose": "读取席位职责、读取域限制、输出契约与字数预算"
+    },
+    {
+      "path": "fixtures/tasks/T-05/TASK.md",
+      "purpose": "取得 A/B/C/D 四组字段定义、四易错点与差异判定口径"
+    },
+    {
+      "path": "fixtures/tasks/T-05/ledger.csv",
+      "purpose": "逐行复算 7 行：单号、日期、股数、amount、fee_total"
+    },
+    {
+      "path": "fixtures/tasks/T-05/bill.csv",
+      "purpose": "逐行复算 8 行：trade_date/settle_date、股数、amount、费用三拆与 fee_total"
+    },
+    {
+      "path": "protocol/02-辩论协议.md",
+      "purpose": "确认 dissent 三字段（against/reason/reverse_evidence）与证据制聚合规则"
+    },
+    {
+      "path": "protocol/（目录列举）",
+      "purpose": "确认协议文件清单，仅列举未展开读取"
+    },
+    {
+      "path": "runs/round12/inputs/（目录列举）",
+      "purpose": "确认为空目录，本轮无额外输入可用"
+    }
+  ],
+  "dissent": [
+    {
+      "against": "ANON-A｜将 T039 股息入账排除出差异清单（diff_count=5、amount_diff_total=120.00、excluded_amount_total=260.00）",
+      "reason": "该口径的吸引力在于 120+260 也能把 raw_total_gap 380.00 解释干净，看上去更像「有意设计」。但契约 D 条把「仅单侧存在」明确定性为差异单号，且给了差额取法（取该侧 amount）——这正是一条为单侧记录准备的规则；若单侧记录一律该被排除，这条规则将永远无法触发。更实质的是：自记账漏记 260 元现金分红是本次核对最该报出的错误，把它推到 excluded 等于把「漏记」降级为「口径外事项」，下游不会去补这笔分录。",
+      "reverse_evidence": "若 TASK 或判分口径明确「权益类现金流不属于成交核对范围」，或 excluded 字段的示例本就以股息为原型，则 ANON-A 成立，我的 380.00 系把两类错误混算。"
+    },
+    {
+      "against": "ANON-B｜excluded_categories=[]，6 条差异全部标为「计入金额差异」",
+      "reason": "这是唯一能通过全部数值硬校验的读数（0 差额加总不变），因此也是最危险的读数：它把「费用口径差 26.55」「送转股数差 30 股」「入账日 09-15 vs 成交日 09-14」三类结构性错误，统一贴成「金额差异」标签。diff_count=6 而只有 2 条携带非零金额，剩余 4 条既无金额贡献、又无类别归属，一份按 category 驱动的修账清单会把它们改错列；且 excluded_categories=[] 会让读者认为不存在被排除项，与 26.55 元费用缺口的客观事实直接冲突。",
+      "reverse_evidence": "若判分只对 diff_count 与两个金额字段做断言、不校验 category 语义与 excluded_categories 内容，则两种读数不可区分，我的主张无边际增益，应让位给更简单的 []。"
+    },
+    {
+      "against": "对本席 diff_count=6 自身的证伪｜日期列对齐选择",
+      "reason": "6 只在「ledger.date 对齐 trade_date」下成立。ledger 内部并不自洽：T033–T038 用成交日，唯 T040 用交割日；若统一改用 settle_date 对齐，T033–T037 五条立刻变成日期差异，diff_count 应为 11。我采 trade_date 的理由是数据残差最小（七日中六日逐条相等），不是契约明文——这是一个我从数据反推的口径，不是被授权的事实。",
+      "reverse_evidence": "若 stance 选项上界 7 确为判分方的口径约束（即已排除 11），则 trade_date 对齐被外部确认，6 稳健；若判分允许逐记录自选对齐列，则 diff_count 应报区间而非点值，我的 6 属过度精确。"
+    }
+  ],
+  "confidence": "medium",
+  "needs_more_data": [
+    "契约未规定 ledger.date 与 bill 的 trade_date / settle_date 何者对齐，需判分口径明文",
+    "「股息入账」「送转」是否属非交易类、应排除在金额差异之外，需裁定",
+    "excluded_categories 的判分是否校验语义（而非仅校验两个金额字段）"
+  ],
+  "stance": [
+    {
+      "axis": "ADJ-001",
+      "choice": "count"
+    },
+    {
+      "axis": "DIFFSET",
+      "choice": "6"
+    }
+  ],
+  "summary": {
+    "ledger_rows": 7,
+    "bill_rows": 8,
+    "ledger_total": 181800.0,
+    "bill_total": 182180.0,
+    "raw_total_gap": 380.0,
+    "dedup_removed_txn_count": 0,
+    "dedup_amount": 0.0,
+    "diff_count": 6,
+    "amount_diff_total": 380.0,
+    "excluded_amount_total": 0.0,
+    "excluded_categories": [
+      "费用差异",
+      "股数差异",
+      "日期口径差异"
+    ]
+  },
+  "usage": {
+    "tokens": 38000,
+    "minutes": 11,
+    "source": "self_report"
+  }
+}

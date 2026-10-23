@@ -1,0 +1,31 @@
+{
+  "seat": "AD-01",
+  "round": 8,
+  "conclusion": "八查中第 5/8 查判 HOLD",
+  "evidence": [
+    {
+      "pointer": "runs/round8/metrics.json",
+      "what_it_shows": "熵为 0"
+    }
+  ],
+  "falsification": "若 metrics 缺该字段则本审计不成立",
+  "reads": [
+    {
+      "path": "runs/round8/metrics.json",
+      "purpose": "读机器产出"
+    }
+  ],
+  "action": "HOLD",
+  "checks": [
+    {
+      "no": 5,
+      "name": "规格假设",
+      "verdict": "HOLD",
+      "reason": "-"
+    }
+  ],
+  "assumptions_to_adjudicate": [],
+  "cost_score": {},
+  "barely_passed": "-",
+  "my_blind_spots": "-"
+}

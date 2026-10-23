@@ -1,0 +1,57 @@
+{
+  "_README": [
+    "定时任务【定义文件】，供在目标机（Mac mini M4）上【手工重建】。",
+    "★ 本包【不包含】任何已创建的自动化任务，也没有拷贝 workbuddy.db。",
+    "  原因：workbuddy.db 是全局库（跨项目）、含密钥、且含两平台不通用的状态；",
+    "        跨机拷贝不可行，直接写入它属于不可逆的高影响操作。",
+    "",
+    "重建时的两条已知踩坑（本机实测）：",
+    "  1. 单条定时规则的 RRULE 里【禁止】写多个 BYHOUR —— 只会触发第一个小时，其余小时槽静默丢弃。",
+    "     需要多时段 → 拆成多条任务。",
+    "  2. 自动化 ID 必须带 automation- 前缀 —— 传裸数字 ID 不会报错，",
+    "     而是静默新建一条影子记录（假成功）。",
+    "  创建/修改后必须 readback 验证；管理面返回 success:true 不等于已生效。",
+    "",
+    "★ 2026-10-21：目标机（Apple M4 / macOS 26.5.2）已按本文件重建 2 条，并新增 1 条「发布前检查」。实际 ID 见各条的 created 字段。"
+  ],
+  "automations": [
+    {
+      "id": "automation-<目标机重建时生成>",
+      "name": "自治团队 · 看板巡检",
+      "enabled": true,
+      "purpose": "扫描任务状态看板：超时项、阻塞项、无证据项、翻边率异常项",
+      "suggested_schedule": "每日 09:00（单条规则只写一个小时）",
+      "rrule_template": "FREQ=DAILY;BYHOUR=9;BYMINUTE=0",
+      "prompt": "扫描项目任务状态看板，输出：① 超时未完成项 ② 阻塞项（含阻塞原因与所需输入）③ 无证据指针的结论 ④ 翻边率超阈值项。只报告，不修改任何产出。",
+      "note": "★ 本项目本轮【未创建】该任务，请按需在目标机手工建立",
+      "created_on": "2026-10-21",
+      "automation_id": "89087d94-3cda-4054-a4ba-1596f6ebcc64",
+      "actual_rrule": "FREQ=DAILY;BYHOUR=8;BYMINUTE=5"
+    },
+    {
+      "id": "automation-<目标机重建时生成>",
+      "name": "自治团队 · 失效复盘",
+      "enabled": true,
+      "purpose": "按月按 MAST 三类别归因本轮失效，只改一类，并用留出任务 A/B",
+      "suggested_schedule": "每月 1 日 10:00",
+      "rrule_template": "FREQ=MONTHLY;BYMONTHDAY=1;BYHOUR=10;BYMINUTE=0",
+      "prompt": "读取本轮所有运行的裁决结果与审计记录，按 MAST 三类别（规格与设计 / 协调失准 / 任务验证）归因失效；统计各 KPI；只提出一类改动建议，并说明如何用留出任务验证。输出写入 .learnings/。",
+      "note": "★ 本项目本轮【未创建】该任务，请按需在目标机手工建立",
+      "created_on": "2026-10-21",
+      "automation_id": "6e172093-dfcf-48df-b620-bd373f1aa6fd",
+      "actual_rrule": "FREQ=MONTHLY;BYMONTHDAY=1;BYHOUR=10;BYMINUTE=0"
+    },
+    {
+      "id": "99d201bd-b34f-4d97-b328-401cf79d65dc",
+      "name": "ai-autonomy-team · 发布前检查",
+      "enabled": true,
+      "purpose": "每日跑 pre_release_check 的 8 项只读检查，8/8 通过则回一行，失败则报明细",
+      "rrule_template": "FREQ=DAILY;BYHOUR=8;BYMINUTE=10",
+      "actual_rrule": "FREQ=DAILY;BYHOUR=8;BYMINUTE=10",
+      "created_on": "2026-10-21",
+      "automation_id": "99d201bd-b34f-4d97-b328-401cf79d65dc",
+      "prompt": "在项目根执行 python3 scripts/pre_release_check.py；8/8 通过只回一行，失败则列失败项与原因，不自动改文件。",
+      "note": "★ 2026-10-21 新增（用户要求把「无 CI / 无定时跑检查」补齐）。"
+    }
+  ]
+}

@@ -1,0 +1,90 @@
+{
+  "seat": "EX-01",
+  "round": 7,
+  "conclusion": "逐行复算：ledger 5 行合计 120820.00，bill 8 行合计 147460.00，raw gap 26640.00；两侧均无重复单号；差异单号 6 条（T019/T020/T021/T022/T023/T024），计入金额差异 26120.00、排除 520.00，二者之和恰等于 26640.00，闭合。",
+  "evidence": [
+    {
+      "pointer": "fixtures/tasks/T-03/ledger.csv:2-6 字段 amount",
+      "what_it_shows": "5 行依次 30000.00/45000.00/45000.00/0.00/820.00，Decimal 累加 120820.00"
+    },
+    {
+      "pointer": "fixtures/tasks/T-03/bill.csv:2-9 字段 amount",
+      "what_it_shows": "8 行含 45120.00、26000.00、260.00×2，累加 147460.00，减 ledger 得 26640.00"
+    },
+    {
+      "pointer": "fixtures/tasks/T-03/bill.csv:4 与 ledger.csv:4（T019）",
+      "what_it_shows": "amount 45000.00 vs 45120.00、fee 11.70 vs 11.73，差额 120.00 计入"
+    },
+    {
+      "pointer": "fixtures/tasks/T-03/bill.csv:9 与 ledger.csv:6（T024）",
+      "what_it_shows": "四列仅日期不同：ledger.date 2026-09-19=settle_date≠trade_date(09-18)，差额 0.00"
+    },
+    {
+      "pointer": "fixtures/tasks/T-03/bill.csv:5-8（T020/T021/T022/T023）",
+      "what_it_shows": "单侧存在 26000.00+260.00+260.00；T022 shares 30 vs 0 且 amount 0.00"
+    }
+  ],
+  "falsification": "若按「入账日对应 settle_date」比对，T024 不成差异，diff_count 应为 5、DIFFSET 应为 5；若股息入账视为应计入金额差异，则 amount_diff_total=26640.00、excluded=0；若任一 CSV 实际行数非 5/8 或存在同一 txn_id 重复行，则本产出全部数字作废。",
+  "reads": [
+    {
+      "path": "runs/round7/prompts/EX-01.md",
+      "purpose": "读取席位职责、读取域与输出契约"
+    },
+    {
+      "path": "fixtures/tasks/T-03/TASK.md",
+      "purpose": "确认字段计算法与差异判定口径"
+    },
+    {
+      "path": "fixtures/tasks/T-03/ledger.csv",
+      "purpose": "逐行读取 5 行自记账并入 amount 合计"
+    },
+    {
+      "path": "fixtures/tasks/T-03/bill.csv",
+      "purpose": "逐行读取 8 行交割单并入 amount 合计"
+    }
+  ],
+  "dissent": [
+    {
+      "against": "ANON-A",
+      "reason": "ANON-A 申报 ledger_total=114800.00、bill_total=141440.00。实际 ledger.csv amount 列 5 行为 30000/45000/45000/0/820，合计 120820.00；bill.csv 8 行合计 147460.00，两侧各偏 6020.00（差额互相抵消，故 gap 26640.00 偶然相同）。其分量无法与真实行闭合，属套用同构任务行值。",
+      "reverse_evidence": "若能给出使 ledger.csv amount 列合计为 114800.00 且 bill.csv 为 141440.00 的行级读法（逐行列示每一行金额），我撤回该反对。"
+    }
+  ],
+  "confidence": "high",
+  "needs_more_data": [
+    "TASK.md 未规定 ledger.date 应对齐 trade_date 还是 settle_date，T024 是否入差异清单取决于该口径",
+    "股息入账 T021/T023 是否属应入账事项需会计政策确认；本席位按非成交现金流、不参与成交金额核对处理"
+  ],
+  "stance": [
+    {
+      "axis": "ADJ-001",
+      "choice": "exclude"
+    },
+    {
+      "axis": "DIFFSET",
+      "choice": "6"
+    }
+  ],
+  "summary": {
+    "ledger_rows": 5,
+    "bill_rows": 8,
+    "ledger_total": 120820.0,
+    "bill_total": 147460.0,
+    "raw_total_gap": 26640.0,
+    "dedup_removed_txn_count": 0,
+    "dedup_amount": 0.0,
+    "diff_count": 6,
+    "amount_diff_total": 26120.0,
+    "excluded_amount_total": 520.0,
+    "excluded_categories": [
+      "日期口径差异",
+      "股息入账差异",
+      "送转股数差异"
+    ]
+  },
+  "usage": {
+    "tokens": 12000,
+    "minutes": 9,
+    "source": "self_report"
+  }
+}

@@ -1,0 +1,153 @@
+{
+  "seat": "EX-01",
+  "round": 21,
+  "conclusion": "按契约 §D 四列（股数/金额/费用/日期）字面判定：8 个单号中 6 个为差异单号（T131/T132/T133/T134/T135/T136），无重复单号；金额差异合计 14440.00 与 raw_total_gap 逐分相等。",
+  "evidence": [
+    {
+      "pointer": "fixtures/tasks/T-17/ledger.csv#amount",
+      "what_it_shows": "5 行合计 243820.00；bill 258260.00；gap 14440.00"
+    },
+    {
+      "pointer": "fixtures/tasks/T-17/bill.csv#T131,fee_total",
+      "what_it_shows": "分项 11.28+0.45=11.73 自洽；自记账 11.70 低 0.03，源于价差非费错"
+    },
+    {
+      "pointer": "fixtures/tasks/T-17/bill.csv#T133,T135,amount",
+      "what_it_shows": "同为 260.00 但单号与日期不同，按 §B 不构成重复，dedup=0"
+    },
+    {
+      "pointer": "fixtures/tasks/T-17/{ledger,bill}.csv#T134,shares",
+      "what_it_shows": "股数 0 vs 30，两侧金额均 0.00"
+    }
+  ],
+  "falsification": "若「日期」列口径应取交割单 settle_date 而非 trade_date，则 T136（自记账 09-18 与交割 09-18 相同）不再成立，diff_count 降为 5；若 T133/T135 被认定为同一经济事件而合并，dedup_removed_txn_count=1、dedup_amount=260.00，且 amount_diff_total 降为 14180.00。任一条成立，我的 6 与 14440.00 即错。",
+  "reads": [
+    {
+      "path": "runs/round21/prompts/EX-01.md",
+      "purpose": "读取本席位契约、读取域、字段硬性要求与 stance 选项空间"
+    },
+    {
+      "path": "runs/round21/prompts/EX-02.md",
+      "purpose": "核对同轮次其他席位的字段要求是否与本席一致（仅查契约，不取结论）"
+    },
+    {
+      "path": "runs/round21/prompts/EX-03.md",
+      "purpose": "同上，核对字段别名 cost/cost_estimate 的兼容写法"
+    },
+    {
+      "path": "fixtures/tasks/T-17/TASK.md",
+      "purpose": "取 11 个 summary 字段定义、§D 差异判定口径、四个易错点"
+    },
+    {
+      "path": "fixtures/tasks/T-17/ledger.csv",
+      "purpose": "逐行取自记账 5 行的 shares/amount/fee_total/date/note"
+    },
+    {
+      "path": "fixtures/tasks/T-17/bill.csv",
+      "purpose": "逐行取交割单 8 行的 shares/amount/费用分项/trade_date/settle_date/note"
+    },
+    {
+      "path": "protocol/02-辩论协议.md",
+      "purpose": "确认每席必交 1 条 dissent 及 reads 与 evidence 的语义区分"
+    },
+    {
+      "path": "protocol/06-写入域与判据分层.md",
+      "purpose": "确认 arithmetic/adjudication 分层与写入域，避免把判断项写成算术事实"
+    },
+    {
+      "path": "protocol/07-轮次与指标.md",
+      "purpose": "查 ADJ-001/DIFFSET 的反推规则与语义冲突判据（读到 §4.4）"
+    }
+  ],
+  "dissent": [
+    {
+      "against": "ANON-B",
+      "reason": "ANON-B 主张口径差整条剔出差异清单。若剔除，T131 的费用差 0.03 与 T136 的 0.00 差额在金额层均不可见（差额为 0 时无论如何都进不了 amount_diff_total），差异只能靠 diff_count 保留；把它移出清单等于把「股数/费用维度已发现、金额维度无差」这一事实永久抹掉。",
+      "reverse_evidence": "若契约 §C 隐含「excluded_categories 内的单号不得出现在 diffs 中」（即清单集与金额集必须同集），则 ANON-B 成立，diff_count 应为 4。"
+    }
+  ],
+  "confidence": "high",
+  "needs_more_data": [
+    "缺规则：§D 的「日期」列未指定取 trade_date 还是 settle_date；取 trade_date 得 6 条，取 settle_date 得 5 条，契约无判别依据",
+    "缺规则：DIFFSET 选项 7/5 依赖「跨月」类别，但 T-17 全部 8 个单号日期均在 2026-09，该类别在本夹具中不可达，7 与 5 无法由数据合法取得",
+    "缺数据：无（两份输入自足，8 个单号的并集闭合，无需外部数据）"
+  ],
+  "stance": [
+    {
+      "axis": "ADJ-001",
+      "choice": "count"
+    },
+    {
+      "axis": "DIFFSET",
+      "choice": "6"
+    }
+  ],
+  "summary": {
+    "ledger_rows": 5,
+    "bill_rows": 8,
+    "ledger_total": 243820.0,
+    "bill_total": 258260.0,
+    "raw_total_gap": 14440.0,
+    "dedup_removed_txn_count": 0,
+    "dedup_amount": 0.0,
+    "diff_count": 6,
+    "amount_diff_total": 14440.0,
+    "excluded_amount_total": 0.0,
+    "excluded_categories": []
+  },
+  "diffs": [
+    {
+      "id": "T131",
+      "category": "价格口径差"
+    },
+    {
+      "id": "T132",
+      "category": "单侧缺失-中签买入"
+    },
+    {
+      "id": "T133",
+      "category": "单侧缺失-现金分红"
+    },
+    {
+      "id": "T134",
+      "category": "股数不一致-送转未登记"
+    },
+    {
+      "id": "T135",
+      "category": "单侧缺失-现金分红"
+    },
+    {
+      "id": "T136",
+      "category": "日期口径差"
+    }
+  ],
+  "categories": {
+    "价格口径差": [
+      "T131"
+    ],
+    "单侧缺失-中签买入": [
+      "T132"
+    ],
+    "单侧缺失-现金分红": [
+      "T133",
+      "T135"
+    ],
+    "股数不一致-送转未登记": [
+      "T134"
+    ],
+    "日期口径差": [
+      "T136"
+    ]
+  },
+  "usage": {
+    "tokens": 3400,
+    "minutes": 7,
+    "source": "self_report"
+  },
+  "reads_path_normalized": {
+    "by": "orchestrator",
+    "date": "2026-10-20",
+    "count": 3,
+    "note": "目录重命名 'runs/21 T-17/' → 'runs/round21/'（编排层 zsh 分词失误，见 round-manifest.dir_rename_note）；reads 路径机械归一化，内容零改动，席位当时的申报对其物理现实完全准确"
+  }
+}

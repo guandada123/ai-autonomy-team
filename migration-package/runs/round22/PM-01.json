@@ -1,0 +1,187 @@
+{
+  "round": 22,
+  "task": "T-18",
+  "role": "PM-01",
+  "board": [
+    {
+      "id": "T-18/EX-01",
+      "owner": "EX-01",
+      "state": "通过",
+      "next_action": "无（结论与证据指针已进聚合，SHA 已核）",
+      "blocker": "无",
+      "evidence": "runs/round22/EX-01.json · fixtures/tasks/T-18/ledger.csv#amount列合计 · fixtures/tasks/T-18/bill.csv#amount列合计",
+      "judge": "pass",
+      "deadline": "2026-10-20T19:53+08:00"
+    },
+    {
+      "id": "T-18/EX-02",
+      "owner": "EX-02",
+      "state": "通过",
+      "next_action": "无（其 exclude 口径被采纳；T140/T144 同笔附论留痕未采纳）",
+      "blocker": "无",
+      "evidence": "runs/round22/EX-02.json · fixtures/tasks/T-18/bill.csv#T140与T144数值列 · fixtures/tasks/T-18/TASK.md#C表",
+      "judge": "pass",
+      "deadline": "2026-10-20T19:53+08:00"
+    },
+    {
+      "id": "T-18/EX-03",
+      "owner": "EX-03",
+      "state": "通过",
+      "next_action": "无（执行路径与恒等式校验作为可复算附件，非答案本体）",
+      "blocker": "无",
+      "evidence": "runs/round22/EX-03.json · fixtures/tasks/T-18/ledger.csv#字节与换行 · fixtures/tasks/T-18/bill.csv#T140,T144的settle_date",
+      "judge": "pass",
+      "deadline": "2026-10-20T19:53+08:00"
+    },
+    {
+      "id": "T-18/XJ-01",
+      "owner": "XJ-01",
+      "state": "阻塞",
+      "next_action": "无产出可补：本轮无 XJ-01 会话与文件；若需交叉审计须下一轮重发席位",
+      "blocker": "缺席——runs/round22/ 下不存在 XJ-01.json，round-manifest 将其列为 optional_seats；board 如实登记为缺席，不以 PM 判断代填审计结论",
+      "evidence": "runs/round22/round-manifest.json#optional_seats · runs/round22/seat-check.json#seats_expected",
+      "judge": "无",
+      "deadline": "2026-10-20T19:53+08:00"
+    },
+    {
+      "id": "T-18/AD-01",
+      "owner": "AD-01",
+      "state": "阻塞",
+      "next_action": "时序原因未产出（红队轮未开启）；本轮不做替代性红队结论",
+      "blocker": "未产出——round22 为 evidence_round，AD-01 属 optional_seats，非 devils_advocate_round；无对抗席产出，故本轮的证伪条件由各席自带 falsification 承担",
+      "evidence": "runs/round22/round-manifest.json#role=evidence_round / #optional_seats",
+      "judge": "无",
+      "deadline": "2026-10-20T19:53+08:00"
+    },
+    {
+      "id": "T-18/PM-01",
+      "owner": "PM-01",
+      "state": "通过",
+      "next_action": "已写 runs/round22/answer-final.json 与 runs/round22/PM-01.json",
+      "blocker": "无",
+      "evidence": "runs/round22/answer-final.json · runs/round22/PM-01.json · 独立 Decimal 复算（ledger 256800.00 / bill 271240.00 / gap 14440.00 / 6 条差异）",
+      "judge": "pass",
+      "deadline": "2026-10-20T19:56+08:00"
+    },
+    {
+      "id": "T-18/adjudication",
+      "owner": "human",
+      "state": "待裁",
+      "next_action": "人类签字确认 ADJ-001 口径（count 14440.00 / exclude 13920.00+520.00）；PM 已拍板 exclude，签字即关轮",
+      "blocker": "无（等签字，不构成阻塞）",
+      "evidence": "runs/round22/read-domain-check.json#verdict=CLEAN · runs/round22/seat-check.json#verdict=all_valid",
+      "judge": "pass",
+      "deadline": "2026-10-20T20:30+08:00"
+    }
+  ],
+  "decision": "【多数结论】EX-01 / EX-03（2 席）：amount_diff_total=14440.00、excluded_amount_total=0.00、excluded_categories=[]；证伪条件：契约或对账口径把「成交金额差异」明确限定为不含非成交现金流时，该口径即错。\n【少数结论】EX-02（1 席）：amount_diff_total=13920.00、excluded_amount_total=520.00、excluded_categories=[现金分红口径差]；证伪条件：若契约明定对账范围为「全部资金变动（含股息、红利）」，或 600519 被证明存在真实未入账持仓，则此口径错。\n【PM 决定】采用少数（EX-02）的金额口径 13920.00 / 520.00，理由：多数席的唯一论据是「各差异差额之和恰等于 raw_total_gap」——这是恒等式，与分类方式无关，属以结论验证结论，权重按聚合规则归 0；少数席的论据是可回读的契约文本（TASK.md §C 将归类权交给席位、易错点 1 明定 amount 为成交金额、fee_total 分开取），属独立证据。其余 10 个字段三席完全一致（5/8/256800.00/271240.00/14440.00/0/0.00/6）直接采纳；diff_count 取 6（三席一致，DIFFSET 齐平）。风险边界：520.00 的性质是「账外现金流 vs 成交价差」的口径判断而非算术判断，若判定方要求 amount_diff_total 与 raw_total_gap 必须闭合，则须额外出具 520.00 的残差说明——此点已写入 self_doubt，不做隐藏。我可能在「把 T142/T144 也贴上『不计入』标签」处错了：二者差额为 0.00，对两个金额字段无影响，但会让 excluded_categories 从 1 项变 3 项。",
+  "basis": [
+    "独立 Decimal 复算（不引用任何席位数字）：ledger_rows=5、bill_rows=8、ledger_total=256800.00、bill_total=271240.00、raw_total_gap=14440.00；两侧 txn_id 均唯一 → dedup_removed_txn_count=0、dedup_amount=0.00",
+    "四条易错点按字面执行：amount 与 fee_total 分开比对（T139 fee 差 0.03 仅触发差异判定、不入金额）；两个金额字段均取差额而非全额；重复项不参与；一律取 CSV 原始值不做净额换算",
+    "§D 判定口径复算得 6 条差异：T139（amount 45000.00/45120.00 差 120.00、fee 11.70/11.73）、T140（仅交割单，13800.00）、T141（仅交割单，260.00）、T142（shares 0/30） 、T143（仅交割单，260.00）、T144（date 09-16/09-15）；差额绝对值合计 14440.00，与 raw_total_gap 一致",
+    "TASK.md §C 明文「契约只定义每个字段的计算方法，不预设你对『该不该算差异』的判断」，故「计入/不计入」是席位裁量项，可用契约文本而非算术恒等式来判",
+    "bills 的 T141/T143 标的为 600519、note 为「现金分红，自记账无」，两侧均无 600519 任何成交或持仓 → 该 520.00 非成交金额口径，归入 excluded",
+    "seat-check.json：三席 status 均 valid、aggregation_admissible=[EX-01,EX-02,EX-03]、blocked=[]；read-domain-check.json verdict=CLEAN、hits=[] → 本轮无读取域污染，三席产出均可入聚合",
+    "sha256 已逐一比对我自己重算的哈希与 seat-check.json 记录，三席完全一致（fbc05bd0… / 1dd8333a… / a62ecc91…）"
+  ],
+  "alternatives_rejected": [
+    {
+      "option": "采纳多数（EX-01 / EX-03）：amount_diff_total=14440.00、excluded_amount_total=0.00、excluded_categories=[]",
+      "why_not": "其论据为「6 条差额和 == raw_total_gap，无残差故全额计入」。该等式在任意分类下都成立（分法只决定 520.00 落在哪个字段，不改变两字段之和），因此它对「股息是否属成交金额差异」零信息量；按聚合规则「无独立证据的多数 → 权重 0」，不予采纳。且 excluded_categories=[] 会把一类性质不同的差异（账外股息）混入成交价差，后续无法分别追踪。"
+    },
+    {
+      "option": "把 T140 与 T144 判为重复（EX-02 附论），dedup 计 1 笔 / 13800.00",
+      "why_not": "契约 B 段把重复定义为「同一 txn_id 在一侧出现多次」；T140 与 T144 单号不同、日期不同、side 亦不同（中签买入 vs 买入），按字面定义不构成重复。数值七列相同只能支持「人工复核」建议，不足以改变 dedup 计数；契约 D 段反而明确「仅单侧存在的单号亦为差异单号」，故 T140 作为单侧差异成立。此附论已原样留痕于 diff_preserved，未删除。"
+    },
+    {
+      "option": "按 settle_date 对齐日期，把 T144 排除出差异清单（diff_count=5）",
+      "why_not": "TASK.md 未指明对齐列，但同一侧 4/5 行的 ledger.date 等于 trade_date（仅 T144 等于 settle_date），按多数行实际口径应统一取 trade_date；且 T144 的 amount 差额为 0.00，改判只影响 diff_count、不影响任何金额字段，为不制造无收益的口径漂移，维持 6。"
+    },
+    {
+      "option": "把 EX-03 的执行路径/成本/回滚方案并入 answer-final 作为答案本体",
+      "why_not": "answer-final 的契约字段是 summary/diffs/categories/falsification；执行路径属方案层，混入会让聚合产物不可被字段级裁决。EX-03 的执行路径保留在其原始产出中可回读，未做改写也未搬移。"
+    }
+  ],
+  "risk": {
+    "rating": "中",
+    "irreversible": "否",
+    "rollback": "answer-final.json 与 PM-01.json 均为本轮新增文件，删除即回到「仅三席产出」的状态；三席原始产出全程只读未被改写（sha256 可复核）。唯一半不可逆项是人类签字后的 ADJ-001 口径落库：若签字后需翻转，须新建带 supersedes 标记的版本，不覆盖、不 unlink。"
+  },
+  "diff_preserved": [
+    {
+      "side": "多数",
+      "conclusion": "【EX-01 / EX-03，2 席】amount_diff_total=14440.00、excluded_amount_total=0.00、excluded_categories=[]；6 条差额全额计入。",
+      "falsification": "其唯一论据为差额和等于 raw_total_gap 的恒等式，该恒等式对分类无判别力；一旦指认契约中「成交金额差异不含非成交现金流」的条款（TASK.md §C / 易错点 1），该推理即被推翻。"
+    },
+    {
+      "side": "少数",
+      "conclusion": "【EX-02，1 席】amount_diff_total=13920.00、excluded_amount_total=520.00、excluded_categories=[现金分红口径差]。★ 已采纳。",
+      "falsification": "若契约明定对账范围为全部资金变动（含股息、红利），或证明 600519 存在真实未入账持仓使该股息属应入账事项，则正确值应为 14440.00 / 0.00。"
+    },
+    {
+      "side": "少数",
+      "conclusion": "【EX-02 附论，未采纳】T140 与 T144 七列数值全等，13800.00 疑为同一笔缴款的两个单号。",
+      "falsification": "若能取得两笔的成交编号或资金流水号证明同笔，则 diff_count 降为 5、amount_diff_total 降为 120.00（exclude）或 640.00（count）；若证明为两次独立缴款，则本轮 6 条差异与 13800.00 计入均成立。"
+    },
+    {
+      "side": "少数",
+      "conclusion": "【三席共同指出的口径缺口】§D 的「日期」列未指明对齐 trade_date 还是 settle_date；T144 的 ledger.date 落在 settle_date。",
+      "falsification": "若改按 settle_date 对齐，T144 不再是差异单号，diff_count 由 6 降为 5，两个金额字段不变（T144 差额 0.00）。"
+    }
+  ],
+  "self_doubt": "三处可能出错：其一，我把 520.00 移出 amount_diff_total 的依据是契约文本，但若判定方以「amount_diff_total + excluded_amount_total 必须等于 raw_total_gap 且 amount_diff_total 承担全部风险金额」为隐含标准，则我的 13920.00 会留下 520.00 的说明缺口，需在报告里显式解释，这一步容易被读成「为了分类而拆数」。其二，我给 T142（股数差 0.00）与 T144（日期差 0.00）也贴了「不计入」标签，二者对金额字段无影响，但会使 excluded_categories 从 1 项变 3 项；若判定方只认「现金分红」一个排除类别，我这边多出两项标签——这是我最可能被判偏的地方，且它完全不影响可复算的 11 个数值。其三，我对 XJ-01 缺席与 AD-01 未产出只做了 board 登记而未追索（两者均为 optional_seats、且本轮 role 为 evidence_round），若其实存在我未见的产出，则「三席全 valid」的覆盖面判断会漏席；但 seat-check 的 seats_expected 就只有三席，故我倾向判断成立。",
+  "next": [
+    "等人签字确认 ADJ-001 口径；签字即关轮，不再重开聚合",
+    "向券商侧索要 T140（中签买入 2026-09-09）与 T144（买入 2026-09-15）的成交编号/资金流水号，把「是否同笔」从人工裁决点降为可自动判定",
+    "在下一版契约里补两条定义：§D 的「日期」列对齐 trade_date 还是 settle_date；「不计入金额差异」的类别白名单（现金分红、送转、日期口径）",
+    "把 6 条差异落到独立 diff-table.csv 并支持跨期结转，使被排除项下期自动带出，避免每期重复识别同一批股息（回应 EX-03 的成本论证）",
+    "若需红队复核，下一轮发 devils_advocate_round 补 AD-01；本轮不以 PM 判断替代对抗席"
+  ],
+  "reads": [
+    {
+      "path": "runs/round22/prompts/PM-01.md",
+      "purpose": "读取本席位硬字段、权限边界、聚合规则与两文件的输出 schema"
+    },
+    {
+      "path": "fixtures/tasks/T-18/TASK.md",
+      "purpose": "读取 summary 11 字段计算方法、四个易错点与 §D 差异判定口径，用于独立复算与口径裁决"
+    },
+    {
+      "path": "fixtures/tasks/T-18/ledger.csv",
+      "purpose": "逐行取自记账 5 行原始值，Decimal 复算合计、查重、逐单比对"
+    },
+    {
+      "path": "fixtures/tasks/T-18/bill.csv",
+      "purpose": "逐行取交割单 8 行原始值，Decimal 复算合计、查重、判定单侧存在项与日期对齐"
+    },
+    {
+      "path": "runs/round22/EX-01.json",
+      "purpose": "读取多数席原始结论、dissent、falsification 与 summary，核对是否与我独立复算一致"
+    },
+    {
+      "path": "runs/round22/EX-02.json",
+      "purpose": "读取少数席原始结论、三条最强反对与被反论，判断其 exclude 口径是否有独立证据支持"
+    },
+    {
+      "path": "runs/round22/EX-03.json",
+      "purpose": "读取落地席的执行路径、跨平台风险与 dissent，确认其 amount 口径与 EX-01 一致"
+    },
+    {
+      "path": "runs/round22/seat-check.json",
+      "purpose": "取三席 seat_check status 与 sha256，判定聚合准入口径（aggregation_admissible / blocked）"
+    },
+    {
+      "path": "runs/round22/read-domain-check.json",
+      "purpose": "核对三席 declared_reads 是否命中禁读域（verdict / hits），确认聚合输入未受污染"
+    },
+    {
+      "path": "runs/round22/round-manifest.json",
+      "purpose": "确认本轮 role=evidence_round、expected/optional_seats（XJ-01、AD-01 为 optional），用于 board 如实登记缺席与未产出"
+    }
+  ],
+  "usage": {
+    "tokens": 18600,
+    "minutes": 13,
+    "source": "self_report"
+  }
+}

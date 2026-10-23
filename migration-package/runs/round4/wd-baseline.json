@@ -1,0 +1,581 @@
+{
+  "generated_at": "2026-10-20T01:24:32+08:00",
+  "kind": "write_domain_baseline",
+  "root": ".",
+  "deny_prefixes": [
+    "fixtures/",
+    "outputs/",
+    "docs/",
+    "protocol/",
+    "prompts/",
+    "config/",
+    "judges/"
+  ],
+  "note": "轮次前的共享目录快照。轮次后用 --write-domain <cfg> --check <本文件> 比对。",
+  "files": [
+    {
+      "path": "config/automations.json",
+      "size": 2400,
+      "sha256": "224bbc669262dde9beef1a6e9f04db370a314544cf6e074512d581e2f1f89bd6",
+      "newline": "LF"
+    },
+    {
+      "path": "config/models.json.example",
+      "size": 1760,
+      "sha256": "627eb0db0c17c7cd6551f0cf839d1f0d9bd8beec18c2be3cb6d311dc1658c9cd",
+      "newline": "LF"
+    },
+    {
+      "path": "config/params.json",
+      "size": 17687,
+      "sha256": "96d0f9da01c33d3bfc97b04ffb39b549dd2037f8658345906eee1615da596dff",
+      "newline": "LF"
+    },
+    {
+      "path": "config/read_domains.json",
+      "size": 7511,
+      "sha256": "b7db3e4575caafc338817e82a666003c549c815286f2f052c0c3697658013841",
+      "newline": "LF"
+    },
+    {
+      "path": "config/write_domains.json",
+      "size": 1275,
+      "sha256": "8d95ce5e9887dc58b4d2ffc17e6b6a797f62797e813e75622d3ddceb380338c8",
+      "newline": "LF"
+    },
+    {
+      "path": "docs/修复报告-F1F2F3.md",
+      "size": 7859,
+      "sha256": "e608aa5d638daf1fe066a1c06c96498c17894c02dadf697f493d4057e025662d",
+      "newline": "LF"
+    },
+    {
+      "path": "docs/目标机-人工确认清单.md",
+      "size": 7987,
+      "sha256": "7e855284c1cdc9163b85ff6f3490ba406d32918449ff37bdb5f7ec6d6f6cc43b",
+      "newline": "LF"
+    },
+    {
+      "path": "docs/验证报告.md",
+      "size": 12286,
+      "sha256": "b18ca04c84941ed4ba77d04c05d5f0eb78e164d5b3b4c49d95f38d8e9a72fa99",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/002/TASK.md",
+      "size": 4428,
+      "sha256": "fb8612ab1ed1d505ebab59b3e75b4b1b82032a0ed80437247c2f807e60e7110f",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/002/bill.csv",
+      "size": 1104,
+      "sha256": "0614bfb433bdd522babe4e305d283afa77ae6fd908b9c5091db79c2d870a8006",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/002/ledger.csv",
+      "size": 687,
+      "sha256": "f0aa3533b303d7f1b30b5f5b51b40f6e7296186a4a85a5bc851f76214ac76377",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/002/spec/adjudication.json",
+      "size": 5068,
+      "sha256": "5027ac958dff333938d8fbf7d3bf17d3c6034f1d7b855582b2ffbe9452984263",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/002/spec/arithmetic.json",
+      "size": 1888,
+      "sha256": "29dd55c0f2424ae4bea8a703be05367be2479e3264301ca9f921cf1fed44d7f7",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/002/truth.json",
+      "size": 1643,
+      "sha256": "360a1fd7fc288288a4c490bc4aeec11e282e8db15eff9c44459ff6721d408494",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/TASK.md",
+      "size": 3407,
+      "sha256": "9be9ac8c99f6df5b4bc5cb8203645a90f1093b2e2c8dd23af80cff58302f39ee",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/answer-baseline-v2.json",
+      "size": 1595,
+      "sha256": "95e212ecae1c1bb821813de5ed1656a1f2e70137fb39be7a3dd622294a9398ba",
+      "newline": "CRLF"
+    },
+    {
+      "path": "fixtures/answer-baseline-v3.json",
+      "size": 2031,
+      "sha256": "48dfe0218d96cc6674f3f976461815a350bf347d8e85f16f7784a8fb52cfef82",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/answer-baseline.json",
+      "size": 2201,
+      "sha256": "373e58f39bbf4d8bab7d974f047e8f1bbcdee49abf450c4282f79c9a92f923e7",
+      "newline": "CRLF"
+    },
+    {
+      "path": "fixtures/bill.csv",
+      "size": 1370,
+      "sha256": "246e0ca593ca1ab490541fe4c1ae0f8488a657e2388fab94c0814b9714f1f2ca",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/ledger.csv",
+      "size": 1355,
+      "sha256": "e46ba9946292c4c858ede6da0624cf969bb6597d019ed0116ec92394dd478e98",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/bad-gate1-judgment.json",
+      "size": 477,
+      "sha256": "cd6d301998d6e9a0cb58b2e8ab03d05ae828360aa5b4524b849e9bf609df93dc",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/bad-gate2-money.json",
+      "size": 385,
+      "sha256": "31e82c1158103d76c40d9e5c5b6a69439bbdd8835516755004ba904123a6a658",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/final-bad/answer-final.json",
+      "size": 296,
+      "sha256": "2aa4af7212ff423b3aa5891cb48675d118b257c80caa5dbb41931df464221d85",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/params-threshold0.json",
+      "size": 15084,
+      "sha256": "8674caecee32b2ed4e2c14f02e18d15ec94b0a0a43a3ce169aeb73b2eebf6279",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/round-readA/EX-01.json",
+      "size": 750,
+      "sha256": "bac628d2d0ff553d6ef98464fd03c78bfa46ea6daaf28efff97dd7b2d7616e8a",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/round-readA/EX-02.json",
+      "size": 748,
+      "sha256": "bca633f0b48597ff752d97f23145cb0a1b9907c78f5f746de5a0e18c16865fb7",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/round-readA/EX-03.json",
+      "size": 742,
+      "sha256": "c87634611a7204a7e77d2bba8d1fc1488a0374d9b9d06881740ba9989f710857",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/round-readA/round-manifest.json",
+      "size": 230,
+      "sha256": "ff1f4ba39c4c2f5cbc5b085f140fc255a8c6119cca592102f2d14dbbe93648cc",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/round8/AD-01.json",
+      "size": 616,
+      "sha256": "181387b460cd4469d06e8eca3de396802310c9469fc17a56cedb1c896f49f9b4",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/round8/PM-01.json",
+      "size": 621,
+      "sha256": "084baa8ba0c9d5edb4e7990cf19c620df36eb2ffa2ccb6876c647102680d0d7a",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/round8/round-manifest.json",
+      "size": 213,
+      "sha256": "c5f99982a3eeab27f4d0a14dd32298d59ef7aae829328733b624ecf217dd6d1a",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/round9/AD-01.json",
+      "size": 285,
+      "sha256": "0854daeadb2fb8f91bcf85fa6620b02f69dd50890300740202d6787d4e235112",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/round9/PM-01.json",
+      "size": 621,
+      "sha256": "084baa8ba0c9d5edb4e7990cf19c620df36eb2ffa2ccb6876c647102680d0d7a",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/round9/round-manifest.json",
+      "size": 213,
+      "sha256": "ef9165d2cb5a7cd938ed372563afaa92381499508a38d8a524192634dd690350",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/roundA/EX-01.json",
+      "size": 578,
+      "sha256": "020a82a1545c1935e971f7420663edfb525d85ecf12658a49edabb5353291618",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/roundA/EX-02.json",
+      "size": 576,
+      "sha256": "9718b7916742e0540d7336d09c8595f263c1f902f128aa7440ed7af8e5bb9307",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/roundA/EX-03.json",
+      "size": 501,
+      "sha256": "b38a0d4c34d2737f014d9b8e919eacb2f2f1f816306968bffbc8c2d126820db3",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/roundA/round-manifest.json",
+      "size": 225,
+      "sha256": "fbd97716998c5665e1263d8afb735a6fec57af5ecc406595362518e61d987267",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/roundB/EX-01.json",
+      "size": 578,
+      "sha256": "020a82a1545c1935e971f7420663edfb525d85ecf12658a49edabb5353291618",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/roundB/EX-02.json",
+      "size": 570,
+      "sha256": "0fc16f4358f95ab628d04a39cb639aa0b223112c72cc64cbf00f2bbbd18ae7cc",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/roundB/EX-03.json",
+      "size": 504,
+      "sha256": "313cb173bbc70583f99fffcf5b7cbb885bf598569160733f7ee949f74f6b3c84",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/roundB/round-manifest.json",
+      "size": 226,
+      "sha256": "0c823ecfea34c9435ab22be3049e54b41d46a66b4109bc78755291ba0c82ec5b",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/roundC/EX-01.json",
+      "size": 580,
+      "sha256": "714a79b23d3009fc1c7f6aa07a1b0ae1dd2287188ba36ecd17da09bbb5a2b412",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/roundC/EX-02.json",
+      "size": 580,
+      "sha256": "e4ca639041692419dd6a191f552799805ef519ff5bb7a8d9a7321844f1c05c6d",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/roundC/EX-03.json",
+      "size": 580,
+      "sha256": "68377e7f39ceaee3ffcc1a184a2863ac476268f5b9c65d48ae8e4d6ef2ffd6d8",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/roundC/round-manifest.json",
+      "size": 225,
+      "sha256": "f4cc7cf519bd394dbd57a3a2ea07dc00efbe6a55637368a2b9b587f974e93c55",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/roundD1/EX-01.json",
+      "size": 578,
+      "sha256": "020a82a1545c1935e971f7420663edfb525d85ecf12658a49edabb5353291618",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/roundD1/EX-02.json",
+      "size": 576,
+      "sha256": "9718b7916742e0540d7336d09c8595f263c1f902f128aa7440ed7af8e5bb9307",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/roundD1/EX-03.json",
+      "size": 501,
+      "sha256": "b38a0d4c34d2737f014d9b8e919eacb2f2f1f816306968bffbc8c2d126820db3",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/roundD1/round-manifest.json",
+      "size": 226,
+      "sha256": "5778e75f991809be37b869894408a3a0cd922d232b2552cf78ecb942743883e1",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/roundD2/EX-01.json",
+      "size": 578,
+      "sha256": "020a82a1545c1935e971f7420663edfb525d85ecf12658a49edabb5353291618",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/roundD2/EX-02.json",
+      "size": 576,
+      "sha256": "9718b7916742e0540d7336d09c8595f263c1f902f128aa7440ed7af8e5bb9307",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/roundD2/EX-03.json",
+      "size": 501,
+      "sha256": "b38a0d4c34d2737f014d9b8e919eacb2f2f1f816306968bffbc8c2d126820db3",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/roundD2/round-manifest.json",
+      "size": 226,
+      "sha256": "be2eb323dd23118aa1f8f84747b879a2b26c35b50293409ea06852f4acfbdb9b",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/roundE/EX-01.json",
+      "size": 583,
+      "sha256": "86e575cce35dbbbe3aec921fb1446ae1ef09beeb16031ff03fd6bec2e0c99818",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/roundE/EX-02.json",
+      "size": 579,
+      "sha256": "3ee9b6b627f389ded541449f6e4bc8fd8c4d203f01910e86bbc9bf5e5e4c61ab",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/roundE/EX-03.json",
+      "size": 573,
+      "sha256": "d13fd2ef22740ca40ac6e98270b94d514f43d6ab78af26eb5f0e58beb98bb386",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/roundE/round-manifest.json",
+      "size": 225,
+      "sha256": "8dccaee5156dedf85dde91b354ded658785a078574c6ed5e2754a2c2d783c3bc",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/roundF/EX-01.json",
+      "size": 578,
+      "sha256": "020a82a1545c1935e971f7420663edfb525d85ecf12658a49edabb5353291618",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/roundF/EX-02.json",
+      "size": 576,
+      "sha256": "9718b7916742e0540d7336d09c8595f263c1f902f128aa7440ed7af8e5bb9307",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/roundF/EX-03.json",
+      "size": 570,
+      "sha256": "d56cf8f7c5b022b87fa15cbef102b02027918e852d608992610a094bbcd2a5a8",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/roundF/round-manifest.json",
+      "size": 225,
+      "sha256": "169ed853e05065f410844956fe2d977cd9ed1baf585e629f1ca83ee71861c5c4",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/seat-bad/EX-01.json",
+      "size": 533,
+      "sha256": "4324bcabc05e6724cc0c3220583e417bd7e0e855f075287951a6c3f4965b8250",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/seat-bad/EX-02.json",
+      "size": 462,
+      "sha256": "b4478b75cd26909f2aa8b67b8bb1a35f00c5072d6ee258f7484a54295ac33cdc",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/seat-bad/EX-03.json",
+      "size": 509,
+      "sha256": "589c0fa8cc5c429e231c2d6c49c0e3b8565ddefe8f3bf858b12afe27188c8337",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/seat-bad/round-manifest.json",
+      "size": 228,
+      "sha256": "48f2fa9818e303c38c02ba9e880da317b187a5db9928ed64ae847e92b20269b9",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/seat-readbad/EX-01.json",
+      "size": 674,
+      "sha256": "b9b0b87e9303335ff942b2f067d46c11c1f3b1685ab5ee67e7cb0a4d411ab2d3",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/seat-readbad/EX-02.json",
+      "size": 748,
+      "sha256": "bca633f0b48597ff752d97f23145cb0a1b9907c78f5f746de5a0e18c16865fb7",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/seat-readbad/EX-03.json",
+      "size": 673,
+      "sha256": "156caa92ea1f27a2341362bbdfaa93f6fe14cfefa54d0ec9ab9b65fe575f6153",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/seat-readbad/round-manifest.json",
+      "size": 231,
+      "sha256": "744dfdbf2fbe350c3b7b35ab00f8fd49492e2aa23696da577960e24ae8be191a",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/spec/adjudication.json",
+      "size": 5849,
+      "sha256": "e2ee19583d1220b43f2549cd26ae6249f61d243d71c836ff994c8903ec764393",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/spec/arithmetic.json",
+      "size": 1846,
+      "sha256": "b4d60bd31b42b41ea936b2044e15cea8dc7df2258c336babd8a096189fcb3500",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/spec/interpretations.json",
+      "size": 3461,
+      "sha256": "ec8b31b7236dc029a08197d797f8a76554ec526c989efc429a48ac50e53ebfa7",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/truth.json",
+      "size": 3874,
+      "sha256": "03b41c4927991adb011e65e99a2f22ad0b8fa3ca9b0a05b65c5335b1f0d33fe4",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/verdict-baseline-v3.json",
+      "size": 4272,
+      "sha256": "5284d904f9f54e7a63c98bae293d0edf32ef9d75a4fa7ce92abd368ecdbc0d24",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/verdict-baseline.json",
+      "size": 3641,
+      "sha256": "9de99309db9344c03d94d29cd274c8196091c34a811b532c00d36024a89420f8",
+      "newline": "LF"
+    },
+    {
+      "path": "judges/README.md",
+      "size": 3919,
+      "sha256": "73e1a4524d724402bf5f0340f6fc5fcf16856d6661f4ec1748c5a0ea106b7370",
+      "newline": "LF"
+    },
+    {
+      "path": "judges/run.cmd",
+      "size": 586,
+      "sha256": "6530865f30c62e77c31e6f339efae6a1bf5ee2bd0da8603ea71978e8ba7fa46f",
+      "newline": "LF"
+    },
+    {
+      "path": "judges/run.sh",
+      "size": 901,
+      "sha256": "4d33e84178a2c54946a43690e3f5a2d97582c7e32defc820b31ec3fbfb3ffbd5",
+      "newline": "LF"
+    },
+    {
+      "path": "judges/seat_check.py",
+      "size": 102957,
+      "sha256": "02801a0fcc8b5b28db3ec605c2e88ec39868cefa698a056ffc06c4fc85a187c5",
+      "newline": "LF"
+    },
+    {
+      "path": "judges/verify.py",
+      "size": 41599,
+      "sha256": "03027b277b0e42c7f1c25c5ad02d7dcc813f2ceaddbdad71c89aefffb49c3956",
+      "newline": "LF"
+    },
+    {
+      "path": "prompts/ad-01.md",
+      "size": 7682,
+      "sha256": "fc99245630141ac9059720c055b9f90e044513085210cd855185c51a73b86a29",
+      "newline": "LF"
+    },
+    {
+      "path": "prompts/ex-01.md",
+      "size": 4781,
+      "sha256": "72e8500cfa6fcedd8d6857059b1cc618c9308c803c1ae2779805168e93b33325",
+      "newline": "LF"
+    },
+    {
+      "path": "prompts/ex-02.md",
+      "size": 3940,
+      "sha256": "cc2f339c650f37c91b81c9bd33c3991400c900248b2c708ba71ee1268d41fb01",
+      "newline": "LF"
+    },
+    {
+      "path": "prompts/ex-03.md",
+      "size": 3866,
+      "sha256": "2acb5e45f96732f23484bc7ce16bac0981143c0aac326455eac46a557375d013",
+      "newline": "LF"
+    },
+    {
+      "path": "prompts/pm-01.md",
+      "size": 5531,
+      "sha256": "ec1a48edfe53e44277c17ea3c881669c4d5757bd64dc204319cea880a4fd8803",
+      "newline": "LF"
+    },
+    {
+      "path": "prompts/xj-01.md",
+      "size": 3791,
+      "sha256": "3607ee1859b558c763e36f4b57332d8de467c96d869582746822255215c29a85",
+      "newline": "LF"
+    },
+    {
+      "path": "protocol/01-架构.md",
+      "size": 5613,
+      "sha256": "dce409a542fe35608195486c86bbed3d8037817a90cac348d45275f93e268e1c",
+      "newline": "LF"
+    },
+    {
+      "path": "protocol/02-辩论协议.md",
+      "size": 5486,
+      "sha256": "16300778d5c427a2a266e178c1d0ff37dc745827453cd29cf049f888a4027c1f",
+      "newline": "LF"
+    },
+    {
+      "path": "protocol/03-结构审计七查.md",
+      "size": 6408,
+      "sha256": "1f23a0c9501cca2ace1ef8bb80e4ed9bdd9f7e450f77c6d840d3d9cfc7e35151",
+      "newline": "LF"
+    },
+    {
+      "path": "protocol/04-双裁判规范.md",
+      "size": 6864,
+      "sha256": "61b2a40f3de4415eddd8f367f455fc3f9612f7ed89686787cc1c4535b25bb401",
+      "newline": "LF"
+    },
+    {
+      "path": "protocol/05-工作协议.md",
+      "size": 5181,
+      "sha256": "f93b990d7724e64f39b6e035025501342ba4e4e406c0935d37bd16069fb3e5c8",
+      "newline": "LF"
+    },
+    {
+      "path": "protocol/06-写入域与判据分层.md",
+      "size": 16383,
+      "sha256": "202c87a2ff999f4c52612dd4a6d6a2a7a15378be0f5fe1ad48de9684f0b5de90",
+      "newline": "LF"
+    },
+    {
+      "path": "protocol/07-轮次与指标.md",
+      "size": 22271,
+      "sha256": "6d4c8a208e37f595c98da1169118d6ae33078f684913ee4336146eef7d5f4270",
+      "newline": "LF"
+    }
+  ]
+}

@@ -1,0 +1,30 @@
+{
+  "seat": "EX-02",
+  "round": 2,
+  "conclusion": "EX-02 的立场：exclude",
+  "evidence": [
+    {
+      "pointer": "fixtures/ledger.csv#shared",
+      "what_it_shows": "夹具证据"
+    }
+  ],
+  "falsification": "若前提被推翻则本结论不成立",
+  "confidence": "medium",
+  "stance": [
+    {
+      "axis": "ADJ-001",
+      "choice": "exclude"
+    },
+    {
+      "axis": "DIFFSET",
+      "choice": "7"
+    }
+  ],
+  "summary": {
+    "amount_diff_total": 500.02,
+    "excluded_amount_total": 180.0,
+    "diff_count": 7,
+    "ledger_rows": 27,
+    "bill_rows": 27
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "round": "round-readA",
+  "role": "evidence_round",
+  "contract_version": "2.0",
+  "expected_seats": [
+    "EX-01",
+    "EX-02",
+    "EX-03"
+  ],
+  "seed": "aaaa5553",
+  "prev_round": null,
+  "introduces_new_evidence": true
+}

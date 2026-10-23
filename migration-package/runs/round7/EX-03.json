@@ -1,0 +1,150 @@
+{
+  "seat": "EX-03",
+  "round": 7,
+  "conclusion": "T-03 可执行结论：5 行账 vs 8 行单，账 120820.00、单 147460.00、毛差 26640.00；无重复单号（dedup=0，金额 0.00）。差异单号 6 个：T019（价/费差）、T020（中签买入单侧）、T021/T023（股息单侧）、T022（送转股数 0 vs 30）、T024（入账日=交割日，日期列差）。计入金额差 26120.00（T019 120.00 + T020 26000.00），不计入 520.00（T021/T023 各 260.00，T022/T024 均为 0.00）。全流程只读可重跑，成本低、回滚简单。",
+  "execution_path": [
+    "1. 以只读方式打开 ledger.csv / bill.csv（csv.DictReader, newline='', encoding='utf-8'），不做任何写出。",
+    "2. 逐行把 amount / fee_total / shares 用 Decimal 解析，累加得 ledger_total=120820.00、bill_total=147460.00、raw_total_gap=26640.00。",
+    "3. 按 txn_id 分组计数：两侧 groupby 后的键数=行数，故 dedup_removed_txn_count=0、dedup_amount=0.00。",
+    "4. 取并集 8 个单号，逐列比对 股数/成交金额/费用/日期（账 date ↔ 单 trade_date），得 6 条差异。",
+    "5. 按类别汇总：计入类取 abs 差求和=26120.00；不计入类取差额求和=520.00；两类合计 26640.00 与毛差闭合（26120+520=26640），自校验通过。",
+    "6. 结果先写 runs/round7/EX-03.json.new，diff 校验通过后再替换，旧版备份为 EX-03.json.bak。"
+  ],
+  "cost": {
+    "token_estimate": "本席位单轮约 1.8e4 tokens（读 4 文件 + 1 次 Decimal 复算脚本 + JSON 产出）；三席 × 本轮合计约 6~8e4；若按多智能体 ≈ 单轮对话 15 倍口径折算，全链路预算约 2.5e5~3e5 tokens。",
+    "wall_clock": "本席位 12~15 分钟（读入 3 分钟、复算与归类 6 分钟、自校验与产出 4 分钟）；三席并行墙钟 ≈ 15 分钟，串行 ≈ 45 分钟。",
+    "human_touchpoints": "1 次：人工确认 excluded_categories 的口径（股息/送转/日期口径是否排除）。其余全自动，无需人工。"
+  },
+  "rollback": "计算全程只读，不修改 ledger.csv / bill.csv，故无数据损坏面。唯一写操作是自己席位文件：先写 .new、比对通过再替换，保留 .bak 可一键回退；作废文件移入 _trash/ 而不用 unlink（本机沙箱拦截删除）。若发现口径判错，删 _trash 即可重跑，重跑结果幂等。",
+  "op_grade": "🟡",
+  "cross_platform_risks": [
+    {
+      "risk": "解释器名差异：本机 Windows 为 python，目标 macOS(M4) 为 python3",
+      "mitigation": "脚本 shebang 写 #!/usr/bin/env python3，文档统一用 python3 调用"
+    },
+    {
+      "risk": "换行符：CSV 若为 CRLF，未加 newline='' 会在字段尾部留下 \\r",
+      "mitigation": "open(..., newline='', encoding='utf-8')，输出固定 LF"
+    },
+    {
+      "risk": "编码：Windows 默认 GBK，中文 name/note 列会乱码或抛 UnicodeDecodeError",
+      "mitigation": "显式 encoding='utf-8'，并对 BOM 用 utf-8-sig 兜底"
+    },
+    {
+      "risk": "路径拼接：字符串 '/' 或 '\\\\' 拼路径在另一端失效",
+      "mitigation": "全部改用 pathlib.Path，禁止字符串拼路径"
+    },
+    {
+      "risk": "浮点误差：float 累加 120820.00 类金额可能出现 120819.99999999",
+      "mitigation": "一律 Decimal(str)，quantize 到 0.01，输出定长两位"
+    },
+    {
+      "risk": "删除：脚本若用 unlink 清理中间文件，本机沙箱会拦截",
+      "mitigation": "改为 shutil.move 到 _trash/，不调用 unlink"
+    }
+  ],
+  "evidence": [
+    {
+      "pointer": "fixtures/tasks/T-03/ledger.csv:2-6 · amount 列 · 全 5 行",
+      "what_it_shows": "30000.00+45000.00+45000.00+0.00+820.00=120820.00；数据行 5；txn_id 依次 T017/T018/T019/T022/T024，无重复。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-03/bill.csv:2-9 · amount 列 · 全 8 行",
+      "what_it_shows": "30000.00+45000.00+45120.00+26000.00+260.00+0.00+260.00+820.00=147460.00；数据行 8；8 个 txn_id 互不相同；147460.00-120820.00=26640.00。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-03/bill.csv:4 与 ledger.csv:4 · T019 的 amount/fee_total 单元格",
+      "what_it_shows": "金额 45000.00 vs 45120.00（abs 差 120.00）、费用 11.70 vs 11.73；ledger 备注'按委托价记账'对应 bill 价 45.12，价差为真实金额差异。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-03/bill.csv:5,6,8 · T020/T021/T023 的 amount 单元格",
+      "what_it_shows": "三个单号仅在交割单侧存在：26000.00（中签买入）、260.00、260.00（股息入账），ledger.csv 无对应行。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-03/ledger.csv:5 与 bill.csv:7 · T022 的 shares 单元格",
+      "what_it_shows": "shares 0 vs 30（10 送 3），amount 两侧均为 0.00；属权益变动股数差，金额差额为 0.00。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-03/ledger.csv:6 与 bill.csv:9 · T024 的日期列",
+      "what_it_shows": "账 date=2026-09-19（备注'按交割日入账'）= bill settle_date，而 bill trade_date=2026-09-18；股数/金额/费用三列完全一致，差额 0.00。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-03/TASK.md:61-64,71-73,81-84",
+      "what_it_shows": "dedup 按单号计不按行计；两金额字段取 abs 差额而非交易全额；重复项不参与两金额字段；单侧存在即为差异单号、差额取该侧 amount。"
+    }
+  ],
+  "falsification": "以下任一成立则我的产出错：(a) 若口径要求把股息入账 520.00 与送转 0.00 也算作'计入金额差异'，则 amount_diff_total 应为 26640.00、excluded 应为 0.00；(b) 若 T024 的日期比对基准改为 settle_date（2026-09-19 一致），则该单号从差异清单消失，diff_count 应为 5；(c) 若 T020 中签买入被认定为非交易性权益事件而排除，则 amount_diff_total 应为 120.00；(d) 若两份 CSV 中存在我未识别的分批成交同号多行，dedup 字段将不为 0——但我逐行核对 8 个/5 个 txn_id 均唯一。",
+  "reads": [
+    {
+      "path": "runs/round7/prompts/EX-03.md",
+      "purpose": "读取席位职责、读取域、硬性字段与字数预算"
+    },
+    {
+      "path": "fixtures/tasks/T-03/TASK.md",
+      "purpose": "获取字段定义、四个易错点与差异判定口径"
+    },
+    {
+      "path": "fixtures/tasks/T-03/ledger.csv",
+      "purpose": "逐行读取自记账 5 行，取 amount/shares/fee_total/date 复算"
+    },
+    {
+      "path": "fixtures/tasks/T-03/bill.csv",
+      "purpose": "逐行读取交割单 8 行，取 amount/shares/fee_total/trade_date 复算比对"
+    }
+  ],
+  "dissent": [
+    {
+      "against": "ANON-A",
+      "reason": "若同伴主张把股息入账与送转一并计入 amount_diff_total（可得 26640.00），我反对：这两类在账务上不产生成交金额，T022 两列 amount 均为 0.00，纳入后会让'金额差异'退化为'毛差'，失去归因意义。",
+      "reverse_evidence": "bill.csv:6/7/8 的 amount 为 260.00/0.00/260.00 且 T022 两侧 amount 同为 0.00，可复核排除后仍与毛差闭合（26120.00+520.00=26640.00）。"
+    },
+    {
+      "against": "ANON-B",
+      "reason": "若同伴把单侧存在的 T020/T021/T023 直接剔除、不进 diffs，我反对：TASK.md:83-84 明写'仅单侧存在的单号亦为差异单号'，剔除会使 diff_count 降为 3 并违反契约。",
+      "reverse_evidence": "TASK.md:83-84 原文；bill.csv:5/6/8 三行在 ledger.csv 中无同名 txn_id（ledger 仅 5 行）。"
+    },
+    {
+      "against": "ANON-C",
+      "reason": "若同伴有 dedup 非零（例如把 T022 的 0 股与 30 股视作重复），我反对：重复的定义是同号多行，而两侧各 8/5 个 txn_id 全唯一。",
+      "reverse_evidence": "ledger.csv:2-6 与 bill.csv:2-9 的 txn_id 列计数均为 1；T022 在两侧各仅 1 行。"
+    }
+  ],
+  "confidence": "high",
+  "needs_more_data": [
+    "T019 的委托流水，用以确认 45.00 是委托价、45.12 是成交价（现仅有备注文字）。",
+    "自记账的现金/权益账户是否存在（决定股息 520.00 应记为漏记还是本就不在账套范围）。",
+    "自记账的入账时点约定文档（决定 T024 日期差异是口径差异还是错误）。"
+  ],
+  "stance": [
+    {
+      "axis": "ADJ-001",
+      "choice": "count"
+    },
+    {
+      "axis": "DIFFSET",
+      "choice": "6"
+    }
+  ],
+  "summary": {
+    "ledger_rows": 5,
+    "bill_rows": 8,
+    "ledger_total": "120820.00",
+    "bill_total": "147460.00",
+    "raw_total_gap": "26640.00",
+    "dedup_removed_txn_count": 0,
+    "dedup_amount": "0.00",
+    "diff_count": 6,
+    "amount_diff_total": "26120.00",
+    "excluded_amount_total": "520.00",
+    "excluded_categories": [
+      "股息入账",
+      "送转股数变动",
+      "入账日与成交日口径差异"
+    ]
+  },
+  "usage": {
+    "tokens": 18500,
+    "minutes": 14,
+    "source": "self_report"
+  }
+}

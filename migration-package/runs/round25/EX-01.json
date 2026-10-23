@@ -1,0 +1,103 @@
+{
+  "seat": "EX-01",
+  "round": 25,
+  "conclusion": "执行 A–D 条：7/8 行、181800.00/182180.00、gap 380.00，无重复（0/0.00）；date 对 trade_date 得 6 条（T035–T040）；amount_diff_total=380.00（120.00＋260.00），excluded=0.00，excluded_categories 列费用/股数/日期（差 0）。契约无排除条款，T035 全额计入。",
+  "evidence": [
+    {
+      "pointer": "fixtures/tasks/T-05/ledger.csv+bill.csv#amount 全列",
+      "what_it_shows": "7 行 181800.00、8 行 182180.00，差 380.00"
+    },
+    {
+      "pointer": "fixtures/tasks/T-05/bill.csv#T035–T040 对 ledger 同单号",
+      "what_it_shows": "T035 金额差 120.00、费用 11.70→11.73；T036/37 费用各 13.26；T038 股数 0/30、金额 0；T039 单侧 260.00；T040 日期 09-15/09-14、金额 0"
+    },
+    {
+      "pointer": "fixtures/tasks/T-05/{ledger,bill}.csv#txn_id",
+      "what_it_shows": "各 1 次、并集 8 → dedup 0/0.00，diff 上界 8"
+    },
+    {
+      "pointer": "fixtures/tasks/T-05/bill.csv#T038 note=10送3",
+      "what_it_shows": "30 股与 1000 股基数应得 300 股不符，属数据缺口"
+    }
+  ],
+  "falsification": "若日期须按 settle_date 对齐，则清单变 7 条（T033–T039）、我的 6 为错；若 T035 属口径差不得计入，则 260.00/120.00；若 T039 被排除，则 5 条/120.00/260.00。另：并集仅 8，diff_count>8 在算术上不可能。",
+  "reads": [
+    {"path": "runs/round25/prompts/EX-01.md", "purpose": "本席职责、读取域与硬性字段"},
+    {"path": "runs/round25/prompts/EX-02.md", "purpose": "同轮模板，确认视角分化边界"},
+    {"path": "runs/round25/prompts/EX-03.md", "purpose": "同轮模板，确认视角分化边界"},
+    {"path": "fixtures/tasks/T-05/TASK.md", "purpose": "取 A/B/C/D 字段定义与四易错点"},
+    {"path": "fixtures/tasks/T-05/ledger.csv", "purpose": "逐行复算 7 行单号/日期/股数/amount/fee_total"},
+    {"path": "fixtures/tasks/T-05/bill.csv", "purpose": "逐行复算 8 行两个日期列、费用三拆与单侧行"},
+    {"path": "protocol/02-辩论协议.md", "purpose": "确认 dissent 三字段与证据制聚合"},
+    {"path": "protocol/07-轮次与指标.md", "purpose": "查 ADJ-001/DIFFSET 取值域与语义冲突判据"},
+    {"path": "protocol/03-结构审计七查.md", "purpose": "查外部钩子与读取域判定"},
+    {"path": "protocol/06-写入域与判据分层.md", "purpose": "确认 diff_count 等属判断层"},
+    {"path": "protocol/（目录列举，得 01–07；01/04/05 未展开）", "purpose": "确认协议文件清单"},
+    {"path": "runs/round25/inputs/pack-ANON-A.json", "purpose": "读其结论与证据供质询"},
+    {"path": "runs/round25/inputs/pack-ANON-B.json", "purpose": "读其结论与证据供质询"},
+    {"path": "runs/round25/inputs/pack-ANON-C.json", "purpose": "读其结论与证据供质询"}
+  ],
+  "dissent": [
+    {
+      "against": "ANON-A｜反论「settle_date 对齐则 diff_count 应为 11」",
+      "reason": "并集仅 8 个单号，diff 必为子集，上界 8；我 Decimal 实算 trade 对齐 6 条、settle 对齐 7 条（T040 的 09-15 等于 settle_date，转无差异），无单一口径可得 11。",
+      "reverse_evidence": "若并集>8，或 diff 可按行计（bill 仅 8 行，仍不足 11），则撤销。"
+    },
+    {
+      "against": "ANON-A｜evidence 第 2 条把 T035 的 ledger.fee_total 写作 6.50",
+      "reason": "ledger.csv#T035 实为 11.70，6.50 属 T036/T037；差 0.03 结论虽对，指针数值不可回读。",
+      "reverse_evidence": "若该行确为 6.50，则我误读。"
+    },
+    {
+      "against": "ANON-B｜「settle 对齐下 diff_count 应为 8」",
+      "reason": "实算 7。settle 对齐时 T040 转无差异，故不是 6 加 T033/T034 的 8；8 需逐记录混用对齐列，不构成单一常量。",
+      "reverse_evidence": "若允许逐记录自选对齐列，则 8 成立、我的 7 不成立。"
+    },
+    {
+      "against": "ANON-C｜excluded_categories=[]",
+      "reason": "它已把费用/股数/日期分成独立类别，却称未排除任何类别；按 C 条登记它们不改变 0.00，但不登记会丢掉「三类不进金额合计」的归类事实。",
+      "reverse_evidence": "若判分只登记差额非零的排除类，则 [] 正确。"
+    }
+  ],
+  "confidence": "high",
+  "needs_more_data": [
+    "【缺规则】「日期」列未规定对 trade_date 还是 settle_date：两种对齐得 6 与 7，均在选项空间内，契约无法唯一确定",
+    "【缺规则】excluded_amount_total「取差额」未定符号，T035 为 −120.00，是否 abs 无依据",
+    "【缺规则】股息入账是否属「成交」范畴未定义",
+    "【缺数据】无持仓流水：T038 记 30 股与 note「10送3」的 300 股不符，无法判断哪列错",
+    "【缺数据】无分红公告与税率，T039 的 260.00 税前/税后不可判"
+  ],
+  "stance": [
+    {"axis": "ADJ-001", "choice": "count"},
+    {"axis": "DIFFSET", "choice": "6"}
+  ],
+  "summary": {
+    "ledger_rows": 7,
+    "bill_rows": 8,
+    "ledger_total": 181800.00,
+    "bill_total": 182180.00,
+    "raw_total_gap": 380.00,
+    "dedup_removed_txn_count": 0,
+    "dedup_amount": 0.00,
+    "diff_count": 6,
+    "amount_diff_total": 380.00,
+    "excluded_amount_total": 0.00,
+    "excluded_categories": ["费用差异", "股数差异", "日期口径差异"]
+  },
+  "diffs": [
+    {"id": "T035", "category": "成交价差异"},
+    {"id": "T036", "category": "费用差异"},
+    {"id": "T037", "category": "费用差异"},
+    {"id": "T038", "category": "股数差异"},
+    {"id": "T039", "category": "单侧缺失"},
+    {"id": "T040", "category": "日期口径差异"}
+  ],
+  "categories": {
+    "成交价差异": ["T035"],
+    "费用差异": ["T036", "T037"],
+    "股数差异": ["T038"],
+    "单侧缺失": ["T039"],
+    "日期口径差异": ["T040"]
+  },
+  "usage": {"tokens": 16000, "minutes": 9, "source": "self_report"}
+}

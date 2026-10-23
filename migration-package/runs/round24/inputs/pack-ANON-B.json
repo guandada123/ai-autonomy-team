@@ -1,0 +1,106 @@
+{
+  "conclusion": "六条差异：T027 金额差 120.00（含费用差 0.03）；T028/T029/T031 为交割单单侧存在，合计 26520.00；T030（送转股数 0→30）与 T032（入账日=交割日、成交日早 1 日）差额均为 0.00。故 amount_diff_total=26640.00 与 raw_total_gap 完全闭合，excluded_amount_total=0.00；无重复单号。",
+  "evidence": [
+    {
+      "pointer": "ledger.csv:3（T027 amount=45000.00,fee_total=11.70）对照 bill.csv:4（T027 amount=45120.00,fee_total=11.73）",
+      "what_it_shows": "自记账按委托价 45.00 记账、交割单为实际成交价 45.12，金额差额 120.00，费用差 0.03"
+    },
+    {
+      "pointer": "bill.csv:9（T032 trade_date=2026-09-15,settle_date=2026-09-16）对照 ledger.csv:6（T032 date=2026-09-16）",
+      "what_it_shows": "自记账日期等于交割日、早于成交日 1 日，属入账日口径差；两侧 amount 均 13800.00，差额 0.00",
+      "note": "非跨月，全表日期均在 2026-09"
+    },
+    {
+      "pointer": "bill.csv:7（T030 shares=30,amount=0.00）对照 ledger.csv:5（T030 shares=0,amount=0.00,note=10送3未更新持仓）",
+      "what_it_shows": "送转导致股数差 30 股，但两侧金额均为 0.00，对金额差异贡献 0.00"
+    },
+    {
+      "pointer": "bill.csv:5,6,8（T028 26000.00 / T029 260.00 / T031 260.00）在 ledger.csv 中无同名 txn_id",
+      "what_it_shows": "交割单单侧 3 笔，合计 26520.00，按契约差额取该侧 amount"
+    },
+    {
+      "pointer": "两份 CSV 的 txn_id 逐行计数（ledger 5 行、bill 8 行）",
+      "what_it_shows": "无任何 txn_id 出现≥2 次，dedup_removed_txn_count=0、dedup_amount=0.00；T028 与 T026 虽同为 500 股@52.00 但单号不同、side 为「中签买入」，不得并作重复"
+    }
+  ],
+  "falsification": "若 bill.csv 的 T032 存在 trade_date≠settle_date 之外的第二处日期偏移，或 T030 的 amount 非 0，则「口径差对金额零贡献」不成立；若存在任一 txn_id 在单侧重复出现，则 dedup_removed_txn_count 与 dedup_amount 应大于 0；若 ledger 或 bill 的 amount 列含金额以外的净额字段（如含费金额），则 amount_diff_total 的逐项差额需重算。",
+  "reads": [
+    {
+      "path": "[deny-domain path redacted]prompts/ANON-B.md",
+      "purpose": "读取席位任务、读取域、字段契约与 stance 选项空间"
+    },
+    {
+      "path": "fixtures/tasks/T-04/TASK.md",
+      "purpose": "确认 summary 各字段的计算定义与四个易错点"
+    },
+    {
+      "path": "fixtures/tasks/T-04/ledger.csv",
+      "purpose": "逐行读取 5 条自记账记录，取 date/code/shares/amount/fee_total"
+    },
+    {
+      "path": "fixtures/tasks/T-04/bill.csv",
+      "purpose": "逐行读取 8 条交割单记录，取 trade_date/settle_date/shares/amount/fee_total"
+    },
+    {
+      "path": "protocol/03-结构审计七查.md",
+      "purpose": "核对第 2/4/9 查对证据指针、分歧留存与读取域的要求"
+    },
+    {
+      "path": "protocol/05-工作协议.md",
+      "purpose": "核对 Decimal 金额纪律与「关键数字由脚本取数」铁律"
+    }
+  ],
+  "dissent": [
+    {
+      "against": "ANON-A",
+      "reason": "若其主张把 T028 视作 T026 的分批成交并计入 dedup（则 dedup_removed_txn_count=1、dedup_amount=26000.00），与契约「同一 txn_id 在一侧出现多次即为重复」不符：两行 txn_id 分别为 T026/T028，且 T028 的 side=「中签买入」、note 明示「新股中签，自记账无」，属独立业务事件而非同单拆分。",
+      "reverse_evidence": "若 T028 的 txn_id 实为 T026，或其 note 指向 T026 的分批成交，则重复成立、金额 26000.00 应移出差异清单。"
+    },
+    {
+      "against": "ANON-B",
+      "reason": "若其按「30 股×价格」把 T030 送转折算成金额差异计入 amount_diff_total，则违反契约「金额一律取 CSV 原始值、不做含税/净额换算」与「差额取 amount 列」：T030 两侧 amount 均为 0.00，折算值在原始数据中不存在，属引入外部推断。",
+      "reverse_evidence": "若 bill.csv 的 T030 amount 非 0（例如送转同时派现），或 note 含现金对价，则该笔应计入金额差异。"
+    },
+    {
+      "against": "ANON-C",
+      "reason": "把 T032 判为「跨月/跨期」差异并单列一类，缺乏数据支撑：两文件全部日期落在 2026-09-03 至 2026-09-16，无任何跨月记录；该笔只是成交日与入账日相差 1 日。",
+      "reverse_evidence": "若存在 trade_date 与 date 分属两个自然月的单号，则跨月类应独立成立。"
+    }
+  ],
+  "confidence": "high",
+  "needs_more_data": [
+    "T030 送转后的持仓股数与成本价：仅凭两份 CSV 无法判断「未更新持仓股数」是否已在后续交易中传导为股数错配，当前标记为口径差而非交易差错属推断",
+    "交割单未提供资金流水（现金流口径），T029/T031 两笔股息 260.00 是否已实际到账无法从本数据集核验"
+  ],
+  "stance": [
+    {
+      "axis": "ADJ-001",
+      "choice": "exclude"
+    },
+    {
+      "axis": "DIFFSET",
+      "choice": "6"
+    }
+  ],
+  "summary": {
+    "ledger_rows": 5,
+    "bill_rows": 8,
+    "ledger_total": "252800.00",
+    "bill_total": "279440.00",
+    "raw_total_gap": "26640.00",
+    "dedup_removed_txn_count": 0,
+    "dedup_amount": "0.00",
+    "diff_count": 6,
+    "amount_diff_total": "26640.00",
+    "excluded_amount_total": "0.00",
+    "excluded_categories": [
+      "股数不符(送转)",
+      "日期口径差"
+    ]
+  },
+  "usage": {
+    "tokens": 14000,
+    "minutes": 9,
+    "source": "self_report"
+  }
+}

@@ -1,0 +1,153 @@
+{
+  "seat": "EX-03",
+  "round": 5,
+  "conclusion": "T-01：ledger 5 行合计 114800.00，bill 8 行合计 141440.00，raw_total_gap 26640.00；两侧均无重复单号，dedup=0。按股数/金额/费用/日期四列判定差异单号 6 个：T003 价格口径差、T004 中签买入仅单侧，二者计 26120.00；T005/T007 股息、T006 送转股数差、T008 交割日入账时点差归入不计入类，计 520.00。两桶之和恰等于 raw_total_gap，可作落盘前硬自洽校验。",
+  "execution_path": [
+    "Step1 csv.DictReader + utf-8 读两份 CSV",
+    "Step2 金额一律 Decimal(str)，不做 float",
+    "Step3 按 txn_id 聚合，重复检测 → 0",
+    "Step4 四列比对（shares/amount/fee_total/日期 vs trade_date），单侧直接记差异",
+    "Step5 类别常量定义，diffs 与 categories 双向自洽",
+    "Step6 硬校验 amount_diff_total + excluded_amount_total == raw_total_gap",
+    "Step7 写前备份到 _trash/<ts>/，LF 落盘"
+  ],
+  "op_grade": "🟡",
+  "summary": {
+    "ledger_rows": 5,
+    "bill_rows": 8,
+    "ledger_total": 114800.0,
+    "bill_total": 141440.0,
+    "raw_total_gap": 26640.0,
+    "dedup_removed_txn_count": 0,
+    "dedup_amount": 0.0,
+    "diff_count": 6,
+    "amount_diff_total": 26120.0,
+    "excluded_amount_total": 520.0,
+    "excluded_categories": [
+      "非交易现金流入（股息未入账）",
+      "权益变动股数差（送转未更新）",
+      "入账时点差（按交割日入账）"
+    ]
+  },
+  "diffs": [
+    {
+      "id": "T003",
+      "category": "价格口径差（按委托价记账）"
+    },
+    {
+      "id": "T004",
+      "category": "单侧缺失（自记账未记中签买入）"
+    },
+    {
+      "id": "T005",
+      "category": "非交易现金流入（股息未入账）"
+    },
+    {
+      "id": "T006",
+      "category": "权益变动股数差（送转未更新）"
+    },
+    {
+      "id": "T007",
+      "category": "非交易现金流入（股息未入账）"
+    },
+    {
+      "id": "T008",
+      "category": "入账时点差（按交割日入账）"
+    }
+  ],
+  "categories": {
+    "价格口径差（按委托价记账）": [
+      "T003"
+    ],
+    "单侧缺失（自记账未记中签买入）": [
+      "T004"
+    ],
+    "非交易现金流入（股息未入账）": [
+      "T005",
+      "T007"
+    ],
+    "权益变动股数差（送转未更新）": [
+      "T006"
+    ],
+    "入账时点差（按交割日入账）": [
+      "T008"
+    ]
+  },
+  "evidence": [
+    {
+      "pointer": "fixtures/tasks/T-01/ledger.csv:2-6#txn_id,amount,fee_total,note",
+      "what_it_shows": "5 行合计 114800.00；T003 45000.00/11.70（委托价）；T006 shares=0；T008 date=09-18。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-01/bill.csv:2-9#txn_id,side,amount,fee_total",
+      "what_it_shows": "8 行合计 141440.00；T004 26000.00、T005/T007 各 260.00 仅交割单侧存在。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-01/bill.csv:4,9#price,amount,fee_total,trade_date,settle_date",
+      "what_it_shows": "T003 45.12/45120.00/11.73 对 45.00/45000.00/11.70，差 120.00 与 0.03；T008 09-17/09-18 与 ledger 09-18 仅日期列差。"
+    },
+    {
+      "pointer": "protocol/07-轮次与指标.md:79-104#ADJ-001,DIFFSET",
+      "what_it_shows": "立场由 summary 机械反推，DIFFSET 必须落在 {4,5,6,7}。"
+    }
+  ],
+  "falsification": "①日期列应比对 settle_date → diff_count=8 越出选项空间，本立场作废；②股息/送转/时点差全额计入 → amount_diff_total=26640.00、excluded=0，ADJ-001 翻为 count；③出现同单号同侧多行 → dedup=0 与金额字段整体重算。",
+  "reads": [
+    {
+      "path": "runs/round5/prompts/EX-03.md",
+      "purpose": "职责/读取域/硬性字段"
+    },
+    {
+      "path": "fixtures/tasks/T-01/TASK.md",
+      "purpose": "字段计算定义与四列口径"
+    },
+    {
+      "path": "fixtures/tasks/T-01/ledger.csv",
+      "purpose": "自记账逐行取数"
+    },
+    {
+      "path": "fixtures/tasks/T-01/bill.csv",
+      "purpose": "交割单逐行取数"
+    },
+    {
+      "path": "protocol/02-辩论协议.md",
+      "purpose": "输出契约"
+    },
+    {
+      "path": "protocol/07-轮次与指标.md",
+      "purpose": "stance 轴取值域"
+    }
+  ],
+  "dissent": [
+    {
+      "against": "ANON-A",
+      "reason": "若主张凡单侧或金额不同一律计入（合计 26640/排除 0），归因退化为搬运 raw_total_gap；T005/T007 side=股息入账、shares=0，是现金分红而非成交，混入会污染口径。",
+      "reverse_evidence": "若交割单把股息也列作成交金额（amount 语义含非交易现金），则应计入。"
+    },
+    {
+      "against": "ANON-B",
+      "reason": "若以 settle_date 对齐，T001/T002 成日期差异，diff_count=8 越出选项空间，与夹具设计不相容。",
+      "reverse_evidence": "TASK.md 明示自记账按入账日、T008 note 自证按交割日入账是异常个案，基准应为 trade_date。"
+    }
+  ],
+  "confidence": "high",
+  "needs_more_data": [
+    "ledger.date 对齐基准任务未显式规定（用 TASK.md 与 T008 note 反推）",
+    "股息/送转/时点差是否计入金额属判断层，建议人工闸门确认"
+  ],
+  "stance": [
+    {
+      "axis": "ADJ-001",
+      "choice": "exclude"
+    },
+    {
+      "axis": "DIFFSET",
+      "choice": "6"
+    }
+  ],
+  "usage": {
+    "tokens": 26000,
+    "minutes": 9,
+    "source": "self_report"
+  }
+}

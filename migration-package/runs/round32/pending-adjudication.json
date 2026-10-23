@@ -1,0 +1,163 @@
+{
+  "task_id": "TASK-BROKER-015",
+  "verdict": "pending_adjudication",
+  "judge": "JD-01",
+  "judge_impl": "scripts/judge/verify.py (non-LLM, stdlib-only)",
+  "spec_layer": "all",
+  "summary": {
+    "total": 10,
+    "passed": 10,
+    "failed": 0,
+    "pending": 2
+  },
+  "checks": [
+    {
+      "name": "自记账行数",
+      "type": "numeric_equals",
+      "ok": true,
+      "expected": "7",
+      "actual": "实际 7 vs 期望 7",
+      "weight": 1
+    },
+    {
+      "name": "交割单原始行数",
+      "type": "numeric_equals",
+      "ok": true,
+      "expected": "8",
+      "actual": "实际 8 vs 期望 8",
+      "weight": 1
+    },
+    {
+      "name": "去重笔数",
+      "type": "numeric_equals",
+      "ok": true,
+      "expected": "0",
+      "actual": "实际 0 vs 期望 0",
+      "weight": 1
+    },
+    {
+      "name": "去重金额",
+      "type": "decimal_equals",
+      "ok": true,
+      "expected": "0.0",
+      "actual": "实际 0.00 vs 期望 0.00（Decimal 精确相等，scale=2）",
+      "weight": 1
+    },
+    {
+      "name": "自记账合计",
+      "type": "decimal_equals",
+      "ok": true,
+      "expected": "299400.0",
+      "actual": "实际 299400.00 vs 期望 299400.00（Decimal 精确相等，scale=2）",
+      "weight": 1
+    },
+    {
+      "name": "交割单合计",
+      "type": "decimal_equals",
+      "ok": true,
+      "expected": "299780.0",
+      "actual": "实际 299780.00 vs 期望 299780.00（Decimal 精确相等，scale=2）",
+      "weight": 1
+    },
+    {
+      "name": "总额差",
+      "type": "decimal_equals",
+      "ok": true,
+      "expected": "380.0",
+      "actual": "实际 380.00 vs 期望 380.00（Decimal 精确相等，scale=2）",
+      "weight": 1
+    },
+    {
+      "name": "必须声明排除类别",
+      "type": "present",
+      "ok": true,
+      "expected": "",
+      "actual": "存在且非空: [\"费用口径差\", \"股数口径差\", \"日期口径差\", \"单侧缺失·非交易权益项\"]",
+      "weight": 1
+    },
+    {
+      "name": "必须给出类别归属",
+      "type": "present",
+      "ok": true,
+      "expected": "",
+      "actual": "存在且非空: {\"成交金额差异\": [\"T115\"], \"费用口径差\": [\"T116\", \"T117\"], \"股数口径差\": [\"T118\"], \"日期口径差\": [\"T120\"], \"单侧缺失·非交易权益项\": [\"T119\"]}",
+      "weight": 1
+    },
+    {
+      "name": "必须给出证伪条件",
+      "type": "present",
+      "ok": true,
+      "expected": "",
+      "actual": "存在且非空: 本结论在以下任一条件成立时为错：(1) 若「日期」的比对基准应取 bill.settle_date 而非 trade_date，则 T113(09-03 vs 09-04)、T114(09-05 vs 09-06) 进入差异而 T120(0…",
+      "weight": 1
+    }
+  ],
+  "pending": [
+    {
+      "id": "ADJ-001",
+      "question": "交易费用（佣金 + 印花税 + 过户费）是否计入「成本差异」金额？",
+      "paths_affected": [
+        "summary.amount_diff_total",
+        "summary.excluded_amount_total"
+      ],
+      "options": [
+        {
+          "id": "count",
+          "label": "计入成本差异（费用算作真实成本）"
+        },
+        {
+          "id": "exclude",
+          "label": "不计入（费用视为已解释的结算口径差异）"
+        }
+      ]
+    },
+    {
+      "id": "ADJ-002",
+      "question": "差异清单（`summary.diff_count` 与 `diffs`）应包含哪些条目？由一个选项同时决定：(a)「equity」类（2 条）是否列入；(b)「settle_day」类（1 条）是否列入。",
+      "paths_affected": [
+        "summary.diff_count",
+        "diffs"
+      ],
+      "options": [
+        {
+          "id": "6",
+          "label": "两类都列入（equity + settle_day）"
+        },
+        {
+          "id": "5",
+          "label": "只列入 equity 类"
+        },
+        {
+          "id": "4",
+          "label": "只列入 settle_day 类"
+        },
+        {
+          "id": "3",
+          "label": "两类都不列入"
+        }
+      ]
+    }
+  ],
+  "adjudication_source": "none",
+  "carries_undeclared_judgment": false,
+  "evidence": [
+    {
+      "label": "answer",
+      "path": "runs/round32/answer-final.json",
+      "sha256": "a08967e3bd55cf547a6ba4b1c73386e0148cbeb221ed16e766a2a15de8c04856"
+    },
+    {
+      "label": "spec_arithmetic",
+      "path": "fixtures/tasks/T-15/spec/arithmetic.json",
+      "sha256": "8e61d0636210c0d12e7d1ad743f312462f9253b6561d7cb16c2278957e3b8063"
+    },
+    {
+      "label": "spec_adjudication",
+      "path": "fixtures/tasks/T-15/spec/adjudication.json",
+      "sha256": "ff5a9d53e44b0f1584c9b295574bae0e57d1b595cd285faa3fb0301eeed0fa2a"
+    }
+  ],
+  "ts": "2026-10-20T21:27:48+08:00",
+  "override_policy": "本裁决不可被静默覆盖。PM 若要推进 fail 的动作，必须留痕：「覆盖 JD-01 的 fail 判定。风险评级：__。不可逆：__。理由：__。承担人：PM-01。」",
+  "adjudication_provenance": []
+}

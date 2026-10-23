@@ -1,0 +1,271 @@
+{
+  "_note": "辩论协议参数。来源：docs/protocol/02-辩论协议.md。本文件是唯一参数源，各席位模板不得覆盖。",
+  "version": "1.0",
+  "updated": "2026-10-16",
+  "debate": {
+    "max_rounds": 3,
+    "statements_per_seat_per_round": 1,
+    "cross_exam_per_seat_per_round": 1,
+    "_presentation_moved": "呈现三控（匿名/乱序/长度预算）已提升为顶层 presentation 节，含操作化定义与诚实边界",
+    "mandatory_dissent_per_seat_per_round": 1,
+    "termination_conditions": [
+      "hard_judge_pass",
+      "rounds_exhausted",
+      "zero_marginal_information_gain",
+      "budget_exhausted"
+    ]
+  },
+  "anti_sycophancy": {
+    "flip_rate_alert_threshold": 0.0,
+    "flip_rate_action": "restart_round",
+    "flip_rate_denominator": "comparable_seat_axis_pairs",
+    "_flip_rate_note": [
+      "分母取「可比对的 (席位 × 轴) 对」，不是席位数、也不是轴数。",
+      "取席位数 → 全程弃权的席位会被算成「稳定」或「翻边」，两种都是假的；",
+      "取轴数   → 一席改变即整轴翻边，随席位数增加饱和到 1；",
+      "取 pair   → 唯一同时满足「弃权不惩罚」「多轴不等权」的取法。",
+      "D（可比对对数）= 0 时 flip_rate 记 null，绝不当 0。D < 2 时标 low_confidence。"
+    ],
+    "dissent_entropy_floor": {
+      "value": 0.1,
+      "trigger": "unanimous_conclusion_without_independent_evidence",
+      "action": "force_devils_advocate_round",
+      "independent_evidence_required": true,
+      "_limitation": [
+        "★ 必须如实标注的局限（F15 合并轴之后已改写，旧文『当前所有轴都是 2 选项』已成假话）：",
+        "ADJ-001 是 2 选项轴，DIFFSET 是 4 选项轴 —— 两轴不同构。",
+        "S=3 时「1 票异议 + 2 票多数」的 H_norm：K=2 上 = 0.918，K=4 上 = 0.459。",
+        "故下限取 0.10 时，两个轴上的任何非全一致都不会触发；下限在 3 席规模下的实际含义",
+        "仍是「一致性探测器」。若要让它具备分辨力，下限不得低于 0.459（K=4 轴上 2:1:0:0）。",
+        "取 0.10 的唯一理由是留给更大席位数（S≥5）与更细分歧的余量，不是因为 0.10 有区分度。",
+        "不得让这个下限看起来比它实际更精细。"
+      ],
+      "_independent_evidence_boundary": [
+        "★ F6 修复后的定义式（脚本实现，见 metrics.py）：",
+        "  文件集合 f(s) = 席位 s 全部证据指针归一化到【文件级】后的集合",
+        "  引用计数 c(f) = |{ s ∈ 合规辩论席位 : f ∈ f(s) }|",
+        "  席位 s 独立 := ∃f ∈ f(s), c(f) == 1；本轮有独立证据 := ∃s : s 独立",
+        "为什么把粒度从「指针整串」提到「文件级」：旧实现用 sha256(整串) 去重，",
+        "  实测 round2 三席都指向 fixtures/ledger.csv 却因写法不同（#T104,T105 vs :26-27）",
+        "  被判为互不共享，shared_pointer_count=0、三席全评「独立」—— 判据退化成「字符串是否相同」。",
+        "★ 诚实边界（不可删）：本判据是独立性的【下界】。文件级相同即视为共享，",
+        "  即使两席引用的是同一文件的不同部分。不做记录级聚类 —— 会制造假精度。",
+        "  脚本仍无法验证证据的实质内容是否真的独立。",
+        "★ 两类错误代价不对称（取粗粒度的理由）：多触发魔鬼代言人轮 = 多花一轮 token（干预）；",
+        "  漏触发 = 共享盲区被当成已验证的真相放行（污染）。故宁可粗。"
+      ]
+    },
+    "idle_detection": {
+      "consecutive_rounds_without_new_evidence": 2,
+      "action": "terminate_branch",
+      "_scope": "★ 仅对 round_role=evidence_round 生效。revision_round 与 devils_advocate_round 按定义就是零新证据，套用会自证终止。"
+    }
+  },
+  "round_roles": {
+    "evidence_round": {
+      "introduces_new_evidence": true,
+      "idle_detection_applies": true,
+      "zero_marginal_gain_applies": true,
+      "success_criteria": "新证据指针数 > 0"
+    },
+    "revision_round": {
+      "introduces_new_evidence": false,
+      "idle_detection_applies": false,
+      "zero_marginal_gain_applies": false,
+      "success_criteria": "立场变动（翻边/守恒）+ 新反对边",
+      "_new_information_unit": "反对边三元组 (axis_id, target_stance, direction)，未见于此前者计一条；喂 dissent_entropy，不喂证据计数器"
+    },
+    "devils_advocate_round": {
+      "introduces_new_evidence": false,
+      "idle_detection_applies": false,
+      "zero_marginal_gain_applies": false,
+      "success_criteria": "少数立场被物化为完整产出",
+      "_note": "不计入 debate.max_rounds —— 它是干预，不是辩论轮"
+    }
+  },
+  "seat_contract": {
+    "contract_version": "2.0",
+    "_contract_version_note": [
+      "★ 契约版本【随轮次】，不随工具。seat_check 读该轮 round-manifest.json 的",
+      "  contract_version 来决定 reads[] 与读取域越界是硬字段还是软字段。",
+      "  v2.0：reads[] 为硬字段；读取域 deny 命中 → E_READ_DOMAIN_VIOLATION（挡在聚合外）。",
+      "  v1.0 或缺 manifest：reads[] 仅告警；deny 命中 → W_READ_DOMAIN_VIOLATION（不阻塞）。",
+      "为什么必须按轮次：若用全局版本，重跑 runs/round2 会把它的 4/4 合规打成 0/4",
+      "（该轮产出早于契约），从而摧毁「round2 可作第 3 轮合规基线、D>0」这一 F7 核心结论。"
+    ],
+    "required_fields": [
+      "seat",
+      "round",
+      "conclusion",
+      "evidence",
+      "falsification"
+    ],
+    "_required_note": [
+      "这三项为硬闸门，缺失即判席位产出不合格、不得进入聚合：",
+      "  conclusion —— 一句话结论（非空字符串）",
+      "  evidence   —— ≥1 项，每项含 pointer 与非空 what_it_shows（外部钩子，结构审计第 2 查）",
+      "  falsification —— 非空字符串（02-辩论协议已规定「缺 falsification 视为不可裁决」）",
+      "★ 契约 v2.0 追加：reads —— ≥1 项（席位实际读过的文件全集，见 reads 节）"
+    ],
+    "reads": {
+      "schema": "[{path, purpose}] 或 [\"path\"]",
+      "required_from_version": "2.0",
+      "semantics": "我【实际读过】的文件全集 —— 与 evidence 的区别是语义性的：reads = 读过什么，evidence = 用什么支撑结论。只查 evidence 会漏掉「读了真值但没写成证据」这一最需要抓的形态。",
+      "why_not_derivable": "「读过什么」是不可观测的私有状态；脚本只能校验【申报】，无法阻止未申报的读取。见 config/read_domains.json 的 _boundary。"
+    },
+    "stages": {
+      "A": {
+        "seats": [
+          "EX-01",
+          "EX-02",
+          "EX-03",
+          "XJ-01"
+        ],
+        "when": "席位产出后",
+        "gate": "aggregation_blocked → metrics 短路（exit 5）"
+      },
+      "B": {
+        "seats": [
+          "AD-01",
+          "PM-01"
+        ],
+        "when": "PM 聚合与 AD-01 审计产出后",
+        "gate": "阶段 B verdict + --verify-final（产物验收门）"
+      },
+      "_why_two_stages": "★ F10：原实现只跑一次校验，跑在 AD-01/PM-01 产出之前 → 这两个席位从未被契约校验过。这不是配置疏漏，是时序缺陷。",
+      "_why_not_aggregation_blocked": "AD-01/PM-01 不得进入 aggregation_blocked —— 它是「聚合【输入】门」，metrics 消费它并短路（exit 5）；而这两席的产出晚于 metrics，放进去会误触发短路（域不对）。"
+    },
+    "pm_required_fields": [
+      "round",
+      "board",
+      "decision",
+      "alternatives_rejected",
+      "risk",
+      "diff_preserved",
+      "self_doubt",
+      "next"
+    ],
+    "_pm_required_note": [
+      "★ PM-01 用【自有字段】校验，不套 base 契约：实测 runs/round2/PM-01.json 没有",
+      "  seat 字段（它的产物就是聚合本身，不是聚合的输入），套 base 契约必然误判。",
+      "★ 闸门位置：PM 的 schema 门落在 --verify-final（【产物】验收门），不落在",
+      "  aggregation_blocked（【输入】门）。同一份校验换个落点，就从死锁变成控制：",
+      "  不合格 = 本轮不验收 = PM（主会话）重做聚合，是返工不是死锁。",
+      "★ 严重度同样按 contract_version 门控（v>=2.0 硬 / v<2.0 仅告警）。"
+    ],
+    "warning_fields": [
+      "confidence",
+      "dissent",
+      "needs_more_data",
+      "stance"
+    ],
+    "_warning_note": "dissent 只作 warning，不阻塞 —— 若设硬闸门会让 round1 三个席位全灭；改由 AD-01 第 4 查据此 HOLD。",
+    "stance_exempt_seats": [
+      "AD-01",
+      "PM-01",
+      "XJ-01"
+    ],
+    "_stance_exempt_note": "审计不得持立场；PM 只拍板不改写；评委决策权重为 0 不得表态。",
+    "stance": {
+      "axes_source": "fixtures/spec/adjudication.json",
+      "abstain_allowed": true,
+      "primary_axes": [
+        "ADJ-001"
+      ],
+      "joint_axes": {
+        "DIFFSET": [
+          "ADJ-002"
+        ]
+      },
+      "_joint_note": "★ F15 修复后 DIFFSET 已不是「两轴被迫合并」的联合坐标，而是【一个裁决项（ADJ-002）、两个判断点（跨月 T106 / 口径差 T104/T105）、四个组合（7/6/5/4）】。ADJ-003 已退役。保留 joint_axes 这个单元素映射，纯粹是为了不让轴名从 DIFFSET 漂走 —— metrics/templates/夹具全部按 DIFFSET 取值。选项 id 由定义式生成（见 make_fixtures.emit_layered_specs 的 _diffs），不得手写。",
+      "declared_vs_derived_mismatch": "warning（W_STANCE_MISMATCH），不是 error —— 它本身是最有价值的信号"
+    }
+  },
+  "read_domain": {
+    "config": "config/read_domains.json",
+    "check_output": "<round-dir>/read-domain-check.json",
+    "verdicts": [
+      "CLEAN",
+      "HIT",
+      "NO_DECLARATION"
+    ],
+    "action": "verdict == HIT ⇒ 结构审计第 9 查 HOLD",
+    "_severity_by_version": "v>=2.0 → deny 命中为 E_READ_DOMAIN_VIOLATION（error）；v<2.0 → W_READ_DOMAIN_VIOLATION（warning，仅告警）。无论严重度如何，越界事实都进 read-domain-check.json，第 9 查照样记 HIT。",
+    "_boundary": "★ 与写入域的检测强度天然不对称：写入改变文件（快照比对抓得住），读取不改变任何东西（唯一抓手是席位【申报了什么】与【把什么当成了证据】）。故 CLEAN 是下界，不是证明。物理隔离只能在目标机用文件权限实现（见 06 文档第三节）；Windows 开发机做不到。"
+  },
+  "presentation": {
+    "anonymized": true,
+    "order_randomized": true,
+    "length_normalized": true,
+    "_length_normalized_definition": [
+      "★ 本场景的「长度归一化」不是「等长化」，而是两件事：",
+      "  ① 提交时字段长度预算（见 max_chars_per_field），超限 → W_OVER_LENGTH",
+      "  ② 轮后诊断 length_spread {min,max,stdev}",
+      "真·等长化在本场景不可实现且不该实现：纯标准库做不了同义压缩；",
+      "截断到最短席位长度会按篇幅惩罚论证更充分的席位（奖励写得少的人），是反向偏置。"
+    ],
+    "_anonymization_boundary": "脚本能删身份标签，删不掉文风指纹。匿名化降低的是「显式身份驱动」谄媚，不是「文风驱动」谄媚。",
+    "max_chars_per_field": {
+      "conclusion": 200,
+      "evidence": 400,
+      "dissent": 800
+    },
+    "random_seed": null
+  },
+  "aggregation": {
+    "rule": "hard_judge_pass > evidence_backed_minority > evidence_less_majority",
+    "majority_weight_without_evidence": 0,
+    "note": "证据制，不是投票制。人数不产生权重，证据才产生权重。"
+  },
+  "dissent_conservation": {
+    "must_preserve_both_conclusions_on_round_exhaustion": true,
+    "each_conclusion_must_carry_falsification": true,
+    "forbidden": "为收尾好看而抹平分歧"
+  },
+  "audit": {
+    "ad01_can_reject_conclusions": false,
+    "ad01_has_veto": false,
+    "ad01_actions": [
+      "PASS",
+      "HOLD",
+      "ESCALATE"
+    ],
+    "cost_score_formula": "失效代价 ≈ 反馈延迟 × 判错成本 × 不可逆性"
+  },
+  "independence_discount": {
+    "cross_family_judge_available": null,
+    "discount_note": "★目标机必须重跑 judges/inspect_agent_routing.py 后填写。若判定 FAIL，则 soft_judge_weight=0 且权重全部转移至 JD-01。",
+    "soft_judge_weight": 0,
+    "weight_transferred_to": "JD-01",
+    "verified_on": "2026-10-16",
+    "verified_result": "跨家族路由可用（子代理成功路由至 glm-5.1，智谱 GLM 家族）"
+  },
+  "cost_budget": {
+    "per_task_token_hard_cap": 80000,
+    "per_task_wall_clock_hard_cap": 30,
+    "wall_clock_unit": "minutes",
+    "action": "terminate_branch",
+    "usage": {
+      "field": "usage",
+      "schema": {
+        "tokens": "int >= 0",
+        "minutes": "number >= 0",
+        "source": "self_report | metered（缺省 self_report）"
+      },
+      "required_for_new_rounds": true,
+      "_semantics": "tokens = 本席位自身消耗；minutes = 本席位自身用时。PM-01 的 minutes 定义为【本轮 wall-clock 跨度】，故 max(全部 minutes) 即本轮跨度，而不是求和。",
+      "_boundary": "★ 全部数值为【申报值】，脚本无法验证（与 reads[] 同类）。本机制只让预算成为『可追溯的声明 + 可执行的闸门』，不能证明数字为真。不申报 = 未核验 ≠ 未超支。"
+    },
+    "_basis": "以 round2 实测为锚：单席输入 ≈1.6k（TASK 3.4KB + ledger 1.4KB + bill 1.4KB），产出 ≈1.1k token；第 2 轮每席另需读匿名同伴包（3×1.1k≈3.3k）+ 协议摘要 ≈1k。3 EX + XJ-01 + AD-01 + PM ≈ 45–60k token，wall-clock 15–30 分钟。填 80000/30 使「预算耗尽」终止条件可执行。",
+    "_note": "★目标机可按实际任务价值调整。参照实测：单 agent ≈3k token，多智能体 ≈45k–75k token（≈20×）。硬裁判 token 成本恒为 0（脚本，567ms）。★ 截至本轮仍无真实 token 计量：usage 为席位自述，故 budget.status=unverifiable 是常态，不等于超支。"
+  },
+  "hard_judge": {
+    "implementation": "judges/verify.py",
+    "is_llm": false,
+    "has_veto": true,
+    "override_requires_trace": true,
+    "override_format": "覆盖 JD-01 的 fail 判定。风险评级：__。不可逆：__。理由：__。承担人：PM-01。",
+    "numeric_checks_must_declare_tolerance": true,
+    "tolerance_note": "★实测证据：float 累加会偏离两位小数（(2500.01-2500.00)+(3210.51-3210.50)=0.020000000000436557 ≠ 0.02）。安全性当前被 tol=0.01 掩盖。目标机应改用 Decimal 或分单位整数，或把「金额检查必须带 tol」做成 spec 硬闸门。"
+  }
+}

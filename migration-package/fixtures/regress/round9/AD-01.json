@@ -1,0 +1,18 @@
+{
+  "seat": "AD-01",
+  "round": 9,
+  "evidence": [
+    {
+      "pointer": "runs/round9/metrics.json",
+      "what_it_shows": "熵为 0"
+    }
+  ],
+  "falsification": "-",
+  "reads": [
+    {
+      "path": "runs/round9/metrics.json",
+      "purpose": "-"
+    }
+  ],
+  "action": "PASS"
+}

@@ -1,0 +1,14 @@
+{
+  "id": "P-02-metric",
+  "layer": "L3-premise",
+  "question": "用来判断成败的指标是什么？基线是多少？怎么测？",
+  "field": "metric",
+  "hit_action": "hold_for_baseline",
+  "severity": "high",
+  "rules": {
+    "type": "baseline_present",
+    "required_keys": ["name", "baseline", "method"],
+    "null_means_missing": true
+  },
+  "why": "没有基线的指标不算指标。D1 价值闸门的全部内容。"
+}

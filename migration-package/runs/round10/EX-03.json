@@ -1,0 +1,149 @@
+{
+  "seat": "EX-03",
+  "round": 10,
+  "conclusion": "复算确认：ledger 5 行 120820.00、bill 8 行 147460.00、毛差 26640.00、两侧无重复单号；差异 6 条，26120.00＋520.00＝26640.00 闭合。只需只读重算与 Decimal 校验，判 🟢。stance 由 count 改 exclude：26120/520 按反推即 exclude，前轮自述不符，属纠自洽非随多数。",
+  "execution_path": [
+    "1. 只读打开 ledger.csv／bill.csv（csv.DictReader，newline=''，encoding='utf-8'），不做任何写出。",
+    "2. amount／fee_total／shares 一律 Decimal(str(x)) 解析，累加得 120820.00、147460.00、raw_total_gap 26640.00。",
+    "3. 按 txn_id 分组计数：两侧键数＝行数，dedup_removed_txn_count=0、dedup_amount=0.00。",
+    "4. 取 8 个单号并集，逐列比对 股数／成交金额／费用／日期（账 date ↔ 单 trade_date），得 T019/T020/T021/T022/T023/T024 六条。",
+    "5. 计入类取 abs 差求和＝26120.00，不计入类取差额求和＝520.00，与毛差闭合后写自身席位文件。"
+  ],
+  "cost": {
+    "token_estimate": "本席位本轮约 2.2e4 tokens（1 提示词＋3 份匿名包＋3 份 CSV＋1 份协议＋1 次 Decimal 复算脚本＋产出）；六席同量级合计约 1.3e5，低于 protocol/07 §6.1 的 per_task_token_hard_cap=160000，单席若超 2.7e4 则本轮触 cap。",
+    "wall_clock": "本席位约 12 分钟（读入 4／复算与交叉验证 4／产出与自检 4）；六席并行墙钟约 15 分钟；minutes_span 按 §6.1 取 max 而非求和。",
+    "human_touchpoints": "任务内 0 次；轮级 2 次强制人工（protocol/07 §七 第 4 步发起子代理、第 14 步人类闸门签署），均不可自动化。"
+  },
+  "rollback": "全程只读两份 CSV，不触碰共享产物，仅新增自身席位文件：先写 EX-03.json.new、json 校验通过后替换并留 .bak，一键回退；清理由 shutil.move 移入 _trash/，不调用 unlink（沙箱拦截）。按分级表：新增、可逆、影响仅本项目 → 🟢。",
+  "op_grade": "🟢",
+  "cross_platform_risks": [
+    {
+      "risk": "解释器：本机 Windows 惯用 python，目标 macOS(M4) 只有 python3",
+      "mitigation": "shebang 写 #!/usr/bin/env python3，命令统一 python3"
+    },
+    {
+      "risk": "换行／编码：CRLF 使字段尾留 \\r，GBK 默认编码使中文 name/note 乱码或抛 UnicodeDecodeError",
+      "mitigation": "open(..., newline='', encoding='utf-8')，BOM 用 utf-8-sig 兜底，输出固定 LF"
+    },
+    {
+      "risk": "浮点：float 累加出现 120819.99999999，使 26640.00 闭合校验假失败",
+      "mitigation": "全程 Decimal(str(x))，quantize 到 0.01，比较前统一标度"
+    },
+    {
+      "risk": "路径／删除：字符串拼路径跨端失效；unlink 在本机沙箱被拦截",
+      "mitigation": "统一 pathlib.Path 拼接；清理改 shutil.move 至 _trash/"
+    }
+  ],
+  "evidence": [
+    {
+      "pointer": "fixtures/tasks/T-03/ledger.csv:2-6 amount",
+      "what_it_shows": "30000+45000+45000+0+820=120820.00；5 行，单号各 1 次"
+    },
+    {
+      "pointer": "fixtures/tasks/T-03/bill.csv:2-9 amount",
+      "what_it_shows": "30000+45000+45120+26000+260+0+260+820=147460.00；8 行全唯一"
+    },
+    {
+      "pointer": "fixtures/tasks/T-03/bill.csv:4（T019）",
+      "what_it_shows": "45120 vs 45000 差 120.00；fee 11.73 vs 11.70（费用不并入）"
+    },
+    {
+      "pointer": "fixtures/tasks/T-03/bill.csv:5-9",
+      "what_it_shows": "T020 26000.00、T021/T023 各 260.00 单侧；T022 股数 30 vs 0；T024 仅日期差"
+    }
+  ],
+  "falsification": "任一成立即我错：(a) 若口径要求股息并入成交金额，则 amount_diff_total=26640.00、excluded=0.00；(b) 若日期基准改用 settle_date，差异集合为 T017/T018/T019/T020/T021/T022/T023 共 7 条、T024 出列；(c) 若 T020 中签买入被判为非交易权益事件排除，则 amount_diff_total=120.00；(d) 若任一 CSV 行数≠5/8、存在同 txn_id 多行、或 amount 合计≠120820/147460，则全部数字作废。",
+  "reads": [
+    {
+      "path": "runs/round10/prompts/EX-03.md",
+      "purpose": "读取席位职责、读取域、硬性字段与字数预算"
+    },
+    {
+      "path": "fixtures/tasks/T-03/TASK.md",
+      "purpose": "取字段计算法、去重口径与四个易错点"
+    },
+    {
+      "path": "fixtures/tasks/T-03/ledger.csv",
+      "purpose": "逐行读取 5 行，取 amount/shares/fee_total/date 复算"
+    },
+    {
+      "path": "fixtures/tasks/T-03/bill.csv",
+      "purpose": "逐行读取 8 行，取 amount/shares/fee_total/trade_date/settle_date 复算比对"
+    },
+    {
+      "path": "runs/round10/inputs/pack-ANON-A.json",
+      "purpose": "读取匿名同伴结论与立场，作为修订与反对对象"
+    },
+    {
+      "path": "runs/round10/inputs/pack-ANON-B.json",
+      "purpose": "同上，核对其 DIFFSET 论证的算术"
+    },
+    {
+      "path": "runs/round10/inputs/pack-ANON-C.json",
+      "purpose": "同上，核对其成本估算与自身立场一致性"
+    },
+    {
+      "path": "protocol/07-轮次与指标.md",
+      "purpose": "取 stance 反推规则（§4.1）、预算定义式（§6.1）、半自动流程人工点（§七）"
+    },
+    {
+      "path": "runs/round10/",
+      "purpose": "目录列举，确认可读域内文件清单"
+    }
+  ],
+  "dissent": [
+    {
+      "against": "ANON-C",
+      "reason": "其 summary 报 26120.00／520.00，按反推规则只能落 exclude，而自述 stance 填 count，二者矛盾。要么改 stance 为 exclude，要么改金额为 26640.00／0.00 并论证股息属成交金额。我取前者。",
+      "reverse_evidence": "bill.csv:6/8 的 260.00×2 是现金分红非成交；排除后 26120+520 仍与毛差 26640 精确闭合。"
+    },
+    {
+      "against": "ANON-B",
+      "reason": "其称「以交割日为参照会额外产生 3 个零金额日期差、diff_count 变 8/9」。复算：交割日参照下差异为 T017/T018/T019/T020/T021/T022/T023 共 7 条（T019 本已计入、T024 出列、新增仅 T017/T018），不是 8/9。7 仍在取值空间内，故「唯一能让 T024 出问题的参照列」论证不成立；结论 6 我同意，理由需替换。",
+      "reverse_evidence": "ledger 5 行中 4 行 date==trade_date（T017/T018/T019/T022），仅 T024 取 settle_date；叠加 TASK.md:8「按成交日列示」。"
+    },
+    {
+      "against": "ANON-C",
+      "reason": "其成本「三席 6~8e4 按 15 倍折算得 2.5e5~3e5」不可由自身定义式还原：15×6e4=9e5、15×8e4=1.2e6，差 3~5 倍；且 15 倍是多智能体对单轮对话的倍率，已内含于三席合计，二次乘用属重复计。按 §6.1 六席求和、cap=160000，该值会直接被判 exhausted。另 human_touchpoints=1 漏了轮级两次强制人工。",
+      "reverse_evidence": "protocol/07 §6.1 tokens_total=Σ全席位、cap=160000；§七 第 4 步与第 14 步均为人工。"
+    }
+  ],
+  "confidence": "high",
+  "needs_more_data": [
+    "T019 委托流水：45.00 是委托价、45.12 是成交价，现仅凭两侧备注文字。",
+    "自记账现金／权益账户是否存在，决定股息 520.00 是漏记还是本在账套范围外。",
+    "入账时点约定文档，决定 T024 的「按交割日入账」是口径差异还是错误。"
+  ],
+  "stance": [
+    {
+      "axis": "ADJ-001",
+      "choice": "exclude"
+    },
+    {
+      "axis": "DIFFSET",
+      "choice": "6"
+    }
+  ],
+  "summary": {
+    "ledger_rows": 5,
+    "bill_rows": 8,
+    "ledger_total": "120820.00",
+    "bill_total": "147460.00",
+    "raw_total_gap": "26640.00",
+    "dedup_removed_txn_count": 0,
+    "dedup_amount": "0.00",
+    "diff_count": 6,
+    "amount_diff_total": "26120.00",
+    "excluded_amount_total": "520.00",
+    "excluded_categories": [
+      "股息入账",
+      "送转股数变动",
+      "入账日与成交日口径差异"
+    ]
+  },
+  "usage": {
+    "tokens": 22000,
+    "minutes": 12,
+    "source": "self_report"
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "kind": "round_metrics",
+  "round": "round3",
+  "round_role": "revision_round",
+  "generated_at": "2026-10-19T17:19:25+08:00",
+  "metrics_status": "blocked_by_contract",
+  "seats_contract_valid": 5,
+  "seats_blocked": [
+    "AD-01"
+  ],
+  "dissent_entropy": null,
+  "flip_rate": null,
+  "evidence": null,
+  "actions": [
+    "blocked_by_contract"
+  ],
+  "exit_code": 5,
+  "notes": [
+    "存在被否决席位 → 拒绝计算指标。",
+    "理由：从被否决的产出里算翻边率，会把契约污染带进指标。",
+    "被否决席位：['AD-01']"
+  ],
+  "axis_registry_sha256": "e2ee19583d1220b43f2549cd26ae6249f61d243d71c836ff994c8903ec764393"
+}

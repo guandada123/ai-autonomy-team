@@ -1,0 +1,137 @@
+{
+  "conclusion": "T-02 共 6 条差异：T011 成交价口径差 120.00、T012 中签买入 13800.00、T013/T015 分红各 260.00、T014 股数 30 对 0 但金额差 0、T016 仅成交日口径差；差额合计 14440.00 恰等于 bill_total−ledger_total，无重复单号。",
+  "evidence": [
+    {
+      "pointer": "fixtures/tasks/T-02/ledger.csv#amount 列全表求和（5 行）",
+      "what_it_shows": "30000.00+26000.00+45000.00+0.00+13800.00=114800.00"
+    },
+    {
+      "pointer": "fixtures/tasks/T-02/bill.csv#amount 列全表求和（8 行）",
+      "what_it_shows": "129240.00；减自记账 114800.00 得原始差额 14440.00"
+    },
+    {
+      "pointer": "bill.csv#txn_id=T011 行 × ledger.csv#txn_id=T011 行",
+      "what_it_shows": "金额 45120.00 vs 45000.00（差 120.00）、费用 11.73 vs 11.70；台账 note 标「按委托价记账」"
+    },
+    {
+      "pointer": "bill.csv#txn_id∈{T012,T013,T015}",
+      "what_it_shows": "仅交割单侧存在：13800.00（中签买入 100 股）、260.00、260.00（两笔现金分红）"
+    },
+    {
+      "pointer": "bill.csv#txn_id=T014 行 × ledger.csv#txn_id=T014 行",
+      "what_it_shows": "股数 30 vs 0（送转），两侧 amount 均 0.00，金额差为 0"
+    },
+    {
+      "pointer": "ledger.csv#txn_id=T016.date 与 bill.csv#txn_id=T016.{trade_date,settle_date}",
+      "what_it_shows": "台账 2026-09-19 仅等于 settle_date 09-19，成交日 09-18；金额/股数/费用全同"
+    },
+    {
+      "pointer": "ledger.csv 与 bill.csv#txn_id 频次分布",
+      "what_it_shows": "两侧各 5/8 个单号均唯一，无同一单号多行，dedup 计数与金额均为 0"
+    }
+  ],
+  "falsification": "若同一 txn_id 在某侧重现（分批成交）则 dedup 必非 0、我判 0 即错；若逐单差额之和不等 14440.00 则清单漏项；若台账 date 的合规基准被裁定为必须对齐 trade_date 而非入账实际日，则 T016 的日期差异判定需反转（diff_count 变 5）。",
+  "reads": [
+    {
+      "path": "[deny-domain path redacted]prompts/ANON-C.md",
+      "purpose": "读取席位指令、可读域与输出契约"
+    },
+    {
+      "path": "fixtures/tasks/T-02/TASK.md",
+      "purpose": "确认字段定义、差异判定口径与四个易错点"
+    },
+    {
+      "path": "fixtures/tasks/T-02/ledger.csv",
+      "purpose": "逐行取自记账 date/shares/amount/fee_total"
+    },
+    {
+      "path": "fixtures/tasks/T-02/bill.csv",
+      "purpose": "逐行取交割单 trade_date/settle_date/shares/amount/fee_total"
+    },
+    {
+      "path": "protocol/02-辩论协议.md",
+      "purpose": "确认强制反对、reads/evidence 区分与失败归因纪律"
+    }
+  ],
+  "dissent": [
+    {
+      "against": "ANON-A",
+      "reason": "若该席主张按「同代码+同股数+同价格+同金额」的内容特征去重，会把 bill#T012（中签买入 100 股@138.00）与 bill#T016（买入 100 股@138.00）判为重复，误删 13800.00；但 TASK.md 明确「同一 txn_id 在一侧出现多次即为重复」，去重键是单号不是内容，本数据两侧单号各唯一，dedup 应为 0/0.00。误去重会同时压低 bill_total 并凭空制造第二条差异。",
+      "reverse_evidence": "若在 bill.csv 中找到任一 txn_id 出现两行以上的证据（如分批成交行），则内容去重主张成立、我的 dedup=0 结论被推翻。"
+    }
+  ],
+  "confidence": "high",
+  "needs_more_data": [],
+  "stance": [
+    {
+      "axis": "ADJ-001",
+      "choice": "count"
+    },
+    {
+      "axis": "DIFFSET",
+      "choice": "6"
+    }
+  ],
+  "summary": {
+    "ledger_rows": 5,
+    "bill_rows": 8,
+    "ledger_total": "114800.00",
+    "bill_total": "129240.00",
+    "raw_total_gap": "14440.00",
+    "dedup_removed_txn_count": 0,
+    "dedup_amount": "0.00",
+    "diff_count": 6,
+    "amount_diff_total": "14440.00",
+    "excluded_amount_total": "0.00",
+    "excluded_categories": []
+  },
+  "diffs": [
+    {
+      "id": "T011",
+      "category": "成交价口径差"
+    },
+    {
+      "id": "T012",
+      "category": "单侧缺失_新股中签"
+    },
+    {
+      "id": "T013",
+      "category": "单侧缺失_现金分红"
+    },
+    {
+      "id": "T014",
+      "category": "股数不符_送转未记账"
+    },
+    {
+      "id": "T015",
+      "category": "单侧缺失_现金分红"
+    },
+    {
+      "id": "T016",
+      "category": "日期口径差_入账日对成交日"
+    }
+  ],
+  "categories": {
+    "成交价口径差": [
+      "T011"
+    ],
+    "单侧缺失_新股中签": [
+      "T012"
+    ],
+    "单侧缺失_现金分红": [
+      "T013",
+      "T015"
+    ],
+    "股数不符_送转未记账": [
+      "T014"
+    ],
+    "日期口径差_入账日对成交日": [
+      "T016"
+    ]
+  },
+  "usage": {
+    "tokens": 21000,
+    "minutes": 8,
+    "source": "self_report"
+  }
+}

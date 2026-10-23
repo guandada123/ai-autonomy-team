@@ -1,0 +1,205 @@
+{
+  "seat": "EX-03",
+  "round": 23,
+  "conclusion": "可落地版本：以 Decimal 逐行复算 + 逐单四列比对为唯一路径，产出 6 条差异（T155/T156/T157/T158/T159/T160），amount_diff_total=380.00、dedup=0；把两处欠定义（日期取 trade_date 还是 settle_date、120.00 口径差是否计入）显式写成人工闸门，其余全部脚本判定。全流程可重跑、可回滚，操作级别 🟡。",
+  "execution_path": [
+    "1. 读入：csv.DictReader(newline='', encoding='utf-8') 读 ledger.csv(7行)/bill.csv(8行)，金额列一律 Decimal(str)",
+    "2. 算术层：求 ledger_total=281800.00、bill_total=282180.00、raw_total_gap=380.00，并与逐行累加互校（两法不等即中止）",
+    "3. 重复层：按 txn_id 计数，两侧均无 >1 → dedup_removed_txn_count=0、dedup_amount=0.00（不按行计）",
+    "4. 比对层：join txn_id，比 shares/amount/fee_total/date 四列；单侧存在者按该侧 amount 计差",
+    "5. 分类层：金额口径差(T155,120.00)/费用漏记(T156,T157)/权益变动未入账(T158,30股)/单侧缺失_现金分红(T159,260.00)/日期口径差(T160,1天)",
+    "6. 汇总层：amount_diff_total=120.00+260.00=380.00，excluded_amount_total=0.00，diff_count=diffs 长度=6（脚本断言）",
+    "7. 人工闸门：日期比较列、口径差计入口径两项须签署后再定稿；未签则输出 pending 而非最终值",
+    "8. 落盘：json.dump(ensure_ascii=False, indent=2) + LF；写前备份上一版"
+  ],
+  "cost": {
+    "token_estimate": "本席约 9.5k token；三席合计约 27.5k，占 per_task_token_hard_cap=160000 的约 17%，余量充足",
+    "wall_clock": "单席 10–15 分钟，三席串行约 40 分钟；脚本复算部分 <2 秒",
+    "human_touchpoints": "2 次（① 日期列口径裁决 ② 120.00 口径差是否计入金额差异）；每增 1 个任务号复用同一脚本，人工不增加"
+  },
+  "rollback": "写盘前把既有 answer 复制到 _prev/answer.<ts>.json（保留最近 3 版）；不使用 unlink，需清理时移动到 _trash/；脚本幂等（同输入同输出，sha256 可比对），回滚即复制回 _prev 版本并重跑第 2–6 步。",
+  "op_grade": "🟡",
+  "cross_platform_risks": [
+    {
+      "risk": "解释器路径假定（Windows py / macOS python3）",
+      "mitigation": "脚本不写 shebang 绝对路径，统一 python3 -m 调用；文档标注 macOS 用 python3"
+    },
+    {
+      "risk": "路径字符串拼接在 Windows 用反斜杠",
+      "mitigation": "一律 pathlib.Path，禁止 '+' 拼路径"
+    },
+    {
+      "risk": "csv 默认读写把 CRLF 带进字段或输出",
+      "mitigation": "open(newline='')，输出固定 LF，DictReader 不依赖行尾"
+    },
+    {
+      "risk": "Windows 默认 GBK 导致中文 name/note 乱码",
+      "mitigation": "所有 open 显式 encoding='utf-8'，json.dump 用 ensure_ascii=False"
+    },
+    {
+      "risk": "float 累加丢分（0.1+0.2 类）",
+      "mitigation": "金额全程 Decimal(str)，只在输出时转 JSON 数字"
+    },
+    {
+      "risk": "沙箱拦截 unlink 使清理步骤失败",
+      "mitigation": "改为移动到 _trash/，不做删除系统调用"
+    },
+    {
+      "risk": "依赖 bash 特有语法（<<<、[[ ]]）",
+      "mitigation": "仅用标准库，脚本内不调 shell"
+    }
+  ],
+  "evidence": [
+    {
+      "pointer": "fixtures/tasks/T-20/ledger.csv#7行(amount,fee_total,date)",
+      "what_it_shows": "合计281800.00；T156/T157 fee 19.00 vs 57.76；T158 shares 0 vs 30"
+    },
+    {
+      "pointer": "fixtures/tasks/T-20/bill.csv#8行(amount)",
+      "what_it_shows": "合计282180.00；新增T159 260.00；260+120=380.00 闭合"
+    },
+    {
+      "pointer": "fixtures/tasks/T-20/bill.csv#T155,T159",
+      "what_it_shows": "两笔即全部金额差异来源，其余4条贡献0.00"
+    },
+    {
+      "pointer": "protocol/07-轮次与指标.md#6.1",
+      "what_it_shows": "tokens 求和、minutes 取max；未申报记 missing 不记0"
+    }
+  ],
+  "diffs": [
+    {
+      "id": "T155",
+      "category": "金额口径差"
+    },
+    {
+      "id": "T156",
+      "category": "费用漏记"
+    },
+    {
+      "id": "T157",
+      "category": "费用漏记"
+    },
+    {
+      "id": "T158",
+      "category": "权益变动未入账"
+    },
+    {
+      "id": "T159",
+      "category": "单侧缺失_现金分红"
+    },
+    {
+      "id": "T160",
+      "category": "日期口径差"
+    }
+  ],
+  "categories": {
+    "金额口径差": [
+      "T155"
+    ],
+    "费用漏记": [
+      "T156",
+      "T157"
+    ],
+    "权益变动未入账": [
+      "T158"
+    ],
+    "单侧缺失_现金分红": [
+      "T159"
+    ],
+    "日期口径差": [
+      "T160"
+    ]
+  },
+  "summary": {
+    "ledger_rows": 7,
+    "bill_rows": 8,
+    "ledger_total": 281800.0,
+    "bill_total": 282180.0,
+    "raw_total_gap": 380.0,
+    "dedup_removed_txn_count": 0,
+    "dedup_amount": 0.0,
+    "diff_count": 6,
+    "amount_diff_total": 380.0,
+    "excluded_amount_total": 0.0,
+    "excluded_categories": []
+  },
+  "falsification": "若人工闸门把日期列裁为 settle_date，则 T153–T157 各新增日期差、diff_count 升至 11，第 4–6 步的清单与 diff_count 断言失效；若下游要求差异清单只允许含『有处置动作』的条目，则 T156/T157/T158/T160 应移出，diff_count 降为 2，本方案可执行性成立但交付内容需重定义。",
+  "reads": [
+    {
+      "path": "runs/round23/prompts/EX-03.md",
+      "purpose": "读取落地席位职责、操作分级与跨平台检查项"
+    },
+    {
+      "path": "runs/round23/prompts/EX-01.md",
+      "purpose": "确认事实席位要求，判断其数字能否被脚本复现"
+    },
+    {
+      "path": "runs/round23/prompts/EX-02.md",
+      "purpose": "确认对立面席位要求，评估其反对是否会改变执行步骤"
+    },
+    {
+      "path": "fixtures/tasks/T-20/TASK.md",
+      "purpose": "提取十一个 summary 字段的计算方法与易错点，转成脚本断言"
+    },
+    {
+      "path": "fixtures/tasks/T-20/ledger.csv",
+      "purpose": "实测行数、金额合计与费用列，验证脚本可解析"
+    },
+    {
+      "path": "fixtures/tasks/T-20/bill.csv",
+      "purpose": "实测 8 行与双日期列，确认 join 键与列名"
+    },
+    {
+      "path": "protocol/02-辩论协议.md",
+      "purpose": "确认终止条件与输出契约字段"
+    },
+    {
+      "path": "protocol/03-结构审计七查.md",
+      "purpose": "确认写入域与读取域九查，避免写盘越界"
+    },
+    {
+      "path": "protocol/07-轮次与指标.md",
+      "purpose": "确认预算计量式、usage 申报要求与轮次目录约定"
+    }
+  ],
+  "dissent": [
+    {
+      "against": "ANON-A",
+      "reason": "『逐字照契约即可，无需人工闸门』低估了两处欠定义的实际成本：日期列二选一会让 diff_count 在 6 与 11 之间跳变，这个分叉不是算力能消解的，必须有人签；把它当成默认值直接定稿，等于把裁决成本转嫁给下游使用者。",
+      "reverse_evidence": "若契约补充『日期取 trade_date』一句，则第 7 步闸门可删，成本降为 1 次人工，我的反对即失效。"
+    },
+    {
+      "against": "ANON-B",
+      "reason": "把口径差从金额里剔除会让 raw_total_gap(380.00) 与 amount_diff_total(260.00) 不再相等，脚本第 2 步的互校断言将无法闭合，必须额外维护一张『已解释差额』表——这在工程上是净增成本，而非更严谨。",
+      "reverse_evidence": "若『已解释差额表』本身是交付要求（对账报告常态），则多维护一张表不构成额外成本，我的成本论不成立。"
+    }
+  ],
+  "confidence": "high",
+  "needs_more_data": [
+    "缺规则：日期比较列（trade_date / settle_date）未定义，直接决定 diff_count 是 6 还是 11，脚本无法自决",
+    "缺规则：ADJ-001 口径差是否计入 amount_diff_total 无默认值，只可由人工闸门裁决",
+    "缺数据：无——两份 CSV 可完整解析，7/8 行、380.00 差额全部由脚本复现，无需外部数据"
+  ],
+  "stance": [
+    {
+      "axis": "ADJ-001",
+      "choice": "count"
+    },
+    {
+      "axis": "DIFFSET",
+      "choice": "6"
+    }
+  ],
+  "usage": {
+    "tokens": 9500,
+    "minutes": 12,
+    "source": "self_report"
+  },
+  "reads_path_normalized": {
+    "by": "orchestrator",
+    "date": "2026-10-20",
+    "count": 3,
+    "note": "目录重命名 'runs/23 T-20/' → 'runs/round23/'（编排层 zsh 分词失误，见 round-manifest.dir_rename_note）；reads 路径机械归一化，内容零改动，席位当时的申报对其物理现实完全准确"
+  }
+}

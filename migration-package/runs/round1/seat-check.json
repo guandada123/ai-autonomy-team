@@ -1,0 +1,274 @@
+{
+  "check": "seat_contract",
+  "contract_version": "1.0",
+  "round_dir": "runs/round1",
+  "round_role": "unknown",
+  "generated_at": "2026-10-16T17:36:14+08:00",
+  "params_sha256": "ea8f1c6868b3ecd88caad8e8e19f4f9a58825f2e3ebbc1fa2846f6ad4c20874d",
+  "seats_expected": [
+    "EX-01",
+    "EX-02",
+    "EX-03",
+    "AD-01"
+  ],
+  "results": [
+    {
+      "seat": "EX-01",
+      "status": "invalid",
+      "errors": [
+        {
+          "code": "E_MISSING_CONCLUSION",
+          "field": "conclusion",
+          "msg": "硬性字段缺失：conclusion"
+        },
+        {
+          "code": "E_MISSING_EVIDENCE",
+          "field": "evidence",
+          "msg": "硬性字段缺失：evidence"
+        }
+      ],
+      "warnings": [
+        {
+          "code": "W_MISSING_STANCE",
+          "field": "stance",
+          "msg": "软性字段缺失：stance"
+        },
+        {
+          "code": "W_STANCE_DERIVED_FALLBACK",
+          "field": "stance",
+          "msg": "未自述 stance，已由产出数字反推补齐"
+        }
+      ],
+      "stance_mismatches": [],
+      "derived": {
+        "evidence_pointer_count": 0,
+        "evidence_pointers": [],
+        "declared_stance": {},
+        "derived_stance": {
+          "ADJ-001": {
+            "choice": "abstain",
+            "why": "不匹配任何选项 → 弃权"
+          },
+          "DIFFSET": {
+            "choice": "abstain",
+            "why": "summary.diff_count 缺失"
+          }
+        },
+        "axes": [
+          "ADJ-001",
+          "DIFFSET"
+        ]
+      },
+      "file": "runs/round1/EX-01.json",
+      "sha256": "81df475001e3e4ec09783d689a4cc84401257e0f8a494b93149fe0a473db6c6a"
+    },
+    {
+      "seat": "EX-02",
+      "status": "invalid",
+      "errors": [
+        {
+          "code": "E_MISSING_CONCLUSION",
+          "field": "conclusion",
+          "msg": "硬性字段缺失：conclusion"
+        },
+        {
+          "code": "E_MISSING_EVIDENCE",
+          "field": "evidence",
+          "msg": "硬性字段缺失：evidence"
+        }
+      ],
+      "warnings": [
+        {
+          "code": "W_MISSING_NEEDS_MORE_DATA",
+          "field": "needs_more_data",
+          "msg": "软性字段缺失：needs_more_data"
+        },
+        {
+          "code": "W_MISSING_STANCE",
+          "field": "stance",
+          "msg": "软性字段缺失：stance"
+        },
+        {
+          "code": "W_STANCE_DERIVED_FALLBACK",
+          "field": "stance",
+          "msg": "未自述 stance，已由产出数字反推补齐"
+        }
+      ],
+      "stance_mismatches": [],
+      "derived": {
+        "evidence_pointer_count": 0,
+        "evidence_pointers": [],
+        "declared_stance": {},
+        "derived_stance": {
+          "ADJ-001": {
+            "choice": "abstain",
+            "why": "不匹配任何选项 → 弃权"
+          },
+          "DIFFSET": {
+            "choice": "abstain",
+            "why": "summary.diff_count 缺失"
+          }
+        },
+        "axes": [
+          "ADJ-001",
+          "DIFFSET"
+        ]
+      },
+      "file": "runs/round1/EX-02.json",
+      "sha256": "baf2f1c19510c3f03ad2782209a3ffae2de3feb7e0ae5df33dc1091bb4c5d705"
+    },
+    {
+      "seat": "EX-03",
+      "status": "invalid",
+      "errors": [
+        {
+          "code": "E_MISSING_CONCLUSION",
+          "field": "conclusion",
+          "msg": "硬性字段缺失：conclusion"
+        },
+        {
+          "code": "E_MISSING_EVIDENCE",
+          "field": "evidence",
+          "msg": "硬性字段缺失：evidence"
+        }
+      ],
+      "warnings": [
+        {
+          "code": "W_MISSING_DISSENT",
+          "field": "dissent",
+          "msg": "软性字段缺失：dissent"
+        },
+        {
+          "code": "W_MISSING_NEEDS_MORE_DATA",
+          "field": "needs_more_data",
+          "msg": "软性字段缺失：needs_more_data"
+        },
+        {
+          "code": "W_MISSING_STANCE",
+          "field": "stance",
+          "msg": "软性字段缺失：stance"
+        },
+        {
+          "code": "W_STANCE_DERIVED_FALLBACK",
+          "field": "stance",
+          "msg": "未自述 stance，已由产出数字反推补齐"
+        }
+      ],
+      "stance_mismatches": [],
+      "derived": {
+        "evidence_pointer_count": 0,
+        "evidence_pointers": [],
+        "declared_stance": {},
+        "derived_stance": {
+          "ADJ-001": {
+            "choice": "abstain",
+            "why": "不匹配任何选项 → 弃权"
+          },
+          "DIFFSET": {
+            "choice": "abstain",
+            "why": "summary.diff_count 缺失"
+          }
+        },
+        "axes": [
+          "ADJ-001",
+          "DIFFSET"
+        ]
+      },
+      "file": "runs/round1/EX-03.json",
+      "sha256": "09abd79785c06941c9d32e3646237a8d16862a48811a036cb631571b260e4997"
+    },
+    {
+      "seat": "AD-01",
+      "status": "invalid",
+      "errors": [
+        {
+          "code": "E_MISSING_CONCLUSION",
+          "field": "conclusion",
+          "msg": "硬性字段缺失：conclusion"
+        },
+        {
+          "code": "E_MISSING_EVIDENCE",
+          "field": "evidence",
+          "msg": "硬性字段缺失：evidence"
+        },
+        {
+          "code": "E_MISSING_FALSIFICATION",
+          "field": "falsification",
+          "msg": "硬性字段缺失：falsification"
+        }
+      ],
+      "warnings": [
+        {
+          "code": "W_MISSING_CONFIDENCE",
+          "field": "confidence",
+          "msg": "软性字段缺失：confidence"
+        },
+        {
+          "code": "W_MISSING_DISSENT",
+          "field": "dissent",
+          "msg": "软性字段缺失：dissent"
+        },
+        {
+          "code": "W_MISSING_NEEDS_MORE_DATA",
+          "field": "needs_more_data",
+          "msg": "软性字段缺失：needs_more_data"
+        }
+      ],
+      "stance_mismatches": [],
+      "derived": {
+        "evidence_pointer_count": 0,
+        "evidence_pointers": [],
+        "declared_stance": {},
+        "derived_stance": {},
+        "axes": []
+      },
+      "file": "runs/round1/AD-01.json",
+      "sha256": "c393b16788de2dd70b4291954178726f2a18b3b77130f39cceb35d48aeb55bb3"
+    }
+  ],
+  "aggregation_admissible": [],
+  "aggregation_blocked": [
+    {
+      "seat": "EX-01",
+      "sha256": "81df475001e3e4ec09783d689a4cc84401257e0f8a494b93149fe0a473db6c6a",
+      "errors": [
+        "E_MISSING_CONCLUSION",
+        "E_MISSING_EVIDENCE"
+      ]
+    },
+    {
+      "seat": "EX-02",
+      "sha256": "baf2f1c19510c3f03ad2782209a3ffae2de3feb7e0ae5df33dc1091bb4c5d705",
+      "errors": [
+        "E_MISSING_CONCLUSION",
+        "E_MISSING_EVIDENCE"
+      ]
+    },
+    {
+      "seat": "EX-03",
+      "sha256": "09abd79785c06941c9d32e3646237a8d16862a48811a036cb631571b260e4997",
+      "errors": [
+        "E_MISSING_CONCLUSION",
+        "E_MISSING_EVIDENCE"
+      ]
+    },
+    {
+      "seat": "AD-01",
+      "sha256": "c393b16788de2dd70b4291954178726f2a18b3b77130f39cceb35d48aeb55bb3",
+      "errors": [
+        "E_MISSING_CONCLUSION",
+        "E_MISSING_EVIDENCE",
+        "E_MISSING_FALSIFICATION"
+      ]
+    }
+  ],
+  "verdict": "has_invalid",
+  "summary": {
+    "total": 4,
+    "valid": 0,
+    "invalid": 4
+  },
+  "spec_sha256": "b20d25f2980c7f8b34bc7e880bb588bbe15f6248bc937c5e3cf9048732843d56",
+  "adjudication_not_required": true,
+  "adjudication_not_required_reason": "legacy 单层 schema：无分层 adjudication 层，不存在待裁项，故无 human_adjudication 记录"
+}

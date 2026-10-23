@@ -1,0 +1,175 @@
+{
+  "seat": "EX-02",
+  "round": 23,
+  "conclusion": "最强反方立场：差异清单应为 5 条（T155/T156/T157/T158/T159），T160 不成立；且 T155 的 120.00 属估值基准差、应从金额差异中剔除。故 amount_diff_total=260.00、excluded_amount_total=120.00。『380.00 恰好等于 raw_total_gap』不是证据，而是同一个差额的换位复述。",
+  "strongest_counter_arguments": [
+    {
+      "target": "ANON-A",
+      "argument": "『380.00 恰等于 raw_total_gap，账实闭合』是循环论证：raw_total_gap 只由 amount 列相减得到，把 120.00 计入后两数必然相等，这证明减法做对了，不证明 120.00 是未解释差错。T155 两侧行内各自自洽（45.00×1000=45000，45.12×1000=45120），差的是估值基准而非应收应付缺口；混入 amount_diff_total 会让管理层去追 380.00 而实际只需处理 260.00。",
+      "reverse_evidence": "若 120.00 在现金流中真实少付（券商实收 45120 而记账 45000），则须计入，本反论被推翻。"
+    },
+    {
+      "target": "ANON-A",
+      "argument": "T160 的『差异』来自比较列的自选。ledger.date=09-19 与 settle_date=09-19 完全相同，只有 trade_date 差 1 天；契约只写『日期』未指定列。自证其伪：改用 settle_date 时 T153–T157 各新增 1 天差异、清单变 11 条——同一数据在两种都说得通的列选择下得出 6 与 11，欠定义的是契约而非数据。",
+      "reverse_evidence": "若契约补明『日期取 trade_date 且入账日须等于成交日』，则 T160 是真实滞后，6 条成立。"
+    },
+    {
+      "target": "ANON-C",
+      "argument": "『全列最安全』在交付层面是错的：伪差异稀释处置带宽，把 5 条可追账项变成 6 条里夹 1 条无从处置的项。安全边际应加在口径声明上，不是加在条数上。",
+      "reverse_evidence": "若下游能自动分流口径类条目且不占人工工时，多列一条成本可忽略，本条失效。"
+    }
+  ],
+  "what_would_change_my_mind": "契约明文规定『日期取 trade_date』并规定『口径差计入金额差异』，两条同时成立时我改为 6 条/380.00；或缺一条但给出裁决记录，我按裁决改。",
+  "evidence": [
+    {
+      "pointer": "fixtures/tasks/T-20/bill.csv#T158-T160(settle)",
+      "what_it_shows": "settle 与 ledger 同日；仅 T160 的 trade_date 09-18 差1天"
+    },
+    {
+      "pointer": "fixtures/tasks/T-20/ledger.csv#T155(price,amount)",
+      "what_it_shows": "45.00×1000=45000 自洽；bill 45120，差120为单价基准"
+    },
+    {
+      "pointer": "fixtures/tasks/T-20/bill.csv#T156,T157(stamp_tax)",
+      "what_it_shows": "38.00+0.76 未入账，fee 19.00 vs 57.76"
+    },
+    {
+      "pointer": "fixtures/tasks/T-20/bill.csv#T159(note)",
+      "what_it_shows": "『现金分红，自记账无』260.00，唯一有追账动作"
+    },
+    {
+      "pointer": "fixtures/tasks/T-20/ledger.csv#txn_id",
+      "what_it_shows": "两侧 7/8 个单号均唯一 → dedup=0"
+    }
+  ],
+  "diffs": [
+    {
+      "id": "T155",
+      "category": "金额口径差"
+    },
+    {
+      "id": "T156",
+      "category": "费用漏记"
+    },
+    {
+      "id": "T157",
+      "category": "费用漏记"
+    },
+    {
+      "id": "T158",
+      "category": "权益变动未入账"
+    },
+    {
+      "id": "T159",
+      "category": "单侧缺失_现金分红"
+    }
+  ],
+  "categories": {
+    "金额口径差": [
+      "T155"
+    ],
+    "费用漏记": [
+      "T156",
+      "T157"
+    ],
+    "权益变动未入账": [
+      "T158"
+    ],
+    "单侧缺失_现金分红": [
+      "T159"
+    ]
+  },
+  "summary": {
+    "ledger_rows": 7,
+    "bill_rows": 8,
+    "ledger_total": 281800.0,
+    "bill_total": 282180.0,
+    "raw_total_gap": 380.0,
+    "dedup_removed_txn_count": 0,
+    "dedup_amount": 0.0,
+    "diff_count": 5,
+    "amount_diff_total": 260.0,
+    "excluded_amount_total": 120.0,
+    "excluded_categories": [
+      "金额口径差"
+    ]
+  },
+  "falsification": "若 ledger 的 date 被证实是『成交日』字段（T153–T157 与 trade_date 全等支持这一点）且 T160 的 09-19 属延迟入账而非交割日入账，则 T160 是真实差异，我的 5 条清单少列一条，结论作废。",
+  "reads": [
+    {
+      "path": "runs/round23/prompts/EX-02.md",
+      "purpose": "读取对立面席位职责、KPI 反转规则与字段要求"
+    },
+    {
+      "path": "runs/round23/prompts/EX-01.md",
+      "purpose": "确认对方席位模板的字段与 stance 口径，避免误读其命题"
+    },
+    {
+      "path": "runs/round23/prompts/EX-03.md",
+      "purpose": "确认落地席位模板，判断其成本论证是否可攻击"
+    },
+    {
+      "path": "fixtures/tasks/T-20/TASK.md",
+      "purpose": "逐字核对差异判定口径与四个易错点，寻找欠定义处"
+    },
+    {
+      "path": "fixtures/tasks/T-20/ledger.csv",
+      "purpose": "逐行复算 7 行金额合计与行内自洽性（price×shares）"
+    },
+    {
+      "path": "fixtures/tasks/T-20/bill.csv",
+      "purpose": "逐行复算 8 行金额合计、双日期列与费用三拆分"
+    },
+    {
+      "path": "protocol/02-辩论协议.md",
+      "purpose": "确认强制反对义务与证据制聚合规则"
+    },
+    {
+      "path": "protocol/03-结构审计七查.md",
+      "purpose": "确认第 2 查外部钩子与第 9 查读取域要求"
+    },
+    {
+      "path": "protocol/07-轮次与指标.md",
+      "purpose": "确认 ADJ-001/DIFFSET 反推与语义冲突判据"
+    }
+  ],
+  "dissent": [
+    {
+      "against": "ANON-A",
+      "reason": "其结论把『减法算对』当成『差异已解释』：raw_total_gap=380.00 与 amount_diff_total=380.00 相等是定义使然。真正的裁决点是 120.00 该进 excluded 还是 included，而 ANON-A 未立论证，只做了默认选择。",
+      "reverse_evidence": "若能证明 120.00 在账户现金流中真实少付（券商实收 45120 而记账 45000），则默认计入才对。"
+    },
+    {
+      "against": "ANON-B",
+      "reason": "把 T160 保留为差异却同时承认『两侧金额费用股数全等』，等于承认这条差异无处置标的；差异清单若含不可处置项，diff_count 就不再是工作量估计，账实核对的可执行性下降。",
+      "reverse_evidence": "若对账 SLA 要求『任何列不一致必须留痕』，则该条应保留，我的反对不成立。"
+    }
+  ],
+  "confidence": "medium",
+  "needs_more_data": [
+    "缺规则：契约未定义『日期』列的比对对象（trade_date 或 settle_date），此项直接决定 diff_count 是 6 还是 11",
+    "缺规则：DIFFSET 选项空间 7/6/5/4 与本任务实际最多 6 条不符——7 在本数据上不可达，属选项空间与夹具结构脱钩",
+    "缺数据：无——两份 CSV 无缺列无空值，380.00=120.00+260.00 已闭合"
+  ],
+  "stance": [
+    {
+      "axis": "ADJ-001",
+      "choice": "exclude"
+    },
+    {
+      "axis": "DIFFSET",
+      "choice": "5"
+    }
+  ],
+  "usage": {
+    "tokens": 8900,
+    "minutes": 13,
+    "source": "self_report"
+  },
+  "reads_path_normalized": {
+    "by": "orchestrator",
+    "date": "2026-10-20",
+    "count": 3,
+    "note": "目录重命名 'runs/23 T-20/' → 'runs/round23/'（编排层 zsh 分词失误，见 round-manifest.dir_rename_note）；reads 路径机械归一化，内容零改动，席位当时的申报对其物理现实完全准确"
+  }
+}

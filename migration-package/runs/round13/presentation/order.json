@@ -1,0 +1,6 @@
+{
+  "seed": "ba4feabf",
+  "seed_source": "sha256(round|prev|params_sha)[:8]",
+  "order": [],
+  "note": "确定性乱序 —— 同轮同参数可复现"
+}

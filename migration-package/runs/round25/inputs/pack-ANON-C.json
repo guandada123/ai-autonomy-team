@@ -1,0 +1,138 @@
+{
+  "conclusion": "落地方案：只读 CSV，stdlib 单脚本复算后写 answer.json。复算：ledger 7 行/181800.00，bill 8 行/182180.00，gap 380.00；无同号重复（T036/T037 同内容异号，不计重复）→ dedup 0/0.00；以入账日对成交日比对，差异 6 条；金额差异 380.00 = 120.00(T035) + 260.00(T039 单侧)，excluded 0.00。约 18k token、12 min、0 次人工；🟢 可回滚。",
+  "execution_path": [
+    "1. pathlib 定位 fixtures/tasks/T-05/{ledger,bill}.csv，encoding='utf-8'、newline='' 读取，Decimal 解析金额，禁 float",
+    "2. 算术层：len(rows)、sum(amount)、bill_total-ledger_total 三值一口气算出，先锁死 7/8/181800.00/182180.00/380.00",
+    "3. 去重层：按 txn_id 计数，仅 count>1 才判重复；本数据无重复 → dedup_removed_txn_count=0，dedup_amount=0.00。明确禁止按「行内容相同」去重（T036/T037）",
+    "4. 比对层：ledger.date 对 bill.trade_date（不是 settle_date），四列 shares/amount/fee_total/date 任一不等即差异；仅单侧存在也进差异清单",
+    "5. 断言层：Σ|差额| == raw_total_gap（380.00），不等即中止输出，避免半成品",
+    "6. 输出层：diffs 6 条与 categories 双向自洽，写 answer.json"
+  ],
+  "cost": {
+    "token_estimate": "本席约 18k token（3 份输入 + 2 份协议页 + 2 次脚本）；六席合计约 110k–150k，落在 per_task_token_hard_cap=160000 内，余量 6%–31%，安全但无冗余",
+    "wall_clock": "单席约 12–15 分钟；其中读数与复算 <3 分钟，剩余为口径判断与写 JSON。全轮六席并行时跨度约等于最慢席，约 20 分钟",
+    "human_touchpoints": "0 次（脚本一键复算，无交互）；仅全轮第 14 步人类闸门签署 1 次，不属本席"
+  },
+  "rollback": "写入前把既有 answer.json 复制为 answer.json.bak（同目录、带时间戳）；本席全程只读输入 CSV，输入侧零风险。若本轮结论被判错，回滚 = 用 .bak 覆盖 answer.json + 重跑脚本即可确定性复现（纯函数、无随机、无外部依赖）。不调用 unlink，废弃中间件移入 _trash/。",
+  "op_grade": "🟢",
+  "cross_platform_risks": [
+    {
+      "risk": "本机 Windows 用 py/GBK，目标 macOS M4 用 python3；脚本若写死解释器路径则不可执行",
+      "mitigation": "shebang 写 #!/usr/bin/env python3，调用一律 python3，不写绝对解释器路径"
+    },
+    {
+      "risk": "open() 未指定 encoding 时 Windows 按 GBK 解码中文列名/notes 直接 UnicodeDecodeError",
+      "mitigation": "所有 open 显式 encoding='utf-8'，输出同理"
+    },
+    {
+      "risk": "CRLF 换行使 csv 最后一个字段带回 \\r（如 note 变 '正常\\r'），比对凭空生差异",
+      "mitigation": "读取 newline=''，写出 newline='' 且固定 LF"
+    },
+    {
+      "risk": "金额用 float 求和出现 181800.00000000003 之类尾差，导致 == 断言失败",
+      "mitigation": "全程 Decimal，quantize 到 0.01，不做含税/净额换算"
+    },
+    {
+      "risk": "os.path 字符串拼路径在两端分隔符不同；用 unlink 清理会被 mac 沙箱拦截",
+      "mitigation": "pathlib.Path 拼路径；删除改为移动到 _trash/"
+    },
+    {
+      "risk": "macOS APFS 文件名/中文 note 为 NFD 规范化，按字符串全等匹配文件名可能失配",
+      "mitigation": "只用 ASCII 文件名（ledger.csv/bill.csv），不对中文做文件名匹配；中文仅存在于字段值内，不参与路径"
+    }
+  ],
+  "evidence": [
+    {
+      "pointer": "fixtures/tasks/T-05/bill.csv#L4",
+      "what_it_shows": "T035 price 45.12 / amount 45120.00 / fee 11.73，对 ledger#L4 的 45.00 / 45000.00 / 11.70：金额差 120.00，是 gap 中唯一的非单侧来源"
+    },
+    {
+      "pointer": "fixtures/tasks/T-05/bill.csv#L8-L10",
+      "what_it_shows": "T039 仅单侧存在，amount 260.00（股息入账）；T040 trade_date 09-14、settle_date 09-15，而 ledger#L8 记 09-15 → 日期口径差、金额差 0.00。120.00+260.00 恰补齐 gap 380.00"
+    },
+    {
+      "pointer": "fixtures/tasks/T-05/ledger.csv#L6",
+      "what_it_shows": "T038 送转 shares=0、amount=0.00，bill#L7 为 shares=30：股数差、金额差 0.00，证明只能按单号逐列比对，不能只看金额"
+    },
+    {
+      "pointer": "fixtures/tasks/T-05/ledger.csv#L3-L7",
+      "what_it_shows": "T036 与 T037 两行内容逐字相同但单号不同，按 txn_id 计非重复 → dedup_removed_txn_count=0、dedup_amount=0.00；若按内容去重会多扣 26000.00"
+    },
+    {
+      "pointer": "protocol/07-轮次与指标.md#L81-L82",
+      "what_it_shows": "DIFFSET 取值即 summary.diff_count，选项空间 7/6/5/4；本数据无跨月项（全 9 月），实算 6 落在空间内，无需 out_of_space"
+    },
+    {
+      "pointer": "protocol/07-轮次与指标.md#L313-L315",
+      "what_it_shows": "per_task_token_hard_cap=160000、minutes 取 max 而非求和的预算定义式，是本次成本估算与预算判定的唯一依据"
+    }
+  ],
+  "falsification": "三点：(1) 若「日期」应取 ledger.date 对 bill.settle_date，则 T033–T037 五笔都成日期差，diff_count 变 11、跌出选项空间 7/6/5/4 —— 我的结论依赖「入账日对成交日」这一配对假设，该假设只由「结果必须落在选项空间内」反向支持，不构成直接证据；(2) 若 T035 的委托价/成交价 120.00 应判为口径差而非金额差，则 amount_diff_total=260.00、excluded_amount_total=120.00、excluded_categories=['计价口径差异']，我的两个金额字段同时错；(3) 若 T039 股息入账被认定为非成交类项目不计入金额，同样得 120.00/260.00。三者任一成立，我的 summary 即错，但 diff_count=6 与 gap=380.00 不变。",
+  "reads": [
+    {
+      "path": "[deny-domain path redacted]prompts/ANON-C.md",
+      "purpose": "读取本席职责、读取域、硬性字段与字数预算"
+    },
+    {
+      "path": "fixtures/tasks/T-05/TASK.md",
+      "purpose": "确认 summary 各字段定义、四个易错点与差异判定口径 D"
+    },
+    {
+      "path": "fixtures/tasks/T-05/ledger.csv",
+      "purpose": "自记账 7 行逐行复算金额/股数/费用/日期"
+    },
+    {
+      "path": "fixtures/tasks/T-05/bill.csv",
+      "purpose": "交割单 8 行逐行复算，并与 ledger 按单号配对"
+    },
+    {
+      "path": "protocol/07-轮次与指标.md",
+      "purpose": "查 ADJ-001/DIFFSET 反推规则与选项空间、预算定义式与 token 上限"
+    },
+    {
+      "path": "protocol/（目录关键词检索 ADJ-001/DIFFSET，命中 03/04/06/07 四个文件的相关行）",
+      "purpose": "核实争议轴定义位置，避免把 stance 写进不存在的选项"
+    }
+  ],
+  "dissent": [
+    {
+      "against": "ANON-A",
+      "reason": "最可能的对立立场是把 T035 的 120.00 判为「计价口径差异」从而排除出金额差异（得 260.00 / excluded 120.00）。我不采纳：口径差应指同一事实的两种列示方式（如含费/净额、成交日/交割日），而「按委托价记账」是把一笔 45.12 的成交记成 45.00，账面成本基础本身就错了，它不是列示差异而是记账错误；排除它会让 120.00 的成本偏差永久不被纠正，且 380.00 的 gap 会被拆成「260 已解释 + 120 被豁免」，对账反而失去闭环。另外 protocol#L81 的 exclude 分支仅在 excluded 非零时成立，一旦选 exclude 就必须同时改 excluded_categories，容易与 DIFFSET 的清单自洽性冲突。",
+      "reverse_evidence": "若能在 TASK.md 或协议中找到「口径差一律不计入金额差异」的明文，或找到 T035 属「同一成交的两种列示」而非「两个价格」的证据，我改判 exclude。目前 TASK.md §C 只说「归入不计入类别的单号」，把类别划分完全留给席位，没有给出口径差清单——这正是我保留 medium 置信度的原因。"
+    }
+  ],
+  "confidence": "medium",
+  "needs_more_data": [
+    "需要一份明文的「口径差」定义或类别白名单：TASK.md 只说类别自定，却没有界定「不计入金额差异」的边界，导致 120.00（委托价 vs 成交价）与 260.00（股息单侧）两项都可被论证为应排除",
+    "需要确认日期列的法定配对：ledger.date（入账日）应对 bill.trade_date 还是 settle_date，任务书未明写，我只能用「结果须落在 7/6/5/4」反推",
+    "需要确认 T039 股息入账是否属于「成交」范畴：amount 列名义上定义为成交金额，但该行 amount=260.00 是现金分红"
+  ],
+  "stance": [
+    {
+      "axis": "ADJ-001",
+      "choice": "count"
+    },
+    {
+      "axis": "DIFFSET",
+      "choice": "6"
+    }
+  ],
+  "summary": {
+    "ledger_rows": 7,
+    "bill_rows": 8,
+    "ledger_total": 181800.0,
+    "bill_total": 182180.0,
+    "raw_total_gap": 380.0,
+    "dedup_removed_txn_count": 0,
+    "dedup_amount": 0.0,
+    "diff_count": 6,
+    "amount_diff_total": 380.0,
+    "excluded_amount_total": 0.0,
+    "excluded_categories": []
+  },
+  "usage": {
+    "tokens": 18000,
+    "minutes": 14,
+    "source": "self_report"
+  }
+}

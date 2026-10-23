@@ -1,0 +1,73 @@
+{
+  "check": "seat_contract",
+  "xj_family_check": null,
+  "contract_version": "2.1",
+  "expected_contract_version": "2.1",
+  "reads_required": true,
+  "stage": "B",
+  "round_dir": "runs/round24",
+  "round_role": "revision_round",
+  "generated_at": "2026-10-20T21:11:15+08:00",
+  "params_sha256": "96d0f9da01c33d3bfc97b04ffb39b549dd2037f8658345906eee1615da596dff",
+  "seats_expected": [
+    "AD-01",
+    "PM-01"
+  ],
+  "results": [
+    {
+      "seat": "AD-01",
+      "file": "runs/round24/AD-01.json",
+      "sha256": null,
+      "status": "invalid",
+      "errors": [
+        {
+          "code": "E_MISSING_SEAT",
+          "field": "-",
+          "msg": "轮次内缺少该席位产出"
+        }
+      ],
+      "warnings": [],
+      "derived": {}
+    },
+    {
+      "seat": "PM-01",
+      "file": "runs/round24/PM-01.json",
+      "sha256": null,
+      "status": "invalid",
+      "errors": [
+        {
+          "code": "E_MISSING_SEAT",
+          "field": "-",
+          "msg": "轮次内缺少该席位产出"
+        }
+      ],
+      "warnings": [],
+      "derived": {}
+    }
+  ],
+  "aggregation_admissible": [],
+  "aggregation_blocked": [
+    {
+      "seat": "AD-01",
+      "sha256": null,
+      "errors": [
+        "E_MISSING_SEAT"
+      ]
+    },
+    {
+      "seat": "PM-01",
+      "sha256": null,
+      "errors": [
+        "E_MISSING_SEAT"
+      ]
+    }
+  ],
+  "verdict": "no_seats_found",
+  "summary": {
+    "total": 2,
+    "valid": 0,
+    "invalid": 2
+  },
+  "spec_sha256": "64fb1f97925605c94d665b4374575088e0559e39d9757948909097a4777bf214",
+  "read_domain_verdict": "NO_DECLARATION"
+}

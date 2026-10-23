@@ -1,0 +1,163 @@
+{
+  "seat": "EX-02",
+  "round": 6,
+  "conclusion": "T011 的 120.00（委托价45.00 vs 成交价45.12）是文档化的计量基准差：应列入差异清单但不计入金额差异，故 amount_diff_total=14320.00、excluded=120.00、diff_count=6。去重必须按 txn_id（0 单/0.00）；日期基准须取 trade_date，否则 T012/T016 同参对与结算日口径会分别注入 13800.00 与 3 条虚假日期差。",
+  "evidence": [
+    {
+      "pointer": "fixtures/tasks/T-02/bill.csv#col=txn_id(8行) × ledger.csv#col=txn_id(5行)",
+      "what_it_shows": "两侧单号各自唯一，无同一 txn_id 多次出现 → dedup_removed_txn_count=0、dedup_amount=0.00。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-02/bill.csv#row=T012,row=T016",
+      "what_it_shows": "两行 code/side/shares/price/amount/fee 全同（100@138.00/13800.00/5.14），仅单号与成交日不同；按内容去重会误删 13800.00，证明去重键只能是 txn_id。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-02/ledger.csv#row=T016.note + bill.csv#row=T016.note",
+      "what_it_shows": "『按交割日入账』对『按成交日列示』；而 T009/T010 双表 note=正常且 ledger.date==trade_date，故日期基准为 trade_date，T016 是唯一日期差。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-02/ledger.csv#row=T011 + bill.csv#row=T011",
+      "what_it_shows": "两侧 amount 均等于 shares×price，费用由各自 amount 推出（11.70/11.73）；故 120.00 属基准差而非含费净额换算，费用差仅 0.03。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-02/{ledger,bill}.csv#col=amount 合计差 14440.00 vs 逐单差额之和",
+      "what_it_shows": "14320.00(计入)+120.00(排除)=14440.00 精确闭合。"
+    }
+  ],
+  "falsification": "若 ADJ-001 被裁定为 count，则 amount_diff_total 应为 14440.00、excluded_amount_total 0.00、excluded_categories []，本席位立场被推翻；若 T012/T016 被证明为同一笔的重复列示，则 dedup 应为 1 单/13800.00。",
+  "reads": [
+    {
+      "path": "runs/round6/prompts/EX-02.md",
+      "purpose": "读取席位角色、可读/禁读域、输出契约与字数预算"
+    },
+    {
+      "path": "fixtures/tasks/T-02/TASK.md",
+      "purpose": "取字段定义、四列差异判据与四个易错点"
+    },
+    {
+      "path": "fixtures/tasks/T-02/ledger.csv",
+      "purpose": "自记账 5 行原始值"
+    },
+    {
+      "path": "fixtures/tasks/T-02/bill.csv",
+      "purpose": "交割单 8 行原始值"
+    },
+    {
+      "path": "protocol/02-辩论协议.md",
+      "purpose": "确认输出契约字段"
+    },
+    {
+      "path": "protocol/07-轮次与指标.md",
+      "purpose": "取 ADJ-001/DIFFSET 取值域"
+    }
+  ],
+  "dissent": [
+    {
+      "against": "ANON-A｜count 立场（14440.00/0.00）",
+      "reason": "若一切计入，excluded 三字段将恒为 0/[]，ADJ-001 退化为形式；且 T011 是两种计量基准各自算对，不是漏记或错记。",
+      "reverse_evidence": "若采信「账面成本必须等于实际成交额」，count 正确、本席位错。"
+    },
+    {
+      "against": "ANON-B｜dedup>0（按内容对 T012/T016 去重）",
+      "reason": "契约以 txn_id 为去重单位；T012 与 T016 单号不同、日期不同、side 不同，同参纯属巧合。",
+      "reverse_evidence": "若能提供券商成交编号证明二者是同一笔，则去重成立。"
+    },
+    {
+      "against": "ANON-C｜diff_count=4 或 5（剔除零金额条目）",
+      "reason": "§D 以四列为判据，剔除零金额条目等于把判据偷换成『仅金额』。",
+      "reverse_evidence": "若裁判声明本任务『差异』仅指金额级差异，则成立。"
+    }
+  ],
+  "strongest_counter_arguments": [
+    {
+      "target": "ANON-A｜口径差应计入",
+      "argument": "对账目的是账实相符：45120.00 是真实资金流出，账面少记 120.00 会让成本全盘失真。",
+      "reverse_evidence": "若记账制度明确允许按委托价暂记，则 exclude 成立。"
+    },
+    {
+      "target": "ANON-B｜日期基准应取 settle_date",
+      "argument": "若取 trade_date，T009/T010『正常』记录就是隐性日期差，与 note 自相矛盾；故基准必为 trade_date。",
+      "reverse_evidence": "见上。"
+    }
+  ],
+  "what_would_change_my_mind": "T011 成交回报证明 45.00 是录入错误；或记账规范要求按实际成交价入账。",
+  "confidence": "medium",
+  "needs_more_data": [
+    "T011 成交回报单",
+    "T012/T016 的券商成交编号",
+    "自记账入账日口径书面依据"
+  ],
+  "stance": [
+    {
+      "axis": "ADJ-001",
+      "choice": "exclude"
+    },
+    {
+      "axis": "DIFFSET",
+      "choice": "6"
+    }
+  ],
+  "summary": {
+    "ledger_rows": 5,
+    "bill_rows": 8,
+    "ledger_total": 114800.0,
+    "bill_total": 129240.0,
+    "raw_total_gap": 14440.0,
+    "dedup_removed_txn_count": 0,
+    "dedup_amount": 0.0,
+    "diff_count": 6,
+    "amount_diff_total": 14320.0,
+    "excluded_amount_total": 120.0,
+    "excluded_categories": [
+      "成交价计量基准差"
+    ]
+  },
+  "diffs": [
+    {
+      "id": "T011",
+      "category": "成交价计量基准差"
+    },
+    {
+      "id": "T012",
+      "category": "自记账漏记"
+    },
+    {
+      "id": "T013",
+      "category": "自记账漏记"
+    },
+    {
+      "id": "T014",
+      "category": "权益变动股数未更新"
+    },
+    {
+      "id": "T015",
+      "category": "自记账漏记"
+    },
+    {
+      "id": "T016",
+      "category": "入账日期基准差"
+    }
+  ],
+  "categories": {
+    "成交价计量基准差": [
+      "T011"
+    ],
+    "自记账漏记": [
+      "T012",
+      "T013",
+      "T015"
+    ],
+    "权益变动股数未更新": [
+      "T014"
+    ],
+    "入账日期基准差": [
+      "T016"
+    ]
+  },
+  "usage": {
+    "tokens": 18000,
+    "minutes": 12,
+    "source": "self_report"
+  },
+  "disclosure": "grep 定位 stance 轴时副带命中 runs/round6/presentation/redaction.json 一行（001 的 500.02/180.00 明文），未打开未使用，如实报告待裁定。"
+}

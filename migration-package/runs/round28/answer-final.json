@@ -1,0 +1,92 @@
+{
+ "task_id": "T-09",
+ "round": 28,
+ "aggregated_by": "PM-01",
+ "summary": {
+  "ledger_rows": 7,
+  "bill_rows": 8,
+  "ledger_total": 163800.0,
+  "bill_total": 164180.0,
+  "raw_total_gap": 380.0,
+  "dedup_removed_txn_count": 0,
+  "dedup_amount": 0.0,
+  "diff_count": 6,
+  "amount_diff_total": 380.0,
+  "excluded_amount_total": 0.0,
+  "fee_diff_total": 0.33,
+  "excluded_categories": [
+   "费用差-漏过户费",
+   "数量差-送转未更新",
+   "日期口径差-按交割日入账"
+  ]
+ },
+ "diffs": [
+  {
+   "id": "T067",
+   "category": "价格差-委托价与实际成交价"
+  },
+  {
+   "id": "T068",
+   "category": "费用差-漏过户费"
+  },
+  {
+   "id": "T069",
+   "category": "费用差-漏过户费"
+  },
+  {
+   "id": "T070",
+   "category": "数量差-送转未更新"
+  },
+  {
+   "id": "T071",
+   "category": "单侧缺失-现金分红未入账"
+  },
+  {
+   "id": "T072",
+   "category": "日期口径差-按交割日入账"
+  }
+ ],
+ "categories": {
+  "价格差-委托价与实际成交价": [
+   "T067"
+  ],
+  "费用差-漏过户费": [
+   "T068",
+   "T069"
+  ],
+  "数量差-送转未更新": [
+   "T070"
+  ],
+  "单侧缺失-现金分红未入账": [
+   "T071"
+  ],
+  "日期口径差-按交割日入账": [
+   "T072"
+  ]
+ },
+ "falsification": "若 TASK.md §D 的「日期」实指交割日 settle_date（而非背景段 L8「交割单按成交日列示」所界定的 trade_date），则 T072 退出、T065/T066 进入，diff_count 应为 7，本条数与 diffs 作废（金额侧 amount_diff_total=380.00、excluded_amount_total=0.00 不受影响）；若任一侧出现同号多行（分批成交）致 dedup 非零，则 dedup 与逐号差额均须重算，本组金额组合全部作废；若 T071 的 260.00 现金分红经凭证确认已记入其他科目，则该单号退出，amount_diff_total 降为 120.00。",
+ "diff_preserved": [
+  {
+   "side": "多数",
+   "conclusion": "diff_count=6，日期取 trade_date（TASK.md L8「交割单按成交日列示」），差异单号为 T067/T068/T069/T070/T071/T072；amount_diff_total=380.00（T067 价差 120.00 + T071 单侧 260.00），excluded_amount_total=0.00，excluded_categories 三类（费用差-漏过户费、数量差-送转未更新、日期口径差-按交割日入账）。",
+   "falsification": "若 §D 或任何可读规范条款明示「日期」取交割日，或能证明 L8 仅描述排序而不约束列义，则 T072 退出、T065/T066 进入，本条数作废。"
+  },
+  {
+   "side": "少数",
+   "conclusion": "diff_count=7，日期取 settle_date（A股 T+1 交收下与「入账日」语义可对齐者为交割日；§D 只写「日期」未指名列，用背景段描述句补规范缺口不成立），差异单号为 T065/T066/T067/T068/T069/T070/T071，T072 在 settle 读法下反而一致；金额侧同为 amount_diff_total=380.00、excluded_amount_total=0.00，两读法金额不可分辨。",
+   "falsification": "若 §D 或任何可读规范条款明示「日期=成交日」，或账本 date 定义被改写为成交日，则本结论作废；若 diff_count 被移入算术白名单并出现机器可判的正确值，则「无可判优劣」这一前提作废。"
+  }
+ ],
+ "aggregation_inputs": [
+  {
+   "seat": "EX-01",
+   "sha256": "21d16548696384f1cddc46dde6c1ecaee6b9aa910a28f8c3281d2b78e07a80f9",
+   "seat_check_status": "valid"
+  },
+  {
+   "seat": "EX-03",
+   "sha256": "61e891db06feda9a37d0a502f65a4fb88c14bade2d07b36ba650f97ec93cdbbb",
+   "seat_check_status": "valid"
+  }
+ ]
+}

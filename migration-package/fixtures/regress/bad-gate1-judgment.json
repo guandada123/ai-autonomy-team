@@ -1,0 +1,19 @@
+{
+  "_purpose": "回归6用：故意把判断项 summary.diff_count 塞进算术层，期望被拒载（exit 2）",
+  "task_id": "GATE-TEST-06",
+  "layer": "arithmetic",
+  "checks": [
+    {
+      "name": "合法锚点",
+      "type": "numeric_equals",
+      "path": "summary.ledger_rows",
+      "expected": 27
+    },
+    {
+      "name": "★违规：判断项混入算术层",
+      "type": "numeric_equals",
+      "path": "summary.diff_count",
+      "expected": 7
+    }
+  ]
+}

@@ -1,0 +1,175 @@
+{
+ "task_id": "T-14",
+ "round": 19,
+ "aggregated_by": "PM-01",
+ "summary": {
+  "ledger_rows": 7,
+  "bill_rows": 8,
+  "ledger_total": 409420.0,
+  "bill_total": 409800.0,
+  "raw_total_gap": 380.0,
+  "dedup_removed_txn_count": 0,
+  "dedup_amount": 0.0,
+  "diff_count": 6,
+  "amount_diff_total": 380.0,
+  "excluded_amount_total": 0.0,
+  "fee_diff_total": 14.11,
+  "excluded_categories": [
+   "非交易事项-送转未更新股数",
+   "非交易事项-股息入账"
+  ]
+ },
+ "diffs": [
+  {
+   "id": "T107",
+   "category": "金额差异-按委托价记账"
+  },
+  {
+   "id": "T108",
+   "category": "费用差异-漏印花税与过户费"
+  },
+  {
+   "id": "T109",
+   "category": "费用差异-漏印花税与过户费"
+  },
+  {
+   "id": "T110",
+   "category": "非交易事项-送转未更新股数"
+  },
+  {
+   "id": "T111",
+   "category": "非交易事项-股息入账"
+  },
+  {
+   "id": "T112",
+   "category": "日期差异-按交割日入账"
+  }
+ ],
+ "categories": {
+  "金额差异-按委托价记账": [
+   "T107"
+  ],
+  "费用差异-漏印花税与过户费": [
+   "T108",
+   "T109"
+  ],
+  "非交易事项-送转未更新股数": [
+   "T110"
+  ],
+  "非交易事项-股息入账": [
+   "T111"
+  ],
+  "日期差异-按交割日入账": [
+   "T112"
+  ]
+ },
+ "falsification": "①金额轴：若「不计入金额差异」被裁决限定为跨月/汇率等口径差而不含非交易事项，或 amount_diff_total 被要求恒等于 raw_total_gap，则 amount_diff_total 应为 380.00、excluded_amount_total 应为 0.00、excluded_categories 应为 []，本口径错。②日期轴：§D 的「日期」若被裁决映射为 bill.settle_date，则 T105/T106 因入账日(09-06/09-08)≠交割日(09-07/09-09) 补入差异、T112(09-19=09-19) 反而出列，diff_count 由 6 变 7 且清单全变；本口径（按 trade_date，6 条）即错。③若 T111 的 260.00 已于前期以「应收股利」确认入账（本数据无科目余额表可验），则它根本不该进差异清单，diff_count 应为 5。④若某单号在单侧出现多行（本数据无），dedup 两字段非零，摘要其余口径需重算。⑤若「费用」被要求取 commission/stamp_tax/transfer_fee 分解列而非 fee_total，T107 的 0.03 差会改变差异构成（不改 120.00）。",
+ "diff_preserved": [
+  {
+   "side": "多数",
+   "conclusion": "EX-01 / EX-03（2/3 席）：amount_diff_total=380.00、excluded_amount_total=0.00、excluded_categories=[]。理由：§D 字面「仅单侧存在的单号亦为差异单号，差额取该单号在该侧的 amount」，且 380.00 与 raw_total_gap 严格恒等、可自检闭合；exclude 会破坏该恒等式。",
+   "falsification": "若账套/科目余额表显示 260.00 已在前期以「应收股利」确认收入（同一经济事项已入账），则 260 属重复计量而非缺口，380.00 即为高估 → 该多数结论被证伪。",
+   "adopted": false
+  },
+  {
+   "side": "少数",
+   "conclusion": "EX-02（1/3 席）：amount_diff_total=120.00、excluded_amount_total=260.00、excluded_categories 含「非交易事项-股息入账」。理由：T111 为 side=股息入账、shares=0、price=0.00、费用三列全 0、仅 260.00 现金流入，是权益分派而非成交；其处置动作是补记分红分录，与 T107 的调价（120.00）性质不同，混算成 380.00 会产出不可执行的总数。",
+   "falsification": "若下游只用该合计做总体重要性/阈值判断、不按性质分派处置动作，或裁决明确禁止任何排除并强制 amount_diff_total==raw_total_gap，则混算无损、本少数结论被证伪。",
+   "adopted": true
+  },
+  {
+   "side": "多数",
+   "conclusion": "三席一致：diff_count=6，差异集 T107/T108/T109/T110/T111/T112，§D「日期」按 bill.trade_date 与 ledger.date 比对（内部证据：T105–T109 五单 ledger.date 全等于 trade_date，6/7 行同此口径；唯一违例 T112 的 note 自陈「按交割日入账」，属个例记账错误）。",
+   "falsification": "若存在「自记账一律按交割日入账」的书面政策（而非 T112 单条 note 的个例），settle_date 读法成立，diff_count 应为 7（T105/T106 补入、T112 出列），本结论被证伪。",
+   "adopted": true
+  },
+  {
+   "side": "少数",
+   "conclusion": "EX-02 附条件主张：若裁决承认非交易事项应单列，则 diff 清单范围也应同步收缩——T110（送转，amount=0）与 T111（股息入账）应移出「成交差异」清单，diff_count=4（T107/T108/T109/T112）。",
+   "falsification": "若 §D「差异单号」被裁决为覆盖全部四列不等与单侧存在的单号（含非成交事项），则清单不应收缩，6 条为正确范围，本条被证伪。",
+   "adopted": false
+  }
+ ],
+ "aggregation_inputs": [
+  {
+   "seat": "EX-01",
+   "sha256": "22610ab9264db96ca9279468f11021fa7bef77f0fd722234bec983b6f00ccb51",
+   "seat_check_status": "valid"
+  },
+  {
+   "seat": "EX-02",
+   "sha256": "57067ba925c3ec31cd7d1e16fffff8a004fee33b27b785c62d3d25c32df8c7d4",
+   "seat_check_status": "valid"
+  },
+  {
+   "seat": "EX-03",
+   "sha256": "6ef1ce0cc119d4a2d81e960dc610fd8d4f59f22b2da6d57e79b7e8d2c6414c1a",
+   "seat_check_status": "valid"
+  }
+ ],
+ "pm_note": "PM-01 独立 Decimal 复算（python3 csv+Decimal，newline=''，utf-8）复核三席算术层：7/8 行、409420.00/409800.00、gap 380.00、dedup 0/0.00、6 条差异、Σabs=380.00（T107 120.00 + T111 260.00）——三席算术层完全一致，无争议。分歧仅在金额分桶（ADJ-001）：按「有独立证据支持的少数 > 无独立证据的多数」采纳 EX-02 的 exclude 轴（120.00/260.00），并以 380.00=120.00+260.00 保持总差闭合；多数（380.00/0.00）全文保留备查。未覆盖任何硬裁判：seat_check verdict=all_valid、aggregation_blocked=[]、read_domain_verdict=CLEAN，无 fail 需覆盖。",
+ "reads": [
+  {
+   "path": "runs/round19/prompts/PM-01.md",
+   "purpose": "逐字核对硬性字段：reads/usage 必报、aggregation_inputs 规则、输出 schema"
+  },
+  {
+   "path": "fixtures/tasks/T-14/TASK.md",
+   "purpose": "取 §A–§D 字段定义、四个易错点与差异判定口径，作为独立复算的规则来源"
+  },
+  {
+   "path": "fixtures/tasks/T-14/ledger.csv",
+   "purpose": "逐行读取 7 行自记账原始值（amount/fee_total/date）用于 Decimal 复算"
+  },
+  {
+   "path": "fixtures/tasks/T-14/bill.csv",
+   "purpose": "逐行读取 8 行交割单原始值（trade_date/settle_date/费用三列）用于 Decimal 复算"
+  },
+  {
+   "path": "runs/round19/EX-01.json",
+   "purpose": "读原始产出，核对算术层与金额分桶立场（count）"
+  },
+  {
+   "path": "runs/round19/EX-02.json",
+   "purpose": "读原始产出，核对算术层与金额分桶立场（exclude）及其证据指针"
+  },
+  {
+   "path": "runs/round19/EX-03.json",
+   "purpose": "读原始产出，核对算术层、可执行路径与断言（count）"
+  },
+  {
+   "path": "runs/round19/round-manifest.json",
+   "purpose": "确认轮次类型 evidence_round、expected_seats、契约版本 2.1"
+  },
+  {
+   "path": "runs/round19/seat-check.json",
+   "purpose": "取各席 seat_check 状态与 sha256，判定 aggregation_admissible/aggregation_blocked"
+  },
+  {
+   "path": "runs/round19/read-domain-check.json",
+   "purpose": "确认读域声明检查 verdict=CLEAN，无越界命中"
+  },
+  {
+   "path": "protocol/06-写入域与判据分层.md",
+   "purpose": "grep answer-final/aggregation_inputs 相关条款，确认单写多读与状态锚定"
+  },
+  {
+   "path": "protocol/07-轮次与指标.md",
+   "purpose": "grep 写入者硬门，确认 aggregation_inputs[] 每项须含 seat/sha256/seat_check_status"
+  },
+  {
+   "path": "fixtures/tasks/T-14/（仅目录列举 ls）",
+   "purpose": "仅列目录确认输入文件存在；可见 truth.json 与 spec/ 但未打开、未读取内容"
+  }
+ ],
+ "usage": {
+  "tokens": 26000,
+  "minutes": 11,
+  "source": "self_report"
+ },
+ "redo": {
+  "triggered_by": "runs/round19/adjudication-record.json（ADJ-001=count，verdict=fail）",
+  "rule": "count implies：amount_diff_total=380.0、excluded=0.00（fee 任务 implies 金额中性，D-0016）",
+  "note": "机械改判：数值由裁决记录 × spec implies 唯一确定"
+ }
+}

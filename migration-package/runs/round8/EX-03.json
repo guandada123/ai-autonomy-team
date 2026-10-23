@@ -1,0 +1,180 @@
+{
+  "seat": "EX-03",
+  "round": 8,
+  "conclusion": "T-01 逐行复算：账 5 行 114800.00、单 8 行 141440.00，毛差 26640.00，两侧无重复单号。trade_date 基准得 6 条差异：计入 26120.00（T003 价差 120.00 + T004 漏记 26000.00），排除 520.00（T005/T007 股息）；两桶闭合毛差，可作落盘硬断言。落地为只读复算 + 单文件写，🟡 级，成本在聚合前冻结纪律。",
+  "execution_path": [
+    "1. 只读打开两份 CSV：csv.DictReader、newline=''、encoding='utf-8'（已实测两文件为 UTF-8 无 BOM、纯 LF），全程不写 fixtures。",
+    "2. amount/shares/fee_total 一律 Decimal(str)，quantize(0.01)；累加得 114800.00 / 141440.00 / 26640.00，禁止 float。",
+    "3. Counter 按 txn_id 计数：两侧最大值均为 1 → dedup_removed_txn_count=0、dedup_amount=0.00（按单号计不按行计）。",
+    "4. 取单号并集，逐列比对 shares / amount / fee_total / 日期（账 date ↔ 单 trade_date）；单侧存在的取该侧 amount。得 T003/T004/T005/T006/T007/T008 共 6 条。",
+    "5. 类别常量集中定义，diffs 与 categories 双向断言（长度相等、集合互反），避免手写漂移。",
+    "6. 硬断言链：amount_diff_total+excluded_amount_total==raw_total_gap（26120.00+520.00==26640.00）；diff_count==len(diffs)==6；任一条断裂即 fail-fast 不落盘。",
+    "7. 落盘：写 EX-03.json.new → json.load 回读校验 → 同卷 os.replace 覆盖；旧版先复制到 runs/round8/_trash/<UTC时间戳>/，不调用 unlink。",
+    "8. 与 round5 同题产出做 diff：立场 exclude/6 不变，仅更正 falsification 中的日期基准分支（8 → 7）。"
+  ],
+  "cost": {
+    "token_estimate": "本席约 2.2e4 tokens（3 份同伴包合计 17807 字节 ≈ 5e3 tokens + 2 次 Decimal 复算 + 产出）。本轮三席自述合计 26000+14800+19000=59800；再加软裁判/聚合写入者/结构审计各约 2e4 估 6e4 → 全轮约 1.2e5，占单任务硬上限 160000 的 75%，余量仅 4e4。折算校验：1.2e5 ÷ 15 ≈ 8e3，与单轮对话量级吻合。★ 若本轮被判需魔鬼代言人轮，+3 席约 6e4 → 1.8e5 超限，直接触发退出码 4。",
+    "wall_clock": "本席 12~15 分钟（读 3 包 4 分钟、复算 4 分钟、自校验与产出 5 分钟）。按 minutes_span 取 max 口径，全轮墙钟 ≈ 15 分钟；三席若串行则 40 分钟以上。",
+    "human_touchpoints": "4 次：①发起子代理（物理必须人工）②聚合写入 ③结构审计（干净上下文）④人类闸门签署。另 T-01 的判断层（ADJ-001 金额口径 / DIFFSET 清单范围）必须在这 4 次内一并签掉，否则 pending 恒挂。"
+  },
+  "rollback": "数据面无风险：fixtures 只读，一个字节不改，复算幂等可无限重跑。写入面只有 runs/round8/EX-03.json 一个文件：先写 .new、回读 json.load 通过后再 os.replace（仓库在外部卷 /Volumes/ZHITAI，必须同卷原子替换）；旧版复制到 runs/round8/_trash/<UTC>/ 而非删除，回退即复制回原位。★ 真正的坑在聚合依赖：answer-final 逐席记录 sha256，席位文件一改 sha 即失效、验收门会 exit 1，故「回滚一个席位」= 重跑聚合（约 +2e4 tokens）。因此本轮席位产出必须在聚合开始前冻结，聚合后只允许整轮回退、不允许单席热改。",
+  "op_grade": "🟡",
+  "cross_platform_risks": [
+    {
+      "risk": "声明主机与实际主机不符：席位提示词称本机 Windows，实测为 Darwin arm64 / Python 3.13.12 / 默认编码 UTF-8。按 Windows 假设写的防御（GBK 兜底、unlink 规避）与按 mac 写的会分叉。",
+      "mitigation": "运行时探测 platform.system() 与 locale.getpreferredencoding(False)，按探测结果分支；不把主机假设写进脚本常量。"
+    },
+    {
+      "risk": "编码：两份 CSV 实测 UTF-8 无 BOM，但中文 name/note 列在 Windows 主机上若被 Excel 另存会变 GBK 或带 BOM → UnicodeDecodeError 或首列名带 \\ufeff 导致 txn_id 取不到。",
+      "mitigation": "固定 encoding='utf-8-sig'（无 BOM 时等价于 utf-8），并在读入后 strip 表头。"
+    },
+    {
+      "risk": "换行：实测纯 LF；Windows 侧重存为 CRLF 后，不加 newline='' 会让 note 尾字符带 \\r，类别字符串比较失败、categories 与 diffs 对不上。",
+      "mitigation": "打开时 newline=''，写出时 newline='\\n' 固定 LF，并断言输出不含 \\r。"
+    },
+    {
+      "risk": "路径：仓库挂在外置卷 /Volumes/ZHITAI（df 显示 /dev/disk5s1）。若把 _trash 建在 /tmp，os.replace 跨卷抛 OSError(EXDEV)，非原子且可能留下半截文件。",
+      "mitigation": "全部 pathlib.Path；_trash 与目标同卷（runs/round8/_trash/）；跨卷场景改用「写新文件 + 校验 + 再替换」，不做跨卷 rename。"
+    },
+    {
+      "risk": "删除：unlink 在本机沙箱被拦；但 shutil.move 跨卷内部仍会 copy+unlink，等于绕过一半又把坑踩回来。",
+      "mitigation": "同卷一律 os.replace；确需清理时 shutil.move 到同卷 _trash 并保留，不做删除。"
+    },
+    {
+      "risk": "时间戳目录名：_trash/<ts> 若用本地时区，跨平台/跨时区会重名或乱序，覆盖上一份可回滚基线。",
+      "mitigation": "用 datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')，并断言目录不存在才创建。"
+    },
+    {
+      "risk": "文件名大小写：APFS 默认大小写不敏感，Ledger.csv 与 ledger.csv 可同时存在却互相覆盖；迁移到大小写敏感的 Linux CI 后路径解析行为改变。",
+      "mitigation": "路径常量统一小写，读取前 assert path.exists() 且 path.name==path.name.lower()。"
+    }
+  ],
+  "evidence": [
+    {
+      "pointer": "fixtures/tasks/T-01/ledger.csv:2-6#amount",
+      "what_it_shows": "114800.00=30000+26000+45000+0+13800；5 行，号唯一。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-01/bill.csv:2-9#amount",
+      "what_it_shows": "141440.00=30000+26000+45120+26000+260+0+260+13800；8 行；差 26640.00；T003 差 120.00/0.03。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-01/bill.csv#trade_date,settle_date",
+      "what_it_shows": "trade_date→6 条；settle_date→7 条（T008 退出、T001-3 加入，净 +1）；8/5 皆不可达；T008 差额 0.00。"
+    }
+  ],
+  "falsification": "以下任一成立则我这份可执行方案错：(a) 契约规定日期列须比对 settle_date → diff_count 应为 7（我已复算，非 8 非 5），DIFFSET=6 作废；(b) 股息 520.00 被规定计入金额差 → amount_diff_total=26640.00、excluded=0.00、ADJ-001 翻为 count，我的闭合断言仍成立但类别全错；(c) 聚合产物不记录逐席 sha256 → 我「席位一改即失效、须整轮回退」的回滚前提不成立，单席热改即可；(d) 若两表存在我未识别的同号多行（实测两侧最大频次均为 1），dedup 与全部金额字段须重算。",
+  "reads": [
+    {
+      "path": "runs/round8/prompts/EX-03.md",
+      "purpose": "席位职责、读取域、字数预算、revision_round 要求"
+    },
+    {
+      "path": "fixtures/tasks/T-01/TASK.md",
+      "purpose": "字段算法、四个易错点、D 节四列差异判定口径"
+    },
+    {
+      "path": "fixtures/tasks/T-01/ledger.csv",
+      "purpose": "自记账 5 行逐行取数并复算合计"
+    },
+    {
+      "path": "fixtures/tasks/T-01/bill.csv",
+      "purpose": "交割单 8 行逐行取数、建两种日期基准的差异集"
+    },
+    {
+      "path": "runs/round8/inputs/pack-ANON-A.json",
+      "purpose": "读同伴结论与 falsification 分支，核对其日期基准算术"
+    },
+    {
+      "path": "runs/round8/inputs/pack-ANON-B.json",
+      "purpose": "读同伴结论与其对他人主张的归因"
+    },
+    {
+      "path": "runs/round8/inputs/pack-ANON-C.json",
+      "purpose": "读同伴结论、confidence 与 needs_more_data 是否可满足"
+    },
+    {
+      "path": "runs/round5/EX-03.json",
+      "purpose": "同题前轮自述立场，检查本轮是否翻边"
+    },
+    {
+      "path": "runs/round7/EX-03.json",
+      "purpose": "核查我在 T-03 的 stance 记法与金额字段是否语义自洽"
+    },
+    {
+      "path": "protocol/02-辩论协议.md",
+      "purpose": "输出契约、强制反对、聚合的证据制规则"
+    },
+    {
+      "path": "protocol/07-轮次与指标.md",
+      "purpose": "stance 机械反推规则、预算计量定义式、独立证据的文件级归一化"
+    },
+    {
+      "path": "protocol/03-结构审计七查.md",
+      "purpose": "检索命中 ADJ-001/ADJ-002 待签项一行，未通读全文"
+    },
+    {
+      "path": "protocol/06-写入域与判据分层.md",
+      "purpose": "检索命中 adjudication 层与写入者硬门的片段，未通读全文"
+    }
+  ],
+  "dissent": [
+    {
+      "against": "ANON-A",
+      "reason": "falsification 称改 settle_date 后 diff_count=8；复算为 7（T008 退出、T001/T002/T003 加入，净 +1）。硬字段写错分支＝把可推翻写成永不可推翻，该结论按契约不可裁决。round5 我方同一处错误，一并更正。",
+      "reverse_evidence": "两基准各跑一遍得 6 与 7；任何单基准都不产生 8。"
+    },
+    {
+      "against": "ANON-B",
+      "reason": "把同一替换写成「降为 5」，方向相反；又把「diff_count=5」当作我方主张来反，而无人如此主张——幻影归因，证据制下权重应为 0。",
+      "reverse_evidence": "三席 summary 皆 26120.00/520.00、diff_count 皆 6。"
+    },
+    {
+      "against": "ANON-A",
+      "reason": "dissent 首条 against 指向自身，且攻击「一律计入」这一无人主张的立场；自反对边不构成新反对边，对分歧熵零贡献，形式过契约、实质空转。",
+      "reverse_evidence": "三席 excluded_amount_total 均非 0，不存在被攻击的那种主张。"
+    },
+    {
+      "against": "ANON-C",
+      "reason": "needs_more_data 要求补 600519 账侧流水，但 TASK.md 约束 1 明禁外部数据——该缺口按定义不可补，应记为判断层待签而非 data_insufficient，否则分支会误等数据。",
+      "reverse_evidence": "TASK.md:88；600519 仅在 bill.csv:6,8 出现，账侧本无该标的。"
+    }
+  ],
+  "confidence": "high",
+  "needs_more_data": [
+    "日期基准（trade_date vs settle_date）任务文本未逐字规定，仅能由 TASK.md 背景「按入账日记账 / 按成交日列示」与 T008 双备注反推，属判断层待签。",
+    "股息 520.00 是否属本次核对范围（账套是否有现金账户）决定 ADJ-001 取向，须人类闸门一次性签掉。"
+  ],
+  "stance": [
+    {
+      "axis": "ADJ-001",
+      "choice": "exclude"
+    },
+    {
+      "axis": "DIFFSET",
+      "choice": "6"
+    }
+  ],
+  "summary": {
+    "ledger_rows": 5,
+    "bill_rows": 8,
+    "ledger_total": 114800.0,
+    "bill_total": 141440.0,
+    "raw_total_gap": 26640.0,
+    "dedup_removed_txn_count": 0,
+    "dedup_amount": 0.0,
+    "diff_count": 6,
+    "amount_diff_total": 26120.0,
+    "excluded_amount_total": 520.0,
+    "excluded_categories": [
+      "非交易现金流入（股息未入账）",
+      "权益变动股数差（送转未更新）",
+      "入账时点差（按交割日入账）"
+    ]
+  },
+  "usage": {
+    "tokens": 21000,
+    "minutes": 13,
+    "source": "self_report"
+  }
+}

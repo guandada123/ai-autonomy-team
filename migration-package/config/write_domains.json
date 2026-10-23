@@ -1,0 +1,35 @@
+{
+  "_README": [
+    "写入域定义 —— 唯一可机器消费的来源（docs/protocol/06-写入域与判据分层.md）。",
+    "本质是修复结构缺陷 F2：「写权限唯一化」曾只是文本约束，没有任何强制手段。",
+    "",
+    "规则：allow 前缀内可写；deny 前缀内一律禁写（含 PM）；两者之外视为禁止（fail-closed）。",
+    "第 8 查由此文件驱动：",
+    "  轮次前  gen_manifest.py --write-domain config/write_domains.json --out runs/round{n}/wd-baseline.json",
+    "  轮次后  gen_manifest.py --write-domain config/write_domains.json \\",
+    "              --check runs/round{n}/wd-baseline.json --out runs/round{n}/write-domain-check.json",
+    "verdict=HIT 表示禁止目录发生变化（结构事实）；是否为授权再生成由 PM 在 docs/decisions/ 留痕裁定。"
+  ],
+
+  "version": 1,
+  "write_authority": "PM-01",
+
+  "allow": [
+    "runs/round{n}/",
+    "runs/round{n}/{seat}/"
+  ],
+
+  "deny": [
+    "fixtures/",
+    "outputs/",
+    "docs/",
+    "protocol/",
+    "prompts/",
+    "config/",
+    "judges/"
+  ],
+
+  "deny_root_files": true,
+
+  "note": "deny 命中即为结构事实（HIT）；脚本不判语义，「越权写入」与「合法再生成」的区分交人类闸门。"
+}

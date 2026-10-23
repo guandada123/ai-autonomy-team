@@ -1,0 +1,455 @@
+{
+  "generated_at": "2026-10-16T17:28:34+08:00",
+  "kind": "write_domain_baseline",
+  "root": ".",
+  "deny_prefixes": [
+    "fixtures/",
+    "outputs/",
+    "docs/",
+    "protocol/",
+    "prompts/",
+    "config/",
+    "judges/"
+  ],
+  "note": "轮次前的共享目录快照。轮次后用 --write-domain <cfg> --check <本文件> 比对。",
+  "files": [
+    {
+      "path": "config/automations.json",
+      "size": 2400,
+      "sha256": "224bbc669262dde9beef1a6e9f04db370a314544cf6e074512d581e2f1f89bd6",
+      "newline": "LF"
+    },
+    {
+      "path": "config/models.json.example",
+      "size": 1721,
+      "sha256": "1079d65a003c38434bfe9fb81b3cf0e413d09850c8c6f023ecfa3af578b39a5a",
+      "newline": "LF"
+    },
+    {
+      "path": "config/params.json",
+      "size": 8324,
+      "sha256": "ea8f1c6868b3ecd88caad8e8e19f4f9a58825f2e3ebbc1fa2846f6ad4c20874d",
+      "newline": "LF"
+    },
+    {
+      "path": "config/write_domains.json",
+      "size": 1275,
+      "sha256": "8d95ce5e9887dc58b4d2ffc17e6b6a797f62797e813e75622d3ddceb380338c8",
+      "newline": "LF"
+    },
+    {
+      "path": "docs/修复报告-F1F2F3.md",
+      "size": 7859,
+      "sha256": "e608aa5d638daf1fe066a1c06c96498c17894c02dadf697f493d4057e025662d",
+      "newline": "LF"
+    },
+    {
+      "path": "docs/目标机-人工确认清单.md",
+      "size": 3881,
+      "sha256": "c74afa005eff1cd14f2ba2ff0d3bdc4585a041075257235eade1149985328dbd",
+      "newline": "LF"
+    },
+    {
+      "path": "docs/验证报告.md",
+      "size": 12160,
+      "sha256": "11acd53bd586780a149a51b15de6ab0bc4089377caff8f54455e446f80cfb350",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/TASK.md",
+      "size": 3407,
+      "sha256": "9be9ac8c99f6df5b4bc5cb8203645a90f1093b2e2c8dd23af80cff58302f39ee",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/answer-baseline-v2.json",
+      "size": 1595,
+      "sha256": "95e212ecae1c1bb821813de5ed1656a1f2e70137fb39be7a3dd622294a9398ba",
+      "newline": "CRLF"
+    },
+    {
+      "path": "fixtures/answer-baseline-v3.json",
+      "size": 2031,
+      "sha256": "48dfe0218d96cc6674f3f976461815a350bf347d8e85f16f7784a8fb52cfef82",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/answer-baseline.json",
+      "size": 2201,
+      "sha256": "373e58f39bbf4d8bab7d974f047e8f1bbcdee49abf450c4282f79c9a92f923e7",
+      "newline": "CRLF"
+    },
+    {
+      "path": "fixtures/bill.csv",
+      "size": 1370,
+      "sha256": "246e0ca593ca1ab490541fe4c1ae0f8488a657e2388fab94c0814b9714f1f2ca",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/ledger.csv",
+      "size": 1355,
+      "sha256": "e46ba9946292c4c858ede6da0624cf969bb6597d019ed0116ec92394dd478e98",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/final-bad/answer-final.json",
+      "size": 296,
+      "sha256": "2aa4af7212ff423b3aa5891cb48675d118b257c80caa5dbb41931df464221d85",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/params-threshold0.json",
+      "size": 8511,
+      "sha256": "f680a2666394dc091f71da4f83db927323faa9b1aa5e7279e2e4fcced99bfc64",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/roundA/EX-01.json",
+      "size": 578,
+      "sha256": "020a82a1545c1935e971f7420663edfb525d85ecf12658a49edabb5353291618",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/roundA/EX-02.json",
+      "size": 576,
+      "sha256": "9718b7916742e0540d7336d09c8595f263c1f902f128aa7440ed7af8e5bb9307",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/roundA/EX-03.json",
+      "size": 501,
+      "sha256": "b38a0d4c34d2737f014d9b8e919eacb2f2f1f816306968bffbc8c2d126820db3",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/roundA/round-manifest.json",
+      "size": 196,
+      "sha256": "d658c40da6d8cca9cd9e8ff92586717094066994a42e1bffbd6d795ec21e0bc9",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/roundA/seat-check.json",
+      "size": 4475,
+      "sha256": "58f825bfa877989e4c6e2111a9d1e1320933df5dc1e0ce604dd6a71b03547a61",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/roundB/EX-01.json",
+      "size": 578,
+      "sha256": "020a82a1545c1935e971f7420663edfb525d85ecf12658a49edabb5353291618",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/roundB/EX-02.json",
+      "size": 570,
+      "sha256": "0fc16f4358f95ab628d04a39cb639aa0b223112c72cc64cbf00f2bbbd18ae7cc",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/roundB/EX-03.json",
+      "size": 504,
+      "sha256": "313cb173bbc70583f99fffcf5b7cbb885bf598569160733f7ee949f74f6b3c84",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/roundB/metrics.json",
+      "size": 3867,
+      "sha256": "68e028c879eea72248b530174c6a2cc6a9cf10c4bbb44ab21a8faffa4651b4dc",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/roundB/round-manifest.json",
+      "size": 197,
+      "sha256": "162904db0b04a28e92af3ec19feb3c809895a530661fa68731732eaa1aa9dfe2",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/roundB/seat-check.json",
+      "size": 4474,
+      "sha256": "3e8b45cb8fdb1fba016749a416ddf03d3bbc414cbdacdf5ce4aedb9a83afbd34",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/roundC/EX-01.json",
+      "size": 580,
+      "sha256": "714a79b23d3009fc1c7f6aa07a1b0ae1dd2287188ba36ecd17da09bbb5a2b412",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/roundC/EX-02.json",
+      "size": 580,
+      "sha256": "e4ca639041692419dd6a191f552799805ef519ff5bb7a8d9a7321844f1c05c6d",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/roundC/EX-03.json",
+      "size": 580,
+      "sha256": "68377e7f39ceaee3ffcc1a184a2863ac476268f5b9c65d48ae8e4d6ef2ffd6d8",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/roundC/metrics.json",
+      "size": 3240,
+      "sha256": "88908a80cde55c52ddf14a42dc190d5d64e8e7f90d246246ea000d629ce8730d",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/roundC/round-manifest.json",
+      "size": 196,
+      "sha256": "66ffb2bf72fefe68c71fec224dd68c4668d7183a4dbc6777000c8a67d032df8a",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/roundC/seat-check.json",
+      "size": 4497,
+      "sha256": "87be088eb47f977952a8757daa27b301a83e383baec5144831bae1d39c407fd5",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/roundD1/EX-01.json",
+      "size": 578,
+      "sha256": "020a82a1545c1935e971f7420663edfb525d85ecf12658a49edabb5353291618",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/roundD1/EX-02.json",
+      "size": 576,
+      "sha256": "9718b7916742e0540d7336d09c8595f263c1f902f128aa7440ed7af8e5bb9307",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/roundD1/EX-03.json",
+      "size": 501,
+      "sha256": "b38a0d4c34d2737f014d9b8e919eacb2f2f1f816306968bffbc8c2d126820db3",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/roundD1/metrics.json",
+      "size": 3546,
+      "sha256": "cc5055f7048f179c6b010a91cdfa3ca6ed92bf4479e9e4fb1e0dd93bcfc820d1",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/roundD1/round-manifest.json",
+      "size": 197,
+      "sha256": "c5cc8799b60a3f6596dd0573502dfcc92ce8d8b495615307230ddf37e385fa4c",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/roundD1/seat-check.json",
+      "size": 4479,
+      "sha256": "a21ca676de44987d4758161877d103d7106de75121a96470731a08472deb429c",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/roundD2/EX-01.json",
+      "size": 578,
+      "sha256": "020a82a1545c1935e971f7420663edfb525d85ecf12658a49edabb5353291618",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/roundD2/EX-02.json",
+      "size": 576,
+      "sha256": "9718b7916742e0540d7336d09c8595f263c1f902f128aa7440ed7af8e5bb9307",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/roundD2/EX-03.json",
+      "size": 501,
+      "sha256": "b38a0d4c34d2737f014d9b8e919eacb2f2f1f816306968bffbc8c2d126820db3",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/roundD2/metrics.json",
+      "size": 3630,
+      "sha256": "cedcaa99256867598db0bf63704d6f2d42edeaf9c152f86936c2232651aa83ac",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/roundD2/round-manifest.json",
+      "size": 197,
+      "sha256": "36eacdc374d1fd337f1a1d39a90be90106a51e292d71f93c479f8bea3c2b00cb",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/roundD2/seat-check.json",
+      "size": 4479,
+      "sha256": "51f7a7f0729775a7b85a598aa2ff529cd2cb96cc48e22386a705c00c0de13625",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/seat-bad/EX-01.json",
+      "size": 533,
+      "sha256": "4324bcabc05e6724cc0c3220583e417bd7e0e855f075287951a6c3f4965b8250",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/seat-bad/EX-02.json",
+      "size": 462,
+      "sha256": "b4478b75cd26909f2aa8b67b8bb1a35f00c5072d6ee258f7484a54295ac33cdc",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/seat-bad/EX-03.json",
+      "size": 509,
+      "sha256": "589c0fa8cc5c429e231c2d6c49c0e3b8565ddefe8f3bf858b12afe27188c8337",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/seat-bad/answer-final.json",
+      "size": 296,
+      "sha256": "2aa4af7212ff423b3aa5891cb48675d118b257c80caa5dbb41931df464221d85",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/seat-bad/round-manifest.json",
+      "size": 199,
+      "sha256": "d2a2cbb7d55904a6a021b806790e9031849bbcb2e75734dc25e4b94fc4d3080b",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/seat-bad/seat-check.json",
+      "size": 4953,
+      "sha256": "0cacc1f722664b5be521f3e1318539fe8dbc65a580a848401f5d3a0a082dc898",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/spec/adjudication.json",
+      "size": 4065,
+      "sha256": "b20d25f2980c7f8b34bc7e880bb588bbe15f6248bc937c5e3cf9048732843d56",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/spec/arithmetic.json",
+      "size": 1846,
+      "sha256": "b4d60bd31b42b41ea936b2044e15cea8dc7df2258c336babd8a096189fcb3500",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/truth.json",
+      "size": 3874,
+      "sha256": "03b41c4927991adb011e65e99a2f22ad0b8fa3ca9b0a05b65c5335b1f0d33fe4",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/verdict-baseline-v3.json",
+      "size": 4272,
+      "sha256": "5284d904f9f54e7a63c98bae293d0edf32ef9d75a4fa7ce92abd368ecdbc0d24",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/verdict-baseline.json",
+      "size": 3641,
+      "sha256": "9de99309db9344c03d94d29cd274c8196091c34a811b532c00d36024a89420f8",
+      "newline": "LF"
+    },
+    {
+      "path": "judges/README.md",
+      "size": 3919,
+      "sha256": "73e1a4524d724402bf5f0340f6fc5fcf16856d6661f4ec1748c5a0ea106b7370",
+      "newline": "LF"
+    },
+    {
+      "path": "judges/run.cmd",
+      "size": 586,
+      "sha256": "6530865f30c62e77c31e6f339efae6a1bf5ee2bd0da8603ea71978e8ba7fa46f",
+      "newline": "LF"
+    },
+    {
+      "path": "judges/run.sh",
+      "size": 901,
+      "sha256": "4d33e84178a2c54946a43690e3f5a2d97582c7e32defc820b31ec3fbfb3ffbd5",
+      "newline": "LF"
+    },
+    {
+      "path": "judges/seat_check.py",
+      "size": 30833,
+      "sha256": "5655d41cf1eb214e7abfb9d164ce7c4c35333a1fcb0e05f40f13ee262cc283dd",
+      "newline": "LF"
+    },
+    {
+      "path": "judges/verify.py",
+      "size": 33781,
+      "sha256": "2c43861a015b39fd0c80c16e280fed8e3f72ecc626f26b89ea511d8e83291ae0",
+      "newline": "LF"
+    },
+    {
+      "path": "prompts/ad-01.md",
+      "size": 4723,
+      "sha256": "9b93bcd2c20fcfb4791319cb9b3db57e663052bbb0917f25bfc4065424cb3a9a",
+      "newline": "LF"
+    },
+    {
+      "path": "prompts/ex-01.md",
+      "size": 3628,
+      "sha256": "49c7b14325aea8110c64d0bd593e4ad484f445032213508ca145ab8cb5addfbd",
+      "newline": "LF"
+    },
+    {
+      "path": "prompts/ex-02.md",
+      "size": 3692,
+      "sha256": "9b6cf28f57e61d754b0517375427c4476539b6485ab9ace4cea20819c69cd6d9",
+      "newline": "LF"
+    },
+    {
+      "path": "prompts/ex-03.md",
+      "size": 3618,
+      "sha256": "0d98deb129d5ad01aa5b48a03529821124480c64ea8db7833c46b4126878e02e",
+      "newline": "LF"
+    },
+    {
+      "path": "prompts/pm-01.md",
+      "size": 4644,
+      "sha256": "d120d235ee5c32c68293c018e879045d1ddcc8f237700c900e39ec02af5eba62",
+      "newline": "LF"
+    },
+    {
+      "path": "prompts/xj-01.md",
+      "size": 3437,
+      "sha256": "e997a73b98f964142fda6c871efaadb557df27cb413f201f0f52bdf1ebb5b38c",
+      "newline": "LF"
+    },
+    {
+      "path": "protocol/01-架构.md",
+      "size": 5139,
+      "sha256": "1f0deb83cc07e3bda98b34321a85ac4750bcad649b1c2e14e9598f4749888269",
+      "newline": "LF"
+    },
+    {
+      "path": "protocol/02-辩论协议.md",
+      "size": 5036,
+      "sha256": "164fdfcf560c5ee996c1826f7f25c1fa8477ca9097e4d2e93a1cae94b5694871",
+      "newline": "LF"
+    },
+    {
+      "path": "protocol/03-结构审计七查.md",
+      "size": 4464,
+      "sha256": "2b1b1b691dfd22d013c6ef0ebd75d65eb7a715b348ea196b053c8b565dac0554",
+      "newline": "LF"
+    },
+    {
+      "path": "protocol/04-双裁判规范.md",
+      "size": 5799,
+      "sha256": "494f39604644ab937a869c1bec148a79f0b4975b927a4385cf313c8546bea101",
+      "newline": "LF"
+    },
+    {
+      "path": "protocol/05-工作协议.md",
+      "size": 4969,
+      "sha256": "06fdfaace42bc33dd7ad89bbb180ba424310122de91a30cf40bd176538b158c3",
+      "newline": "LF"
+    },
+    {
+      "path": "protocol/06-写入域与判据分层.md",
+      "size": 8611,
+      "sha256": "1067f22509031239f15aa7a0973c79ddd34abb0f5ac38cea34ada18bed02cb79",
+      "newline": "LF"
+    },
+    {
+      "path": "protocol/07-轮次与指标.md",
+      "size": 14618,
+      "sha256": "39df6ae11791dc16bb7b560dc52661029d1d2bd2b5a0e6a91bd9f34c7b8aabcc",
+      "newline": "LF"
+    }
+  ]
+}

@@ -1,0 +1,159 @@
+{
+  "kind": "round_metrics",
+  "round": "round2",
+  "round_role": "revision_round",
+  "generated_at": "2026-10-16T17:36:15+08:00",
+  "metrics_status": "ok",
+  "params_sha256": "ea8f1c6868b3ecd88caad8e8e19f4f9a58825f2e3ebbc1fa2846f6ad4c20874d",
+  "axis_registry_sha256": "b20d25f2980c7f8b34bc7e880bb588bbe15f6248bc937c5e3cf9048732843d56",
+  "seats_total": 3,
+  "seats_contract_valid": 4,
+  "seats_blocked": [],
+  "stance": {
+    "EX-01": {
+      "ADJ-001": {
+        "choice": "exclude",
+        "why": "逐 option 匹配 implies 全部键值"
+      },
+      "DIFFSET": {
+        "choice": "7",
+        "why": "summary.diff_count=7"
+      }
+    },
+    "EX-02": {
+      "ADJ-001": {
+        "choice": "exclude",
+        "why": "逐 option 匹配 implies 全部键值"
+      },
+      "DIFFSET": {
+        "choice": "7",
+        "why": "summary.diff_count=7"
+      }
+    },
+    "EX-03": {
+      "ADJ-001": {
+        "choice": "abstain",
+        "why": "不匹配任何选项 → 弃权"
+      },
+      "DIFFSET": {
+        "choice": "7",
+        "why": "summary.diff_count=7"
+      }
+    }
+  },
+  "stance_mismatches": [
+    {
+      "seat": "EX-03",
+      "axis": "ADJ-001",
+      "declared": "exclude",
+      "derived": "abstain"
+    }
+  ],
+  "dissent_entropy": {
+    "per_axis": {
+      "ADJ-001": {
+        "H": 0.0,
+        "H_norm": 0.0,
+        "K": 2,
+        "N": 2,
+        "counts": {
+          "exclude": 2
+        },
+        "unanimous": true,
+        "comparable_seats": [
+          "EX-01",
+          "EX-02"
+        ]
+      },
+      "DIFFSET": {
+        "H": 0.0,
+        "H_norm": 0.0,
+        "K": 3,
+        "N": 3,
+        "counts": {
+          "7": 3
+        },
+        "unanimous": true,
+        "comparable_seats": [
+          "EX-01",
+          "EX-02",
+          "EX-03"
+        ]
+      }
+    },
+    "round_mean": 0.0,
+    "floor": 0.1,
+    "below_floor": true,
+    "unanimous_axes": [
+      "ADJ-001",
+      "DIFFSET"
+    ],
+    "independent_evidence_seats": [
+      "EX-01",
+      "EX-02",
+      "EX-03"
+    ],
+    "shared_pointer_count": 0,
+    "devils_advocate_required": false
+  },
+  "flip_rate": {
+    "numerator": 0,
+    "denominator": 0,
+    "value": null,
+    "denominator_definition": "comparable_seat_axis_pairs",
+    "low_confidence": true,
+    "by_seat": {},
+    "by_axis": {},
+    "flips": [],
+    "note": "D=0 → value=null（未定义，绝不当 0）",
+    "threshold": 0.4,
+    "alert": null
+  },
+  "evidence": {
+    "input_pointer_count": 16,
+    "new_count": 16,
+    "new_pointer_ids": [
+      "062d6c47cc19caca",
+      "18eaf6d8f4cfab21",
+      "19ba95c5d68bbbca",
+      "37a3dca1bae25c81",
+      "45d73e3070bf1fd0",
+      "465fbb0002f9e448",
+      "51aed5cf0975b930",
+      "53d8d934b1cb19a8",
+      "695eeec5cd7d6818",
+      "8aa11ae8374a1cde",
+      "b4db94e78d88a00d",
+      "ef24b091648e859e",
+      "f2308f3e871adda6",
+      "f979de0865761b7a",
+      "fb02f92dab9d5cfb",
+      "fe43ba3fec779841"
+    ],
+    "idle": false,
+    "idle_streak": 0,
+    "idle_detection_applies": false,
+    "idle_detected": false,
+    "min_streak_required": 2,
+    "notes": [
+      "round_role=revision_round → idle_detection 不适用（该轮按定义不引入新证据，套用会自证终止）",
+      "本轮新指针数基于 seat-check.json 的 derived.evidence_pointers；历史基线来自各轮 evidence-pointers 集合（含上一轮）"
+    ]
+  },
+  "length_spread": {
+    "min": 3219,
+    "max": 4685,
+    "stdev": 587.5,
+    "unit": "bytes"
+  },
+  "actions": [
+    "none"
+  ],
+  "exit_code": 0,
+  "notes": [
+    "无上一轮可比对 → flip_rate 记为 null（未定义，不是 0）",
+    "分歧熵 round_mean=0.0 < 下限，但 ['EX-01', 'EX-02', 'EX-03'] 带来了独立证据，未触发干预",
+    "round_role=revision_round → idle_detection 不适用（该轮按定义不引入新证据，套用会自证终止）",
+    "本轮新指针数基于 seat-check.json 的 derived.evidence_pointers；历史基线来自各轮 evidence-pointers 集合（含上一轮）"
+  ]
+}

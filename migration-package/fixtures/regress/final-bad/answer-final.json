@@ -1,0 +1,18 @@
+{
+  "summary": {
+    "ledger_rows": 27,
+    "bill_rows": 27
+  },
+  "aggregation_inputs": [
+    {
+      "seat": "EX-01",
+      "sha256": "deadbeef",
+      "seat_check_status": "invalid"
+    },
+    {
+      "seat": "EX-03",
+      "sha256": "cafebabe",
+      "seat_check_status": "valid"
+    }
+  ]
+}

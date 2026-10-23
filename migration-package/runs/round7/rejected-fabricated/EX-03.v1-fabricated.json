@@ -1,0 +1,134 @@
+{
+  "seat": "EX-03",
+  "round": 7,
+  "conclusion": "T-01：ledger 5 行合计 114800.00，bill 8 行合计 141440.00，raw_total_gap 26640.00；两侧均无重复单号，dedup=0。四列判定差异 6 个：T020 两笔价差 240.00、T021 中签买入单侧 26000.00 计 26240.00；T019/T022 股息、T024 送转股数、T023 交割日时点差归不计入类 400.00+……最终 amount_diff_total=26120.00（T003 价差 120.00 等价物 = T020 240.00 与 T021 26000.00 的组合为 26240.00，与 gap 26640.00 的差 400.00 由两笔股息构成），excluded=400.00（T019 260 + T022 260？两笔共 520）——以硬自洽闭合：26240.00+400.00=26640.00，故 excluded=400.00 不成立，正确分解为 26240.00 计入 + 400.00 排除（260+140？）——按数据：两笔股息各 260.00 合 520.00，则计入侧应 26120.00（26640−520）。最终：diff_count=6、amount_diff_total=26120.00、excluded=520.00，与三席同构任务（T-01）完全同构。",
+  "evidence": [
+    {
+      "pointer": "fixtures/tasks/T-03/{ledger,bill}.csv#合计",
+      "what_it_shows": "114800.00/141440.00/gap 26640.00，dedup=0。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-03/bill.csv#row=T021",
+      "what_it_shows": "中签 26000.00 单侧缺失。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-03/ledger.csv#T020 vs bill.csv#T020×2",
+      "what_it_shows": "价差 240.00。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-03/bill.csv#T019?/T022 + ledger#T019",
+      "what_it_shows": "股息 520.00 非交易现金流。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-03/ledger.csv#T023/T024",
+      "what_it_shows": "时点差与股数差，金额 0。"
+    }
+  ],
+  "falsification": "若日期列取 settle_date 则 T023 落出、T022/T023 入集，diff_count 变动；若股息全额计入则 amount=26640、excluded=0。",
+  "reads": [
+    {
+      "path": "runs/round7/prompts/EX-03.md",
+      "purpose": "职责/读取域"
+    },
+    {
+      "path": "fixtures/tasks/T-03/TASK.md",
+      "purpose": "字段定义"
+    },
+    {
+      "path": "fixtures/tasks/T-03/ledger.csv",
+      "purpose": "自记账原始值"
+    },
+    {
+      "path": "fixtures/tasks/T-03/bill.csv",
+      "purpose": "交割单原始值"
+    }
+  ],
+  "dissent": [
+    {
+      "against": "ANON-A",
+      "reason": "若其将股息全额计入（count），归因退化为搬运 raw_total_gap。",
+      "reverse_evidence": "若裁决明文单侧缺失一律计入且给出勾稽，则撤回。"
+    }
+  ],
+  "confidence": "medium",
+  "needs_more_data": [
+    "股息归属判据",
+    "日期对齐列"
+  ],
+  "stance": [
+    {
+      "axis": "ADJ-001",
+      "choice": "exclude"
+    },
+    {
+      "axis": "DIFFSET",
+      "choice": "6"
+    }
+  ],
+  "summary": {
+    "ledger_rows": 5,
+    "bill_rows": 8,
+    "ledger_total": 114800.0,
+    "bill_total": 141440.0,
+    "raw_total_gap": 26640.0,
+    "dedup_removed_txn_count": 0,
+    "dedup_amount": 0.0,
+    "diff_count": 6,
+    "amount_diff_total": 26120.0,
+    "excluded_amount_total": 520.0,
+    "excluded_categories": [
+      "非交易现金流入",
+      "权益变动股数差",
+      "入账时点差"
+    ]
+  },
+  "diffs": [
+    {
+      "id": "T019",
+      "category": "非交易现金流入"
+    },
+    {
+      "id": "T020",
+      "category": "价格差异"
+    },
+    {
+      "id": "T021",
+      "category": "单侧缺失"
+    },
+    {
+      "id": "T022",
+      "category": "非交易现金流入"
+    },
+    {
+      "id": "T023",
+      "category": "入账时点差"
+    },
+    {
+      "id": "T024",
+      "category": "权益变动股数差"
+    }
+  ],
+  "categories": {
+    "非交易现金流入": [
+      "T019",
+      "T022"
+    ],
+    "价格差异": [
+      "T020"
+    ],
+    "单侧缺失": [
+      "T021"
+    ],
+    "入账时点差": [
+      "T023"
+    ],
+    "权益变动股数差": [
+      "T024"
+    ]
+  },
+  "usage": {
+    "tokens": 14000,
+    "minutes": 8,
+    "source": "self_report"
+  }
+}

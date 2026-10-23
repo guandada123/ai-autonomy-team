@@ -1,0 +1,175 @@
+{
+  "seat": "EX-02",
+  "round": 21,
+  "conclusion": "多数把 120.00 口径差计入金额，使 amount_diff_total 同时承载「错记」与「口径选择」两类异质信息；我主张口径差单列为排除额（计入 14320.00／排除 120.00），并指出金额口径对 T134 的 30 股差完全盲视。",
+  "strongest_counter_arguments": [
+    {
+      "target": "ANON-A",
+      "argument": "「amount_diff_total 14440.00 == raw_total_gap」被当作正确性证明，但它是构造性恒等，不是独立校验：本夹具 6 条差额全部同向（bill ≥ ledger，无一条反向），故 Σ|d| = Σd = bill_total − ledger_total 必然成立，与归类是否合理无关。一个只在「无反向项」时才成立的等式，对归类问题零信息量。",
+      "reverse_evidence": "把 T131 改为 45200.00（引入 −80.00 反向项），等式应破裂为 14360.00；本样本无此类项，该检验从未真正执行。"
+    },
+    {
+      "target": "ANON-A",
+      "argument": "把 120.00 计入会把两种处置动作压进同一标量：需补记的是 13800+260+260（自记账缺失三笔），需重算基准的是 120.00（T131 按委托价 45.00 记账）。下游拿到 14440.00 无法区分补分录与改计价基准，而这是两种不可混用的操作。excluded_categories 非空是保留可分离性的最低成本手段。",
+      "reverse_evidence": "若 ledger.csv 无 note 字段，或券商侧委托价亦为 45.12（即 45.00 属成交价错填），则 120.00 是纯错记应计入，我的立场错。"
+    },
+    {
+      "target": "ANON-A",
+      "argument": "金额口径对股数类差异系统性盲视：T134 股数 0 vs 30 是真实持仓少记，但两侧 amount 均为 0.00，故 amount_diff_total 与 excluded_amount_total 对它贡献都是 0.00，11 个 summary 字段无一能表达这笔缺口——它仅以 diff_count 的 1 条存在。以该标量为唯一严重度度量的下游会低估本次核对。",
+      "reverse_evidence": "若 summary 允许股数差字段（如 shares_diff_total），或 spec 明示 amount 口径不含股数类差异属设计意图，则此攻击降为口径说明。"
+    }
+  ],
+  "what_would_change_my_mind": "任一成立即改判：①ledger.csv 的 T131 note 不存在或改为「成交价错填」；②spec 的 ADJ-001 count 选项 implies 明写 14440.00 且理由为「原始凭证优先，基准备注不构成豁免」；③样本出现反向差额项使 Σ|d| ≠ gap（则我的「恒等式无信息」论证被反用为「等式确有检验力」）。",
+  "evidence": [
+    {
+      "pointer": "fixtures/tasks/T-17/ledger.csv#T131,note",
+      "what_it_shows": "note「按委托价记账」，price 45.00 vs 45.12，差 120.00，自述为口径选择"
+    },
+    {
+      "pointer": "fixtures/tasks/T-17/bill.csv#T136,trade_date,settle_date",
+      "what_it_shows": "成交 09-17／交割 09-18；自记账 09-18 等于交割日，差额 0.00"
+    },
+    {
+      "pointer": "fixtures/tasks/T-17/bill.csv#T132,T133,T135,amount",
+      "what_it_shows": "13800+260+260=14320，加排除 120 回到 14440，两路闭合"
+    },
+    {
+      "pointer": "fixtures/tasks/T-17/ledger.csv#price",
+      "what_it_shows": "同 600519 取 15.00/1680.00/45.00/8.20，无连续行情，30 股差不可折算"
+    }
+  ],
+  "falsification": "若 45.00 被证明是成交价错填而非按委托价记账（例如券商委托流水显示委托价亦为 45.12），则 120.00 属真实错记应计入，我主张的 14320.00／排除 120.00 即错；若 T133 与 T135 实为同一分红事件的两个推送行，则 dedup 应为 1、amount_diff_total 应为 14060.00，我的 6 条清单也错。",
+  "reads": [
+    {
+      "path": "runs/round21/prompts/EX-02.md",
+      "purpose": "读取本席位对立面职责、steelman 要求与匿名 target 规则"
+    },
+    {
+      "path": "runs/round21/prompts/EX-01.md",
+      "purpose": "核对本轮其他席位的硬性字段与 stance 选项空间（仅查契约，不取结论）"
+    },
+    {
+      "path": "runs/round21/prompts/EX-03.md",
+      "purpose": "核对字段别名与缺席字段的可缺省范围"
+    },
+    {
+      "path": "fixtures/tasks/T-17/TASK.md",
+      "purpose": "取 §B 重复定义、§C 金额字段定义、§D 差异判定口径与四个易错点"
+    },
+    {
+      "path": "fixtures/tasks/T-17/ledger.csv",
+      "purpose": "逐行复算 5 行的 shares/amount/fee_total/date，并读 note 取口径声明"
+    },
+    {
+      "path": "fixtures/tasks/T-17/bill.csv",
+      "purpose": "逐行复算 8 行的 shares/amount/费用分项/两个日期，并校验分项之和"
+    },
+    {
+      "path": "protocol/02-辩论协议.md",
+      "purpose": "确认对立席位的 KPI 与「必须给最强反论」的判据"
+    },
+    {
+      "path": "protocol/06-写入域与判据分层.md",
+      "purpose": "确认 diff_count/amount_diff_total 属 adjudication 层、无 expected，故不可当客观真值"
+    },
+    {
+      "path": "protocol/07-轮次与指标.md",
+      "purpose": "查 ADJ-001 反推规则、W_STANCE_SEMANTIC_CONFLICT 的判定式（读到 §4.4）"
+    }
+  ],
+  "dissent": [
+    {
+      "against": "ANON-A",
+      "reason": "反对「dedup_removed_txn_count=0 是数据干净的结论」。T133/T135 同为现金分红 260.00、间隔 2 天；若券商按「同一事件分两行推送同一 txn_id」呈现（正是 §B 举的分批成交形态），dedup 立刻变 1、dedup_amount 260.00、amount_diff_total 14180.00。结论对「券商推送粒度」这一输入外事实高度敏感，而该事实不在两份 CSV 内。",
+      "reverse_evidence": "若 bill.csv 提供分红公告号等稳定事件键，可判定两笔是否同一经济事件；现无此键，故 0 只能算「按定义取到」，不能算「已核实无重复」。"
+    }
+  ],
+  "confidence": "medium",
+  "needs_more_data": [
+    "缺规则：§D「日期」列未指定取 trade_date 还是 settle_date，取前者得 6 条、取后者得 5 条",
+    "缺规则：ADJ-001 的 count/exclude 无客观判据，唯一线索是 note 自由文本，属解释而非规则",
+    "缺数据：无连续行情序列（同代码 price 15.00/1680.00/45.00/8.20 互不相容），T134 的 30 股差无法折算金额",
+    "缺数据：无分红事件键（公告号/派息方案号），无法判定 T133/T135 是否同一事件"
+  ],
+  "stance": [
+    {
+      "axis": "ADJ-001",
+      "choice": "exclude"
+    },
+    {
+      "axis": "DIFFSET",
+      "choice": "6"
+    }
+  ],
+  "summary": {
+    "ledger_rows": 5,
+    "bill_rows": 8,
+    "ledger_total": 243820.0,
+    "bill_total": 258260.0,
+    "raw_total_gap": 14440.0,
+    "dedup_removed_txn_count": 0,
+    "dedup_amount": 0.0,
+    "diff_count": 6,
+    "amount_diff_total": 14320.0,
+    "excluded_amount_total": 120.0,
+    "excluded_categories": [
+      "价格口径差",
+      "日期口径差"
+    ]
+  },
+  "diffs": [
+    {
+      "id": "T131",
+      "category": "价格口径差"
+    },
+    {
+      "id": "T132",
+      "category": "单侧缺失-中签买入"
+    },
+    {
+      "id": "T133",
+      "category": "单侧缺失-现金分红"
+    },
+    {
+      "id": "T134",
+      "category": "股数不一致-送转未登记"
+    },
+    {
+      "id": "T135",
+      "category": "单侧缺失-现金分红"
+    },
+    {
+      "id": "T136",
+      "category": "日期口径差"
+    }
+  ],
+  "categories": {
+    "价格口径差": [
+      "T131"
+    ],
+    "单侧缺失-中签买入": [
+      "T132"
+    ],
+    "单侧缺失-现金分红": [
+      "T133",
+      "T135"
+    ],
+    "股数不一致-送转未登记": [
+      "T134"
+    ],
+    "日期口径差": [
+      "T136"
+    ]
+  },
+  "usage": {
+    "tokens": 3600,
+    "minutes": 8,
+    "source": "self_report"
+  },
+  "reads_path_normalized": {
+    "by": "orchestrator",
+    "date": "2026-10-20",
+    "count": 3,
+    "note": "目录重命名 'runs/21 T-17/' → 'runs/round21/'（编排层 zsh 分词失误，见 round-manifest.dir_rename_note）；reads 路径机械归一化，内容零改动，席位当时的申报对其物理现实完全准确"
+  }
+}

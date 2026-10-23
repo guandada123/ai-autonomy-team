@@ -1,0 +1,68 @@
+{
+  "seat": "XJ-01",
+  "round": 2,
+  "conclusion": "本轮分歧清单共 2 项：ANON-A 与 ANON-B 在舍入差定性上表述相左但数值一致；ANON-C 与全体在任务维度上根本错位。",
+  "evidence": [
+    {
+      "pointer": "inputs/pack-ANON-A.json 的 diffs[0].category 与 summary.amount_diff_total",
+      "what_it_shows": "ANON-A 将 T101/T102 标为「舍入差」但 amount_diff_total=500.02，即把 0.02 计入了差异合计。"
+    },
+    {
+      "pointer": "inputs/pack-ANON-B.json 的 strongest_counter_arguments[0].target",
+      "what_it_shows": "ANON-B 自称「乙」立场，明确反驳「甲（全部非重复差额计入金额差异）」，并给出 amount_diff_total=680.02 的反事实值。"
+    },
+    {
+      "pointer": "inputs/pack-ANON-C.json 的 cross_platform_risks 与 float_risk_verdict",
+      "what_it_shows": "ANON-C 的产出完全是对迁移包的跨平台风险审计，未包含 T101–T107 的对账分类或金额差异数字。"
+    }
+  ],
+  "falsification": "若原始 TASK.md 存在两个独立子任务（对账+迁移审计），则 ANON-C 并非错位，而是我误将双轨任务判为单轨；若 ANON-A 与 ANON-B 的 amount_diff_total 实际不同（如一方 500.00 另一方 500.02），则我遗漏了真实数值分歧。",
+  "disagreements": [
+    {
+      "topic": "舍入差 T101/T102 的 0.02 是否应计入 amount_diff_total",
+      "positions": [
+        {
+          "anon_id": "ANON-A",
+          "stance": "在 dissent 中反对「舍入差不计入」，主张 0.02 应计入，实际输出 500.02"
+        },
+        {
+          "anon_id": "ANON-B",
+          "stance": "作为「乙」立场输出 500.02，但在反驳中承认「甲」立场会得 680.02，表明归类有争议"
+        }
+      ],
+      "why_it_matters": "舍入差是否属于「可解释差额」直接决定 amount_diff_total 的边界定义",
+      "decidable_by": "不可判定（需人类闸门）"
+    },
+    {
+      "topic": "任务维度：对账金额差异 vs 迁移技术审计",
+      "positions": [
+        {
+          "anon_id": "ANON-A",
+          "stance": "产出为对账结果，含 T101–T107 分类与金额差异"
+        },
+        {
+          "anon_id": "ANON-B",
+          "stance": "产出为对账结果，含立场声明与反方论证"
+        },
+        {
+          "anon_id": "ANON-C",
+          "stance": "产出为迁移包跨平台风险审计，不含对账金额"
+        }
+      ],
+      "why_it_matters": "三方未在同一问题域作答，无法直接比较对账数字的正确性",
+      "decidable_by": "不可判定（需人类闸门）"
+    }
+  ],
+  "overlooked_stances": [
+    "T104/T105 的 tax_included=N 是录入错误还是制度性口径——无外部合同或第三份权威表佐证",
+    "双方是否约定舍入容差阈值——无合同或结算规则文本",
+    "ANON-C 的审计结论与 ANON-A/B 的对账结论之间是否存在因果或依赖关系——未讨论"
+  ],
+  "presentation_controls": {
+    "anonymized": true,
+    "order_randomized": false,
+    "length_normalized": false
+  },
+  "self_caution": "我未读取原始 TASK.md、ledger.csv、bill.csv，无法独立验证 500.02/180.00 等数字；ANON-C 的任务维度差异可能是我误判，而非真实错位；三份产出长度差异显著，未做长度归一化控制。",
+  "note": "本产出为线索，非判据，决策权重为 0"
+}

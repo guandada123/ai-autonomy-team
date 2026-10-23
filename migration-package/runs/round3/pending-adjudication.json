@@ -1,0 +1,59 @@
+{
+  "task_id": "SYNTH-RECON-001",
+  "verdict": "pending_adjudication",
+  "judge": "JD-01",
+  "judge_impl": "scripts/judge/verify.py (non-LLM, stdlib-only)",
+  "spec_layer": "adjudication",
+  "summary": {
+    "total": 0,
+    "passed": 0,
+    "failed": 0,
+    "pending": 2
+  },
+  "checks": [],
+  "pending": [
+    {
+      "id": "ADJ-001",
+      "question": "「口径差」（台账含税、账单不含税，且差额恰等于税额）是否计入金额差异？",
+      "paths_affected": [
+        "summary.amount_diff_total",
+        "summary.excluded_amount_total"
+      ],
+      "options": [
+        "count",
+        "exclude"
+      ]
+    },
+    {
+      "id": "ADJ-002",
+      "question": "差异清单（`summary.diff_count` 与 `diffs`）应包含哪些条目？请就两件事分别表态、由一个选项同时决定：(a)「跨月归属」T106（同一 txn_id、金额一致、日期跨月）是否列入；(b)「口径差」T104/T105（台账含税、账单不含税、差额恰为税额）是否列入。",
+      "paths_affected": [
+        "summary.diff_count",
+        "diffs"
+      ],
+      "options": [
+        "7",
+        "6",
+        "5",
+        "4"
+      ]
+    }
+  ],
+  "adjudication_source": "none",
+  "carries_undeclared_judgment": false,
+  "evidence": [
+    {
+      "label": "spec",
+      "path": "fixtures/spec/adjudication.json",
+      "sha256": "e2ee19583d1220b43f2549cd26ae6249f61d243d71c836ff994c8903ec764393"
+    },
+    {
+      "label": "answer",
+      "path": "runs/round3/answer-final.json",
+      "sha256": "7161633171997de64cfe2751208b0956efcc46cace770af5bad2490b641b1944"
+    }
+  ],
+  "ts": "2026-10-19T17:20:36+08:00",
+  "override_policy": "本裁决不可被静默覆盖。PM 若要推进 fail 的动作，必须留痕：「覆盖 JD-01 的 fail 判定。风险评级：__。不可逆：__。理由：__。承担人：PM-01。」",
+  "adjudication_provenance": []
+}

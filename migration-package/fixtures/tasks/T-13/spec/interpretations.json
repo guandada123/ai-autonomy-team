@@ -1,0 +1,68 @@
+{
+  "task_id": "TASK-BROKER-013",
+  "note": "候选解释 —— 是【解释】不是【事实】更不是判据。",
+  "items": [
+    {
+      "key": "fee_omission",
+      "name": "费用漏记",
+      "basis": "同单号成交金额一致但 fee_total 不一致",
+      "applies_to": [
+        "T099"
+      ],
+      "caveat": "漏记与费率记错在数据上不可区分；是否计入由 ADJ-001 裁决。"
+    },
+    {
+      "key": "slippage",
+      "name": "委托价 vs 成交价（滑点）",
+      "basis": "price 列两侧不同",
+      "applies_to": [
+        "T099",
+        "T100",
+        "T101",
+        "T102",
+        "T103",
+        "T104"
+      ],
+      "caveat": "n=1 支撑的归纳；也可能只是手工录入误差。"
+    },
+    {
+      "key": "equity",
+      "name": "权益变动（送转/分红）",
+      "basis": "股数差（金额 0）或仅交割单侧的股息",
+      "applies_to": [
+        "T102",
+        "T103"
+      ],
+      "caveat": "账户事实是否算「对账差异」没有数据判据；由 ADJ-002 裁决。"
+    },
+    {
+      "key": "settlement_day",
+      "name": "T+1 交割跨日",
+      "basis": "date 与 trade_date 差一天，金额一致",
+      "applies_to": [
+        "T104"
+      ],
+      "caveat": "依赖日期比对基准的隐含假设（trade_date vs settle_date）；契约 3.0 已裁定基准为 trade_date。"
+    },
+    {
+      "key": "one_side_missing",
+      "name": "单侧缺失",
+      "basis": "仅交割单存在",
+      "applies_to": [
+        "T100",
+        "T101",
+        "T103"
+      ],
+      "caveat": "漏记资产还是券商误入账，方向不同处置完全不同；由 ADJ-001 裁决。"
+    },
+    {
+      "key": "batch_fill",
+      "name": "分批成交合并记账",
+      "basis": "同单号多行 vs 单行，合计一致但费用有小额尾差",
+      "applies_to": [
+        "T104"
+      ],
+      "caveat": "「多出行」指称未消歧；重复单号能否入 diffs 属契约空白。"
+    }
+  ]
+}

@@ -1,0 +1,165 @@
+{
+  "seat": "EX-01",
+  "round": 20,
+  "conclusion": "按 TASK 字段定义逐行机械复算：ledger 7 行合计 287820.00，bill 8 行合计 288200.00，raw_total_gap 380.00；同单号无重复（0 条 / 0.00）；四列口径下差异单号 6 个，金额差额合计 380.00＝T123 的 120.00＋T127 的 260.00，其余四条金额差均为 0。",
+  "evidence": [
+    {
+      "pointer": "fixtures/tasks/T-16/ledger.csv 列 amount（7 数据行全量）",
+      "what_it_shows": "Decimal 逐行累加 45000+45000+45000+76000+76000+0+820=287820.00；txn_id 出现次数全为 1，故无重复单号"
+    },
+    {
+      "pointer": "fixtures/tasks/T-16/bill.csv 列 amount（8 数据行全量）",
+      "what_it_shows": "逐行累加=288200.00，较 ledger 高 380.00；其中 T127 为单侧新增 260.00"
+    },
+    {
+      "pointer": "两表行 T123 的 price 与 amount 对位",
+      "what_it_shows": "45.00/45000.00 对 45.12/45120.00，差 120.00；fee 11.70 对 11.73，差 0.03；日期同为 2026-09-06"
+    },
+    {
+      "pointer": "两表行 T124、T125 的 fee_total",
+      "what_it_shows": "amount 两侧均 76000.00（差 0），fee 19.00 对 57.76，各差 38.76；按契约只差费用，金额字段不因此增加"
+    },
+    {
+      "pointer": "两表行 T126 的 shares 与 T128 的日期列",
+      "what_it_shows": "T126 shares 0 对 30（amount 两侧均 0.00）；T128 ledger.date 2026-09-15 等于 bill.settle_date，bill.trade_date 为 2026-09-14，金额两侧均 820.00"
+    },
+    {
+      "pointer": "protocol/07-轮次与指标.md §4.1（第 77-99 行）",
+      "what_it_shows": "DIFFSET 直接取 summary.diff_count 数值；ADJ-001 由 summary 与 spec options[].implies 精确比对反推，且该 spec 对本席位禁读"
+    }
+  ],
+  "falsification": "若日期比较基准应取 bill.settle_date 而非 trade_date，则 T128 不入清单、diff_count=5；若 adjudication 认定价格口径差 120.00 不计入金额差异，则 amount_diff_total=260.00、excluded_amount_total=120.00。任一成立，本条 6/380.00 的数值结论即作废。",
+  "reads": [
+    {
+      "path": "fixtures/tasks/T-16/TASK.md",
+      "purpose": "读取字段定义与差异判定口径（A/B/C/D 四节）"
+    },
+    {
+      "path": "fixtures/tasks/T-16/ledger.csv",
+      "purpose": "逐行取 amount/shares/fee_total/date 复算"
+    },
+    {
+      "path": "fixtures/tasks/T-16/bill.csv",
+      "purpose": "逐行取 amount/shares/fee_total/trade_date/settle_date 复算"
+    },
+    {
+      "path": "protocol/02-辩论协议.md",
+      "purpose": "确认单轮输出契约与强制反对要求"
+    },
+    {
+      "path": "protocol/03-结构审计七查.md",
+      "purpose": "确认外部钩子与读取域的判定方式"
+    },
+    {
+      "path": "protocol/07-轮次与指标.md",
+      "purpose": "确认 §4.1 立场反推规则与 DIFFSET 取值语义"
+    },
+    {
+      "path": "runs/round20/round-manifest.json",
+      "purpose": "核对本轮轮次类型、契约版本与预期席位"
+    },
+    {
+      "path": "runs/round20/prompts/EX-01.md",
+      "purpose": "读取本席位提示词与输出模板"
+    },
+    {
+      "path": "runs/round20/prompts/EX-02.md",
+      "purpose": "读取同轮模板以对齐字段契约（无同伴产出内容）"
+    },
+    {
+      "path": "runs/round20/prompts/EX-03.md",
+      "purpose": "读取同轮模板以对齐字段契约（无同伴产出内容）"
+    }
+  ],
+  "dissent": [
+    {
+      "against": "ANON-B",
+      "reason": "反对把 T128 从差异清单中剔除。TASK.md §D 只写「四列不完全相同即为差异单号」，未授予「口径差可裁量剔除」的权力；T128 的 ledger.date 与 bill.trade_date 确实不同，剔除须先改口径规则，不能在清单层做减法。",
+      "reverse_evidence": "若规格明确日期比较基准为 bill.settle_date（则 T128 两侧同日、不构成差异），或 adjudication 明示日期基准差属「不计入」类别，本条反对撤回。"
+    }
+  ],
+  "confidence": "high",
+  "needs_more_data": [
+    "[缺规则] T-16 的 DIFFSET 选项空间定义于 spec/adjudication.json（本席位禁读），无法核验 6 是否落在本任务选项空间内；提示词模板给出 7|6|5|4，但本夹具仅 6 个候选差异单号，7 在结构上不可达",
+    "[缺规则] 日期列比较基准未在 TASK.md 明确：ledger.date（入账日）应对 trade_date 还是 settle_date，两种取法使结论相差 1 条",
+    "[缺数据] T127 缺除权/派息基准日与权益登记日，无法判断 260.00 应归属本期还是上期"
+  ],
+  "stance": [
+    {
+      "axis": "ADJ-001",
+      "choice": "count"
+    },
+    {
+      "axis": "DIFFSET",
+      "choice": "6"
+    }
+  ],
+  "summary": {
+    "ledger_rows": 7,
+    "bill_rows": 8,
+    "ledger_total": 287820.0,
+    "bill_total": 288200.0,
+    "raw_total_gap": 380.0,
+    "dedup_removed_txn_count": 0,
+    "dedup_amount": 0.0,
+    "diff_count": 6,
+    "amount_diff_total": 380.0,
+    "excluded_amount_total": 0.0,
+    "excluded_categories": []
+  },
+  "diffs": [
+    {
+      "id": "T123",
+      "category": "PRICE_BASIS_DIFF"
+    },
+    {
+      "id": "T124",
+      "category": "FEE_UNDERSTATED"
+    },
+    {
+      "id": "T125",
+      "category": "FEE_UNDERSTATED"
+    },
+    {
+      "id": "T126",
+      "category": "SHARES_MISMATCH"
+    },
+    {
+      "id": "T127",
+      "category": "BILL_ONLY"
+    },
+    {
+      "id": "T128",
+      "category": "DATE_BASIS_DIFF"
+    }
+  ],
+  "categories": {
+    "PRICE_BASIS_DIFF": [
+      "T123"
+    ],
+    "FEE_UNDERSTATED": [
+      "T124",
+      "T125"
+    ],
+    "SHARES_MISMATCH": [
+      "T126"
+    ],
+    "BILL_ONLY": [
+      "T127"
+    ],
+    "DATE_BASIS_DIFF": [
+      "T128"
+    ]
+  },
+  "usage": {
+    "tokens": 5400,
+    "minutes": 10,
+    "source": "self_report"
+  },
+  "reads_path_normalized": {
+    "by": "orchestrator",
+    "date": "2026-10-20",
+    "count": 4,
+    "note": "目录重命名 'runs/20 T-16/' → 'runs/round20/'（编排层 zsh 分词失误，见 round-manifest.dir_rename_note）；reads 路径机械归一化，内容零改动，席位当时的申报对其物理现实完全准确"
+  }
+}

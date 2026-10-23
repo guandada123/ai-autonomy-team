@@ -1,0 +1,18 @@
+{
+  "task_id": "TASK-BROKER-001/T-02",
+  "source": "human_adjudication",
+  "recorded_by": "关",
+  "recorded_at": "2026-10-20T11:30:00+08:00",
+  "decisions": [
+    {
+      "id": "ADJ-001",
+      "chosen": "count",
+      "rationale": "与本人在 round4（TASK-BROKER-RECON-002）确立的裁决原则一致：少报不可逆——计入。ADJ-001 的排除类（单侧缺失/漏记）必须留在成本差异里，excluded 桶不得成为藏差错的抽屉。 本任务单侧缺失金额大（漏记整笔），排除等价于把真实资金缺口移出对账视线。"
+    },
+    {
+      "id": "ADJ-002",
+      "chosen": "6",
+      "rationale": "diffs 是「需不需要跟进」的清单：零金额的股数/日期条目（送转未更新、交割跨日）留着才能暴露口径矛盾；剔除等于放弃复查。"
+    }
+  ]
+}

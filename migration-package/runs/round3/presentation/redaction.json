@@ -1,0 +1,22 @@
+{
+  "targets": [
+    "fixtures/verdict-baseline",
+    "fixtures/answer-baseline",
+    "fixtures/truth.json",
+    "docs/decisions/",
+    "fixtures/spec/",
+    "runs/round2/",
+    "templates/",
+    "outputs/",
+    "config/",
+    "judges/"
+  ],
+  "replaced_counts": {
+    "judges/": 3,
+    "fixtures/truth.json": 3,
+    "fixtures/spec/": 1,
+    "config/": 1
+  },
+  "total": 8,
+  "boundary": "只擦【路径字符串】，不是阻止读取；未申报的读取对脚本不可见。"
+}

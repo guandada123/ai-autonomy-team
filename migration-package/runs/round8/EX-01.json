@@ -1,0 +1,181 @@
+{
+  "seat": "EX-01",
+  "round": 8,
+  "conclusion": "ledger 5 行 114800.00、bill 8 行 141440.00，gap 26640.00；单号唯一，dedup=0。trade_date 基准下差异 6 条（T003–T008），计入 26120.00（120+26000），排除 520.00（T005/T007 股息），两桶和=gap。维持 exclude/6；更正前轮：改 settle_date 则 7 条，非 5 或 8。",
+  "evidence": [
+    {
+      "pointer": "fixtures/tasks/T-01/ledger.csv:2-6#amount",
+      "what_it_shows": "5 行合计 114800.00"
+    },
+    {
+      "pointer": "fixtures/tasks/T-01/bill.csv:2-9#amount",
+      "what_it_shows": "8 行合计 141440.00，gap 26640.00"
+    },
+    {
+      "pointer": "同一两表#txn_id 频次",
+      "what_it_shows": "5/8 个单号各 1 次，无同侧多行 → dedup 0、金额 0.00"
+    },
+    {
+      "pointer": "bill.csv:2-9 vs ledger.csv:2-6#四列逐行",
+      "what_it_shows": "T001/T002 全等；T003 差 120.00、费差 0.03；T006 shares 0→30；T008 仅日期 09-18≠09-17"
+    },
+    {
+      "pointer": "同四列改用 settle_date 重算",
+      "what_it_shows": "T008 出、T001/T002/T003 入 → 7 条；金额仍 26120/520"
+    }
+  ],
+  "falsification": "①若 ledger.date 应对齐 settle_date，则 T008 退出、T001/T002 入列，diff_count=7，我的 6 错；②若股息 260.00 属可比成交金额，则 amount_diff_total=26640.00、excluded=0.00，我的 520 错；③若 CSV 实存未见重复单号或行数非 5/8，则 rows 与 dedup 整体作废。",
+  "reads": [
+    {
+      "path": "runs/round8/prompts/EX-01.md",
+      "purpose": "本轮席位职责、读取域、字数预算"
+    },
+    {
+      "path": "fixtures/tasks/T-01/TASK.md",
+      "purpose": "字段算法、D 段四列口径、四个易错点"
+    },
+    {
+      "path": "fixtures/tasks/T-01/ledger.csv",
+      "purpose": "自记账 5 行取数与合计复算"
+    },
+    {
+      "path": "fixtures/tasks/T-01/bill.csv",
+      "purpose": "交割单 8 行取数与合计复算"
+    },
+    {
+      "path": "runs/round8/inputs/pack-ANON-A.json",
+      "purpose": "读匿名同伴结论与证伪条件"
+    },
+    {
+      "path": "runs/round8/inputs/pack-ANON-B.json",
+      "purpose": "读匿名同伴结论，与本席前轮比对"
+    },
+    {
+      "path": "runs/round8/inputs/pack-ANON-C.json",
+      "purpose": "读匿名同伴结论与反证条件"
+    },
+    {
+      "path": "protocol/02-辩论协议.md",
+      "purpose": "输出契约、强制反对、证据制聚合"
+    },
+    {
+      "path": "protocol/07-轮次与指标.md",
+      "purpose": "stance 两轴取值与语义冲突判据（60-119 行）"
+    },
+    {
+      "path": "runs/round5/EX-01.json",
+      "purpose": "本席前轮同任务产出，核对立场与证伪条件"
+    },
+    {
+      "path": "runs/round7/EX-01.json",
+      "purpose": "本席上轮异任务产出，核对方法复用"
+    },
+    {
+      "path": "runs/round8/inputs/、runs/round5|6|7/、protocol/（ls 列举）",
+      "purpose": "确认输入清单与可读产物范围"
+    }
+  ],
+  "dissent": [
+    {
+      "against": "ANON-B",
+      "reason": "其证伪条件称改 settle_date 后 diff_count 降为 5；实测 7（T008 退 −1、T001/T002 入 +2），金额两字段不变。ANON-A 同一点写 8，同错。此算术本席前轮亦犯（runs/round5/EX-01.json），本轮更正，故 B 该项不可采信。",
+      "reverse_evidence": "若按 settle_date 逐行重算确得 5 或 8 条，本条撤回。"
+    },
+    {
+      "against": "ANON-A",
+      "reason": "其以「改 settle_date 则 8 条、越出 {4,5,6,7}、与夹具不相容」支撑排除；实测 7，仍在选项空间，「不相容」不成立，该理由不能再支撑 6（结论可留，理由须换）。",
+      "reverse_evidence": "若 settle_date 基准下为 8 条或越界，本条撤回。"
+    },
+    {
+      "against": "ANON-C",
+      "reason": "其排除 520.00 的反证只覆盖 T005（600519、自记账无该标的）；T007 的 code=000333，与核对主体同代码，「不构成同一笔」不适用，其中 260.00 无此辩护。排除依据只能是 TASK.md 易错点1「amount 是成交金额」。",
+      "reverse_evidence": "若 T007 亦为 600519，或 TASK 明示股息可作可比成交金额，本条撤回。"
+    },
+    {
+      "against": "ANON-B",
+      "reason": "该包与 runs/round5/EX-01.json 的 conclusion/evidence/falsification/summary/diffs/stance 字段级全等，不构成独立第三票；3/3 一致不应用来抬置信度。",
+      "reverse_evidence": "若二者非同源（证据指针不同），本条撤回。"
+    }
+  ],
+  "confidence": "high",
+  "needs_more_data": [
+    "ledger.date 对齐基准任务未明示；按 T008 note「按交割日入账」为标注性偏离，反推基准为 trade_date，若须裁决 diff_count 在 6/7 间摆动",
+    "股息/送转是否计入成交金额差异属会计口径，TASK.md 仅界定 amount 为成交金额，建议闸门确认"
+  ],
+  "stance": [
+    {
+      "axis": "ADJ-001",
+      "choice": "exclude"
+    },
+    {
+      "axis": "DIFFSET",
+      "choice": "6"
+    }
+  ],
+  "summary": {
+    "ledger_rows": 5,
+    "bill_rows": 8,
+    "ledger_total": 114800.0,
+    "bill_total": 141440.0,
+    "raw_total_gap": 26640.0,
+    "dedup_removed_txn_count": 0,
+    "dedup_amount": 0.0,
+    "diff_count": 6,
+    "amount_diff_total": 26120.0,
+    "excluded_amount_total": 520.0,
+    "excluded_categories": [
+      "口径差-分红现金",
+      "口径差-送转股数",
+      "口径差-记账日期"
+    ]
+  },
+  "diffs": [
+    {
+      "id": "T003",
+      "category": "价格费用不符"
+    },
+    {
+      "id": "T004",
+      "category": "单侧缺失-成交"
+    },
+    {
+      "id": "T005",
+      "category": "口径差-分红现金"
+    },
+    {
+      "id": "T006",
+      "category": "口径差-送转股数"
+    },
+    {
+      "id": "T007",
+      "category": "口径差-分红现金"
+    },
+    {
+      "id": "T008",
+      "category": "口径差-记账日期"
+    }
+  ],
+  "categories": {
+    "价格费用不符": [
+      "T003"
+    ],
+    "单侧缺失-成交": [
+      "T004"
+    ],
+    "口径差-分红现金": [
+      "T005",
+      "T007"
+    ],
+    "口径差-送转股数": [
+      "T006"
+    ],
+    "口径差-记账日期": [
+      "T008"
+    ]
+  },
+  "usage": {
+    "tokens": 18500,
+    "minutes": 14,
+    "source": "self_report"
+  }
+}

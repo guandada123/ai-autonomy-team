@@ -1,0 +1,193 @@
+{
+  "seat": "EX-02",
+  "round": 29,
+  "conclusion": "主张 ADJ-001=exclude：T075 的 120.00 差额源自 ledger.note 自述的「按委托价记账」，是记账价口径而非成交价差异，应剔出金额差 → amount_diff_total=14320.00、excluded_amount_total=120.00，清单仍 6 条。并复算证伪同伴的「交割日口径 8 条」：实为 7 条。",
+  "strongest_counter_arguments": [
+    {
+      "target": "ANON-B",
+      "argument": "用「Σabs 差额 = raw_total_gap」充当证据是恒等式误用：在本数据六条差额全部同号（bill 均大于 ledger）时，Σ|bill−ledger| 与 bill_total−ledger_total 恒等，任何「全计入」方案都必然闭合，这条等式对「6 条分类是否正确」一条也证伪不了。它只能当对账闭合检查，不能当正确性证明；把闭合当证据，等于用永不失败的检查冒充验证。",
+      "reverse_evidence": "若能给出异号差额样本（abs≠signed），使该等式可失败，则它可作为有效回归项，本条撤回。"
+    },
+    {
+      "target": "ANON-B",
+      "argument": "以「settle 口径得 8 条、越出选项空间」排除交割日，条数算错：settle 下 T073/T074 因日期差进入，但 T080 四列（shares 100/100、amount 13800.00、fee 5.14、date 09-15）完全相同而退出，净增 1 条 → 7 条。方向碰巧成立，论据是错的；而这正是最危险的一类错误：错误中间量会被下一轮当成既定事实复述。",
+      "reverse_evidence": "若能列出 settle 口径下 8 个差异单号并逐号给出触发列，本条撤回。"
+    },
+    {
+      "target": "ANON-C",
+      "argument": "把 520.00 股息剔除、却保留 120.00，宽严倒置：520.00 是 ledger 全表无 600519、自记账完全未录的真实现金流，是货真价实的漏记；120.00 恰恰是 note 自己承认为记账价口径的差额。剔掉可解释项、保留不可解释项，会让 excluded 字段失去审计含义——它记下的应是最可疑的部分，而不是最容易被解释的部分。",
+      "reverse_evidence": "若派息公告或对账单证明 600519 不属本账户（两笔属串户），则 520.00 应剔除，我这条优先级反转失效。"
+    },
+    {
+      "target": "ANON-A",
+      "argument": "把日期列硬编码为 trade_date 却不标为待裁决，等于让脚本替人类做了判断项：同一份脚本里 dedup 锁 txn_id（§B 已给机器判据，可自动裁决）与 date 对齐（§D 未给，属判断）被塞进同一层，write-domain 的白名单分层的意义正是阻止这种混淆。",
+      "reverse_evidence": "若裁决把「交割单按成交日列示」确认为对齐依据并写入常量表，本条撤回。"
+    }
+  ],
+  "what_would_change_my_mind": "任一即可：①成交回报或资金流水显示 120.00 已实际扣款、ledger.amount 只是按委托价填列 → 120.00 须计入，我退到 14440.00；②契约明示「清单内单号一律计入金额差，excluded 只承载非交易现金流」；③裁决记录已就 ADJ-001 判 count 并留痕——我服从裁决，但保留本条反对入档。",
+  "evidence": [
+    {
+      "pointer": "fixtures/tasks/T-10/ledger.csv#T075.note 与 fixtures/tasks/T-10/bill.csv#T075",
+      "what_it_shows": "note 写「按委托价记账」，价/额/费同步偏离 → 120.00 属记账口径。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-10/ledger.csv + fixtures/tasks/T-10/bill.csv",
+      "what_it_shows": "6 条差额 14440.00（同号恒等）；剔 120.00 → 14320.00；剔 520.00 → 13920.00。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-10/TASK.md#L44-L45",
+      "what_it_shows": "契约不预设「该不该算差异」→ 口径差计不计入属留白。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-10/bill.csv#trade_date,settle_date",
+      "what_it_shows": "trade 6 条、settle 7 条；同伴「8 条」不可复现。"
+    }
+  ],
+  "falsification": "若 120.00 被证实为实际扣款差额（ledger.amount 不是委托价推得的数），或契约/裁决明示清单内单号一律计入，则 14320.00 与 120.00 的排除分类整体作废，退回 14440.00 / 0.00；若 §D 的日期须取 settle_date，则清单变 7 条，分类前提重算。此外我承认：只要全部差额同号，「Σ差额 = raw gap」在本数据恒成立，我不以它作为本立场的支撑。",
+  "reads": [
+    {
+      "path": "runs/round29/prompts/EX-02.md",
+      "purpose": "读取本席 KPI（被说服即失职）、必交最强反论与匿名编号约束"
+    },
+    {
+      "path": "runs/round29/prompts/EX-01.md",
+      "purpose": "确认事实席位与对立席位共用同一硬性字段，避免用契约差异充论证"
+    },
+    {
+      "path": "runs/round29/prompts/EX-03.md",
+      "purpose": "确认落地席位的成本与回滚要求，判断其数字是否可复算"
+    },
+    {
+      "path": "fixtures/tasks/T-10/TASK.md",
+      "purpose": "逐条核对 §A-§D，定位「字面可算」与「留待判断」的边界"
+    },
+    {
+      "path": "fixtures/tasks/T-10/ledger.csv",
+      "purpose": "逐行复算 5 行金额与 note 字段，提取口径自述证据"
+    },
+    {
+      "path": "fixtures/tasks/T-10/bill.csv",
+      "purpose": "逐行复算 8 行金额与三费，比对四列与两种日期口径"
+    },
+    {
+      "path": "runs/round29/inputs/pack-ANON-A.json",
+      "purpose": "阅读同伴落地型产出，定位其把判断项写成硬编码常量之处"
+    },
+    {
+      "path": "runs/round29/inputs/pack-ANON-B.json",
+      "purpose": "阅读同伴字面型产出，定位其闭合恒等式与条数错误"
+    },
+    {
+      "path": "runs/round29/inputs/pack-ANON-C.json",
+      "purpose": "阅读同伴对立型产出，比对其排除项与我的排除项何者更可疑"
+    },
+    {
+      "path": "protocol/",
+      "purpose": "列举协议文件，确定需读的三份"
+    },
+    {
+      "path": "protocol/02-辩论协议.md",
+      "purpose": "确认对立席位 KPI 与「必交反对 + 反证条件」的契约"
+    },
+    {
+      "path": "protocol/06-写入域与判据分层.md",
+      "purpose": "确认算术层与判断项分层，判断哪些量不得由机器单方裁决"
+    },
+    {
+      "path": "protocol/07-轮次与指标.md",
+      "purpose": "确认 ADJ-001/DIFFSET 反推规则与语义冲突判据，核对我的自述是否与数字背离"
+    }
+  ],
+  "dissent": [
+    {
+      "against": "ANON-B",
+      "reason": "两条实质缺陷：①以 abs 差额之和等于 raw gap 作为分类正确的支撑，属恒等式误用，本数据六条同号，该式恒成立，零信息量；②settle 口径条数算成 8，实为 7（T080 在该口径下四列全同，退出清单）。第一条使结论无独立支撑，第二条使反驳同伴的论据本身不可回读。",
+      "reverse_evidence": "若能给出异号差额样本使闭合式可失败，并列出 settle 口径 8 个单号，则两条同时撤回。"
+    },
+    {
+      "against": "ANON-C",
+      "reason": "排除 520.00 而保留 120.00 的选择性宽严：520.00 是自记账完全缺失的真实现金流（漏记），120.00 才是 note 自认的记账价口径。若必须排除一项，应排除能被 note 解释的那项；把不可解释项留在金额差里、把可解释项剔出去，会使 excluded 字段反向筛选，审计上不可用。",
+      "reverse_evidence": "若证明 600519 两笔属串户（非本账户持仓），则 520.00 应剔除且不属于漏记，我这条反转失效。"
+    }
+  ],
+  "confidence": "medium",
+  "needs_more_data": [
+    "【缺规则】§D 未定义「日期」对齐 trade_date 还是 settle_date；本席按背景取成交日，属规则缺口需裁决。",
+    "【缺规则】ADJ-001 的选项及其 implies 不在本轮可读域内，「口径差」究竟锚定 T075（120.00）还是 T080（0.00）无法机器确认——这是 14320.00 与 14440.00 之争的真正分界。",
+    "【缺规则】excluded_categories 无定义域与封闭枚举，使「排除哪一项」变成席位自由裁量，而非可裁决命题。",
+    "【缺数据】T078 送转股数：交割单 30 vs note「10送3」应 +300，缺 09-10 收盘持仓，无法判 270 股归属（金额差 0.00，不影响金额字段）。",
+    "【缺数据】600519 的持仓与派息登记明细缺失，无法核验 T077/T079 是否两次独立派息（影响的是分类措辞，不影响 520.00 的金额）。"
+  ],
+  "stance": [
+    {
+      "axis": "ADJ-001",
+      "choice": "exclude"
+    },
+    {
+      "axis": "DIFFSET",
+      "choice": "6"
+    }
+  ],
+  "summary": {
+    "ledger_rows": 5,
+    "bill_rows": 8,
+    "ledger_total": 271800.00,
+    "bill_total": 286240.00,
+    "raw_total_gap": 14440.00,
+    "dedup_removed_txn_count": 0,
+    "dedup_amount": 0.00,
+    "diff_count": 6,
+    "amount_diff_total": 14320.00,
+    "excluded_amount_total": 120.00,
+    "excluded_categories": [
+      "记账口径差-按委托价记账"
+    ]
+  },
+  "diffs": [
+    {
+      "id": "T075",
+      "category": "记账口径差-按委托价记账"
+    },
+    {
+      "id": "T076",
+      "category": "单侧存在-券商独有"
+    },
+    {
+      "id": "T077",
+      "category": "单侧存在-券商独有"
+    },
+    {
+      "id": "T078",
+      "category": "股数差异-送转未更新"
+    },
+    {
+      "id": "T079",
+      "category": "单侧存在-券商独有"
+    },
+    {
+      "id": "T080",
+      "category": "日期差异-按交割日入账"
+    }
+  ],
+  "categories": {
+    "记账口径差-按委托价记账": [
+      "T075"
+    ],
+    "单侧存在-券商独有": [
+      "T076",
+      "T077",
+      "T079"
+    ],
+    "股数差异-送转未更新": [
+      "T078"
+    ],
+    "日期差异-按交割日入账": [
+      "T080"
+    ]
+  },
+  "usage": {
+    "tokens": 20800,
+    "minutes": 16,
+    "source": "self_report"
+  }
+}

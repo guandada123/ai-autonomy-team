@@ -1,0 +1,159 @@
+{
+  "seat": "EX-01",
+  "round": 15,
+  "conclusion": "按 §A/§B/§D：ledger 7 行、bill 8 行，合计 163800.00/164180.00，gap 380.00，dedup 0。差异 6 条：T067 金额差 120、T068/T069 费用差、T070 股数、T071 分红 260、T072 日期口径。amount_diff_total 380.00 等于 gap，excluded 0.00。日期取 trade_date。",
+  "summary": {
+    "ledger_rows": 7,
+    "bill_rows": 8,
+    "ledger_total": 163800.00,
+    "bill_total": 164180.00,
+    "raw_total_gap": 380.00,
+    "dedup_removed_txn_count": 0,
+    "dedup_amount": 0.00,
+    "diff_count": 6,
+    "amount_diff_total": 380.00,
+    "excluded_amount_total": 0.00,
+    "excluded_categories": [
+      "费用差-漏过户费",
+      "数量差-送转未更新",
+      "日期口径差-按交割日入账"
+    ]
+  },
+  "diffs": [
+    {
+      "id": "T067",
+      "category": "金额差-成交价不符"
+    },
+    {
+      "id": "T068",
+      "category": "费用差-漏过户费"
+    },
+    {
+      "id": "T069",
+      "category": "费用差-漏过户费"
+    },
+    {
+      "id": "T070",
+      "category": "数量差-送转未更新"
+    },
+    {
+      "id": "T071",
+      "category": "单侧缺失-现金分红"
+    },
+    {
+      "id": "T072",
+      "category": "日期口径差-按交割日入账"
+    }
+  ],
+  "categories": {
+    "金额差-成交价不符": [
+      "T067"
+    ],
+    "费用差-漏过户费": [
+      "T068",
+      "T069"
+    ],
+    "数量差-送转未更新": [
+      "T070"
+    ],
+    "单侧缺失-现金分红": [
+      "T071"
+    ],
+    "日期口径差-按交割日入账": [
+      "T072"
+    ]
+  },
+  "evidence": [
+    {
+      "pointer": "fixtures/tasks/T-09/ledger.csv#L2-L8 amount 列",
+      "what_it_shows": "Decimal 逐行累加（7 行）= 163800.00"
+    },
+    {
+      "pointer": "fixtures/tasks/T-09/bill.csv#L2-L9 amount 列",
+      "what_it_shows": "累加 = 164180.00（含 T071 分红 260）；gap = 380.00"
+    },
+    {
+      "pointer": "bill.csv#fee_total 对读 ledger.csv#fee_total",
+      "what_it_shows": "T067 11.70/11.73、T068/T069 5.00/5.15；三行 amount 差额 120/0/0"
+    },
+    {
+      "pointer": "fixtures/tasks/T-09/TASK.md#L83-L85",
+      "what_it_shows": "四列判定；单侧存在取该侧 amount → T071 取 260"
+    },
+    {
+      "pointer": "protocol/06-写入域与判据分层.md#L103-L115",
+      "what_it_shows": "算术白名单 7 字段，diff_count 在外 → 6 条属判断层"
+    }
+  ],
+  "falsification": "若 (a)「日期」应映射 settle_date，则变 7 条且 T072 退出；(b) 任一侧存在同号多行（分批成交），则 dedup 非零、差额须按聚合后比对；(c) 单侧缺失不应取该侧全额。三者任一成立，本结论作废。",
+  "reads": [
+    {
+      "path": "runs/round15/prompts/EX-01.md",
+      "purpose": "读本席位职责、读取域、stance 与硬性字段"
+    },
+    {
+      "path": "runs/round15/prompts/EX-02.md",
+      "purpose": "确认对立面席位契约与匿名化命名要求"
+    },
+    {
+      "path": "runs/round15/prompts/EX-03.md",
+      "purpose": "确认落地席位字段，避免三席产出冲突"
+    },
+    {
+      "path": "fixtures/tasks/T-09/TASK.md",
+      "purpose": "逐条摘取 A/B/C/D 计算法与四个易错点"
+    },
+    {
+      "path": "fixtures/tasks/T-09/ledger.csv",
+      "purpose": "7 行取数、累加、比对 amount 与 fee_total"
+    },
+    {
+      "path": "fixtures/tasks/T-09/bill.csv",
+      "purpose": "8 行取数、累加、核对三项费用之和=fee_total"
+    },
+    {
+      "path": "protocol/02-辩论协议.md",
+      "purpose": "确认 evidence/falsification/reads/dissent 契约"
+    },
+    {
+      "path": "protocol/03-结构审计七查.md",
+      "purpose": "确认第 2/5/9 查对外部钩子与读取域的要求"
+    },
+    {
+      "path": "protocol/06-写入域与判据分层.md",
+      "purpose": "确认算术白名单，判定哪些字段可被硬裁决"
+    },
+    {
+      "path": "protocol/07-轮次与指标.md",
+      "purpose": "确认 ADJ-001/DIFFSET 反推规则与预算口径"
+    }
+  ],
+  "dissent": [
+    {
+      "against": "ANON-B：把 6 与 7 视为「契约无法裁决」，据此主张停在人类闸门",
+      "reason": "契约并非无解：数据内部有判别信号。T065/T066 两侧 note 均为「正常」，若以 settle_date 比日期，这两行会被判日期差异，与 note 字面直接冲突；trade_date 读法下 8 行 note 无一被推翻。把可判定问题说成不可判定，代价是每轮都停在人类闸门，把判断成本转嫁给最贵的一环。",
+      "reverse_evidence": "若能证明账单 settle_date 才是「入账」的对应语义（T+1 交收），且 note「正常」只约束金额不约束日期，则内部判别失效，ANON-B 主张成立。"
+    }
+  ],
+  "confidence": "high",
+  "needs_more_data": [
+    "缺规则：TASK.md §D 只写「日期」，未指定账单侧取 trade_date 还是 settle_date；两读法得 6 条与 7 条，金额三值全同，缺口无法用金额交叉验证吸收",
+    "缺规则：ADJ-001 选项锚点（680.02/500.02/180.00）绑定另一套夹具，本夹具口径差在 amount 列差额恒为 0.00，金额轴不可分辨",
+    "缺数据：T071 现金分红 260.00 在自记账侧缺失，未见入账凭证或入他账记录；若已记他科目，260.00 不应计入差异"
+  ],
+  "stance": [
+    {
+      "axis": "ADJ-001",
+      "choice": "exclude"
+    },
+    {
+      "axis": "DIFFSET",
+      "choice": "6"
+    }
+  ],
+  "usage": {
+    "tokens": 24800,
+    "minutes": 13,
+    "source": "self_report"
+  }
+}

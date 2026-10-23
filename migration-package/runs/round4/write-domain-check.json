@@ -1,0 +1,437 @@
+{
+  "generated_at": "2026-10-20T01:58:49+08:00",
+  "kind": "write_domain_check",
+  "deny_prefixes": [
+    "fixtures/",
+    "outputs/",
+    "docs/",
+    "protocol/",
+    "prompts/",
+    "config/",
+    "judges/"
+  ],
+  "allow_prefixes": [
+    "runs/round"
+  ],
+  "changed_under_deny": [],
+  "changed_under_allow": [
+    {
+      "path": "runs/round1/AD-01.json",
+      "sha256": "c393b16788de2dd70b4291954178726f2a18b3b77130f39cceb35d48aeb55bb3"
+    },
+    {
+      "path": "runs/round1/EX-01.json",
+      "sha256": "81df475001e3e4ec09783d689a4cc84401257e0f8a494b93149fe0a473db6c6a"
+    },
+    {
+      "path": "runs/round1/EX-02.json",
+      "sha256": "baf2f1c19510c3f03ad2782209a3ffae2de3feb7e0ae5df33dc1091bb4c5d705"
+    },
+    {
+      "path": "runs/round1/EX-03.json",
+      "sha256": "09abd79785c06941c9d32e3646237a8d16862a48811a036cb631571b260e4997"
+    },
+    {
+      "path": "runs/round1/adjudicated.json",
+      "sha256": "f111ebec7ff9ce55857ce5434634865fa57624caae1f853a626856a42940d223"
+    },
+    {
+      "path": "runs/round1/adjudication-record.SELFTEST-PLUMBING-ONLY.json",
+      "sha256": "c9c35e22aa243545aecb66f7cc2dad3246fbc314b5ac222d76a16d79e6199f2e"
+    },
+    {
+      "path": "runs/round1/adjudication-record.TEMPLATE.md",
+      "sha256": "62a2bfc768fc9420ff1aac83c98db83e9035909dbc7695f162b7e80a408bb5e2"
+    },
+    {
+      "path": "runs/round1/answer-final.json",
+      "sha256": "a21bf8e2a24a46d20cc77cca462bfcea4f6cf63c99496dbe044c91afdeb4606d"
+    },
+    {
+      "path": "runs/round1/evidence-boundary-violation/.EX-03-scratch/_recon_copy.py",
+      "sha256": "df0d589b77f2448edaad96c9a211b1fdeea3fe037eebb741cd8e66c9d79b0fde"
+    },
+    {
+      "path": "runs/round1/evidence-boundary-violation/.EX-03-scratch/_regen.json",
+      "sha256": "373e58f39bbf4d8bab7d974f047e8f1bbcdee49abf450c4282f79c9a92f923e7"
+    },
+    {
+      "path": "runs/round1/evidence-boundary-violation/.EX-03-scratch/_regen_verdict.json",
+      "sha256": "7d8ad35c61b7299d12824fbfeef699b54e0a9c974ab3c711c6d6c7d9a2216266"
+    },
+    {
+      "path": "runs/round1/evidence-boundary-violation/.EX-03-scratch/probe.py",
+      "sha256": "2ed5bbe5c5a2c5debd075d38e861b1a8b2ee2516b378f75e1d084f7101f4393f"
+    },
+    {
+      "path": "runs/round1/evidence-boundary-violation/.EX-03-scratch/probe2.py",
+      "sha256": "5518fc3af1c6a4599bcde812274d4f0ae819fbc269a42b74b9ad938ae5e3fb83"
+    },
+    {
+      "path": "runs/round1/evidence-boundary-violation/.EX-03-scratch/probe3.py",
+      "sha256": "a8f74c73c055fbf49d5ba6355064afc0a454877d68f31304923e591cb40d7468"
+    },
+    {
+      "path": "runs/round1/evidence-boundary-violation/.EX-03-scratch/probe4.py",
+      "sha256": "e2a8eb883d32399d18a4ecd072d6619adb2ac6650fa7e1e86fb94780b61def9e"
+    },
+    {
+      "path": "runs/round1/evidence-boundary-violation/_ex02_compute.py.EX-02-越权写入",
+      "sha256": "e7bf760971555508d534ad15618e1a82c909ae258a519b77913a5aa9ba2fa9da"
+    },
+    {
+      "path": "runs/round1/evidence-boundary-violation/recon.py.EX-03-越权写入",
+      "sha256": "31a49141b80e4abdec90e4234b3a60f498d83c31fa8c6e40067c3a39ba9b4087"
+    },
+    {
+      "path": "runs/round1/pending-adjudication.json",
+      "sha256": "658d8843bdb1a7a8adca3b37a2539b7765ebc2c17a8fc16cbcce3974b7486170"
+    },
+    {
+      "path": "runs/round1/seat-check.json",
+      "sha256": "b1d61d0cc110e6b87596e6a9ca9b31294b308dbb8d5075632f7f1631ad0a455b"
+    },
+    {
+      "path": "runs/round1/truth-snapshot.json",
+      "sha256": "03b41c4927991adb011e65e99a2f22ad0b8fa3ca9b0a05b65c5335b1f0d33fe4"
+    },
+    {
+      "path": "runs/round1/verdict-arithmetic.json",
+      "sha256": "f3412d747e100e48092428eaba6ea45edc95c79313ee8e7170965421e64ef4a7"
+    },
+    {
+      "path": "runs/round1/verdict-final.json",
+      "sha256": "fc4edff2ca83439521fda1b45fb2d649844a988ce7969e832e9c6cd61031e11b"
+    },
+    {
+      "path": "runs/round1/verdict-legacy-recheck.json",
+      "sha256": "38d5f9f421a3f54c5cd30e7bf32c20a4b36aaecb74195c1276a622bbb2a8589f"
+    },
+    {
+      "path": "runs/round1/wd-baseline.json",
+      "sha256": "918a80b314f9475761e5f5e2048a03d156c1c407dc2379d796b0d406602b5159"
+    },
+    {
+      "path": "runs/round1/write-domain-check.json",
+      "sha256": "158f4430f301e4b73e6fc8138d1dfc6ccd63a6384c9f3bb500a93f83884ec785"
+    },
+    {
+      "path": "runs/round2/AD-01.json",
+      "sha256": "29329e6a485d628dbf01b70cfeec5a13dfa523f5246bf848e4c2317689bb4ac2"
+    },
+    {
+      "path": "runs/round2/EX-01.json",
+      "sha256": "11ddd22f09e915a5d7d0b87c73d339cf02bbed11cbf3c86bd3f1eb948717661f"
+    },
+    {
+      "path": "runs/round2/EX-02.json",
+      "sha256": "e7b00b669e6145a43b432fca276947b8dd3da457bc5f4ec0da4772f9d6c86d45"
+    },
+    {
+      "path": "runs/round2/EX-03.json",
+      "sha256": "eeba44c00895c3186df0afaaa170d3a45f64f71d6bb6aea35fa4c8def544c772"
+    },
+    {
+      "path": "runs/round2/PM-01.json",
+      "sha256": "4633ad82790c3cd1d5cbc4cb1ecc5ba6943d43d6fd6f3d1a7b22ac89cfa5937d"
+    },
+    {
+      "path": "runs/round2/XJ-01.json",
+      "sha256": "e0a3e70b538370b75a1fb11b030d334a4ded5ba5b001150d39a2f73497967fc6"
+    },
+    {
+      "path": "runs/round2/adjudication-record.TEMPLATE.md",
+      "sha256": "37cf156f4e6af3505c6165dbe48c904314cf851365a481db63f72d87081cad7a"
+    },
+    {
+      "path": "runs/round2/answer-final.json",
+      "sha256": "e634fbb9031be88e438f76405e3ef56cecaeef4fd6ae62e4ed22339158bd4f36"
+    },
+    {
+      "path": "runs/round2/inputs/pack-ANON-A.json",
+      "sha256": "89667cf89fe6f994643105aecdcc103faf47a4daa026e831594b905966373c94"
+    },
+    {
+      "path": "runs/round2/inputs/pack-ANON-B.json",
+      "sha256": "0434f04124a5ba3d9ddcb3179be8f6144e3de0e97f7f8cdeef74631561ccac64"
+    },
+    {
+      "path": "runs/round2/inputs/pack-ANON-C.json",
+      "sha256": "c8a1016e58607441d917b23fb44fcc82598eec5d24aa4ebdff08ace9ffa1e6d4"
+    },
+    {
+      "path": "runs/round2/metrics.json",
+      "sha256": "abe0a7f6a2339a6c1a5f6ece83dc86287e927d350f2f8ffd599930e0a83ce2af"
+    },
+    {
+      "path": "runs/round2/pending-adjudication.json",
+      "sha256": "a50ef47f564eacb7b9df5ddea2e9381cce78b7d8d7697d3da53feb08a477c5b7"
+    },
+    {
+      "path": "runs/round2/presentation/anon-map.json",
+      "sha256": "929f0a61f4634289adc0da53a9b11ca2f3e87d6069a5dbde47a2090574142042"
+    },
+    {
+      "path": "runs/round2/presentation/order.json",
+      "sha256": "311d911de83c5460043d8d6355fda00812c9ca3fb1ba11627d70723de163fd4b"
+    },
+    {
+      "path": "runs/round2/prompts/EX-01.md",
+      "sha256": "12a8e5043f9ea815a2add484d4440e604addc878fbee854029fa7e32bc486339"
+    },
+    {
+      "path": "runs/round2/prompts/EX-02.md",
+      "sha256": "a1c863b3e299f8dc6ebd226c3973d3cf8db57f72dfc1b4b6ead0f8e740b4f9a0"
+    },
+    {
+      "path": "runs/round2/prompts/EX-03.md",
+      "sha256": "3b7e867d22cb0c020c3a081a4b9937e1594510367a71c2dd1982946beb1bcffc"
+    },
+    {
+      "path": "runs/round2/round-manifest.json",
+      "sha256": "47f0105517ad43bd92099a8f536f9ef2a7a1541e78d4f201701264862ad2e7e9"
+    },
+    {
+      "path": "runs/round2/seat-check.json",
+      "sha256": "c79834538c88d758e0f58c7a1e7502bc6215d24af58729aa87b3fafed2698499"
+    },
+    {
+      "path": "runs/round2/verdict-layered.json",
+      "sha256": "947dd2995ccca72d016a8aac12da002e2bb8cf5a71d6a697fe2e3fc9b892ef39"
+    },
+    {
+      "path": "runs/round2/wd-baseline.json",
+      "sha256": "0a5fd79598b1cc320fade11f8ed747d884badaaff89cc0c75ab449b8c1fa30fe"
+    },
+    {
+      "path": "runs/round2/write-domain-check.json",
+      "sha256": "36e5c0e9ab590a713da2507ae3f53e92123780bc02f5ef6dd9279f7b7bbfd71e"
+    },
+    {
+      "path": "runs/round3/AD-01.json",
+      "sha256": "ef8672e71e64ffa068820a7084553d9eecf174d45a938abdad7db1c58fec12f7"
+    },
+    {
+      "path": "runs/round3/EX-01.json",
+      "sha256": "1ab232727112c50a57fb9b820b589683715c63f4d25acd4e69c7955a9a235a97"
+    },
+    {
+      "path": "runs/round3/EX-02.json",
+      "sha256": "6abe0627f6d62f49575f8586a55f518ef74455f794d3ae2f134069de426ae36b"
+    },
+    {
+      "path": "runs/round3/EX-03.json",
+      "sha256": "06c7dadf71dc7a064a126efe2a6d32e9b09708441bd54b860cb1bea606627737"
+    },
+    {
+      "path": "runs/round3/PM-01.json",
+      "sha256": "331fb9564e476a0b1777eb29ace9c93738b9cb88c66318ac3492d39f98c79eb8"
+    },
+    {
+      "path": "runs/round3/XJ-01.json",
+      "sha256": "3d967e651f5c9c23ec07e97e754e64cb9437cdbe29cb8df74f7a0ac6524fa397"
+    },
+    {
+      "path": "runs/round3/adjudication-record.TEMPLATE.md",
+      "sha256": "33b854c36caf58343f49f63bc5adcd776564d8f58146d96bc5f6cdbce8df7f4c"
+    },
+    {
+      "path": "runs/round3/answer-final.json",
+      "sha256": "7161633171997de64cfe2751208b0956efcc46cace770af5bad2490b641b1944"
+    },
+    {
+      "path": "runs/round3/answer-status.json",
+      "sha256": "bfd46e621ab97f11eaca6a3b96bb7d3aee9758f95fbbe42a021d6bd0a6e5edda"
+    },
+    {
+      "path": "runs/round3/inputs/pack-ANON-A.json",
+      "sha256": "f5a206d664b82fccc88152216b62c4223793289f0e8e7bef5ca96e84b33517f9"
+    },
+    {
+      "path": "runs/round3/inputs/pack-ANON-B.json",
+      "sha256": "3be3ab20a229327d26ad7cfc070e2ac35e24619c3b9fca65a9db126e4b60a236"
+    },
+    {
+      "path": "runs/round3/inputs/pack-ANON-C.json",
+      "sha256": "ddc131e83de76bd5bf76d280e8277d316ffbb8c010dbd8686077d47e190ffee6"
+    },
+    {
+      "path": "runs/round3/metrics-blocked.json",
+      "sha256": "ef45720d8a96c5c8d47ef76ffb8d8c1c58587eef300ec4589910df376f84fe91"
+    },
+    {
+      "path": "runs/round3/metrics-stageA.json",
+      "sha256": "a4603ba2d77116665054fdf32e79a325af5bd25622d2dcfe523c0c5cc3313b9b"
+    },
+    {
+      "path": "runs/round3/metrics.json",
+      "sha256": "72be5c880b71d0eba4415ba69dcd343e5b41ba056675eb48a6ce22e26324cb3b"
+    },
+    {
+      "path": "runs/round3/pending-adjudication.json",
+      "sha256": "e458dca4f271d91d1adb3589fd723da494b38b3f9a8098135458af2c2d2e8e74"
+    },
+    {
+      "path": "runs/round3/presentation/anon-map.json",
+      "sha256": "929f0a61f4634289adc0da53a9b11ca2f3e87d6069a5dbde47a2090574142042"
+    },
+    {
+      "path": "runs/round3/presentation/order.json",
+      "sha256": "ef6466d762978147b1905bd523c7e42baeedbd6cce33e8989dad224121addd5e"
+    },
+    {
+      "path": "runs/round3/presentation/redaction.json",
+      "sha256": "fd65309ec67e0f68078a5afba6c2666092f0f62ef3e95560feb3457270bac714"
+    },
+    {
+      "path": "runs/round3/prompts/AD-01.md",
+      "sha256": "801251cf3796950da3d6683cf44fff23b84a90d32058fb7a192efc728ca4a8b4"
+    },
+    {
+      "path": "runs/round3/prompts/EX-01.md",
+      "sha256": "1bd1bd66f637bdae5025f474e97369760a52390231fc52158276aeaacc7cf0e9"
+    },
+    {
+      "path": "runs/round3/prompts/EX-02.md",
+      "sha256": "26d9b8ba086b5ee097529a7af608317f1f8fb8a25747b041aa193ea1a9dfc113"
+    },
+    {
+      "path": "runs/round3/prompts/EX-03.md",
+      "sha256": "6727ec50cc737c5e9dec4b0dca0dd7dfb86790bfcdcdab24ed6ffd29b9063ec9"
+    },
+    {
+      "path": "runs/round3/prompts/PM-01.md",
+      "sha256": "23ab18be90486087c3e62a9a58fd7efb76af0cadcb7fad5d883c41553ca73701"
+    },
+    {
+      "path": "runs/round3/prompts/XJ-01.md",
+      "sha256": "913bf2cfe25e5e19db722bf1f6709c4cc967b93a4141c43e928a9f953dbbc4bb"
+    },
+    {
+      "path": "runs/round3/read-domain-check.json",
+      "sha256": "06d96c626a0687a18f3efdbc9916a99e7872e9c4a7b8edf16ab729e8d0fc6bfa"
+    },
+    {
+      "path": "runs/round3/round-manifest.json",
+      "sha256": "c39e80513b58c697f407e9214224a87f270e8f88260bdca6c2c73afa07699329"
+    },
+    {
+      "path": "runs/round3/seat-check-contractgap.json",
+      "sha256": "a8c35ece58a7fdfd64a99760a8176c669adcb3c68a86a805fd54f5be94521cce"
+    },
+    {
+      "path": "runs/round3/seat-check-stageA.json",
+      "sha256": "3d7e2047a2804356b0150aed832b4c7b2fc43e096785925a3ff3fe462b3b96b1"
+    },
+    {
+      "path": "runs/round3/seat-check-stageB.json",
+      "sha256": "c646a6250174c157c7396f857e5e72eae5e865ea62ec546a1d562671af8e18d6"
+    },
+    {
+      "path": "runs/round3/seat-check.json",
+      "sha256": "201a1182674c20d740af585cd8075004fa8fa568447aae7cbd19fc934ff56e96"
+    },
+    {
+      "path": "runs/round3/verdict-layered.json",
+      "sha256": "8307c51ba5c7798670ac32117ae7cfc10dee041c5949dd70e3d7c4fb7b02f962"
+    },
+    {
+      "path": "runs/round3/wd-baseline.json",
+      "sha256": "3ebdde5d6c9b283aed64d0703fc1a0b30ae5a909715416d723bdd1c851b58afa"
+    },
+    {
+      "path": "runs/round3/write-domain-check.json",
+      "sha256": "e5941ec4103c2c622589ea80241b5eff854f76a643d266e40f5ace77f038cf35"
+    },
+    {
+      "path": "runs/round4/AD-01.json",
+      "sha256": "442a085e39838990a41b1239f0e756d295b40dd05ce8d5763c2e8b0ec6d551db"
+    },
+    {
+      "path": "runs/round4/EX-01.json",
+      "sha256": "9a1c254598134c764864d3021f501848eeaea3e463948f712b024f50682c0850"
+    },
+    {
+      "path": "runs/round4/EX-02.json",
+      "sha256": "692c93cd4cab6cd15ad75544733423487efa9e5f37c7aef092186162e647edc6"
+    },
+    {
+      "path": "runs/round4/EX-03.json",
+      "sha256": "4681b8a3c2673aa357bb5fe2a611fc79e31528bce6d49f61fd4763f649629072"
+    },
+    {
+      "path": "runs/round4/PM-01.json",
+      "sha256": "64ad20ec3cab179f01d4ad7df25d78a59ae67068a87d29ca731c709df1823ad2"
+    },
+    {
+      "path": "runs/round4/XJ-01.json",
+      "sha256": "b4d060a2b2b64c52367f8e9dda5cc4eeeaaa833967e6a907ed9e64f2ed5ea9fa"
+    },
+    {
+      "path": "runs/round4/answer-final.json",
+      "sha256": "d94bc2acb9bdb8a3f9abe8e3d2235b1dc507749e274b47f2687116732cbeb553"
+    },
+    {
+      "path": "runs/round4/pending-adjudication.json",
+      "sha256": "ea15b7b96ea28cb7d4e686170f129cf2915a2a8d527b9dc5e1fb595f73954eb7"
+    },
+    {
+      "path": "runs/round4/presentation/anon-map.json",
+      "sha256": "94c4c9a0059f617df3d8451c17c919a63b8441bbfe919934d2807285c54f0595"
+    },
+    {
+      "path": "runs/round4/presentation/order.json",
+      "sha256": "724ad57884d8db23b308c588d0c60c3c50e5d6df0e95a1d1a255bae7afc91df9"
+    },
+    {
+      "path": "runs/round4/presentation/redaction.json",
+      "sha256": "0d5e538b621d30d4abdd3bdb39d5c3183d65ef369541758b3ffab8db3aecef8d"
+    },
+    {
+      "path": "runs/round4/prompts/AD-01.md",
+      "sha256": "c495ae224ce0f176a8e4337fb5d3362578c70ceae03add688b470846f6646c94"
+    },
+    {
+      "path": "runs/round4/prompts/EX-01.md",
+      "sha256": "ff10e6350d988b06f482ae1443b688c886a05f11854e36991c11a046a699dd94"
+    },
+    {
+      "path": "runs/round4/prompts/EX-02.md",
+      "sha256": "6c420fc167cf6824c7776585c9c799781d6ded5f874e3e732a2b363374aa5cfe"
+    },
+    {
+      "path": "runs/round4/prompts/EX-03.md",
+      "sha256": "255b968d6d2ee176e794195067fdfd9329221f4ed70bf8bb5ffb30c46d3400af"
+    },
+    {
+      "path": "runs/round4/prompts/PM-01.md",
+      "sha256": "245557ee4646391decdf88cfc0c5cd84e680a188f62e6778814162cf2d850091"
+    },
+    {
+      "path": "runs/round4/prompts/XJ-01.md",
+      "sha256": "1ed7b528d405a3189ae1ddb4ac345c056368eb6721a75a6554b8656a4f721c69"
+    },
+    {
+      "path": "runs/round4/read-domain-check.json",
+      "sha256": "7d143d9d8e5b50ba7f0cb38e9c6fb1f01735a399b71a89983942f234eed77abb"
+    },
+    {
+      "path": "runs/round4/round-manifest.json",
+      "sha256": "3fee96c3d6036ac8f92dbfacc13545611212207c64c866e79d3d5ecbe2c682e3"
+    },
+    {
+      "path": "runs/round4/seat-check.json",
+      "sha256": "a462b0f459dad8b69066f60d80098e149fa5b4337bda4a22e0475feea2a2ea02"
+    },
+    {
+      "path": "runs/round4/verdict-layered.json",
+      "sha256": "ea15b7b96ea28cb7d4e686170f129cf2915a2a8d527b9dc5e1fb595f73954eb7"
+    },
+    {
+      "path": "runs/round4/wd-baseline.json",
+      "sha256": "db2a60bb86274996edc9049e9d4fde13758f284ec0c2b7fba5e5b3a2fb2140c0"
+    }
+  ],
+  "verdict": "CLEAN",
+  "note": "verdict=HIT 表示共享/禁止目录在轮次期间发生变化（结构事实）。是否为授权再生成，须由 PM 在 docs/decisions/ 留痕裁定；本脚本不判语义。"
+}

@@ -1,0 +1,144 @@
+{
+  "conclusion": "ledger 7 行 304800.00，bill 8 行 305180.00，gap 380.00，无重复。差异 6 单：T043 计价口径 Δ120.00、T044/T045 漏过户费 Δ0.26×2、T046 送转 0→30、T047 单侧 260.00、T048 按交割日入账。amount_diff_total=380.00，excluded_amount_total=0.00。只读批处理",
+  "execution_path": [
+    "python3 + csv.DictReader(newline='', encoding='utf-8') 读两份 CSV，金额用 Decimal(原始字符串) 构造，全程不碰 float。",
+    "算术层：len(行) → ledger_rows=7 / bill_rows=8；amount 列 Decimal 累加 → 304800.00 / 305180.00；gap = bill − ledger = 380.00。",
+    "重复层：两侧各自 Counter(txn_id)，出现次数 >1 才计重复；本例两侧均 0 → dedup_removed_txn_count=0、dedup_amount=0.00。",
+    "差异层：单号并集逐个比 shares / amount / fee_total / date(ledger.date vs bill.trade_date) 四列，任一不等即差异单；仅单侧存在亦计入，差额取该侧 amount。",
+    "汇总层：6 个差异单归入互斥类别，amount_diff_total 只累加「计入金额差异」类别的 abs(ledger.amount − bill.amount)，其余进 excluded_*（本例其 amount 差为 0）。",
+    "自校验：amount_diff_total + excluded_amount_total 必须等于 raw_total_gap（380.00 + 0.00），不等则回退查漏分类单号。"
+  ],
+  "cost": {
+    "token_estimate": "本席自述约 2.4 万 tokens（占 per_task_token_hard_cap 160000 约 15%）。若按单人多轮对话 15× 放大，六席一轮约 12–13 万，逼近上限——后续轮次应只做增量校验，不重跑全量。",
+    "wall_clock": "脚本单次 <2 秒（15 行数据，无 IO 放大）；人工核对 6 条差异并签署约 8–10 分钟。",
+    "human_touchpoints": "2 次勾选式介入：①裁定 ADJ-001（T043 的 120.00 是否计入金额差异）；②确认 T047 的 260.00 分红是否补记。均不需重算。"
+  },
+  "rollback": "核对只读，回滚成本为零：answer.json 写独立路径，重跑幂等覆盖。若据此调账：只追加 journal 行、不就地改写 ledger.csv；改动前把 CSV 快照存 _trash/snapshots/<时间戳>/（不用 unlink，本机沙箱会拦）。回滚 = 反向冲销追加行 + sha256 与快照比对复原。",
+  "op_grade": "🟡",
+  "cross_platform_risks": [
+    {
+      "risk": "解释器路径假定：写死 /usr/bin/python 或 Windows 的 .venv\\Scripts\\python.exe，在 Mac mini M4 上直接失败。",
+      "mitigation": "shebang 用 #!/usr/bin/env python3，文档统一写 python3，不依赖虚拟环境绝对路径。"
+    },
+    {
+      "risk": "编码：Windows 默认 GBK，读写中文列（买入/送转/股息入账）会抛 UnicodeDecodeError 或写出问号。",
+      "mitigation": "两侧显式 encoding='utf-8'，带 BOM 时用 utf-8-sig 并对首列名 lstrip('\\ufeff')。"
+    },
+    {
+      "risk": "换行：默认 newline 写出在 Windows 变 CRLF，diff 全红。",
+      "mitigation": "读取 newline=''，写出 newline='' + csv.writer(lineterminator='\\n')，固定 LF。"
+    },
+    {
+      "risk": "路径：字符串拼接 'fixtures/tasks/T-06/'+name 在大小写敏感卷（/Volumes 外置盘）上会失效；本机 Windows、目标 macOS。",
+      "mitigation": "一律 pathlib.Path 拼接并 resolve()，相对包根，无反斜杠字面量。"
+    },
+    {
+      "risk": "浮点：0.26 用 float 累加得 0.26000000000000001，6.50/6.76 比较失真。",
+      "mitigation": "Decimal 直接由 CSV 字符串构造，用 != 精确判定，输出 quantize 到 0.01。"
+    },
+    {
+      "risk": "删除：Path.unlink() 清理临时文件会被沙箱拦截并中断整批。",
+      "mitigation": "改为移动到 _trash/ 子目录，保留可追溯痕迹。"
+    }
+  ],
+  "evidence": [
+    {
+      "pointer": "fixtures/tasks/T-06/ledger.csv#col=amount",
+      "what_it_shows": "7 行累加=304800.00；ledger_rows=7。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-06/bill.csv#col=amount",
+      "what_it_shows": "8 行累加=305180.00；bill_rows=8，gap 380.00。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-06/bill.csv#T047",
+      "what_it_shows": "仅单侧，股息入账 260.00，取该侧额。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-06/ledger.csv#T043,T046 + bill.csv#T043,T046",
+      "what_it_shows": "T043 amount 45000/45120（Δ120）、fee 11.70/11.73；T046 shares 0/30，amount 均 0"
+    },
+    {
+      "pointer": "fixtures/tasks/T-06/TASK.md#D",
+      "what_it_shows": "四列任一不等即差异单，单侧亦算，取差额 → diff_count=6"
+    }
+  ],
+  "falsification": "若 ledger.date 语义是「入账日」，则 T048 的 09-17 与 settle_date 一致、不该算差异，diff_count 应降为 5、DIFFSET 记 5；若 T046 送转被裁定为非交易事件不入清单，亦为 5。另一条：若 ADJ-001 裁定 exclude（把 T043 的 120.00 视为计价口径而非记账错误），则 amount_diff_total=260.00、excluded_amount_total=120.00 —— 两种解释都能对上 raw gap 380.00，算术本身无法辨别，必须由口径裁定。",
+  "reads": [
+    {
+      "path": "[deny-domain path redacted]prompts/ANON-B.md",
+      "purpose": "读席位职责、读取域、输出模板与字数预算"
+    },
+    {
+      "path": "fixtures/tasks/T-06/TASK.md",
+      "purpose": "读字段定义、四个易错点与判定口径 D"
+    },
+    {
+      "path": "fixtures/tasks/T-06/ledger.csv",
+      "purpose": "逐行复算自记账 7 行的 amount/fee_total/shares/date"
+    },
+    {
+      "path": "fixtures/tasks/T-06/bill.csv",
+      "purpose": "逐行复算交割单 8 行的 amount/费用三列/股数/成交日，并校验费用分列自洽"
+    },
+    {
+      "path": "protocol/07-轮次与指标.md",
+      "purpose": "查 ADJ-001 与 DIFFSET 的反推规则、pointer 归一化、席位输出契约（258-345 行整段）"
+    },
+    {
+      "path": "protocol/06-写入域与判据分层.md",
+      "purpose": "grep 片段：确认读取域是「声明+检测」而非隔离墙，据此决定如实申报 reads"
+    },
+    {
+      "path": "protocol/03-结构审计七查.md",
+      "purpose": "grep 片段：看第 9 查 seat_check 如何判定读取域"
+    },
+    {
+      "path": "protocol/04-双裁判规范.md",
+      "purpose": "grep 片段：看 ADJ-001 在 pending 结构里的 options 形态"
+    },
+    {
+      "path": "[deny-domain path redacted]（目录名列举，未读任何文件内容）",
+      "purpose": "仅确认 prompts/ 与 inputs/ 存在；未进入 presentation/，未读取任何文件字节——如实申报以免漏报"
+    }
+  ],
+  "dissent": [],
+  "confidence": "high",
+  "needs_more_data": [
+    "ledger 的 date 是入账日还是成交日——决定 T048 是否算差异（6 还是 5）。TASK.md 称「入账日」，定义 D 又要求比日期，冲突需裁定。",
+    "T047 的 260.00 分红是否已在资金流水/应收股利入账——只给两份 CSV，无法核实是否真缺记。",
+    "T046 送转 30 股是否已在持仓表体现——持仓表不在输入内，股数差异的影响金额无法量化。"
+  ],
+  "stance": [
+    {
+      "axis": "ADJ-001",
+      "choice": "count"
+    },
+    {
+      "axis": "DIFFSET",
+      "choice": "6"
+    }
+  ],
+  "summary": {
+    "ledger_rows": 7,
+    "bill_rows": 8,
+    "ledger_total": 304800.0,
+    "bill_total": 305180.0,
+    "raw_total_gap": 380.0,
+    "dedup_removed_txn_count": 0,
+    "dedup_amount": 0.0,
+    "diff_count": 6,
+    "amount_diff_total": 380.0,
+    "excluded_amount_total": 0.0,
+    "excluded_categories": [
+      "费用漏计（过户费）",
+      "股数差异（送转未登记）",
+      "日期口径差异（按交割日入账）"
+    ]
+  },
+  "usage": {
+    "tokens": 24000,
+    "minutes": 7,
+    "source": "self_report"
+  }
+}

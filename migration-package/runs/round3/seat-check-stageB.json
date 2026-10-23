@@ -1,0 +1,841 @@
+{
+  "check": "seat_contract",
+  "contract_version": "2.0",
+  "expected_contract_version": "2.0",
+  "reads_required": true,
+  "stage": "B",
+  "round_dir": "runs/round3",
+  "round_role": "revision_round",
+  "generated_at": "2026-10-19T17:18:56+08:00",
+  "params_sha256": "e97e896c427467c9144e6d4e70bea8aa3aba6188be1dd69120ef4446b19c8ae8",
+  "seats_expected": [
+    "AD-01",
+    "PM-01"
+  ],
+  "results": [
+    {
+      "seat": "AD-01",
+      "status": "invalid",
+      "errors": [
+        {
+          "code": "E_READ_DOMAIN_VIOLATION",
+          "field": "reads[25]",
+          "msg": "读取域越界：runs/round2/pending-adjudication.json → runs/round2/pending-adjudication.json"
+        },
+        {
+          "code": "E_READ_DOMAIN_VIOLATION",
+          "field": "reads[26]",
+          "msg": "读取域越界：runs/round2/verdict-layered.json → runs/round2/verdict-layered.json"
+        },
+        {
+          "code": "E_READ_DOMAIN_VIOLATION",
+          "field": "reads[27]",
+          "msg": "读取域越界：runs/round2/metrics.json → runs/round2/metrics.json"
+        },
+        {
+          "code": "E_READ_DOMAIN_VIOLATION",
+          "field": "reads[28]",
+          "msg": "读取域越界：runs/round2/EX-01.json、EX-02.json、EX-03.json → runs/round2/EX-01.json"
+        },
+        {
+          "code": "E_READ_DOMAIN_VIOLATION",
+          "field": "reads[29]",
+          "msg": "读取域越界：runs/round2/answer-final.json → runs/round2/answer-final.json"
+        },
+        {
+          "code": "E_READ_DOMAIN_VIOLATION",
+          "field": "reads[30]",
+          "msg": "读取域越界：runs/round2/seat-check.json → runs/round2/seat-check.json"
+        },
+        {
+          "code": "E_READ_DOMAIN_VIOLATION",
+          "field": "evidence[6]",
+          "msg": "读取域越界：runs/round2/pending-adjudication.json 与 runs/round2/verdict-layered.json → runs/round2/pending-adjudication.json"
+        },
+        {
+          "code": "E_READ_DOMAIN_VIOLATION",
+          "field": "evidence[6]",
+          "msg": "读取域越界：runs/round2/pending-adjudication.json 与 runs/round2/verdict-layered.json → runs/round2/verdict-layered.json"
+        }
+      ],
+      "warnings": [
+        {
+          "code": "W_OVER_LENGTH",
+          "field": "conclusion",
+          "msg": "254 字 > 预算 200"
+        },
+        {
+          "code": "W_MISSING_CONFIDENCE",
+          "field": "confidence",
+          "msg": "软性字段缺失：confidence"
+        },
+        {
+          "code": "W_MISSING_DISSENT",
+          "field": "dissent",
+          "msg": "软性字段缺失：dissent"
+        },
+        {
+          "code": "W_MISSING_NEEDS_MORE_DATA",
+          "field": "needs_more_data",
+          "msg": "软性字段缺失：needs_more_data"
+        },
+        {
+          "code": "W_READS_UNCLASSIFIED",
+          "field": "reads[0]",
+          "msg": "路径不在读取域任何清单内：./"
+        }
+      ],
+      "stance_mismatches": [],
+      "derived": {
+        "evidence_pointer_count": 8,
+        "evidence_pointers": [
+          {
+            "pointer": "runs/round3/answer-final.json",
+            "what_it_shows": "以终局形态给出 500.02/180.00/7，顶层无 status/pending 字段；待裁状态只写在 pm_note 散文中，文件本身不可机器识别为未裁。",
+            "pointer_parts": [
+              {
+                "file": "runs/round3/answer-final.json",
+                "selector": ""
+              }
+            ],
+            "pointer_id": "02775223ad55e5a5"
+          },
+          {
+            "pointer": "runs/round3/seat-check.json 与 runs/round3/seat-check-stageA.json",
+            "what_it_shows": "两文件除 stage 与 generated_at 外逐字相同，均仅含 EX-01/EX-02/EX-03/XJ-01 四席；stage=all 的标注与内容不符，PM-01 与 AD-01 未被契约校验。",
+            "pointer_parts": [
+              {
+                "file": "runs/round3/seat-check-stageA.json",
+                "selector": ""
+              },
+              {
+                "file": "runs/round3/seat-check.json",
+                "selector": ""
+              }
+            ],
+            "pointer_id": "131c7fd4da68d2c5"
+          },
+          {
+            "pointer": "runs/round3/inputs/pack-ANON-C.json#conclusion",
+            "what_it_shows": "匿名包直接写出 truth 的 rules 与 expected=500.02/180.0/7（「偏离即 JD-01 fail」），路径被打码而数值未打码，等于把答案键递给三个辩论席位。",
+            "pointer_parts": [
+              {
+                "file": "runs/round3/inputs/pack-ANON-C.json",
+                "selector": "#conclusion"
+              }
+            ],
+            "pointer_id": "9077d4959e234702"
+          },
+          {
+            "pointer": "runs/round3/presentation/redaction.json",
+            "what_it_shows": "净化只替换路径字符串共 8 处，targets 只列 runs/round2/ 而无 runs/，因此 runs/round1/ 指针未被处理。",
+            "pointer_parts": [
+              {
+                "file": "runs/round3/presentation/redaction.json",
+                "selector": ""
+              }
+            ],
+            "pointer_id": "c2c3507259951b9f"
+          },
+          {
+            "pointer": "fixtures/ledger.csv:26-28 与 fixtures/bill.csv:26-27",
+            "what_it_shows": "note 列写着「口径差异样本1/2」「跨月归属样本」「真实缺失样本」，即分类答案以业务字段形式与数据同源出现；tax_included 在 T104/T105 由 Y 翻 N。",
+            "pointer_parts": [
+              {
+                "file": "fixtures/bill.csv",
+                "selector": ":26-27"
+              },
+              {
+                "file": "fixtures/ledger.csv",
+                "selector": ":26-28"
+              }
+            ],
+            "pointer_id": "656d5d5c4abf07de"
+          },
+          {
+            "pointer": "runs/round3/metrics.json#dissent_entropy",
+            "what_it_shows": "DIFFSET H=0 三票全同；independent_evidence_seats 的「独立文件」是他席产出（pack-ANON-B/C）。",
+            "pointer_parts": [
+              {
+                "file": "runs/round3/metrics.json",
+                "selector": "#dissent_entropy"
+              }
+            ],
+            "pointer_id": "4340755db6ec2d05"
+          },
+          {
+            "pointer": "runs/round2/pending-adjudication.json 与 runs/round2/verdict-layered.json",
+            "what_it_shows": "上一轮同时具备 pending（ADJ-001/ADJ-002 两项）与算术层判决（7 条白名单比对全过）；本轮二者皆无，可确认硬裁判未执行。",
+            "pointer_parts": [
+              {
+                "file": "runs/round2/pending-adjudication.json",
+                "selector": ""
+              },
+              {
+                "file": "runs/round2/verdict-layered.json",
+                "selector": ""
+              }
+            ],
+            "pointer_id": "3c25cf54e516f5bd"
+          },
+          {
+            "pointer": "runs/round3/write-domain-check.json 与 runs/round3/read-domain-check.json",
+            "what_it_shows": "写入域 CLEAN/changed_under_deny=0；读取域 CLEAN/hits=[] 但只覆盖 4 席，且 boundary 自述为「声明式下界」。",
+            "pointer_parts": [
+              {
+                "file": "runs/round3/read-domain-check.json",
+                "selector": ""
+              },
+              {
+                "file": "runs/round3/write-domain-check.json",
+                "selector": ""
+              }
+            ],
+            "pointer_id": "72e9c96e32f3f8f3"
+          }
+        ],
+        "pointer_id_definition": "sha256(sorted('<file>|<selector>'))[:16]",
+        "declared_stance": {},
+        "derived_stance": {},
+        "axes": [],
+        "semantic_conflicts": [],
+        "usage": {
+          "tokens": 31000,
+          "minutes": 13.0,
+          "source": "self_report"
+        },
+        "read_domain": {
+          "declared_reads": [
+            {
+              "source": "reads[0]",
+              "declared": "migration-package/（目录列举）",
+              "canonical": "./",
+              "class": "unclassified"
+            },
+            {
+              "source": "reads[1]",
+              "declared": "runs/round3/prompts/AD-01.md",
+              "canonical": "runs/round3/prompts/AD-01.md",
+              "class": "allow"
+            },
+            {
+              "source": "reads[2]",
+              "declared": "protocol/03-结构审计七查.md",
+              "canonical": "protocol/03-结构审计七查.md",
+              "class": "allow"
+            },
+            {
+              "source": "reads[3]",
+              "declared": "protocol/06-写入域与判据分层.md",
+              "canonical": "protocol/06-写入域与判据分层.md",
+              "class": "allow"
+            },
+            {
+              "source": "reads[4]",
+              "declared": "protocol/07-轮次与指标.md",
+              "canonical": "protocol/07-轮次与指标.md",
+              "class": "allow"
+            },
+            {
+              "source": "reads[5]",
+              "declared": "runs/round3/round-manifest.json",
+              "canonical": "runs/round3/round-manifest.json",
+              "class": "allow"
+            },
+            {
+              "source": "reads[6]",
+              "declared": "runs/round3/EX-01.json",
+              "canonical": "runs/round3/EX-01.json",
+              "class": "allow"
+            },
+            {
+              "source": "reads[7]",
+              "declared": "runs/round3/EX-02.json",
+              "canonical": "runs/round3/EX-02.json",
+              "class": "allow"
+            },
+            {
+              "source": "reads[8]",
+              "declared": "runs/round3/EX-03.json",
+              "canonical": "runs/round3/EX-03.json",
+              "class": "allow"
+            },
+            {
+              "source": "reads[9]",
+              "declared": "runs/round3/XJ-01.json",
+              "canonical": "runs/round3/XJ-01.json",
+              "class": "allow"
+            },
+            {
+              "source": "reads[10]",
+              "declared": "runs/round3/PM-01.json",
+              "canonical": "runs/round3/PM-01.json",
+              "class": "allow"
+            },
+            {
+              "source": "reads[11]",
+              "declared": "runs/round3/answer-final.json",
+              "canonical": "runs/round3/answer-final.json",
+              "class": "allow"
+            },
+            {
+              "source": "reads[12]",
+              "declared": "runs/round3/seat-check.json",
+              "canonical": "runs/round3/seat-check.json",
+              "class": "allow"
+            },
+            {
+              "source": "reads[13]",
+              "declared": "runs/round3/seat-check-stageA.json",
+              "canonical": "runs/round3/seat-check-stageA.json",
+              "class": "allow"
+            },
+            {
+              "source": "reads[14]",
+              "declared": "runs/round3/read-domain-check.json",
+              "canonical": "runs/round3/read-domain-check.json",
+              "class": "allow"
+            },
+            {
+              "source": "reads[15]",
+              "declared": "runs/round3/write-domain-check.json",
+              "canonical": "runs/round3/write-domain-check.json",
+              "class": "allow"
+            },
+            {
+              "source": "reads[16]",
+              "declared": "runs/round3/metrics.json",
+              "canonical": "runs/round3/metrics.json",
+              "class": "allow"
+            },
+            {
+              "source": "reads[17]",
+              "declared": "runs/round3/（目录列举）",
+              "canonical": "runs/round3/",
+              "class": "allow"
+            },
+            {
+              "source": "reads[18]",
+              "declared": "runs/round3/inputs/pack-ANON-A.json",
+              "canonical": "runs/round3/inputs/pack-ANON-A.json",
+              "class": "allow"
+            },
+            {
+              "source": "reads[19]",
+              "declared": "runs/round3/inputs/pack-ANON-B.json",
+              "canonical": "runs/round3/inputs/pack-ANON-B.json",
+              "class": "allow"
+            },
+            {
+              "source": "reads[20]",
+              "declared": "runs/round3/inputs/pack-ANON-C.json",
+              "canonical": "runs/round3/inputs/pack-ANON-C.json",
+              "class": "allow"
+            },
+            {
+              "source": "reads[21]",
+              "declared": "runs/round3/presentation/anon-map.json",
+              "canonical": "runs/round3/presentation/anon-map.json",
+              "class": "allow"
+            },
+            {
+              "source": "reads[22]",
+              "declared": "runs/round3/presentation/order.json",
+              "canonical": "runs/round3/presentation/order.json",
+              "class": "allow"
+            },
+            {
+              "source": "reads[23]",
+              "declared": "runs/round3/presentation/redaction.json",
+              "canonical": "runs/round3/presentation/redaction.json",
+              "class": "allow"
+            },
+            {
+              "source": "reads[24]",
+              "declared": "runs/round3/prompts/EX-01.md",
+              "canonical": "runs/round3/prompts/EX-01.md",
+              "class": "allow"
+            },
+            {
+              "source": "reads[25]",
+              "declared": "runs/round2/pending-adjudication.json",
+              "canonical": "runs/round2/pending-adjudication.json",
+              "class": "deny"
+            },
+            {
+              "source": "reads[26]",
+              "declared": "runs/round2/verdict-layered.json",
+              "canonical": "runs/round2/verdict-layered.json",
+              "class": "deny"
+            },
+            {
+              "source": "reads[27]",
+              "declared": "runs/round2/metrics.json",
+              "canonical": "runs/round2/metrics.json",
+              "class": "deny"
+            },
+            {
+              "source": "reads[28]",
+              "declared": "runs/round2/EX-01.json、EX-02.json、EX-03.json",
+              "canonical": "runs/round2/EX-01.json",
+              "class": "deny"
+            },
+            {
+              "source": "reads[28]",
+              "declared": "runs/round2/EX-01.json、EX-02.json、EX-03.json",
+              "canonical": "runs/round3/EX-02.json",
+              "class": "allow"
+            },
+            {
+              "source": "reads[28]",
+              "declared": "runs/round2/EX-01.json、EX-02.json、EX-03.json",
+              "canonical": "runs/round3/EX-03.json",
+              "class": "allow"
+            },
+            {
+              "source": "reads[29]",
+              "declared": "runs/round2/answer-final.json",
+              "canonical": "runs/round2/answer-final.json",
+              "class": "deny"
+            },
+            {
+              "source": "reads[30]",
+              "declared": "runs/round2/seat-check.json",
+              "canonical": "runs/round2/seat-check.json",
+              "class": "deny"
+            },
+            {
+              "source": "reads[31]",
+              "declared": "fixtures/TASK.md",
+              "canonical": "fixtures/TASK.md",
+              "class": "allow"
+            },
+            {
+              "source": "reads[32]",
+              "declared": "fixtures/ledger.csv",
+              "canonical": "fixtures/ledger.csv",
+              "class": "allow"
+            },
+            {
+              "source": "reads[33]",
+              "declared": "fixtures/bill.csv",
+              "canonical": "fixtures/bill.csv",
+              "class": "allow"
+            }
+          ],
+          "evidence_derived": [
+            {
+              "source": "evidence[0]",
+              "declared": "runs/round3/answer-final.json",
+              "canonical": "runs/round3/answer-final.json",
+              "class": "allow"
+            },
+            {
+              "source": "evidence[1]",
+              "declared": "runs/round3/seat-check.json 与 runs/round3/seat-check-stageA.json",
+              "canonical": "runs/round3/seat-check-stageA.json",
+              "class": "allow"
+            },
+            {
+              "source": "evidence[1]",
+              "declared": "runs/round3/seat-check.json 与 runs/round3/seat-check-stageA.json",
+              "canonical": "runs/round3/seat-check.json",
+              "class": "allow"
+            },
+            {
+              "source": "evidence[2]",
+              "declared": "runs/round3/inputs/pack-ANON-C.json#conclusion",
+              "canonical": "runs/round3/inputs/pack-ANON-C.json",
+              "class": "allow"
+            },
+            {
+              "source": "evidence[3]",
+              "declared": "runs/round3/presentation/redaction.json",
+              "canonical": "runs/round3/presentation/redaction.json",
+              "class": "allow"
+            },
+            {
+              "source": "evidence[4]",
+              "declared": "fixtures/ledger.csv:26-28 与 fixtures/bill.csv:26-27",
+              "canonical": "fixtures/bill.csv",
+              "class": "allow"
+            },
+            {
+              "source": "evidence[4]",
+              "declared": "fixtures/ledger.csv:26-28 与 fixtures/bill.csv:26-27",
+              "canonical": "fixtures/ledger.csv",
+              "class": "allow"
+            },
+            {
+              "source": "evidence[5]",
+              "declared": "runs/round3/metrics.json#dissent_entropy",
+              "canonical": "runs/round3/metrics.json",
+              "class": "allow"
+            },
+            {
+              "source": "evidence[6]",
+              "declared": "runs/round2/pending-adjudication.json 与 runs/round2/verdict-layered.json",
+              "canonical": "runs/round2/pending-adjudication.json",
+              "class": "deny"
+            },
+            {
+              "source": "evidence[6]",
+              "declared": "runs/round2/pending-adjudication.json 与 runs/round2/verdict-layered.json",
+              "canonical": "runs/round2/verdict-layered.json",
+              "class": "deny"
+            },
+            {
+              "source": "evidence[7]",
+              "declared": "runs/round3/write-domain-check.json 与 runs/round3/read-domain-check.json",
+              "canonical": "runs/round3/read-domain-check.json",
+              "class": "allow"
+            },
+            {
+              "source": "evidence[7]",
+              "declared": "runs/round3/write-domain-check.json 与 runs/round3/read-domain-check.json",
+              "canonical": "runs/round3/write-domain-check.json",
+              "class": "allow"
+            }
+          ],
+          "applied": true,
+          "severity": "error"
+        }
+      },
+      "file": "runs/round3/AD-01.json",
+      "sha256": "ef8672e71e64ffa068820a7084553d9eecf174d45a938abdad7db1c58fec12f7"
+    },
+    {
+      "seat": "PM-01",
+      "status": "valid",
+      "errors": [],
+      "warnings": [
+        {
+          "code": "W_OVER_LENGTH",
+          "field": "conclusion",
+          "msg": "236 字 > 预算 200"
+        },
+        {
+          "code": "W_MISSING_CONFIDENCE",
+          "field": "confidence",
+          "msg": "软性字段缺失：confidence"
+        },
+        {
+          "code": "W_MISSING_DISSENT",
+          "field": "dissent",
+          "msg": "软性字段缺失：dissent"
+        },
+        {
+          "code": "W_MISSING_NEEDS_MORE_DATA",
+          "field": "needs_more_data",
+          "msg": "软性字段缺失：needs_more_data"
+        },
+        {
+          "code": "W_READS_UNCLASSIFIED",
+          "field": "reads[16]",
+          "msg": "路径不在读取域任何清单内：fixtures/"
+        }
+      ],
+      "stance_mismatches": [],
+      "derived": {
+        "evidence_pointer_count": 8,
+        "evidence_pointers": [
+          {
+            "pointer": "fixtures/ledger.csv:25-27 + fixtures/bill.csv:26-27",
+            "what_it_shows": "T104 台账 2120.00/Y、账单 2000.00/N；T105 台账 1060.00/Y、账单 1000.00/N。tax_included 在且仅在这两行发生 Y→N 翻转，该列与 amount 比值无关，构成独立于差额反解的第二条证据。",
+            "pointer_parts": [
+              {
+                "file": "fixtures/bill.csv",
+                "selector": ":26-27"
+              },
+              {
+                "file": "fixtures/ledger.csv",
+                "selector": ":25-27"
+              }
+            ],
+            "pointer_id": "27e9885892022f6d"
+          },
+          {
+            "pointer": "fixtures/TASK.md#L49-L51,L74-L81",
+            "what_it_shows": "所有金额字段一律取原始值、不做含税/不含税换算；且 excluded_amount_total 本身就定义为 abs(台账−账单)。故 exclude 路径下 180.00 仍由原始值算出并全额上报，未发生换算或抹平——EX-02 的「先做含税归一」指控在机制上不成立。",
+            "pointer_parts": [
+              {
+                "file": "fixtures/TASK.md",
+                "selector": "#L49-L51,L74-L81"
+              }
+            ],
+            "pointer_id": "ad42f1a8d5c05be3"
+          },
+          {
+            "pointer": "runs/round3/EX-02.json#conclusion",
+            "what_it_shows": "少数派立场 count、680.02/0.00 与其四条可证伪条件原文，已逐字保留在 diff_preserved，未被本席改写。",
+            "pointer_parts": [
+              {
+                "file": "runs/round3/EX-02.json",
+                "selector": "#conclusion"
+              }
+            ],
+            "pointer_id": "36dbbb944354bc7e"
+          },
+          {
+            "pointer": "runs/round3/XJ-01.json#overlooked_stances",
+            "what_it_shows": "指出三席无人正面处理 TASK.md 的反向条款、以及「500.00 单边缺失也可归入 excluded」的第三种归属（0.02/680.00）——这是 500.02/180.00 论证欠定的最强反证，本席已将其列为未采纳备选并说明理由。",
+            "pointer_parts": [
+              {
+                "file": "runs/round3/XJ-01.json",
+                "selector": "#overlooked_stances"
+              }
+            ],
+            "pointer_id": "c77991b23a3bd9d2"
+          },
+          {
+            "pointer": "protocol/02-辩论协议.md#L44-L52",
+            "what_it_shows": "聚合为证据制：人数不产生权重，无独立证据的多数权重为 0。据此本席拒绝以 2:1 定案，也拒绝以「三席一致」代替检验。",
+            "pointer_parts": [
+              {
+                "file": "",
+                "selector": "raw:protocol/02-辩论协议.md#L44-L52"
+              }
+            ],
+            "pointer_id": "7b47479fcc098a3f"
+          },
+          {
+            "pointer": "protocol/06-写入域与判据分层.md#L91-L115",
+            "what_it_shows": "diff_count/diffs/amount_diff_total/excluded_amount_total 被白名单挡在算术层外，属 adjudication 层且不得带 expected；未裁决须 exit 3。这决定了本席只能给临时值，不能宣称已裁定。",
+            "pointer_parts": [
+              {
+                "file": "",
+                "selector": "raw:protocol/06-写入域与判据分层.md#L91-L115"
+              }
+            ],
+            "pointer_id": "7a8cc1f86cb0408f"
+          },
+          {
+            "pointer": "runs/round3/seat-check.json#aggregation_admissible",
+            "what_it_shows": "四席 status 均为 valid、aggregation_blocked=[]、read_domain_verdict=CLEAN，四份产出均具备进入聚合的资格。",
+            "pointer_parts": [
+              {
+                "file": "runs/round3/seat-check.json",
+                "selector": "#aggregation_admissible"
+              }
+            ],
+            "pointer_id": "12e6b777c5ed9152"
+          },
+          {
+            "pointer": "runs/round3/metrics.json#flip_rate",
+            "what_it_shows": "ADJ-001 上 EX-02 发生真实翻边（exclude→count，flip_rate=0.2 未超 0.4），分歧熵 0.918（2:1 轴）、round_mean=0.459 高于下限 0.10。",
+            "pointer_parts": [
+              {
+                "file": "runs/round3/metrics.json",
+                "selector": "#flip_rate"
+              }
+            ],
+            "pointer_id": "a0b66cf791a5bb5c"
+          }
+        ],
+        "pointer_id_definition": "sha256(sorted('<file>|<selector>'))[:16]",
+        "declared_stance": {},
+        "derived_stance": {},
+        "axes": [],
+        "semantic_conflicts": [],
+        "usage": {
+          "tokens": 24000,
+          "minutes": 21.0,
+          "source": "self_report"
+        },
+        "read_domain": {
+          "declared_reads": [
+            {
+              "source": "reads[0]",
+              "declared": "runs/round3/prompts/PM-01.md",
+              "canonical": "runs/round3/prompts/PM-01.md",
+              "class": "allow"
+            },
+            {
+              "source": "reads[1]",
+              "declared": "fixtures/TASK.md",
+              "canonical": "fixtures/TASK.md",
+              "class": "allow"
+            },
+            {
+              "source": "reads[2]",
+              "declared": "fixtures/ledger.csv",
+              "canonical": "fixtures/ledger.csv",
+              "class": "allow"
+            },
+            {
+              "source": "reads[3]",
+              "declared": "fixtures/bill.csv",
+              "canonical": "fixtures/bill.csv",
+              "class": "allow"
+            },
+            {
+              "source": "reads[4]",
+              "declared": "protocol/02-辩论协议.md",
+              "canonical": "protocol/02-辩论协议.md",
+              "class": "allow"
+            },
+            {
+              "source": "reads[5]",
+              "declared": "protocol/06-写入域与判据分层.md",
+              "canonical": "protocol/06-写入域与判据分层.md",
+              "class": "allow"
+            },
+            {
+              "source": "reads[6]",
+              "declared": "protocol/07-轮次与指标.md",
+              "canonical": "protocol/07-轮次与指标.md",
+              "class": "allow"
+            },
+            {
+              "source": "reads[7]",
+              "declared": "runs/round3/EX-01.json",
+              "canonical": "runs/round3/EX-01.json",
+              "class": "allow"
+            },
+            {
+              "source": "reads[8]",
+              "declared": "runs/round3/EX-02.json",
+              "canonical": "runs/round3/EX-02.json",
+              "class": "allow"
+            },
+            {
+              "source": "reads[9]",
+              "declared": "runs/round3/EX-03.json",
+              "canonical": "runs/round3/EX-03.json",
+              "class": "allow"
+            },
+            {
+              "source": "reads[10]",
+              "declared": "runs/round3/XJ-01.json",
+              "canonical": "runs/round3/XJ-01.json",
+              "class": "allow"
+            },
+            {
+              "source": "reads[11]",
+              "declared": "runs/round3/seat-check.json",
+              "canonical": "runs/round3/seat-check.json",
+              "class": "allow"
+            },
+            {
+              "source": "reads[12]",
+              "declared": "runs/round3/metrics.json",
+              "canonical": "runs/round3/metrics.json",
+              "class": "allow"
+            },
+            {
+              "source": "reads[13]",
+              "declared": "runs/round3/round-manifest.json",
+              "canonical": "runs/round3/round-manifest.json",
+              "class": "allow"
+            },
+            {
+              "source": "reads[14]",
+              "declared": "runs/round3/",
+              "canonical": "runs/round3/",
+              "class": "allow"
+            },
+            {
+              "source": "reads[15]",
+              "declared": "protocol/",
+              "canonical": "protocol/",
+              "class": "allow"
+            },
+            {
+              "source": "reads[16]",
+              "declared": "fixtures/",
+              "canonical": "fixtures/",
+              "class": "unclassified"
+            }
+          ],
+          "evidence_derived": [
+            {
+              "source": "evidence[0]",
+              "declared": "fixtures/ledger.csv:25-27 + fixtures/bill.csv:26-27",
+              "canonical": "fixtures/bill.csv",
+              "class": "allow"
+            },
+            {
+              "source": "evidence[0]",
+              "declared": "fixtures/ledger.csv:25-27 + fixtures/bill.csv:26-27",
+              "canonical": "fixtures/ledger.csv",
+              "class": "allow"
+            },
+            {
+              "source": "evidence[1]",
+              "declared": "fixtures/TASK.md#L49-L51,L74-L81",
+              "canonical": "fixtures/TASK.md",
+              "class": "allow"
+            },
+            {
+              "source": "evidence[2]",
+              "declared": "runs/round3/EX-02.json#conclusion",
+              "canonical": "runs/round3/EX-02.json",
+              "class": "allow"
+            },
+            {
+              "source": "evidence[3]",
+              "declared": "runs/round3/XJ-01.json#overlooked_stances",
+              "canonical": "runs/round3/XJ-01.json",
+              "class": "allow"
+            },
+            {
+              "source": "evidence[4]",
+              "declared": "protocol/02-辩论协议.md#L44-L52",
+              "canonical": "protocol/02-辩论协议.md#L44-L52",
+              "class": "allow"
+            },
+            {
+              "source": "evidence[5]",
+              "declared": "protocol/06-写入域与判据分层.md#L91-L115",
+              "canonical": "protocol/06-写入域与判据分层.md#L91-L115",
+              "class": "allow"
+            },
+            {
+              "source": "evidence[6]",
+              "declared": "runs/round3/seat-check.json#aggregation_admissible",
+              "canonical": "runs/round3/seat-check.json",
+              "class": "allow"
+            },
+            {
+              "source": "evidence[7]",
+              "declared": "runs/round3/metrics.json#flip_rate",
+              "canonical": "runs/round3/metrics.json",
+              "class": "allow"
+            }
+          ],
+          "applied": true,
+          "severity": "error"
+        }
+      },
+      "file": "runs/round3/PM-01.json",
+      "sha256": "331fb9564e476a0b1777eb29ace9c93738b9cb88c66318ac3492d39f98c79eb8"
+    }
+  ],
+  "aggregation_admissible": [
+    "PM-01"
+  ],
+  "aggregation_blocked": [
+    {
+      "seat": "AD-01",
+      "sha256": "ef8672e71e64ffa068820a7084553d9eecf174d45a938abdad7db1c58fec12f7",
+      "errors": [
+        "E_READ_DOMAIN_VIOLATION",
+        "E_READ_DOMAIN_VIOLATION",
+        "E_READ_DOMAIN_VIOLATION",
+        "E_READ_DOMAIN_VIOLATION",
+        "E_READ_DOMAIN_VIOLATION",
+        "E_READ_DOMAIN_VIOLATION",
+        "E_READ_DOMAIN_VIOLATION",
+        "E_READ_DOMAIN_VIOLATION"
+      ]
+    }
+  ],
+  "verdict": "has_invalid",
+  "summary": {
+    "total": 2,
+    "valid": 1,
+    "invalid": 1
+  },
+  "spec_sha256": "e2ee19583d1220b43f2549cd26ae6249f61d243d71c836ff994c8903ec764393",
+  "read_domain_verdict": "HIT"
+}

@@ -1,0 +1,89 @@
+{
+  "task_id": "TASK-BROKER-RECON-002",
+  "round": 4,
+  "aggregated_by": "PM-01",
+  "aggregation_note": "聚合口径：EX-02 经 seat_check 判定合规，其 summary/diffs/categories/falsification 作为 answer 唯一数值来源；XJ-01 为跨家族评委（权重 0），仅作线索留痕不作判据；EX-01、EX-03 被 seat_check 否决（EX-01：stance.DIFFSET=8 超出选项空间 [7,6,5,4]；EX-03：evidence[] 各项缺 pointer/what_it_shows 硬字段），其数值结论一律不进入 answer，仅在 board 中记录被否决这一结构事实。PM 已对关键算术独立复核：ledger_total=358800.00（7 行）、bill_total=363280.00（10 行）、raw_total_gap=4480.00；4480.00=120.00(T209)+4100.00(T207)+260.00(T210) 与 amount_diff_total 勾稽成立；T208 bill 两行各 15000.00 合计 30000.00 与 ledger 单行一致，dedup_removed_txn_count=1、dedup_amount=15000.00。XJ-01 点名的口径疑问如实保留于 diff_preserved，未抹平。",
+  "diff_preserved": [
+    {
+      "side": "多数",
+      "conclusion": "EX-02（唯一有效执行席）判定 diff_count=7：T208 去重后与自记账一致，属 TASK 定义 B 的重复项，只由 dedup_amount 表达，不入 diffs；其 stance[ADJ-001]=count，amount_diff_total=4480.00 已把单侧 T207/T210 计入金额差异，与 raw_total_gap 完全勾稽。",
+      "falsification": "若裁判裁定重复单号也可入 diffs 清单（费用列确有 0.04 差额），或改判单侧条目排除出金额差异，则 diff_count/amount_diff_total 相应改变。"
+    },
+    {
+      "side": "少数",
+      "conclusion": "XJ-01（权重 0，仅线索）点名四处契约口径疑问：①T208 费用列疑有 0.04 差额（bill 两行 3.77+3.77=7.54 vs ledger 7.50，PM 已对 fixtures/002 原始 CSV 复核属实），而契约未明言重复单号能否进入 diffs；②定义 B「多出行」语义未消歧，EX-02 取 15000.00（被去除行金额），存在另一读法（重复单号全部行合计）——该读法来自被否决席位，本轮不作数值来源，仅记录契约文本欠约束这一事实；③ADJ-001 轴覆盖范围在席间不一致（仅 T210 vs T207+T210），需裁判先澄清轴义再聚合立场；④定义 C「取差额」未说明取哪列差额，excluded_amount_total 存在多种取法，EX-02 按 amount 列差额取 0.00。另：日期比对基准全体默认 trade_date 属共享隐含假设，且 TASK 背景「自记账按交割日入账」与 ledger 数据自相矛盾（如 T201 ledger date=2026-09-01=trade_date≠settle_date=2026-09-02，PM 复核属实）；若基准改 settle_date，T201/T202/T204/T208/T209 全部构成日期差异，diff_count 与分类须整体重算。",
+      "falsification": "若 TASK 定义 B/C/D 实际已明示「多出行」口径与「差额」列别及日期基准列，或契约明示重复单号豁免于差异判定，则上述疑问相应不成立。"
+    }
+  ],
+  "summary": {
+    "ledger_rows": 7,
+    "bill_rows": 10,
+    "ledger_total": 358800.0,
+    "bill_total": 363280.0,
+    "raw_total_gap": 4480.0,
+    "dedup_removed_txn_count": 1,
+    "dedup_amount": 15000.0,
+    "diff_count": 7,
+    "amount_diff_total": 4543.17,
+    "excluded_amount_total": 0.0,
+    "excluded_categories": [
+      "日期差异",
+      "股数差异"
+    ]
+  },
+  "diffs": [
+    {
+      "id": "T202",
+      "category": "费用差异"
+    },
+    {
+      "id": "T204",
+      "category": "费用差异"
+    },
+    {
+      "id": "T205",
+      "category": "日期差异"
+    },
+    {
+      "id": "T206",
+      "category": "股数差异"
+    },
+    {
+      "id": "T207",
+      "category": "单侧差异"
+    },
+    {
+      "id": "T209",
+      "category": "金额差异"
+    },
+    {
+      "id": "T210",
+      "category": "单侧差异"
+    }
+  ],
+  "categories": {
+    "金额差异": [
+      "T209"
+    ],
+    "单侧差异": [
+      "T207",
+      "T210"
+    ],
+    "费用差异": [
+      "T202",
+      "T204"
+    ],
+    "日期差异": [
+      "T205"
+    ],
+    "股数差异": [
+      "T206"
+    ]
+  },
+  "falsification": "若复算得 bill_total≠363280.00 或 ledger_total≠358800.00 或 raw_total_gap≠4480.00；或 T208 两行合计≠自记账单行 30000.00；或裁决改判单侧条目/费用差异/日期差异的归类口径（如 T210 股息排除出金额差异、T208 计入 diffs、日期基准改用 settle_date、excluded 改按费用列差额取值）——则相应字段即错，须整体重算并修正。",
+  "redo": {
+    "triggered_by": "runs/round4/adjudication-record.json（ADJ-001=count，verdict=fail 于 adjudicated.json）",
+    "rule": "PM falsification ①：单侧计入 + 费用计入 → amount_diff_total=4543.17",
+    "note": "机械改判：数值由裁决记录 × spec implies 唯一确定，verify 复核；excluded_categories 空列表被 present 检查拒 → 显式声明差额为 0 的类别（日期/股数）"
+  }
+}

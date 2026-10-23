@@ -1,0 +1,102 @@
+{
+  "seat": "EX-03",
+  "round": 15,
+  "conclusion": "方案：单个 recon.py（Decimal 量化 0.01、pathlib、newline=''，只读两表），用 --date-col 把 6/7 之争降为可重跑开关；默认 trade_date 得 6 条、amount_diff_total 380.00、excluded 0.00。两次复跑 sha256 一致，端到端 <1 秒；只写 runs/round15/EX-03.json。",
+  "summary": {
+    "ledger_rows": 7,
+    "bill_rows": 8,
+    "ledger_total": 163800.00,
+    "bill_total": 164180.00,
+    "raw_total_gap": 380.00,
+    "dedup_removed_txn_count": 0,
+    "dedup_amount": 0.00,
+    "diff_count": 6,
+    "amount_diff_total": 380.00,
+    "excluded_amount_total": 0.00,
+    "excluded_categories": ["费用差-漏过户费", "数量差-送转未更新", "日期口径差-按交割日入账"]
+  },
+  "diffs": [
+    {"id": "T067", "category": "金额差-成交价不符"},
+    {"id": "T068", "category": "费用差-漏过户费"},
+    {"id": "T069", "category": "费用差-漏过户费"},
+    {"id": "T070", "category": "数量差-送转未更新"},
+    {"id": "T071", "category": "单侧缺失-现金分红"},
+    {"id": "T072", "category": "日期口径差-按交割日入账"}
+  ],
+  "execution_path": [
+    "1) 取数：Path(dir)/'ledger.csv'、'bill.csv'，open(encoding='utf-8', newline='') + csv.DictReader；禁 float，全 Decimal 量化 0.01",
+    "2) 先算算术层 7 字段：rows 7/8、total 163800.00/164180.00、gap 380.00、dedup 0/0.00",
+    "3) 按 txn_id 建索引；若同号多行则先聚合再比对，多出行金额进 dedup_amount（本夹具无）",
+    "4) 四列比对 shares(int)/amount(Decimal)/fee_total(Decimal)/date vs --date-col；仅单侧存在取该侧 amount 作差额",
+    "5) 归类：金额差与单侧缺失 → amount_diff_total；费用差/数量差/日期口径差 → excluded_amount_total（本夹具三者 amount 差额均 0.00）",
+    "6) 断言自洽：amount_diff_total + excluded_amount_total 须等于 raw_total_gap，不等则非零退出（380.00+0.00=380.00 ✔）",
+    "7) 落盘：json.dumps(ensure_ascii=False, indent=2, sort_keys=True)+'\\n'，write_text(encoding='utf-8', newline='\\n')，记 sha256 供幂等比对",
+    "8) 人类闸门：ADJ-001 与 DIFFSET 进 pending-adjudication；date-col 选择必须进 answer 元数据，不得只留命令行历史"
+  ],
+  "cost": {
+    "token_estimate": "本轮三席约 7.5 万 tokens（2.3–2.7 万/席，脚本本身 <2k）；对照 per_task_token_hard_cap 160000 尚余约 53%",
+    "wall_clock": "复算 <1 秒（7+8 行）；含人工复核与口径裁决约 6–8 分钟",
+    "human_touchpoints": "1 次（对 ADJ-001 / DIFFSET 及 date-col 默认值签署裁决记录）"
+  },
+  "rollback": "① 写前对目标文件取 sha256 快照，写后复算比对；② 脚本幂等（同输入同输出同 sha），异常直接重跑即回滚，无中间态；③ 共享输入只读，不在回滚面内；④ 若第 8 查 HIT，用 runs/round15/wd-baseline.json 的 path+sha256 差集定位越界写入，人工挪至 _trash/ 而非删除（沙箱拦 unlink）；⑤ 禁止直接回写 ledger.csv 修账——属 🔴 不可逆。",
+  "op_grade": "🟡",
+  "op_grade_rationale": "单次写 runs/round15/EX-03.json 是 🟢（新增、可逆、影响仅本项目）；但该产出入聚合并被用于改账、跨模块影响且第 8 查可就比对，故整体记 🟡，须先备份。若用 380.00 结论回写自记账台账则升 🔴，须先出「方案/影响范围/回滚」三件套并过人类闸门。",
+  "cross_platform_risks": [
+    {"risk": "模板称「目标机 macOS，本机是 Windows」，但本环境实测 Darwin 25.5.0 arm64 / Python 3.13.12 —— 前提与实测不符", "mitigation": "以 uname -srm 与 python3 -VV 实测为准修正模板，跨平台检查项全部保留"},
+    {"risk": "解释器名：Windows 常为 python 或 py -3", "mitigation": "shebang 用 #!/usr/bin/env python3，文档统一 python3，不做别名假设"},
+    {"risk": "路径分隔：字符串拼接失效", "mitigation": "全部 pathlib.Path 与 / 运算"},
+    {"risk": "换行：CRLF 会让 date 列尾带 \\r，日期比对假阳性", "mitigation": "读用 newline=''，写固定 '\\n'；本夹具实测 LF，未触发"},
+    {"risk": "编码：Windows 默认 GBK 读中文 name/note 会抛错", "mitigation": "所有 open/write_text 显式 encoding='utf-8'"},
+    {"risk": "浮点：0.020000000000436557 级误差会判金额不等", "mitigation": "全程 Decimal + quantize 0.01，禁 numeric_equals；06 §2.4 已列为硬闸门"},
+    {"risk": "删除：unlink 会被沙箱拦截", "mitigation": "改为移动到 _trash/，删除不进自动化路径"}
+  ],
+  "categories": {
+    "金额差-成交价不符": ["T067"],
+    "费用差-漏过户费": ["T068", "T069"],
+    "数量差-送转未更新": ["T070"],
+    "单侧缺失-现金分红": ["T071"],
+    "日期口径差-按交割日入账": ["T072"]
+  },
+  "evidence": [
+    {"pointer": "/tmp/t09/recon.py + answer_trade.json（sha 23a99e2e6120ca93，两次同值）", "what_it_shows": "trade 6 条、settle 7 条；两分支 amount_diff 380.00、excluded 0.00"},
+    {"pointer": "protocol/06-写入域与判据分层.md#L26-L40 与 #L117-L122", "what_it_shows": "allow=runs/round{n}/，deny=fixtures 等；金额须 decimal_equals+scale"},
+    {"pointer": "protocol/07-轮次与指标.md#L300-L314", "what_it_shows": "tokens 求和、minutes 取 max；三席约 7.5 万，对 160000 有余量"},
+    {"pointer": "bill.csv#commission+stamp_tax+transfer_fee 对 fee_total", "what_it_shows": "8 行全等（34.20/22.80/11.73/5.15/5.15/0/0/5.14）"}
+  ],
+  "falsification": "若 (a) 出现同号多行且差额须按行配对而非按单号聚合；(b) CSV 非 UTF-8 或 CRLF 未被 csv 模块吸收；(c) 金额需比 0.01 更细的 scale；(d) 允许回写自记账台账。四条任一成立本方案需重做，(d) 另使操作级别升 🔴。",
+  "reads": [
+    {"path": "runs/round15/prompts/EX-03.md", "purpose": "确认落地席位成本/回滚/分级/跨平台要求"},
+    {"path": "runs/round15/prompts/EX-01.md", "purpose": "确认字面主义席位的字段定义，作为方案输入契约"},
+    {"path": "runs/round15/prompts/EX-02.md", "purpose": "确认对立面反对格式，作为 dissent 靶子"},
+    {"path": "fixtures/tasks/T-09/TASK.md", "purpose": "取 §A-§D 计算法，确定脚本要产出的 11 个 summary 字段"},
+    {"path": "fixtures/tasks/T-09/ledger.csv", "purpose": "逐行取数核对金额与费用，验证脚本输出"},
+    {"path": "fixtures/tasks/T-09/bill.csv", "purpose": "逐行取数核对税费三项之和=fee_total，验证脚本输出"},
+    {"path": "protocol/02-辩论协议.md", "purpose": "确认每席必交 1 条反对及反证条件"},
+    {"path": "protocol/03-结构审计七查.md", "purpose": "确认第 8 查写入域判定方式，据此设计回滚"},
+    {"path": "protocol/06-写入域与判据分层.md", "purpose": "取 allow/deny 前缀、金额硬闸门与闸门往返流程"},
+    {"path": "protocol/07-轮次与指标.md", "purpose": "取预算定义式与选项空间规则，估算本轮成本"}
+  ],
+  "dissent": [
+    {
+      "against": "ANON-B：主张 6 与 7 不可裁决、应停在人类闸门，反对设任何默认值",
+      "reason": "「停在闸门」不是零成本选项：它把一次 6 分钟的口径裁决变成每轮固定支出，且闸门本身不给判据。可行落地是把不可裁决显式化为参数（date-col）并写进产出元数据，让默认值可见、可改、可审计。但我同样反对「默认值即答案」：默认值必须在 answer 留痕，否则翻边率会把参数漂移记成立场翻边。",
+      "reverse_evidence": "若 answer 契约已存在承载日期口径的字段，且 metrics 能区分参数变更与立场变更，则参数化的多余成本大于收益，本反对不成立。"
+    },
+    {
+      "against": "ANON-A：以 note 列作为判别 6 与 7 的可执行依据",
+      "reason": "落地角度不成立：note 是自由文本（「正常」「按委托价记账」「只记佣金（漏过户费）」），脚本一旦依赖关键词，措辞变化就静默改变结论，且无测试能覆盖。判据要么来自契约字段，要么来自人类签署，不能来自备注的自然语言。",
+      "reverse_evidence": "若 note 被规范为受控词表（枚举且带校验），则它可进入判据，本反对不成立。"
+    }
+  ],
+  "confidence": "medium",
+  "needs_more_data": [
+    "缺规则：date-col 默认取哪一列契约未定，决定 diff_count 是 6 还是 7，金额不受影响",
+    "缺规则：口径裁决应落在 answer 的哪个字段（现契约无承载位），导致参数选择无法随产出审计",
+    "缺数据：无券商交收流水与分红入账凭证，T071 的 260.00 是否已入他账无法外部核实"
+  ],
+  "stance": [
+    {"axis": "ADJ-001", "choice": "exclude"},
+    {"axis": "DIFFSET", "choice": "6"}
+  ],
+  "usage": {"tokens": 23100, "minutes": 16, "source": "self_report"}
+}

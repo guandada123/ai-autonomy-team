@@ -1,0 +1,180 @@
+{
+  "check": "seat_contract",
+  "xj_family_check": null,
+  "contract_version": "2.1",
+  "expected_contract_version": "2.1",
+  "reads_required": true,
+  "stage": "B",
+  "round_dir": "runs/round31",
+  "round_role": "evidence_round",
+  "generated_at": "2026-10-20T21:27:48+08:00",
+  "params_sha256": "96d0f9da01c33d3bfc97b04ffb39b549dd2037f8658345906eee1615da596dff",
+  "seats_expected": [
+    "AD-01",
+    "PM-01"
+  ],
+  "results": [
+    {
+      "seat": "AD-01",
+      "file": "runs/round31/AD-01.json",
+      "sha256": null,
+      "status": "invalid",
+      "errors": [
+        {
+          "code": "E_MISSING_SEAT",
+          "field": "-",
+          "msg": "轮次内缺少该席位产出"
+        }
+      ],
+      "warnings": [],
+      "derived": {}
+    },
+    {
+      "seat": "PM-01",
+      "status": "valid",
+      "errors": [],
+      "warnings": [
+        {
+          "code": "W_MISSING_CONFIDENCE",
+          "field": "confidence",
+          "msg": "软性字段缺失：confidence"
+        },
+        {
+          "code": "W_MISSING_DISSENT",
+          "field": "dissent",
+          "msg": "软性字段缺失：dissent"
+        },
+        {
+          "code": "W_MISSING_NEEDS_MORE_DATA",
+          "field": "needs_more_data",
+          "msg": "软性字段缺失：needs_more_data"
+        },
+        {
+          "code": "W_READS_UNCLASSIFIED",
+          "field": "reads[1]",
+          "msg": "路径不在读取域任何清单内：fixtures/tasks/T-11/TASK.md"
+        },
+        {
+          "code": "W_READS_UNCLASSIFIED",
+          "field": "reads[2]",
+          "msg": "路径不在读取域任何清单内：fixtures/tasks/T-11/ledger.csv"
+        },
+        {
+          "code": "W_READS_UNCLASSIFIED",
+          "field": "reads[3]",
+          "msg": "路径不在读取域任何清单内：fixtures/tasks/T-11/bill.csv"
+        }
+      ],
+      "stance_mismatches": [],
+      "derived": {
+        "evidence_pointer_count": 0,
+        "evidence_pointers": [],
+        "pointer_id_definition": "sha256(sorted('<file>|<selector>'))[:16]",
+        "declared_stance": {},
+        "derived_stance": {},
+        "axes": [],
+        "semantic_conflicts": [],
+        "usage": {
+          "tokens": 9400,
+          "minutes": 14.0,
+          "source": "self_report"
+        },
+        "read_domain": {
+          "declared_reads": [
+            {
+              "source": "reads[0]",
+              "declared": "runs/round31/prompts/PM-01.md",
+              "canonical": "runs/round31/prompts/PM-01.md",
+              "class": "allow"
+            },
+            {
+              "source": "reads[1]",
+              "declared": "fixtures/tasks/T-11/TASK.md",
+              "canonical": "fixtures/tasks/T-11/TASK.md",
+              "class": "unclassified"
+            },
+            {
+              "source": "reads[2]",
+              "declared": "fixtures/tasks/T-11/ledger.csv",
+              "canonical": "fixtures/tasks/T-11/ledger.csv",
+              "class": "unclassified"
+            },
+            {
+              "source": "reads[3]",
+              "declared": "fixtures/tasks/T-11/bill.csv",
+              "canonical": "fixtures/tasks/T-11/bill.csv",
+              "class": "unclassified"
+            },
+            {
+              "source": "reads[4]",
+              "declared": "runs/round31/EX-01.json",
+              "canonical": "runs/round31/EX-01.json",
+              "class": "allow"
+            },
+            {
+              "source": "reads[5]",
+              "declared": "runs/round31/EX-02.json",
+              "canonical": "runs/round31/EX-02.json",
+              "class": "allow"
+            },
+            {
+              "source": "reads[6]",
+              "declared": "runs/round31/EX-03.json",
+              "canonical": "runs/round31/EX-03.json",
+              "class": "allow"
+            },
+            {
+              "source": "reads[7]",
+              "declared": "runs/round31/seat-check.json",
+              "canonical": "runs/round31/seat-check.json",
+              "class": "allow"
+            },
+            {
+              "source": "reads[8]",
+              "declared": "runs/round31/round-manifest.json",
+              "canonical": "runs/round31/round-manifest.json",
+              "class": "allow"
+            },
+            {
+              "source": "reads[9]",
+              "declared": "protocol/07-轮次与指标.md",
+              "canonical": "protocol/07-轮次与指标.md",
+              "class": "allow"
+            },
+            {
+              "source": "reads[10]",
+              "declared": "protocol/06-写入域与判据分层.md",
+              "canonical": "protocol/06-写入域与判据分层.md",
+              "class": "allow"
+            }
+          ],
+          "evidence_derived": [],
+          "applied": true,
+          "severity": "error"
+        }
+      },
+      "file": "runs/round31/PM-01.json",
+      "sha256": "56462954a223b2cb243f143ef6d5f2e1848b0567c42e3190ce19ed5faf8bb01f"
+    }
+  ],
+  "aggregation_admissible": [
+    "PM-01"
+  ],
+  "aggregation_blocked": [
+    {
+      "seat": "AD-01",
+      "sha256": null,
+      "errors": [
+        "E_MISSING_SEAT"
+      ]
+    }
+  ],
+  "verdict": "has_invalid",
+  "summary": {
+    "total": 2,
+    "valid": 1,
+    "invalid": 1
+  },
+  "spec_sha256": "347efbe442416d2130683dde4ddb683e09322c5eca60200de092564f673adc5e",
+  "read_domain_verdict": "CLEAN"
+}

@@ -1,0 +1,156 @@
+{
+  "conclusion": "按 TASK.md §A–§D：行数 5/8，合计 258820.00/335460.00，原始差 76640.00，去重 0/0.00。差异单号 6 个（T059–T064）。T061/T063 股息 260.00（shares=0、price=0.00）属「非交易现金流-现金分红」不计入；计入合计 76120.00＝120.00＋76000.00，勾稽 76120+520+0=76640。",
+  "summary": {
+    "ledger_rows": 5,
+    "bill_rows": 8,
+    "ledger_total": 258820.0,
+    "bill_total": 335460.0,
+    "raw_total_gap": 76640.0,
+    "dedup_removed_txn_count": 0,
+    "dedup_amount": 0.0,
+    "diff_count": 6,
+    "amount_diff_total": 76120.0,
+    "excluded_amount_total": 520.0,
+    "excluded_categories": [
+      "非交易现金流-现金分红"
+    ]
+  },
+  "diffs": [
+    {
+      "id": "T059",
+      "category": "价格差异-按委托价记账"
+    },
+    {
+      "id": "T060",
+      "category": "单侧缺失-新股中签"
+    },
+    {
+      "id": "T061",
+      "category": "非交易现金流-现金分红"
+    },
+    {
+      "id": "T062",
+      "category": "股数差异-送转未更新"
+    },
+    {
+      "id": "T063",
+      "category": "非交易现金流-现金分红"
+    },
+    {
+      "id": "T064",
+      "category": "日期口径差-按交割日入账"
+    }
+  ],
+  "categories": {
+    "价格差异-按委托价记账": [
+      "T059"
+    ],
+    "单侧缺失-新股中签": [
+      "T060"
+    ],
+    "非交易现金流-现金分红": [
+      "T061",
+      "T063"
+    ],
+    "股数差异-送转未更新": [
+      "T062"
+    ],
+    "日期口径差-按交割日入账": [
+      "T064"
+    ]
+  },
+  "evidence": [
+    {
+      "pointer": "fixtures/tasks/T-08/ledger.csv#amount,fee_total(5行)",
+      "what_it_shows": "逐行 Decimal 累加=258820.00；T062 amount 与 fee 均 0.00"
+    },
+    {
+      "pointer": "fixtures/tasks/T-08/bill.csv#amount,fee_total(8行)",
+      "what_it_shows": "累加=335460.00；T059 fee 11.73 对 11.70，0.03 由 120.00 价差派生"
+    },
+    {
+      "pointer": "fixtures/tasks/T-08/TASK.md#D 判定口径",
+      "what_it_shows": "四列不全同或单侧存在即差异单号→6 个；末句定单侧差额取该侧 amount"
+    },
+    {
+      "pointer": "fixtures/tasks/T-08/bill.csv#T061,T063 的 side/shares/price",
+      "what_it_shows": "股息入账、shares=0、price=0.00，260.00 非成交金额，不可与 amount 相减"
+    }
+  ],
+  "falsification": "若「日期」被解释为 settle_date 而非 trade_date，T064（ledger 09-15 对 bill settle 09-15）即不属于差异，diff_count 应降为 5；若股息 260.00×2 被认定应纳入成交金额合计（例如自记账另含资金账户科目），则 amount_diff_total 应为 76640.00、excluded_amount_total 0.00，本结论这两个数字同时失效。算术层四值（行数、两合计、原始差）在本数据上无证伪空间。",
+  "reads": [
+    {
+      "path": "[deny-domain path redacted]prompts/ANON-B.md",
+      "purpose": "读取本席任务、读取域与输出契约"
+    },
+    {
+      "path": "fixtures/tasks/T-08/TASK.md",
+      "purpose": "取得字段定义与差异判定口径，逐条对齐"
+    },
+    {
+      "path": "fixtures/tasks/T-08/ledger.csv",
+      "purpose": "自记账原始行，逐行取数复算"
+    },
+    {
+      "path": "fixtures/tasks/T-08/bill.csv",
+      "purpose": "交割单原始行，逐行取数复算"
+    },
+    {
+      "path": "protocol/02-辩论协议.md",
+      "purpose": "确认输出契约与强制反对义务"
+    },
+    {
+      "path": "protocol/03-结构审计七查.md",
+      "purpose": "确认外部钩子与分歧留存要求"
+    },
+    {
+      "path": "protocol/05-工作协议.md",
+      "purpose": "确认 Decimal 铁律与操作分级"
+    },
+    {
+      "path": "protocol/06-写入域与判据分层.md",
+      "purpose": "确认 diff_count/amount_diff_total 属判断层而非算术层"
+    },
+    {
+      "path": "protocol/07-轮次与指标.md",
+      "purpose": "确认 stance 两轴定义与反推规则"
+    },
+    {
+      "path": "[deny-domain path redacted]",
+      "purpose": "目录列举以确认产出位置，未进入 presentation/"
+    }
+  ],
+  "dissent": [
+    {
+      "against": "ANON-B",
+      "reason": "把股息 260.00×2 计入 amount_diff_total，等于把现金分红当作成交金额差：§C 注1 明确 amount 是成交金额，而 T061/T063 的 side=股息入账、shares=0、price=0.00，不存在可比成交价，260.00 只是单侧现金流水，与自记账的成交金额不同量纲。",
+      "reverse_evidence": "若自记账存在资金/现金科目使 260.00 能与同科目金额对减，或 TASK.md 明文规定股息计入成交金额差异，则该反对不成立。"
+    },
+    {
+      "against": "ANON-A",
+      "reason": "若主张 T062（送转，shares 0 对 30）不构成差异，则与 §D 冲突：股数列 0≠30 已满足「四列不完全相同」，且该单号金额差为 0.00 并不影响它作为差异单号的资格。",
+      "reverse_evidence": "若 TASK.md 把送转/权益变动明确排除在差异判定之外，则该反对不成立。"
+    }
+  ],
+  "confidence": "medium",
+  "needs_more_data": [
+    "【缺规则】「日期」列对齐口径未定义：bill 同时含 trade_date 与 settle_date，TASK.md 未指明与 ledger.date 比哪一列；该选择直接决定 T064 是否入清单（6 或 5）。",
+    "【缺规则】「计入/不计入」的分类边界未定义：契约只给字段不给判据，现金分红是否属口径差须由人类闸门裁定。",
+    "【缺数据】无：两份 CSV 自足，且约束 1 禁止引入外部数据。"
+  ],
+  "stance": [
+    {
+      "axis": "ADJ-001",
+      "choice": "exclude"
+    },
+    {
+      "axis": "DIFFSET",
+      "choice": "6"
+    }
+  ],
+  "usage": {
+    "tokens": 11800,
+    "minutes": 24,
+    "source": "self_report"
+  }
+}

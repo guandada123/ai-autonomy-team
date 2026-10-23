@@ -1,0 +1,278 @@
+{
+  "kind": "round_metrics",
+  "round": "round3",
+  "round_role": "revision_round",
+  "generated_at": "2026-10-19T17:20:19+08:00",
+  "metrics_status": "ok",
+  "params_sha256": "e97e896c427467c9144e6d4e70bea8aa3aba6188be1dd69120ef4446b19c8ae8",
+  "axis_registry_sha256": "e2ee19583d1220b43f2549cd26ae6249f61d243d71c836ff994c8903ec764393",
+  "seats_total": 3,
+  "seats_contract_valid": 6,
+  "seats_blocked": [],
+  "stance": {
+    "EX-01": {
+      "ADJ-001": {
+        "choice": "exclude",
+        "why": "逐 option 匹配 implies 全部键值"
+      },
+      "DIFFSET": {
+        "choice": "7",
+        "why": "summary.diff_count=7"
+      }
+    },
+    "EX-02": {
+      "ADJ-001": {
+        "choice": "count",
+        "why": "逐 option 匹配 implies 全部键值"
+      },
+      "DIFFSET": {
+        "choice": "7",
+        "why": "summary.diff_count=7"
+      }
+    },
+    "EX-03": {
+      "ADJ-001": {
+        "choice": "exclude",
+        "why": "逐 option 匹配 implies 全部键值"
+      },
+      "DIFFSET": {
+        "choice": "7",
+        "why": "summary.diff_count=7"
+      }
+    }
+  },
+  "stance_mismatches": [],
+  "dissent_entropy": {
+    "per_axis": {
+      "ADJ-001": {
+        "H": 0.918296,
+        "H_norm": 0.918296,
+        "K": 2,
+        "N": 3,
+        "counts": {
+          "exclude": 2,
+          "count": 1
+        },
+        "unanimous": false,
+        "comparable_seats": [
+          "EX-01",
+          "EX-02",
+          "EX-03"
+        ]
+      },
+      "DIFFSET": {
+        "H": 0.0,
+        "H_norm": 0.0,
+        "K": 4,
+        "N": 3,
+        "counts": {
+          "7": 3
+        },
+        "unanimous": true,
+        "comparable_seats": [
+          "EX-01",
+          "EX-02",
+          "EX-03"
+        ]
+      }
+    },
+    "round_mean": 0.459148,
+    "floor": 0.1,
+    "below_floor": false,
+    "unanimous_axes": [
+      "DIFFSET"
+    ],
+    "independent_evidence_seats": [
+      "EX-02",
+      "EX-03"
+    ],
+    "shared_file_count": 7,
+    "shared_files": [
+      "fixtures/TASK.md",
+      "fixtures/bill.csv",
+      "fixtures/ledger.csv",
+      "runs/round3/inputs/pack-ANON-B.json",
+      "runs/round3/inputs/pack-ANON-C.json",
+      "runs/round3/metrics.json",
+      "runs/round3/seat-check.json"
+    ],
+    "pairwise_shared_files": {
+      "fixtures/TASK.md": 4,
+      "fixtures/bill.csv": 5,
+      "fixtures/ledger.csv": 5,
+      "runs/round3/inputs/pack-ANON-B.json": 2,
+      "runs/round3/inputs/pack-ANON-C.json": 4,
+      "runs/round3/metrics.json": 2,
+      "runs/round3/seat-check.json": 2
+    },
+    "normalization": {
+      "pointers": 40,
+      "resolved": 30,
+      "unresolved": 10,
+      "granularity": "file_level",
+      "note": "独立证据判据已从「指针整串」升为「文件级」（F6）"
+    },
+    "devils_advocate_required": false
+  },
+  "flip_rate": {
+    "numerator": 1,
+    "denominator": 5,
+    "value": 0.2,
+    "denominator_definition": "comparable_seat_axis_pairs",
+    "low_confidence": false,
+    "by_seat": {
+      "EX-01": {
+        "pairs": 2,
+        "flips": 0,
+        "rate": 0.0
+      },
+      "EX-02": {
+        "pairs": 2,
+        "flips": 1,
+        "rate": 0.5
+      },
+      "EX-03": {
+        "pairs": 1,
+        "flips": 0,
+        "rate": 0.0
+      }
+    },
+    "by_axis": {
+      "ADJ-001": {
+        "n": 2,
+        "flips": 1
+      },
+      "DIFFSET": {
+        "n": 3,
+        "flips": 0
+      }
+    },
+    "flips": [
+      {
+        "seat": "EX-02",
+        "axis": "ADJ-001",
+        "from": "exclude",
+        "to": "count"
+      }
+    ],
+    "note": "",
+    "threshold": 0.4,
+    "alert": false,
+    "status": "ok",
+    "reason": "基线轮 round2 提供 3 个合规席位（契约 v1.0）",
+    "baseline_round": "round2",
+    "baseline_round_role": "revision_round",
+    "baseline_contract_version": "1.0",
+    "baseline_compliant_seats": [
+      "EX-01",
+      "EX-02",
+      "EX-03"
+    ]
+  },
+  "evidence": {
+    "input_pointer_count": 38,
+    "new_count": 38,
+    "new_pointer_ids": [
+      "02775223ad55e5a5",
+      "0904201bd3c25fb6",
+      "120f461266792f25",
+      "12e6b777c5ed9152",
+      "131c7fd4da68d2c5",
+      "142709f441f4eb64",
+      "1b2c41014c327939",
+      "27e9885892022f6d",
+      "36dbbb944354bc7e",
+      "3b398ca84301cd4c",
+      "3c25cf54e516f5bd",
+      "3c62c61abb70c370",
+      "4340755db6ec2d05",
+      "54849a4b5b8ecf68",
+      "656d5d5c4abf07de",
+      "681622a1ae5166c9",
+      "72e9c96e32f3f8f3",
+      "7a8cc1f86cb0408f",
+      "7b47479fcc098a3f",
+      "8541e4bb5822f8d6",
+      "859e66ab108ac006",
+      "9077d4959e234702",
+      "954b500aedbb1ea2",
+      "9575c2dc9437cf63",
+      "9e905ce1aa7b763a",
+      "a0b66cf791a5bb5c",
+      "abcaf96466a42382",
+      "ad42f1a8d5c05be3",
+      "b390e14042dee9c0",
+      "b83fa9f537c37916",
+      "c2c3507259951b9f",
+      "c77991b23a3bd9d2",
+      "da493ad4806c72ac",
+      "e92ee0ff28721f3d",
+      "e932a4f39b1b6df3",
+      "f190d4e303e1e829",
+      "f26595ab251ca1f4",
+      "ff2607f775f8c762"
+    ],
+    "new_file_keys": [
+      "fixtures/TASK.md",
+      "fixtures/bill.csv",
+      "fixtures/ledger.csv",
+      "runs/round2/pending-adjudication.json",
+      "runs/round2/verdict-layered.json",
+      "runs/round3/EX-02.json",
+      "runs/round3/XJ-01.json",
+      "runs/round3/answer-final.json",
+      "runs/round3/inputs/pack-ANON-A.json",
+      "runs/round3/inputs/pack-ANON-B.json",
+      "runs/round3/inputs/pack-ANON-C.json",
+      "runs/round3/metrics.json",
+      "runs/round3/presentation/redaction.json",
+      "runs/round3/read-domain-check.json",
+      "runs/round3/seat-check-stageA.json",
+      "runs/round3/seat-check.json",
+      "runs/round3/write-domain-check.json"
+    ],
+    "new_file_key_count": 17,
+    "pointer_id_definition": "sha256(sorted('<file>|<selector>'))[:16]",
+    "idle": false,
+    "idle_streak": 0,
+    "idle_detection_applies": false,
+    "idle_detected": false,
+    "min_streak_required": 2,
+    "notes": [
+      "round_role=revision_round → idle_detection 不适用（该轮按定义不引入新证据，套用会自证终止）",
+      "本轮新指针数基于 seat-check.json 的 derived.evidence_pointers；历史基线来自各轮 evidence-pointers 集合（含上一轮）"
+    ]
+  },
+  "budget": {
+    "status": "exhausted",
+    "action": "terminate_branch",
+    "tokens_total": 126100,
+    "tokens_cap": 80000,
+    "minutes_span": 21.0,
+    "minutes_cap": 30,
+    "minutes_definition": "max(各席位 usage.minutes)；PM-01 的 minutes 即本轮跨度",
+    "seats_declaring": 6,
+    "missing": [],
+    "exhausted_reasons": [
+      "tokens 126100 > 上限 80000"
+    ],
+    "boundary": "usage 全部为【申报值】，脚本无法验证（与 reads[] 同类）。本机制只让预算成为「可追溯的声明 + 可执行的闸门」，不能证明数字为真。未申报 = 未核验 ≠ 未超支。"
+  },
+  "pointer_id_definition": "sha256(sorted('<file>|<selector>'))[:16]",
+  "length_spread": {
+    "min": 6376,
+    "max": 19344,
+    "stdev": 4813.4,
+    "unit": "bytes"
+  },
+  "actions": [
+    "terminate_branch"
+  ],
+  "exit_code": 4,
+  "notes": [
+    "翻边率 0.2 ≤ 阈值 0.4，未触发重启",
+    "预算耗尽（申报值）：tokens 126100 > 上限 80000 → terminate_branch",
+    "round_role=revision_round → idle_detection 不适用（该轮按定义不引入新证据，套用会自证终止）",
+    "本轮新指针数基于 seat-check.json 的 derived.evidence_pointers；历史基线来自各轮 evidence-pointers 集合（含上一轮）"
+  ]
+}

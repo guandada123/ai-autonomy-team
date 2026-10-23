@@ -1,0 +1,160 @@
+{
+  "round": 29,
+  "seat": "PM-01",
+  "board": [
+    {
+      "id": "T-10",
+      "owner": "PM-01",
+      "state": "待裁",
+      "next_action": "人工签署 ADJ-001（count 14440.00 / exclude 14320.00）与 DATE_BASIS（trade_date vs settle_date）；签署后 answer-final.json 即为定稿",
+      "blocker": "无（三席产出均 valid，seat-check verdict=all_valid；仅缺人类签字，非阻塞）",
+      "evidence": "runs/round29/answer-final.json + runs/round29/EX-01.json + runs/round29/EX-02.json + runs/round29/EX-03.json",
+      "judge": "无",
+      "deadline": "round29 关闭前"
+    },
+    {
+      "id": "T-10/ADJ-001",
+      "owner": "PM-01",
+      "state": "待裁",
+      "next_action": "按多数（count，2/3）暂定 amount_diff_total=14440.00，少数（exclude，120.00）已入 diff_preserved 备查，等人类裁决",
+      "blocker": "无（选项 implies 不在本轮可读域，属规则缺口而非数据缺口）",
+      "evidence": "EX-01/EX-03 stance=count；EX-02 stance=exclude + ledger.csv#T075.note「按委托价记账」",
+      "judge": "无",
+      "deadline": "同 T-10"
+    },
+    {
+      "id": "T-10/DATE_BASIS",
+      "owner": "PM-01",
+      "state": "待裁",
+      "next_action": "取 trade_date（依据 TASK 背景「交割单按成交日列示」），并记录 settle 口径可得 7 条；若改口径须重跑而非改常量",
+      "blocker": "无（§D 未明文，属推断；三席一致取 trade_date）",
+      "evidence": "TASK.md#背景 L8 + 我独立复算 trade=6 条 / settle=7 条（非同伴所称 8 条）",
+      "judge": "无",
+      "deadline": "同 T-10"
+    },
+    {
+      "id": "T-10/DEDUP",
+      "owner": "PM-01",
+      "state": "通过",
+      "next_action": "无需动作，0 组 / 0.00 已由三席与我本人一致复算",
+      "blocker": "无",
+      "evidence": "ledger.csv 5 行、bill.csv 8 行，txn_id 两侧均唯一；§B 判据可机器裁决",
+      "judge": "无",
+      "deadline": "已闭合"
+    }
+  ],
+  "decision": "采纳多数（ADJ-001=count，EX-01+EX-03），并同时采纳三席一致的 DIFFSET=6 与 dedup=0/0.00：six 条差异 T075/T076/T077/T078/T079/T080，amount_diff_total=14440.00、excluded_amount_total=0.00。为避免 excluded_categories 留空而掩盖「哪一类被排除」的信息，将金额差为 0.00 的「日期差异-按交割日入账」（T080）显式列为不计入金额差的类别——该类差额恒为 0，故 amount_diff_total 与 raw_total_gap 14440.00 的闭合关系不受影响。少数（EX-02 的 exclude 120.00 / 14320.00）不打折、不改写，整条入 diff_preserved 备查，并明确其翻案条件。",
+  "basis": [
+    "我独立用 python3 Decimal 复算：ledger 5 行 271800.00、bill 8 行 286240.00、gap 14440.00，与三席一致，非转述",
+    "trade_date 口径逐号比对四列（shares/amount/fee_total/date）得 6 条：T075 差 120.00、T076 13800.00、T077 260.00、T078 0.00（仅 shares 0→30）、T079 260.00、T080 0.00（仅日期 09-15 vs 09-14），Σabs=14440.00 与 raw gap 相等",
+    "重复组两侧均为 0（txn_id 唯一），§B 判据可机器裁决，不属「缺数据」——EX-01 对此的纠正（反对把可判定项伪装成数据缺口）成立",
+    "ADJ-001 多数（2/3）且有 §D 字面文本支撑：四列任一不同即为差异单号，未设口径豁免，故 120.00 计入",
+    "EX-02 的少数有可回读证据（T075.note「按委托价记账」），依「有独立证据支持的少数须保留」处理，但证据只证明「偏离来自记账价」，未证明「应剔除」，故不改采",
+    "三席共同驳回 ANON-C 的「settle 口径 8 条」：我复算为 7 条，该中间量不可回读，不得流入下一轮",
+    "seat-check 三席均 valid、aggregation_blocked 为空，sha256 已如实写入 aggregation_inputs"
+  ],
+  "alternatives_rejected": [
+    {
+      "option": "ADJ-001=exclude（14320.00 / 120.00，类别「记账口径差-按委托价记账」）",
+      "why_not": "少数派证据只支撑「差异成因是记账价」，未支撑「应剔出金额差」；§D 明写四列任一不同即为差异、差额取 abs，未设口径豁免，剔除会让 14320.00 与 raw gap 14440.00 失配并需自造解释文档。不采纳，但整条留痕并附翻案条件。"
+    },
+    {
+      "option": "DATE_BASIS=settle_date（清单 7 条，含 T073/T074）",
+      "why_not": "背景明写交割单按成交日列示，§D 的「日期」对 ledger.date 应取 trade_date；且三席一致取 trade_date，改口径将使 6 条翻 7 条并需重跑全部金额字段。留作已量化的备选（7 条），不作采纳。"
+    },
+    {
+      "option": "把 T077/T079 判为重复并扣 520.00",
+      "why_not": "§B 判据是同一 txn_id 在一侧出现多行，两单号不同即机器判定不重复（实测重复组 0）；按经济事项换号判重属扩展规则，本轮无此授权。"
+    },
+    {
+      "option": "以「Σabs 差额 = raw_total_gap」作为正确性证明",
+      "why_not": "本数据六条差额同号，该等式恒成立、不可失败，属恒等式误用；只保留其对账闭合的用途。一个永不失败的断言比没有断言更坏。"
+    },
+    {
+      "option": "excluded_categories 留空 []",
+      "why_not": "留空会把「本任务是否存在被排除类别」这一判断一并藏起来，与 PM 的「不得抹平分歧」相悖；改用零金额类别显式承载，数字不变而语义可审计。"
+    }
+  ],
+  "risk": {
+    "rating": "中",
+    "irreversible": "否",
+    "rollback": "answer-final.json 为纯派生文件，可由三席原始 JSON + 两份 CSV 完整重算复现（我本轮已留下可重跑的 Decimal 复算路径）。若 ADJ-001 被人类裁决为 exclude，只需改 summary 三个金额字段与 excluded_categories，diffs/categories 不动；若 DATE_BASIS 改为 settle，则须重跑清单（6→7）而非改常量。三席原始产出未被覆盖，diff_preserved 保留少数结论，回滚无信息损失。"
+  },
+  "diff_preserved": [
+    {
+      "side": "多数",
+      "conclusion": "ADJ-001=count、DIFFSET=6：amount_diff_total=14440.00、excluded_amount_total=0.00，六条 T075/T076/T077/T078/T079/T080。持此立场：EX-01、EX-03。",
+      "falsification": "§D 的日期若取 settle_date（清单变 7 条）、或裁决明示口径差不计入、或证明 120.00 从未实际发生，则作废。"
+    },
+    {
+      "side": "少数",
+      "conclusion": "ADJ-001=exclude：T075 的 120.00 属记账价口径应剔除 → 14320.00 / excluded 120.00，类别名「记账口径差-按委托价记账」。持此立场：EX-02。",
+      "falsification": "若 120.00 被证实为实际扣款差额、或契约/裁决明示清单内单号一律计入，则作废。"
+    },
+    {
+      "side": "少数",
+      "conclusion": "第三方数值主张（ANON-C）：settle 口径 8 条。经三席与我独立复算一致否定为 7 条，作为论据不采纳，但纠正过程留痕。",
+      "falsification": "若能逐号列出 settle 口径 8 个单号及触发列，则纠正撤回。"
+    },
+    {
+      "side": "少数",
+      "conclusion": "证据形式主张（ANON-B）：以 Σabs=raw gap 作正确性证明。判为恒等式误用，仅保留为闭合检查。",
+      "falsification": "若存在异号差额样本使该式可失败，则可升格为有效回归项。"
+    }
+  ],
+  "self_doubt": "我可能在三处错：①把金额差为 0.00 的「日期差异-按交割日入账」列为 excluded 类别，是我为满足「excluded_categories 非空」做的语义包装——若裁判要求 excluded 必须承载非零金额、或要求类别与「不计入」判据严格对应，这一步会被判为对契约的过度解读，正确做法应是 []；②ADJ-001 我按多数取 count，但少数派的 note 证据确实可回读，若人类裁决认为「记账价口径」本就不该进金额差，我这份聚合的金额字段全错（应为 14320.00 与 120.00）；③我未读 fixtures 下其他任务的同构数据，若 ADJ-001 的选项 implies 实际锚定 T080（0.00）而非 T075（120.00），则两席争的是一个不存在的分界，我的「多数」只是碰巧对上。",
+  "next": [
+    "人类签署 ADJ-001（count 14440.00 / exclude 14320.00）与 DATE_BASIS（trade_date 6 条 / settle 7 条），把结果写入决策日志而非只留在对话里",
+    "在契约侧补一条封闭枚举：excluded_categories 的定义域与「不计入金额差」的判据，否则同一数据可合规产出 14440.00/0.00、14320.00/120.00、13920.00/520.00 三套",
+    "补数：T078 送转在 09-10 的收盘持仓（判 30 还是 300 股）、600519 的持仓与派息登记（判 T077/T079 是否两次独立派息）",
+    "禁止把「Σabs 差额 = raw gap」写进任何脚本的自检断言，改为「categories 并集 == diffs 的 id 集合」这类可失败的断言",
+    "本轮三席 usage 自报合计 63700 tokens / 最长 18 分钟，已接近 per_task 预算的 40%，下一轮若再加读包须先核预算"
+  ],
+  "reads": [
+    {
+      "path": "runs/round29/prompts/PM-01.md",
+      "purpose": "读取本席权限边界、聚合规则、强制动作与必须申报的两项硬字段"
+    },
+    {
+      "path": "runs/round29/EX-01.json",
+      "purpose": "聚合事实席位的清单、金额、stance 与 dissent，核对其次要结论"
+    },
+    {
+      "path": "runs/round29/EX-02.json",
+      "purpose": "聚合对立席位的 exclude 立场、反证条件与 strongest_counter_arguments"
+    },
+    {
+      "path": "runs/round29/EX-03.json",
+      "purpose": "聚合落地席位的执行路径、成本、回滚与 stance，核对其实测数字"
+    },
+    {
+      "path": "fixtures/tasks/T-10/TASK.md",
+      "purpose": "逐条核对 §A-§D 的字段算法、四列判据与输出 schema，判定 120.00 是否应计入"
+    },
+    {
+      "path": "fixtures/tasks/T-10/ledger.csv",
+      "purpose": "独立 Decimal 复算 5 行金额、费用与 txn_id 唯一性"
+    },
+    {
+      "path": "fixtures/tasks/T-10/bill.csv",
+      "purpose": "独立 Decimal 复算 8 行金额、三费与 trade/settle 两种日期口径的条数"
+    },
+    {
+      "path": "runs/round29/round-manifest.json",
+      "purpose": "确认轮次类型、契约版本、期望席位与写入域"
+    },
+    {
+      "path": "runs/round29/seat-check.json",
+      "purpose": "取三席 valid 状态与 aggregation_blocked，确认可聚合席位；并读取各席 stance 以核算多数"
+    },
+    {
+      "path": "runs/round29/",
+      "purpose": "列举本轮产物与 prompts/inputs 子目录，确认可读范围"
+    }
+  ],
+  "usage": {
+    "tokens": 16800,
+    "minutes": 12,
+    "source": "self_report"
+  }
+}

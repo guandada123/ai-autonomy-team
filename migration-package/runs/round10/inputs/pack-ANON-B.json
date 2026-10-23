@@ -1,0 +1,152 @@
+{
+  "conclusion": "按 CSV 逐行复算：ledger 5 行合计 120820.00，bill 8 行合计 147460.00，raw_total_gap 26640.00；两侧 txn_id 全唯一，dedup 必为 0/0.00。差异单号 6 个：T019/T020/T021/T022/T023/T024。gap 可精确分解为 120.00+26000.00+260.00+260.00=26640.00，任何无法还原该分解的答案（如 114800/141440 之类记忆值）被行级算术直接证伪。",
+  "strongest_counter_arguments": [
+    {
+      "target": "ANON-A",
+      "argument": "若多数派报 dedup_removed_txn_count>0，先看它能否指出 T-03 里重复出现的 txn_id：ledger 只有 T017/T018/T019/T022/T024，bill 是 T017…T024 各一行，无任何单号多行，也没有可被剔除的「多出行金额」。同构任务有分批成交，本任务没有——把上题的去重结构整体搬过来就是虚构数据。",
+      "reverse_evidence": "若任一侧出现同 txn_id 的多行（如分批成交的两条 T0xx），则 dedup>0 成立、我的 0 被推翻。"
+    },
+    {
+      "target": "ANON-B",
+      "argument": "DIFFSET 取 5（把 T024 的日期差异当作非差异）在参照列上不自洽：ledger 的 date 对 T017/T018/T019 也不等于 bill 的 settle_date，若以交割日为参照，这三条会额外产生 3 个零金额日期差异，diff_count 变成 8/9；唯一能只让 T024 单点出问题的参照列是 trade_date，此时 09-19≠09-18 构成日期差异 → 6。",
+      "reverse_evidence": "若契约明确「日期」列以入账日/交割日等同看待（T024 的 09-19 视同 09-18 业务日），则 5 成立、我错。"
+    }
+  ],
+  "what_would_change_my_mind": "[答案来源引用已净化]，则 amount_diff_total=26640.00、excluded_amount_total=0.00、excluded_categories=[]，我的 26120/520 拆分应被替换；或若重复项口径按「行」而非按「单号」计，dedup_removed_txn_count 的口径注释会改变。",
+  "evidence": [
+    {
+      "pointer": "fixtures/tasks/T-03/ledger.csv#L2-L6 全 5 行 amount 列",
+      "what_it_shows": "30000.00+45000.00+45000.00+0.00+820.00=120820.00；行数 5，单号全唯一"
+    },
+    {
+      "pointer": "fixtures/tasks/T-03/bill.csv#L2-L9 全 8 行 amount 列",
+      "what_it_shows": "30000+45000+45120+26000+260+0+260+820=147460.00；行数 8，单号全唯一"
+    },
+    {
+      "pointer": "fixtures/tasks/T-03/bill.csv#L5 (T020 中签买入 26000.00) 与 ledger.csv 无 T020",
+      "what_it_shows": "单侧缺记的交易性买入，构成 26000.00 计入金额差异"
+    },
+    {
+      "pointer": "fixtures/tasks/T-03/bill.csv#L6,L8 (T021/T023 股息 260.00×2)",
+      "what_it_shows": "非交易现金流合计 520.00，排除于金额差异"
+    },
+    {
+      "pointer": "fixtures/tasks/T-03/ledger.csv#L6 vs bill.csv#L9 (T024)",
+      "what_it_shows": "入账日 09-19 = settle_date，trade_date 09-18；股数/金额/费用三项全等，仅日期口径差、金额差 0.00"
+    },
+    {
+      "pointer": "fixtures/tasks/T-03/ledger.csv#L4 vs bill.csv#L4 (T019)",
+      "what_it_shows": "45000.00 vs 45120.00 差 120.00；fee 11.70 vs 11.73 差 0.03（费用不并入金额）"
+    }
+  ],
+  "falsification": "若 T-03 任一 CSV 出现同 txn_id 多行、或 amount 列求和 ≠ 120820.00 / 147460.00、或 26640.00 不能由 120+26000+260+260 精确还原，则本结论成立性被推翻。",
+  "reads": [
+    {
+      "path": "[deny-domain path redacted]prompts/ANON-B.md",
+      "purpose": "读取我的席位职责、读取域与输出契约"
+    },
+    {
+      "path": "fixtures/tasks/T-03/TASK.md",
+      "purpose": "确认字段定义、去重口径与四个易错点"
+    },
+    {
+      "path": "fixtures/tasks/T-03/ledger.csv",
+      "purpose": "逐行读取自记账 5 行并累加 amount"
+    },
+    {
+      "path": "fixtures/tasks/T-03/bill.csv",
+      "purpose": "逐行读取交割单 8 行并累加 amount，逐单号比对四列"
+    }
+  ],
+  "dissent": [
+    {
+      "against": "ANON-A",
+      "point": "本任务不存在重复单号，dedup=0/0.00；任何非零去重数字均为跨任务记忆污染，且会连带污染 dedup_amount 与总额校验。"
+    },
+    {
+      "against": "ANON-B",
+      "point": "T024 是真实的日期口径差异（入账日 vs 成交日），金额差 0；把它从 diff 清单中抹掉会掩盖口径风险，取 6 更稳。"
+    }
+  ],
+  "confidence": "high",
+  "needs_more_data": [
+    "[答案来源引用已净化]",
+    "契约是否要求把现金股息/送转并入金额差异"
+  ],
+  "stance": [
+    {
+      "axis": "ADJ-001",
+      "choice": "exclude"
+    },
+    {
+      "axis": "DIFFSET",
+      "choice": "6"
+    }
+  ],
+  "summary": {
+    "ledger_rows": 5,
+    "bill_rows": 8,
+    "ledger_total": 120820.0,
+    "bill_total": 147460.0,
+    "raw_total_gap": 26640.0,
+    "dedup_removed_txn_count": 0,
+    "dedup_amount": 0.0,
+    "diff_count": 6,
+    "amount_diff_total": 26120.0,
+    "excluded_amount_total": 520.0,
+    "excluded_categories": [
+      "DIVIDEND_BILL_ONLY",
+      "EQUITY_SPLIT_SHARES_ONLY",
+      "DATE_BASIS_SETTLE"
+    ]
+  },
+  "diffs": [
+    {
+      "id": "T019",
+      "category": "PRICE_AMOUNT_DIFF"
+    },
+    {
+      "id": "T020",
+      "category": "BILL_ONLY_NEW_SHARE"
+    },
+    {
+      "id": "T021",
+      "category": "DIVIDEND_BILL_ONLY"
+    },
+    {
+      "id": "T022",
+      "category": "EQUITY_SPLIT_SHARES_ONLY"
+    },
+    {
+      "id": "T023",
+      "category": "DIVIDEND_BILL_ONLY"
+    },
+    {
+      "id": "T024",
+      "category": "DATE_BASIS_SETTLE"
+    }
+  ],
+  "categories": {
+    "PRICE_AMOUNT_DIFF": [
+      "T019"
+    ],
+    "BILL_ONLY_NEW_SHARE": [
+      "T020"
+    ],
+    "DIVIDEND_BILL_ONLY": [
+      "T021",
+      "T023"
+    ],
+    "EQUITY_SPLIT_SHARES_ONLY": [
+      "T022"
+    ],
+    "DATE_BASIS_SETTLE": [
+      "T024"
+    ]
+  },
+  "usage": {
+    "tokens": 15500,
+    "minutes": 10,
+    "source": "self_report"
+  }
+}

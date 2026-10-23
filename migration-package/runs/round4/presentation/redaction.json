@@ -1,0 +1,28 @@
+{
+  "targets": [
+    "fixtures/verdict-baseline",
+    "fixtures/answer-baseline",
+    "fixtures/002/truth.json",
+    "fixtures/truth.json",
+    "fixtures/002/spec/",
+    "docs/decisions/",
+    "fixtures/spec/",
+    "templates/",
+    "truth.json",
+    "outputs/",
+    "config/",
+    "judges/"
+  ],
+  "replaced_counts": {},
+  "total": 0,
+  "answer_purge": {
+    "policy": "子句含 SOURCE（truth / expected / 禁读路径）→ 整子句替换；或含 VALUE（spec 选项里的非整数答案值）且含 AUTHORITY（真值 / 规则明定 / 偏离即 / 判定为 fail…）→ 整子句替换",
+    "values_count": 0,
+    "values_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "clauses_total": 0,
+    "clauses_replaced": 0,
+    "clauses_with_value_kept": 0,
+    "boundary": "★ 只擦【对答案权威来源的引用】，不擦立场数值本身 —— 500.02/180.00 就是 ADJ-001 的立场，擦掉等于让下一轮看不到同伴立场，辩论会被掏空。values_sha256 不写明文值。"
+  },
+  "boundary": "只擦【路径字符串】，不是阻止读取；未申报的读取对脚本不可见。"
+}

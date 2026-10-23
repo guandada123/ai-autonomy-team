@@ -1,0 +1,73 @@
+{
+  "seat": "EX-01",
+  "round": 17,
+  "conclusion": "按 TASK.md 字面执行：ledger 7 行合计 146820.00、bill 8 行合计 147200.00、raw_total_gap=380.00；无重复单号（0 个 / 0.00）；四列判据下差异单号 6 个（T091 金额+费用、T092/T093 费用、T094 股数、T095 单侧存在、T096 日期），amount_diff_total=380.00（T091 120.00+T095 260.00，其余 amount 差均为 0.00），excluded_amount_total=0.00、excluded_categories=[]。",
+  "evidence": [
+    {
+      "pointer": "fixtures/tasks/T-12/ledger.csv#amount 列全部 7 行",
+      "what_it_shows": "26000.00+45000.00+45000.00+15000.00+15000.00+0.00+820.00 = 146820.00；行数 7（T089,T090,T091,T092,T093,T094,T096），无重复单号。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-12/bill.csv#amount 列全部 8 行，含 T095",
+      "what_it_shows": "26000.00+45000.00+45120.00+15000.00+15000.00+0.00+260.00+820.00 = 147200.00；147200.00−146820.00 = 380.00 = raw_total_gap；T095 为单侧存在（side=股息入账, amount=260.00）。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-12/ledger.csv#T091.price=45.00 / bill.csv#T091.price=45.12",
+      "what_it_shows": "ledger note='按委托价记账'，amount 差 abs(45000.00−45120.00)=120.00，fee_total 差 0.03（11.70 vs 11.73）；TASK.md D 款『成交金额/费用任一列不同即为差异单号』命中。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-12/ledger.csv#T092,T093.fee_total=5.00 / bill.csv#T092,T093.fee_total=12.65",
+      "what_it_shows": "两笔各差 7.65（合计 15.33），但两侧 amount 列均 15000.00，按 C 款『两列分开取、不换算』其金额差额为 0.00，不得把 15.33 并入金额差异。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-12/ledger.csv#T094.shares=0 / bill.csv#T094.shares=30",
+      "what_it_shows": "股数列差 30（送转 10 送 3 未更新持仓），amount 两侧均 0.00、fee 均 0.00。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-12/ledger.csv#T096.date=2026-09-16 vs bill.csv#T096.trade_date=2026-09-15 / settle_date=2026-09-16",
+      "what_it_shows": "TASK.md 背景声明交割单『按成交日列示』，故日期列应取 trade_date；ledger 入账日 09-16 ≠ 成交日 09-15，日期列不完全相同 → T096 为差异单号（金额与费用两列均相同）。"
+    }
+  ],
+  "falsification": "若 TASK.md 的『日期』一列被解释为交割日 settle_date（而非背景声明的成交日 trade_date），则 T096 日期列一致、不再是差异单号，diff_count 应为 5、DIFFSET 应改 5；同理若『送转』不被视为可比的成交单号，diff_count 亦降至 5。任一成立则本结论的 6 与 380.00 归因作废。",
+  "reads": [
+    {"path": "runs/round17/prompts/EX-01.md", "purpose": "确认本席模板、硬性字段、stance 选项空间与字数预算"},
+    {"path": "runs/round17/prompts/EX-02.md", "purpose": "确认对立面席位的 stance 语义与匿名化约束，避免越界表述"},
+    {"path": "runs/round17/prompts/EX-03.md", "purpose": "确认落地面席位的字段要求，避免与其产出重复"},
+    {"path": "fixtures/tasks/T-12/TASK.md", "purpose": "逐条取用 A/B/C/D 四款字段定义与四个易错点"},
+    {"path": "fixtures/tasks/T-12/ledger.csv", "purpose": "自记账原始行，用于行数/合计/逐单号比对"},
+    {"path": "fixtures/tasks/T-12/bill.csv", "purpose": "交割单原始行，用于行数/合计/逐单号比对"},
+    {"path": "protocol/02-辩论协议.md", "purpose": "核对输出契约与『每席必交 1 条反对』要求"},
+    {"path": "protocol/03-结构审计七查.md", "purpose": "核对第 2 查外部钩子与第 5 查待签项 ADJ-001/ADJ-002 的语义"}
+  ],
+  "dissent": [
+    {
+      "against": "ANON-A",
+      "reason": "把 T091 的 120.00 归为『记账口径差』并从金额差异中剔除、同时以 settle_date 判 T096 非差异，等于在没有契约授权的情况下自建比较基准：TASK.md D 款只要求『四列不完全相同』，未授权按口径过滤；且背景已明示交割单按成交日列示。剔除后 amount_diff_total+excluded_amount_total 仍为 380.00，说明该调整不产生新的裁决信息，只改变归因标签。",
+      "reverse_evidence": "若 TASK.md 或裁决层明示『入账日对应交割日、日期列一律取 settle_date』或明示『口径差单号不进 diffs』，则我这条反对不成立。"
+    }
+  ],
+  "confidence": "high",
+  "needs_more_data": [
+    "缺规则：excluded_amount_total 的『取差额』未写明是否取绝对值——T095 若按有符号计为 −260.00，若按绝对值计为 260.00，本任务恰好两解同值（因只一侧存在），但规则缺口真实存在。",
+    "缺规则：费用列差额（T091 0.03、T092/T093 各 7.65，合计 15.33）在 summary 中无任何承载字段，是否应另设 fee_diff_total 未定义。",
+    "缺数据：ledger 侧缺少与 T095 对应的股息现金流记录，无法判断是漏记还是交割单侧的预估值。"
+  ],
+  "stance": [
+    {"axis": "ADJ-001", "choice": "count"},
+    {"axis": "DIFFSET", "choice": "6"}
+  ],
+  "summary": {
+    "ledger_rows": 7,
+    "bill_rows": 8,
+    "ledger_total": 146820.00,
+    "bill_total": 147200.00,
+    "raw_total_gap": 380.00,
+    "dedup_removed_txn_count": 0,
+    "dedup_amount": 0.00,
+    "diff_count": 6,
+    "amount_diff_total": 380.00,
+    "excluded_amount_total": 0.00,
+    "excluded_categories": []
+  },
+  "usage": {"tokens": 12800, "minutes": 8, "source": "self_report"}
+}

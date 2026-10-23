@@ -1,0 +1,188 @@
+{
+  "task_id": "SYNTH-RECON-001",
+  "verdict": "adjudicated",
+  "judge": "JD-01",
+  "judge_impl": "scripts/judge/verify.py (non-LLM, stdlib-only)",
+  "spec_layer": "all",
+  "summary": {
+    "total": 14,
+    "passed": 14,
+    "failed": 0,
+    "pending": 0
+  },
+  "checks": [
+    {
+      "name": "台账行数",
+      "type": "numeric_equals",
+      "ok": true,
+      "expected": "27",
+      "actual": "实际 27 vs 期望 27",
+      "weight": 1
+    },
+    {
+      "name": "账单原始行数",
+      "type": "numeric_equals",
+      "ok": true,
+      "expected": "27",
+      "actual": "实际 27 vs 期望 27",
+      "weight": 1
+    },
+    {
+      "name": "去重笔数（去重规则由 TASK.md §B 声明，非价值判断）",
+      "type": "numeric_equals",
+      "ok": true,
+      "expected": "1",
+      "actual": "实际 1 vs 期望 1",
+      "weight": 1
+    },
+    {
+      "name": "去重金额（多出行金额合计）",
+      "type": "decimal_equals",
+      "ok": true,
+      "expected": "1200.0",
+      "actual": "实际 1200.00 vs 期望 1200.00（Decimal 精确相等，scale=2）",
+      "weight": 1
+    },
+    {
+      "name": "台账总额",
+      "type": "decimal_equals",
+      "ok": true,
+      "expected": "37490.5",
+      "actual": "实际 37490.50 vs 期望 37490.50（Decimal 精确相等，scale=2）",
+      "weight": 1
+    },
+    {
+      "name": "账单总额",
+      "type": "decimal_equals",
+      "ok": true,
+      "expected": "38010.52",
+      "actual": "实际 38010.52 vs 期望 38010.52（Decimal 精确相等，scale=2）",
+      "weight": 1
+    },
+    {
+      "name": "总额差（账单−台账）",
+      "type": "decimal_equals",
+      "ok": true,
+      "expected": "520.02",
+      "actual": "实际 520.02 vs 期望 520.02（Decimal 精确相等，scale=2）",
+      "weight": 1
+    },
+    {
+      "name": "必须声明哪些类别被排除在金额差异之外",
+      "type": "present",
+      "ok": true,
+      "expected": "",
+      "actual": "存在且非空: [\"跨月归属\"]",
+      "weight": 1
+    },
+    {
+      "name": "必须给出类别归属",
+      "type": "present",
+      "ok": true,
+      "expected": "",
+      "actual": "存在且非空: {\"舍入差\": [\"T101\", \"T102\"], \"重复导入\": [\"T103\"], \"口径差异\": [\"T104\", \"T105\"], \"跨月归属\": [\"T106\"], \"账单缺失\": [\"T107\"]}",
+      "weight": 1
+    },
+    {
+      "name": "必须给出证伪条件",
+      "type": "present",
+      "ok": true,
+      "expected": "",
+      "actual": "存在且非空: 本聚合结论在以下任一条件成立时失效：(1) 若 T104/T105 的 tax_included 差异被证实为录入错误而非制度性口径，则 180.00 应移入 amount_diff_total（变为 680.02）；(2) 若存在成文「≤…",
+      "weight": 1
+    },
+    {
+      "name": "ADJ-001 → summary.amount_diff_total",
+      "type": "decimal_equals",
+      "ok": true,
+      "expected": "680.02",
+      "actual": "实际 680.02 vs 期望 680.02（Decimal 精确相等，scale=2）",
+      "weight": 1
+    },
+    {
+      "name": "ADJ-001 → summary.excluded_amount_total",
+      "type": "decimal_equals",
+      "ok": true,
+      "expected": "0.0",
+      "actual": "实际 0.00 vs 期望 0.00（Decimal 精确相等，scale=2）",
+      "weight": 1
+    },
+    {
+      "name": "ADJ-002 → summary.diff_count",
+      "type": "numeric_equals",
+      "ok": true,
+      "expected": "7",
+      "actual": "实际 7 vs 期望 7",
+      "weight": 1
+    },
+    {
+      "name": "ADJ-002 → diffs",
+      "type": "set_equals",
+      "ok": true,
+      "expected": "[\"T101\", \"T102\", \"T103\", \"T104\", \"T105\", \"T106\", \"T107\"]",
+      "actual": "集合一致（7 项）",
+      "weight": 1
+    }
+  ],
+  "pending": [],
+  "adjudication_source": "human",
+  "carries_undeclared_judgment": false,
+  "evidence": [
+    {
+      "label": "answer",
+      "path": "runs/round2/answer-final.json",
+      "sha256": "d98b99c4913888a8309c1f5a5b3606d1b4da290cc1a5cf05d91f7a64fd43f550"
+    },
+    {
+      "label": "spec_arithmetic",
+      "path": "fixtures/spec/arithmetic.json",
+      "sha256": "b4d60bd31b42b41ea936b2044e15cea8dc7df2258c336babd8a096189fcb3500"
+    },
+    {
+      "label": "spec_adjudication",
+      "path": "fixtures/spec/adjudication.json",
+      "sha256": "e2ee19583d1220b43f2549cd26ae6249f61d243d71c836ff994c8903ec764393"
+    },
+    {
+      "label": "adjudication_record",
+      "path": "runs/round2/adjudication-record.json",
+      "sha256": "ac3c9ccf9143aa7152112430824f82eac35e2cd5570085197bb0b8d0e378dd58"
+    }
+  ],
+  "ts": "2026-10-20T02:42:39+08:00",
+  "override_policy": "本裁决不可被静默覆盖。PM 若要推进 fail 的动作，必须留痕：「覆盖 JD-01 的 fail 判定。风险评级：__。不可逆：__。理由：__。承担人：PM-01。」",
+  "adjudication_provenance": [
+    {
+      "id": "ADJ-001",
+      "chosen": "count",
+      "path": "summary.amount_diff_total",
+      "source": "human_adjudication",
+      "decided_by": "关",
+      "rationale": "口径差（含税/不含税，差额恰为税额）的「税率」归纳只有 n=2 支撑，不是数据里给定的列。与本人在 round4（TASK-BROKER-RECON-002）确立的裁决原则一致：多报的代价是一次人工复核，少报的代价是差额永久从账上消失且不再被复查——计入。"
+    },
+    {
+      "id": "ADJ-001",
+      "chosen": "count",
+      "path": "summary.excluded_amount_total",
+      "source": "human_adjudication",
+      "decided_by": "关",
+      "rationale": "口径差（含税/不含税，差额恰为税额）的「税率」归纳只有 n=2 支撑，不是数据里给定的列。与本人在 round4（TASK-BROKER-RECON-002）确立的裁决原则一致：多报的代价是一次人工复核，少报的代价是差额永久从账上消失且不再被复查——计入。"
+    },
+    {
+      "id": "ADJ-002",
+      "chosen": "7",
+      "path": "summary.diff_count",
+      "source": "human_adjudication",
+      "decided_by": "关",
+      "rationale": "diffs 是「需不需要跟进」的清单：跨月归属与口径差都留着，才能持续暴露口径假设是否成立；剔除等于放弃复查。"
+    },
+    {
+      "id": "ADJ-002",
+      "chosen": "7",
+      "path": "diffs",
+      "source": "human_adjudication",
+      "decided_by": "关",
+      "rationale": "diffs 是「需不需要跟进」的清单：跨月归属与口径差都留着，才能持续暴露口径假设是否成立；剔除等于放弃复查。"
+    }
+  ]
+}

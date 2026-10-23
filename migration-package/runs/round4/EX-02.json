@@ -1,0 +1,174 @@
+{
+  "seat": "EX-02",
+  "round": 4,
+  "conclusion": "差异单号共 7 个：T209 金额差异 120.00（自记账按委托价 45.00，交割单实际成交价 45.12）；T207、T210 仅交割单侧存在（新股中签 4100.00、现金股息 260.00），按 TASK 定义 D 计入金额差异；T202、T204 仅费用漏记（过户费 0.26、费用 57.76 未入账），T205 入账日比成交日迟 1 天（另漏过户费 0.03），T206 送转 30 股未更新股数——这三类成交金额差额均为 0，归入不计入类；T208 交割单侧重复两行，dedup_removed_txn_count=1、dedup_amount=15000.00，不参与差异字段。amount_diff_total=4480.00 恰等于 raw_total_gap=4480.00，勾稽成立。",
+  "strongest_counter_arguments": [
+    {
+      "target": "ANON-A",
+      "argument": "若主张排除单侧条目（分红/中签非交易现金流）、只比两侧共有单号：TASK 字段定义 D 明文「仅单侧存在的单号亦为差异单号，差额取该单号在该侧的 amount」；且排除后 amount_diff_total=4220.00 无法与 raw_total_gap=4480.00 勾稽，剩余 260.00 无处安放，核对即失效。",
+      "reverse_evidence": "若 TASK 或裁决明确把非交易现金流划出金额差异、并给出另一口径下 4480 的完整勾稽关系，我即放弃此论。"
+    },
+    {
+      "target": "ANON-B",
+      "argument": "若把 T208（自记账合并一行 vs 交割单分两行）列为差异、diff_count=8：自记账 2000 股 30000.00 与交割单两行合计完全一致，按单号总量比对四列无差；TASK 定义 B 已把同侧多行定为重复且「重复项金额只由 dedup_amount 表达」，再入 diffs 属双重计入。",
+      "reverse_evidence": "若合并行金额不等于分批行合计，或契约要求股数按行级比对而非单号总量比对，则 T208 应入差异清单。"
+    },
+    {
+      "target": "ANON-C",
+      "argument": "若把费用漏记并入金额差异或做含费净额比对：TASK 易错点 1/4 明令 amount 与 fee_total 分开取、不得净额换算；T202/T204/T205 的成交金额差额均为 0，并入只会虚增 amount_diff_total 58.05（0.26+57.76+0.03）并破坏与 raw_total_gap 的勾稽。",
+      "reverse_evidence": "若契约改以含费净额为比对基准，我的费用/金额二分口径即失效。"
+    }
+  ],
+  "what_would_change_my_mind": "裁决明确 T210 现金分红应排除在金额差异之外（则 amount_diff_total=4220.00、excluded_amount_total=260.00、excluded_categories 增股息类）；或 T208 须入 diffs（diff_count=8）；或费用/日期差异必须计入金额口径。",
+  "evidence": [
+    {
+      "pointer": "fixtures/002/bill.csv#txn_id=T208(两行) + fixtures/002/ledger.csv#txn_id=T208",
+      "path": "fixtures/002/bill.csv",
+      "selector": "txn_id=T208 全部行；ledger 对应行",
+      "what_it_shows": "交割单 T208 分两行各 15000.00，合计 30000.00 = 自记账单行 30000.00；同侧多行为重复，dedup_removed_txn_count=1、dedup_amount=15000.00，不参与差异字段。"
+    },
+    {
+      "pointer": "fixtures/002/bill.csv#txn_id=T209 + fixtures/002/ledger.csv#txn_id=T209",
+      "path": "fixtures/002/bill.csv",
+      "selector": "txn_id=T209 行内 amount/price 列",
+      "what_it_shows": "交割单 45120.00（价 45.12，实际成交价）vs 自记账 45000.00（价 45.00，按委托价记账）→ 金额差异 120.00，计入。"
+    },
+    {
+      "pointer": "fixtures/002/bill.csv#rows[txn_id=T207, txn_id=T210]",
+      "path": "fixtures/002/bill.csv",
+      "selector": "T207 行、T210 行",
+      "what_it_shows": "T207 中签 4100.00、T210 股息 260.00 仅交割单侧存在，自记账无对应行；按定义 D 差额取该侧 amount，计入 4360.00。"
+    },
+    {
+      "pointer": "fixtures/002/TASK.md#字段定义A-D与四个易错点",
+      "path": "fixtures/002/TASK.md",
+      "selector": "字段定义 B/C/D 表及易错点 1-4",
+      "what_it_shows": "amount 与 fee_total 分开取、金额差异取 abs 差额、重复项只由 dedup_amount 表达、单侧单号差额取该侧 amount——约束全部分类口径。"
+    },
+    {
+      "pointer": "fixtures/002/ledger.csv#全表合计 + fixtures/002/bill.csv#全表合计",
+      "path": "fixtures/002/ledger.csv",
+      "selector": "amount 列合计",
+      "what_it_shows": "ledger_total=358800.00（7 行）、bill_total=363280.00（10 行）、raw_total_gap=4480.00；4480.00=120.00+4100.00+260.00 与 amount_diff_total 完全勾稽，交叉验证无遗漏。"
+    }
+  ],
+  "falsification": "若复算得 bill_total≠363280.00 或 ledger_total≠358800.00 或 raw_total_gap≠4480.00；或 T208 两行合计≠自记账单行 30000.00；或裁决改判单侧条目/费用差异/日期差异的归类口径——则本结论相应字段即错，须修正。",
+  "reads": [
+    {
+      "path": "runs/round4/prompts/EX-02.md",
+      "purpose": "席位提示词：读取域、输出契约与字段硬性要求"
+    },
+    {
+      "path": "fixtures/002/TASK.md",
+      "purpose": "任务定义：字段计算口径、差异判定口径、易错点约束"
+    },
+    {
+      "path": "fixtures/002/ledger.csv",
+      "purpose": "自记账 7 行原始数据，逐单与交割单四列比对"
+    },
+    {
+      "path": "fixtures/002/bill.csv",
+      "purpose": "交割单 10 行原始数据，识别重复行与单侧单号"
+    }
+  ],
+  "dissent": [
+    {
+      "against": "ANON-A",
+      "argument": "排除单侧条目违背 TASK 定义 D 明文，且破坏 amount_diff_total 与 raw_total_gap 的勾稽（4220≠4480）。",
+      "reverse_evidence": "裁决把非交易现金流划出并给出完整勾稽即放弃。"
+    },
+    {
+      "against": "ANON-B",
+      "argument": "T208 记账合并与分批两行金额一致，属定义 B 的重复，只由 dedup_amount 表达，入 diffs 属双重计入。",
+      "reverse_evidence": "合并行金额≠分批合计或须行级比对时成立。"
+    },
+    {
+      "against": "ANON-C",
+      "argument": "费用并入金额差异违反易错点 1/4，虚增 58.05 并破坏勾稽。",
+      "reverse_evidence": "契约改含费净额口径时成立。"
+    }
+  ],
+  "confidence": "high",
+  "needs_more_data": [],
+  "stance": [
+    {
+      "axis": "ADJ-001",
+      "choice": "count"
+    },
+    {
+      "axis": "DIFFSET",
+      "choice": "7"
+    }
+  ],
+  "summary": {
+    "ledger_rows": 7,
+    "bill_rows": 10,
+    "ledger_total": 358800.0,
+    "bill_total": 363280.0,
+    "raw_total_gap": 4480.0,
+    "dedup_removed_txn_count": 1,
+    "dedup_amount": 15000.0,
+    "diff_count": 7,
+    "amount_diff_total": 4480.0,
+    "excluded_amount_total": 0.0,
+    "excluded_categories": [
+      "费用差异",
+      "日期差异",
+      "股数差异"
+    ]
+  },
+  "diffs": [
+    {
+      "id": "T202",
+      "category": "费用差异"
+    },
+    {
+      "id": "T204",
+      "category": "费用差异"
+    },
+    {
+      "id": "T205",
+      "category": "日期差异"
+    },
+    {
+      "id": "T206",
+      "category": "股数差异"
+    },
+    {
+      "id": "T207",
+      "category": "单侧差异"
+    },
+    {
+      "id": "T209",
+      "category": "金额差异"
+    },
+    {
+      "id": "T210",
+      "category": "单侧差异"
+    }
+  ],
+  "categories": {
+    "金额差异": [
+      "T209"
+    ],
+    "单侧差异": [
+      "T207",
+      "T210"
+    ],
+    "费用差异": [
+      "T202",
+      "T204"
+    ],
+    "日期差异": [
+      "T205"
+    ],
+    "股数差异": [
+      "T206"
+    ]
+  },
+  "usage": {
+    "tokens": 16000,
+    "minutes": 6,
+    "source": "self_report"
+  }
+}

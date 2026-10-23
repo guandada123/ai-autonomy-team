@@ -1,0 +1,40 @@
+{
+  "reproducible_on_macos": true,
+  "cross_platform_risks": [
+    {
+      "risk": "硬编码 Windows 绝对路径 —— recon.py:4 `BASE = \"C:/Users/Administrator/WorkBuddy/2026-10-16-14-46-19/migration-package/fixtures\"`。macOS 上该路径不存在，脚本必然 FileNotFoundError。此外迁移包内 5 个目录全为空，包内并不包含硬裁判 verify.py，仅迁移 migration-package/ 无法复现核对。",
+      "evidence": "实测：把 BASE 替换为 `os.path.dirname(os.path.abspath(__file__))` 后，在 cwd 换成无关目录(C:/Windows/Temp)运行，rc=0 且输出与原地一致。命令 `python _scratch_ex03/probe2.py` C 段：`rc = 0 (cwd 故意换成与脚本无关的目录)`、`ledger_rows 27 bill_rows 27`、`amount_diff_total 500.02`。目录证据：`find migration-package -type d -empty` 输出 migration-package/config、docs、judges、prompts、protocol 均为空。`find migration-package -type f` 列出的文件中不含 verify.py。",
+      "mitigation": "用 `pathlib.Path(__file__).resolve().parent` 取代字符串拼接绝对路径；迁移时把 `scripts/judge/verify.py`、`scripts/judge/run.sh` 与 docs/protocol 五篇一并纳入包（或改为包内相对路径 `fixtures/../judges/verify.py`），打包后用 `find <pkg> -type d -empty` 断言无空目录再出厂。"
+    },
+    {
+      "risk": "输出换行未固定 → 产物字节随平台变化 → sha256 证据链跨平台断裂。这是本项目最致命的一条：verify.py 把答案文件的 sha256 写进 evidence（结构审计第 2 查「外部钩子」的判定依据），字节不同则同一逻辑在 Windows/macOS 上给出不同 sha256。",
+      "evidence": "实测：recon.py:114 `open(OUT, \"w\", encoding=\"utf-8\")` 缺 `newline=\"\\n\"`。本机重跑后 answer-baseline.json 含 65 个 CR 字节，sha256=373e58f39bbf4d8bab7d974f047e8f1bbcdee49abf450c4282f79c9a92f923e7；而 answer-baseline-v3.json CRLF 数=0，sha256=48dfe0218d96cc6674f3f976461815a350bf347d8e85f16f7784a8fb52cfef82。同一段写盘代码在 macOS 上写出 LF → 字节不同 → sha256 不同。对照：verify.py:373 显式 `newline=\"\\n\"` 是正确写法。探针 J 段直接量化了差异：默认文本模式 `bytes=b'a\\r\\nb\\r\\n' sha256=58055bdcc73787eb`，`newline='\\n'` `bytes=b'a\\nb\\n' sha256=911169ddaaf146af`。",
+      "mitigation": "所有写盘统一 `open(path, \"w\", encoding=\"utf-8\", newline=\"\\n\")`；recon.py 需补 newline 参数。迁移验收加一条硬断言：在两个平台上对同一输入跑出的 answer.json 必须 sha256 完全一致，不一致即判迁移失败。"
+    },
+    {
+      "risk": "编码默认值不可依赖，且本机验证其实是在 UTF-8 模式下完成的 —— 现有的「Windows 通过」并未覆盖 cp936 路径，属未被证伪而非已被证明。CSV 含中文（party/note 列：渠道1-4、正常结算、各类样本说明），在未开 UTF-8 模式的 Windows 上不传 encoding 读会 mojibake 或 UnicodeDecodeError。",
+      "evidence": "实测 `python _scratch_ex03/probe3.py` H/A 段：`PYTHONUTF8='1'`、`PYTHONIOENCODING='utf-8'`、`LANG='en_US.UTF-8'`、`LC_ALL='C.UTF-8'`、`locale.getpreferredencoding(False)=utf-8`、`sys.flags.utf8_mode=1`、`open() 默认 encoding = utf-8`。即本机 Python 处于 PEP 540 UTF-8 模式，默认编码根本不会退化成 cp936。字节证据（探针 BYTES 段）：ledger.csv bytes=1355、bill.csv bytes=1370，均 BOM=False、CRLF=0、loneLF=28。",
+      "mitigation": "该风险在两文件中已实际缓解，迁移时不得回退：recon.py:10 用 `encoding=\"utf-8-sig\"`（同时吃掉 BOM），verify.py:55 用 `encoding=\"utf-8\"`。迁移验收须增加一条**反向**测试：清空 PYTHONUTF8/PYTHONIOENCODING 后重跑，确认结果不变（本机因 utf8_mode=1 无法构造 cp936 场景，此项只能在真 Windows 裸环境或显式 `PYTHONUTF8=0` 下补测）。"
+    },
+    {
+      "risk": "换行符读写语义 —— 曾担心 CRLF 输入与引号内嵌换行会让 csv 末列带 \\r 导致 float() 失败。",
+      "evidence": "实测证伪（探针 E/I 段）：CSV 用例 `T001,10.00\\n` 写成 CRLF 后，`newline` 指定与不指定**都**得到 `'10.00'` 且可 float()；引号内嵌换行的用例 `T001,\"line1\\nline2\"` 在 `newline='<未指定>'` 与 `newline=''` 下**都**得到 `note[0]='line1\\nline2'`、行数=2。原因是 Python 3 文本模式默认启用 universal newlines。",
+      "mitigation": "作为「读」侧风险降为低。但 `newline=''` 仍必须保留在 csv 读取处（recon.py:10 已用），因为它是 csv 模块的规范要求，且在嵌入 NUL/非常规引号的数据上行为更稳；保留成本为零。"
+    },
+    {
+      "risk": "解释器存在性与版本下限 —— macOS 系统不自带 python3（仅 Xcode Command Line Tools 提供，且版本偏老），若目标机无解释器则整链失败。",
+      "evidence": "已实测部分：`sh scripts/judge/run.sh --spec ... --answer ... --out /tmp/_r.json` → `[JD-01] verdict=pass passed=14/14`，rc=0，说明 run.sh 的探测+转发逻辑（run.sh:9-21：`command -v python3 || python`，缺失则 exit 2）在 POSIX sh 下可用。本机 `python3 -V` 与 `python -V` 均 rc=0 且为 3.13.14。版本兼容用 ast 静态扫描证明（探针 K 段）：recon.py 与 verify.py 均 `3.10+节点=无`、`注解联合(|)=无`；recon.py 无 f-string，verify.py 有 f-string（3.6+）；两者 `compile()` 通过 → 3.9+ 可跑，与 run.sh:23-28 的 309 下限检查一致。未实测部分：macOS 上 python3 是否真实存在——**本机无法验证，本项不打「已实测」标记**。",
+      "mitigation": "迁移前在目标 Mac 上执行 `xcode-select -p && python3 -V`，要求 ≥3.9，否则 `xcode-select --install`。run.sh 已内置该最低版本闸门与提示文案，无需改码。"
+    }
+  ],
+  "float_risk_verdict": "实测结论：float 累加确实会产生与两位小数不一致的值，但本任务现有的两重保险足以吸收误差，实测 14/14 pass；然而 float 不应作为设计默认，迁移时建议改为分单位整数或 Decimal。 实测方式（三步，均可复跑）：(1) 双精度对照 —— 用 float 与 Decimal 分别对同一 CSV 累加（probe.py）：ledger_total float=37490.5 / Decimal=37490.50；bill_total float=38010.520000000004 / Decimal=38010.52；raw_total_gap float=520.0200000000041 / Decimal=520.02。差额精确为 4.0e-12 量级。(2) 边缘案例 —— (2500.01-2500.00)+(3210.51-3210.50) = 0.020000000000436557，与 0.02 做 == 比较为 False（两个各 0.01 的差额相加，恰好是本任务 T101/T102 的场景）。(3) 用真裁判 verify.py 做裁决实验（probe4.py N 段）—— 把 spec 里金额字段的 tol 去掉，answer 直接吐未 round 的 float：verdict=fail（bill_total: 实际 38010.520000000004 vs 期望 38010.52；raw_gap: 实际 520.0200000000041 vs 期望 520.02）；同一 answer 只要 spec 带 tol=0.01，或 answer 先 round(x,2)/f-string 两位，两者都 verdict=pass。结论边界：(a) truth.json 对全部金额字段都显式带 tol:0.01（truth.json:80/108/116/122/129/136 等），且 recon.py 输出前统一 round(...,2)，所以当前链路安全；(b) 这个安全是「被容差掩盖」的，不是「浮点正确」的 —— 一旦有人新增无 tol 的金额检查，或直接写未 round 的 float，链路立刻 fail；(c) 行数放大后误差随累加累积，实测 sum([0.01]*10000)=100.0 只是本例巧合，不构成保证。建议：迁移时把金额解析为「分」为单位的 int（Decimal(str) 次之），或把「金额类检查必须带 tol」做成 spec 校验硬闸门（缺 tol 即判 spec 无效）。",
+  "cost_estimate": {
+    "single_agent": "≈3k token（输入约 2.5k + 输出约 0.5k）/ 1 次 LLM 往返 / 0 次人工介入 / wall-clock 约 25s（其中硬裁判实测 0.567s）",
+    "multi_agent": "≈45k–75k token（点估计 ≈60k，约单 agent 的 20×）/ 6–8 次 LLM 往返 / 1–2 次人工闸门 / wall-clock 视辩论轮次约 10–30 分钟",
+    "basis": "依据分三层。(1) 协议锚点：templates/ex-03.md:17 明写「多智能体系统约为单轮对话的 15 倍 token」，docs/protocol/01-架构.md:14 另给「读并行相对单 agent 提升 90.2%，token 消耗单独解释方差 80%」——即协议本身承认 token 是主要成本项。(2) 我按实际文件字节复算的输入底数：TASK.md 2086 字符 860 token、ledger.csv 1003 字符 355 token、bill.csv 1010 字符 359 token，合计单 agent 必读输入 ≈1.6k token；参考产出 answer-baseline-v3.json 1379 字符 516 token。多智能体每个席位还需加载协议（01-架构 1231 + 02-辩论协议 1144 + 05-工作协议 1025 ≈ 3.4k token，五篇合计 5234）与对应席位模板（≈1k token）；产出规模以实测 ANON-A.json（2838 字符 1101 token）为基准。据此逐席位估算：ANON-A/02/03 各 ≈6k 输入 + 1.1k 输出 ≈ 21.3k；ANON-AUDIT 审计（协议+七查+三份结论）≈5.5k；ANON-JUDGE 跨家族软裁判（独立重读协议+三份结论）≈7.7k；ANON-PM 汇总与决策日志 ≈3k；再乘 1.5–2 的多轮系数（协议「分歧守恒」不设强制一致，至少 2 轮）。(3) 关键结构性事实：硬裁判 JD-01 是**脚本不是 LLM**，token 成本恒为 0 —— 实测跑一次 567ms，其中 Python 冷启动 529ms，净计算约 40ms。所以多智能体的全部额外成本都在 LLM 席位，与裁判层无关；这也说明「加裁判」在本项目里几乎是免费的，贵的只有「加会思考的席位」。方向性结论：若本轮任务的唯一目标是拿到 500.02/180.00 这几个数字，多智能体是 20× 的浪费；若目标是让「该不该把 180 计入」这类判断被独立证据检验（如 ANON-A.json 里真实记录的分歧），才值这个价。"
+  },
+  "op_grade": "🟢",
+  "rollback": "本任务整体为 🟢 低风险：全过程只读 ledger.csv/bill.csv/truth.json（本席位未写入其中任何一份），仅新增 migration-package/runs/round1/ANON-C.json，可逆、影响仅本项目、不对外、不触发资金或报送。但流程内存在一个必须单独标出的 🟡 点：recon.py:7 把 OUT 直接指向**既有交付物** fixtures/answer-baseline.json，每跑一次就无条件覆盖且不留备份（实测其当前 sha256=373e58f39bbf4d8bab7d974f047e8f1bbcdee49abf450c4282f79c9a92f923e7）；按 docs/protocol/05-工作协议.md 操作分级，「改动既有交付物」= 🟡，须先备份到 _trash/ 再执行。本席位为遵守只读边界，没有直接跑原版 recon.py，而是把它复制到 _scratch_ex03/_recon_copy.py 并把 OUT 重定向到临时文件后才执行，事后校验 fixtures 目录无残留、answer-baseline.json 字节未变。本项目**不存在 🔴 不可逆操作**：无数据删除、无外部依赖变更、无对外发送、无资金划转；唯一能把等级推高到 🔴 的是「把核对结果用于实际对账报送或据此发起付款」，而 TASK.md 明确声明全部为合成数据且只要求产出 answer.json，故不适用。回滚步骤：① 迁移前对整个 migration-package/ 做 tar 快照（含 answer-baseline.json 的 sha256 锚点 373e58f3…），任何一步失败整包还原；② 新增的 ANON-C.json 若需撤销，按铁律 #1 移入 _trash/ 而非 unlink（本沙箱 unlink 被 fail-closed 拦截，同盘 rename 可用）；③ ledger.csv/bill.csv/truth.json 全程只读，无需回滚；④ 若误跑原版 recon.py 覆盖了 answer-baseline.json，用快照中的副本还原，并用 sha256 比对确认还原成功。",
+  "falsification": "以下任一条件成立，我的结论即为错误：(1) 若目标 macOS 上不存在可用的 python3（例如仅有 python2、或系统为未装 Xcode CLT 的精简镜像），则「macOS 零依赖复现可行」不成立 —— 这是本结论最薄的一环，因为我只有 Windows 验证机，**无法在本机实测 mac 侧的解释器存在性**，我只能证明「给定一个有 python3≥3.9 的 mac，代码本身零第三方依赖可跑」。(2) 若 recon.py 并非本次核对的事实实现（即真值来自人工或另一份未提供的脚本），则我对它「硬编码绝对路径 + 输出缺 newline」两处取证虽然真实，却与迁移目标无关，风险清单需整体重排。(3) 若裁判 spec 未来新增**不带 tol 的金额字段**，或金额规模放大到误差累积超过 0.01（量级约为行数 × 5e-3），则「float 在本任务足够」立即失效 —— 我已用真裁判实测到：同样的未 round float，无 tol 时 verdict=fail、有 tol=0.01 时 verdict=pass，即结论完全依赖于 tol 这个外部条件。(4) 若把「单 agent 一次跑完」定义为不加载任何协议文档、且把多智能体定义为 10 轮辩论，则 20× 的点估计会显著偏离，我能给出的稳健区间只有 5×–50×，而非单点值。(5) 若 macOS 的 csv 模块在处理 CRLF 或引号内嵌换行时与 Windows 行为不同，则我把「读取侧换行风险」降为低的判断被推翻 —— 本机实测两者行为一致（指定与不指定 newline 得到同一结果），我据此降级，若 mac 上复现出差异则须改回中风险。",
+  "confidence": "medium"
+}

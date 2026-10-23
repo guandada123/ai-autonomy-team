@@ -1,0 +1,1378 @@
+{
+  "check": "seat_contract",
+  "xj_family_check": null,
+  "contract_version": "2.1",
+  "expected_contract_version": "2.1",
+  "reads_required": true,
+  "stage": "all",
+  "round_dir": "runs/round4",
+  "round_role": "evidence_round",
+  "generated_at": "2026-10-20T02:52:24+08:00",
+  "params_sha256": "96d0f9da01c33d3bfc97b04ffb39b549dd2037f8658345906eee1615da596dff",
+  "seats_expected": [
+    "EX-01",
+    "EX-02",
+    "EX-03",
+    "AD-01",
+    "PM-01",
+    "XJ-01"
+  ],
+  "results": [
+    {
+      "seat": "EX-01",
+      "status": "invalid",
+      "errors": [
+        {
+          "code": "E_STANCE_OUT_OF_SPACE",
+          "field": "stance.DIFFSET",
+          "msg": "summary.diff_count=8 不在选项空间 [7, 6, 5, 4] 内（如「跨月不计 + 口径不计」组合）"
+        }
+      ],
+      "warnings": [
+        {
+          "code": "W_OVER_LENGTH",
+          "field": "conclusion",
+          "msg": "246 字 > 预算 200"
+        },
+        {
+          "code": "W_STANCE_MISMATCH",
+          "field": "stance.ADJ-001",
+          "msg": "自述 exclude vs 反推 abstain —— 这是有价值的信号，非错误"
+        },
+        {
+          "code": "W_STANCE_MISMATCH",
+          "field": "stance.DIFFSET",
+          "msg": "自述 abstain vs 反推 out_of_space —— 这是有价值的信号，非错误"
+        },
+        {
+          "code": "W_READS_UNCLASSIFIED",
+          "field": "reads[1]",
+          "msg": "路径不在读取域任何清单内：fixtures/002/TASK.md"
+        },
+        {
+          "code": "W_READS_UNCLASSIFIED",
+          "field": "reads[2]",
+          "msg": "路径不在读取域任何清单内：fixtures/002/ledger.csv"
+        },
+        {
+          "code": "W_READS_UNCLASSIFIED",
+          "field": "reads[3]",
+          "msg": "路径不在读取域任何清单内：fixtures/002/bill.csv"
+        },
+        {
+          "code": "W_READS_UNCLASSIFIED",
+          "field": "evidence[0]",
+          "msg": "路径不在读取域任何清单内：fixtures/002/bill.csv"
+        },
+        {
+          "code": "W_READS_UNCLASSIFIED",
+          "field": "evidence[1]",
+          "msg": "路径不在读取域任何清单内：fixtures/002/bill.csv"
+        },
+        {
+          "code": "W_READS_UNCLASSIFIED",
+          "field": "evidence[2]",
+          "msg": "路径不在读取域任何清单内：fixtures/002/ledger.csv"
+        },
+        {
+          "code": "W_READS_UNCLASSIFIED",
+          "field": "evidence[3]",
+          "msg": "路径不在读取域任何清单内：fixtures/002/ledger.csv"
+        }
+      ],
+      "stance_mismatches": [
+        {
+          "axis": "ADJ-001",
+          "declared": "exclude",
+          "derived": "abstain"
+        },
+        {
+          "axis": "DIFFSET",
+          "declared": "abstain",
+          "derived": "out_of_space"
+        }
+      ],
+      "derived": {
+        "evidence_pointer_count": 4,
+        "evidence_pointers": [
+          {
+            "pointer": "fixtures/002/bill.csv#行8-9 txn_id=T208",
+            "what_it_shows": "T208 在交割单出现两行，各 1000 股 / 15000.00 元，合计 30000.00 与自记账一行（2000 股 30000.00）一致，构成重复单号 1 笔、dedup_amount=30000.00；两行 transfer_fee 各 0.02，费用合计 7.54，自记账 7.50，费用差 0.04。",
+            "pointer_parts": [
+              {
+                "file": "fixtures/002/bill.csv",
+                "selector": "#行8-9 txn_id=T208"
+              }
+            ],
+            "pointer_id": "be9728c77fbb150b"
+          },
+          {
+            "pointer": "fixtures/002/bill.csv#行10-11 txn_id=T207,T210",
+            "what_it_shows": "T207（中签买入 4100.00）与 T210（股息入账 260.00）仅交割单存在，为单侧独有差异，合计 4360.00。",
+            "pointer_parts": [
+              {
+                "file": "fixtures/002/bill.csv",
+                "selector": "#行10-11 txn_id=T207,T210"
+              }
+            ],
+            "pointer_id": "ac50c9a4969ec020"
+          },
+          {
+            "pointer": "fixtures/002/ledger.csv#行9 txn_id=T209 vs fixtures/002/bill.csv#行10 txn_id=T209",
+            "what_it_shows": "自记账按委托价 45.00 记 45000.00，交割单实际成交价 45.12 记 45120.00，金额差 abs(45000.00−45120.00)=120.00；费用差 11.33−11.25=0.08 归费用类。",
+            "pointer_parts": [
+              {
+                "file": "fixtures/002/ledger.csv",
+                "selector": "#行9 txn_id=T209 vs fixtures/002/bill.csv#行10 txn_id=T209"
+              }
+            ],
+            "pointer_id": "14825bcd121a70e5"
+          },
+          {
+            "pointer": "fixtures/002/ledger.csv#行3-4,6,8 fee_total 列 vs fixtures/002/bill.csv#fee_total 列",
+            "what_it_shows": "T202 6.50 vs 6.76（差 0.26，过户费未记）、T204 0.00 vs 57.76（差 57.76，费用未入账）、T208 7.50 vs 7.54（差 0.04），合计 58.06，均属费用漏记，amount 列两侧一致。",
+            "pointer_parts": [
+              {
+                "file": "fixtures/002/ledger.csv",
+                "selector": "#行3-4,6,8 fee_total 列 vs fixtures/002/bill.csv#fee_total 列"
+              }
+            ],
+            "pointer_id": "0df59ca7bd63a73d"
+          }
+        ],
+        "pointer_id_definition": "sha256(sorted('<file>|<selector>'))[:16]",
+        "declared_stance": {
+          "ADJ-001": "exclude",
+          "DIFFSET": "abstain"
+        },
+        "derived_stance": {
+          "ADJ-001": {
+            "choice": "abstain",
+            "why": "不匹配任何选项 → 弃权"
+          },
+          "DIFFSET": {
+            "choice": "out_of_space",
+            "why": "summary.diff_count=8 不在选项空间 [7, 6, 5, 4] 内（如「跨月不计 + 口径不计」组合）"
+          }
+        },
+        "axes": [
+          "ADJ-001",
+          "DIFFSET"
+        ],
+        "semantic_conflicts": [],
+        "usage": {
+          "tokens": 14000,
+          "minutes": 7.0,
+          "source": "self_report"
+        },
+        "read_domain": {
+          "declared_reads": [
+            {
+              "source": "reads[0]",
+              "declared": "runs/round4/prompts/EX-01.md",
+              "canonical": "runs/round4/prompts/EX-01.md",
+              "class": "allow"
+            },
+            {
+              "source": "reads[1]",
+              "declared": "fixtures/002/TASK.md",
+              "canonical": "fixtures/002/TASK.md",
+              "class": "unclassified"
+            },
+            {
+              "source": "reads[2]",
+              "declared": "fixtures/002/ledger.csv",
+              "canonical": "fixtures/002/ledger.csv",
+              "class": "unclassified"
+            },
+            {
+              "source": "reads[3]",
+              "declared": "fixtures/002/bill.csv",
+              "canonical": "fixtures/002/bill.csv",
+              "class": "unclassified"
+            }
+          ],
+          "evidence_derived": [
+            {
+              "source": "evidence[0]",
+              "declared": "fixtures/002/bill.csv#行8-9 txn_id=T208",
+              "canonical": "fixtures/002/bill.csv",
+              "class": "unclassified"
+            },
+            {
+              "source": "evidence[1]",
+              "declared": "fixtures/002/bill.csv#行10-11 txn_id=T207,T210",
+              "canonical": "fixtures/002/bill.csv",
+              "class": "unclassified"
+            },
+            {
+              "source": "evidence[2]",
+              "declared": "fixtures/002/ledger.csv#行9 txn_id=T209 vs fixtures/002/bill.csv#行10 txn_id=T209",
+              "canonical": "fixtures/002/ledger.csv",
+              "class": "unclassified"
+            },
+            {
+              "source": "evidence[3]",
+              "declared": "fixtures/002/ledger.csv#行3-4,6,8 fee_total 列 vs fixtures/002/bill.csv#fee_total 列",
+              "canonical": "fixtures/002/ledger.csv",
+              "class": "unclassified"
+            }
+          ],
+          "applied": true,
+          "severity": "error"
+        }
+      },
+      "file": "runs/round4/EX-01.json",
+      "sha256": "9a1c254598134c764864d3021f501848eeaea3e463948f712b024f50682c0850"
+    },
+    {
+      "seat": "EX-02",
+      "status": "valid",
+      "errors": [],
+      "warnings": [
+        {
+          "code": "W_OVER_LENGTH",
+          "field": "conclusion",
+          "msg": "356 字 > 预算 200"
+        },
+        {
+          "code": "W_STANCE_MISMATCH",
+          "field": "stance.ADJ-001",
+          "msg": "自述 count vs 反推 abstain —— 这是有价值的信号，非错误"
+        },
+        {
+          "code": "W_READS_UNCLASSIFIED",
+          "field": "reads[1]",
+          "msg": "路径不在读取域任何清单内：fixtures/002/TASK.md"
+        },
+        {
+          "code": "W_READS_UNCLASSIFIED",
+          "field": "reads[2]",
+          "msg": "路径不在读取域任何清单内：fixtures/002/ledger.csv"
+        },
+        {
+          "code": "W_READS_UNCLASSIFIED",
+          "field": "reads[3]",
+          "msg": "路径不在读取域任何清单内：fixtures/002/bill.csv"
+        },
+        {
+          "code": "W_READS_UNCLASSIFIED",
+          "field": "evidence[0]",
+          "msg": "路径不在读取域任何清单内：fixtures/002/bill.csv"
+        },
+        {
+          "code": "W_READS_UNCLASSIFIED",
+          "field": "evidence[0]",
+          "msg": "路径不在读取域任何清单内：fixtures/002/ledger.csv"
+        },
+        {
+          "code": "W_READS_UNCLASSIFIED",
+          "field": "evidence[1]",
+          "msg": "路径不在读取域任何清单内：fixtures/002/bill.csv"
+        },
+        {
+          "code": "W_READS_UNCLASSIFIED",
+          "field": "evidence[1]",
+          "msg": "路径不在读取域任何清单内：fixtures/002/ledger.csv"
+        },
+        {
+          "code": "W_READS_UNCLASSIFIED",
+          "field": "evidence[2]",
+          "msg": "路径不在读取域任何清单内：fixtures/002/bill.csv"
+        },
+        {
+          "code": "W_READS_UNCLASSIFIED",
+          "field": "evidence[3]",
+          "msg": "路径不在读取域任何清单内：fixtures/002/TASK.md"
+        },
+        {
+          "code": "W_READS_UNCLASSIFIED",
+          "field": "evidence[4]",
+          "msg": "路径不在读取域任何清单内：fixtures/002/bill.csv"
+        },
+        {
+          "code": "W_READS_UNCLASSIFIED",
+          "field": "evidence[4]",
+          "msg": "路径不在读取域任何清单内：fixtures/002/ledger.csv"
+        }
+      ],
+      "stance_mismatches": [
+        {
+          "axis": "ADJ-001",
+          "declared": "count",
+          "derived": "abstain"
+        }
+      ],
+      "derived": {
+        "evidence_pointer_count": 5,
+        "evidence_pointers": [
+          {
+            "pointer": "fixtures/002/bill.csv#txn_id=T208(两行) + fixtures/002/ledger.csv#txn_id=T208",
+            "what_it_shows": "交割单 T208 分两行各 15000.00，合计 30000.00 = 自记账单行 30000.00；同侧多行为重复，dedup_removed_txn_count=1、dedup_amount=15000.00，不参与差异字段。",
+            "pointer_parts": [
+              {
+                "file": "fixtures/002/bill.csv",
+                "selector": "#txn_id=T208"
+              },
+              {
+                "file": "fixtures/002/ledger.csv",
+                "selector": "#txn_id=T208"
+              }
+            ],
+            "pointer_id": "2332b76e1c0a6044"
+          },
+          {
+            "pointer": "fixtures/002/bill.csv#txn_id=T209 + fixtures/002/ledger.csv#txn_id=T209",
+            "what_it_shows": "交割单 45120.00（价 45.12，实际成交价）vs 自记账 45000.00（价 45.00，按委托价记账）→ 金额差异 120.00，计入。",
+            "pointer_parts": [
+              {
+                "file": "fixtures/002/bill.csv",
+                "selector": "#txn_id=T209"
+              },
+              {
+                "file": "fixtures/002/ledger.csv",
+                "selector": "#txn_id=T209"
+              }
+            ],
+            "pointer_id": "16eb07139549cc1f"
+          },
+          {
+            "pointer": "fixtures/002/bill.csv#rows[txn_id=T207, txn_id=T210]",
+            "what_it_shows": "T207 中签 4100.00、T210 股息 260.00 仅交割单侧存在，自记账无对应行；按定义 D 差额取该侧 amount，计入 4360.00。",
+            "pointer_parts": [
+              {
+                "file": "fixtures/002/bill.csv",
+                "selector": "#rows[txn_id=T207, txn_id=T210]"
+              }
+            ],
+            "pointer_id": "4ce51daed0dcc563"
+          },
+          {
+            "pointer": "fixtures/002/TASK.md#字段定义A-D与四个易错点",
+            "what_it_shows": "amount 与 fee_total 分开取、金额差异取 abs 差额、重复项只由 dedup_amount 表达、单侧单号差额取该侧 amount——约束全部分类口径。",
+            "pointer_parts": [
+              {
+                "file": "fixtures/002/TASK.md",
+                "selector": "#字段定义A-D"
+              }
+            ],
+            "pointer_id": "f787bab5a47288b2"
+          },
+          {
+            "pointer": "fixtures/002/ledger.csv#全表合计 + fixtures/002/bill.csv#全表合计",
+            "what_it_shows": "ledger_total=358800.00（7 行）、bill_total=363280.00（10 行）、raw_total_gap=4480.00；4480.00=120.00+4100.00+260.00 与 amount_diff_total 完全勾稽，交叉验证无遗漏。",
+            "pointer_parts": [
+              {
+                "file": "fixtures/002/bill.csv",
+                "selector": "#全表合计"
+              },
+              {
+                "file": "fixtures/002/ledger.csv",
+                "selector": "#全表合计"
+              }
+            ],
+            "pointer_id": "9610761dce0b7354"
+          }
+        ],
+        "pointer_id_definition": "sha256(sorted('<file>|<selector>'))[:16]",
+        "declared_stance": {
+          "ADJ-001": "count",
+          "DIFFSET": "7"
+        },
+        "derived_stance": {
+          "ADJ-001": {
+            "choice": "abstain",
+            "why": "不匹配任何选项 → 弃权"
+          },
+          "DIFFSET": {
+            "choice": "7",
+            "why": "summary.diff_count=7"
+          }
+        },
+        "axes": [
+          "ADJ-001",
+          "DIFFSET"
+        ],
+        "semantic_conflicts": [],
+        "usage": {
+          "tokens": 16000,
+          "minutes": 6.0,
+          "source": "self_report"
+        },
+        "read_domain": {
+          "declared_reads": [
+            {
+              "source": "reads[0]",
+              "declared": "runs/round4/prompts/EX-02.md",
+              "canonical": "runs/round4/prompts/EX-02.md",
+              "class": "allow"
+            },
+            {
+              "source": "reads[1]",
+              "declared": "fixtures/002/TASK.md",
+              "canonical": "fixtures/002/TASK.md",
+              "class": "unclassified"
+            },
+            {
+              "source": "reads[2]",
+              "declared": "fixtures/002/ledger.csv",
+              "canonical": "fixtures/002/ledger.csv",
+              "class": "unclassified"
+            },
+            {
+              "source": "reads[3]",
+              "declared": "fixtures/002/bill.csv",
+              "canonical": "fixtures/002/bill.csv",
+              "class": "unclassified"
+            }
+          ],
+          "evidence_derived": [
+            {
+              "source": "evidence[0]",
+              "declared": "fixtures/002/bill.csv#txn_id=T208(两行) + fixtures/002/ledger.csv#txn_id=T208",
+              "canonical": "fixtures/002/bill.csv",
+              "class": "unclassified"
+            },
+            {
+              "source": "evidence[0]",
+              "declared": "fixtures/002/bill.csv#txn_id=T208(两行) + fixtures/002/ledger.csv#txn_id=T208",
+              "canonical": "fixtures/002/ledger.csv",
+              "class": "unclassified"
+            },
+            {
+              "source": "evidence[1]",
+              "declared": "fixtures/002/bill.csv#txn_id=T209 + fixtures/002/ledger.csv#txn_id=T209",
+              "canonical": "fixtures/002/bill.csv",
+              "class": "unclassified"
+            },
+            {
+              "source": "evidence[1]",
+              "declared": "fixtures/002/bill.csv#txn_id=T209 + fixtures/002/ledger.csv#txn_id=T209",
+              "canonical": "fixtures/002/ledger.csv",
+              "class": "unclassified"
+            },
+            {
+              "source": "evidence[2]",
+              "declared": "fixtures/002/bill.csv#rows[txn_id=T207, txn_id=T210]",
+              "canonical": "fixtures/002/bill.csv",
+              "class": "unclassified"
+            },
+            {
+              "source": "evidence[3]",
+              "declared": "fixtures/002/TASK.md#字段定义A-D与四个易错点",
+              "canonical": "fixtures/002/TASK.md",
+              "class": "unclassified"
+            },
+            {
+              "source": "evidence[4]",
+              "declared": "fixtures/002/ledger.csv#全表合计 + fixtures/002/bill.csv#全表合计",
+              "canonical": "fixtures/002/bill.csv",
+              "class": "unclassified"
+            },
+            {
+              "source": "evidence[4]",
+              "declared": "fixtures/002/ledger.csv#全表合计 + fixtures/002/bill.csv#全表合计",
+              "canonical": "fixtures/002/ledger.csv",
+              "class": "unclassified"
+            }
+          ],
+          "applied": true,
+          "severity": "error"
+        }
+      },
+      "file": "runs/round4/EX-02.json",
+      "sha256": "692c93cd4cab6cd15ad75544733423487efa9e5f37c7aef092186162e647edc6"
+    },
+    {
+      "seat": "EX-03",
+      "status": "invalid",
+      "errors": [
+        {
+          "code": "E_BAD_EVIDENCE_ITEM",
+          "field": "evidence[0]",
+          "msg": "每项须含非空 pointer 与非空 what_it_shows"
+        },
+        {
+          "code": "E_BAD_EVIDENCE_ITEM",
+          "field": "evidence[1]",
+          "msg": "每项须含非空 pointer 与非空 what_it_shows"
+        },
+        {
+          "code": "E_BAD_EVIDENCE_ITEM",
+          "field": "evidence[2]",
+          "msg": "每项须含非空 pointer 与非空 what_it_shows"
+        },
+        {
+          "code": "E_BAD_EVIDENCE_ITEM",
+          "field": "evidence[3]",
+          "msg": "每项须含非空 pointer 与非空 what_it_shows"
+        },
+        {
+          "code": "E_BAD_EVIDENCE_ITEM",
+          "field": "evidence[4]",
+          "msg": "每项须含非空 pointer 与非空 what_it_shows"
+        },
+        {
+          "code": "E_BAD_EVIDENCE_ITEM",
+          "field": "evidence[5]",
+          "msg": "每项须含非空 pointer 与非空 what_it_shows"
+        },
+        {
+          "code": "E_BAD_EVIDENCE_ITEM",
+          "field": "evidence[6]",
+          "msg": "每项须含非空 pointer 与非空 what_it_shows"
+        }
+      ],
+      "warnings": [
+        {
+          "code": "W_OVER_LENGTH",
+          "field": "conclusion",
+          "msg": "301 字 > 预算 200"
+        },
+        {
+          "code": "W_STANCE_MISMATCH",
+          "field": "stance.ADJ-001",
+          "msg": "自述 exclude vs 反推 abstain —— 这是有价值的信号，非错误"
+        },
+        {
+          "code": "W_READS_UNCLASSIFIED",
+          "field": "reads[1]",
+          "msg": "路径不在读取域任何清单内：fixtures/002/TASK.md"
+        },
+        {
+          "code": "W_READS_UNCLASSIFIED",
+          "field": "reads[2]",
+          "msg": "路径不在读取域任何清单内：fixtures/002/ledger.csv"
+        },
+        {
+          "code": "W_READS_UNCLASSIFIED",
+          "field": "reads[3]",
+          "msg": "路径不在读取域任何清单内：fixtures/002/bill.csv"
+        },
+        {
+          "code": "W_READS_UNCLASSIFIED",
+          "field": "evidence[0]",
+          "msg": "路径不在读取域任何清单内：fixtures/002/bill.csv"
+        },
+        {
+          "code": "W_READS_UNCLASSIFIED",
+          "field": "evidence[1]",
+          "msg": "路径不在读取域任何清单内：fixtures/002/bill.csv"
+        },
+        {
+          "code": "W_READS_UNCLASSIFIED",
+          "field": "evidence[2]",
+          "msg": "路径不在读取域任何清单内：fixtures/002/bill.csv"
+        },
+        {
+          "code": "W_READS_UNCLASSIFIED",
+          "field": "evidence[3]",
+          "msg": "路径不在读取域任何清单内：fixtures/002/bill.csv"
+        },
+        {
+          "code": "W_READS_UNCLASSIFIED",
+          "field": "evidence[4]",
+          "msg": "路径不在读取域任何清单内：fixtures/002/ledger.csv"
+        },
+        {
+          "code": "W_READS_UNCLASSIFIED",
+          "field": "evidence[5]",
+          "msg": "路径不在读取域任何清单内：fixtures/002/ledger.csv"
+        },
+        {
+          "code": "W_READS_UNCLASSIFIED",
+          "field": "evidence[6]",
+          "msg": "路径不在读取域任何清单内：fixtures/002/ledger.csv"
+        }
+      ],
+      "stance_mismatches": [
+        {
+          "axis": "ADJ-001",
+          "declared": "exclude",
+          "derived": "abstain"
+        }
+      ],
+      "derived": {
+        "evidence_pointer_count": 7,
+        "evidence_pointers": [
+          {
+            "pointer": "fixtures/002/bill.csv",
+            "what_it_shows": "单侧缺失类证据：ledger 中无 T207，差额 4100.00",
+            "pointer_parts": [
+              {
+                "file": "fixtures/002/bill.csv",
+                "selector": ""
+              }
+            ],
+            "pointer_id": "b8f219f972d98939"
+          },
+          {
+            "pointer": "fixtures/002/bill.csv",
+            "what_it_shows": "第二笔单侧缺失，差额 260.00",
+            "pointer_parts": [
+              {
+                "file": "fixtures/002/bill.csv",
+                "selector": ""
+              }
+            ],
+            "pointer_id": "b8f219f972d98939"
+          },
+          {
+            "pointer": "fixtures/002/bill.csv",
+            "what_it_shows": "bill 侧 T208 分两行共 30000.00，与 ledger 单行 30000.00 合并后一致，构成唯一重复单号",
+            "pointer_parts": [
+              {
+                "file": "fixtures/002/bill.csv",
+                "selector": ""
+              }
+            ],
+            "pointer_id": "b8f219f972d98939"
+          },
+          {
+            "pointer": "fixtures/002/bill.csv",
+            "what_it_shows": "唯一计入的金额差异：abs(45000.00−45120.00)=120.00（委托价 vs 实际成交价）",
+            "pointer_parts": [
+              {
+                "file": "fixtures/002/bill.csv",
+                "selector": ""
+              }
+            ],
+            "pointer_id": "b8f219f972d98939"
+          },
+          {
+            "pointer": "fixtures/002/ledger.csv",
+            "what_it_shows": "费用差异类：自记账漏记过户费与印花税，amount 列两侧相等，故不影响金额差异",
+            "pointer_parts": [
+              {
+                "file": "fixtures/002/ledger.csv",
+                "selector": ""
+              }
+            ],
+            "pointer_id": "67f6af3fd3fba12a"
+          },
+          {
+            "pointer": "fixtures/002/ledger.csv",
+            "what_it_shows": "股数差异类：10送3 未更新持仓股数，amount 均为 0",
+            "pointer_parts": [
+              {
+                "file": "fixtures/002/ledger.csv",
+                "selector": ""
+              }
+            ],
+            "pointer_id": "67f6af3fd3fba12a"
+          },
+          {
+            "pointer": "fixtures/002/ledger.csv",
+            "what_it_shows": "日期口径差异：按交割日 vs 成交日，amount 相等",
+            "pointer_parts": [
+              {
+                "file": "fixtures/002/ledger.csv",
+                "selector": ""
+              }
+            ],
+            "pointer_id": "67f6af3fd3fba12a"
+          }
+        ],
+        "pointer_id_definition": "sha256(sorted('<file>|<selector>'))[:16]",
+        "declared_stance": {
+          "ADJ-001": "exclude",
+          "DIFFSET": "7"
+        },
+        "derived_stance": {
+          "ADJ-001": {
+            "choice": "abstain",
+            "why": "不匹配任何选项 → 弃权"
+          },
+          "DIFFSET": {
+            "choice": "7",
+            "why": "summary.diff_count=7"
+          }
+        },
+        "axes": [
+          "ADJ-001",
+          "DIFFSET"
+        ],
+        "semantic_conflicts": [],
+        "usage": {
+          "tokens": 14000,
+          "minutes": 9.0,
+          "source": "self_report"
+        },
+        "read_domain": {
+          "declared_reads": [
+            {
+              "source": "reads[0]",
+              "declared": "runs/round4/prompts/EX-03.md",
+              "canonical": "runs/round4/prompts/EX-03.md",
+              "class": "allow"
+            },
+            {
+              "source": "reads[1]",
+              "declared": "fixtures/002/TASK.md",
+              "canonical": "fixtures/002/TASK.md",
+              "class": "unclassified"
+            },
+            {
+              "source": "reads[2]",
+              "declared": "fixtures/002/ledger.csv",
+              "canonical": "fixtures/002/ledger.csv",
+              "class": "unclassified"
+            },
+            {
+              "source": "reads[3]",
+              "declared": "fixtures/002/bill.csv",
+              "canonical": "fixtures/002/bill.csv",
+              "class": "unclassified"
+            }
+          ],
+          "evidence_derived": [
+            {
+              "source": "evidence[0]",
+              "declared": "fixtures/002/bill.csv",
+              "canonical": "fixtures/002/bill.csv",
+              "class": "unclassified"
+            },
+            {
+              "source": "evidence[1]",
+              "declared": "fixtures/002/bill.csv",
+              "canonical": "fixtures/002/bill.csv",
+              "class": "unclassified"
+            },
+            {
+              "source": "evidence[2]",
+              "declared": "fixtures/002/bill.csv",
+              "canonical": "fixtures/002/bill.csv",
+              "class": "unclassified"
+            },
+            {
+              "source": "evidence[3]",
+              "declared": "fixtures/002/bill.csv",
+              "canonical": "fixtures/002/bill.csv",
+              "class": "unclassified"
+            },
+            {
+              "source": "evidence[4]",
+              "declared": "fixtures/002/ledger.csv",
+              "canonical": "fixtures/002/ledger.csv",
+              "class": "unclassified"
+            },
+            {
+              "source": "evidence[5]",
+              "declared": "fixtures/002/ledger.csv",
+              "canonical": "fixtures/002/ledger.csv",
+              "class": "unclassified"
+            },
+            {
+              "source": "evidence[6]",
+              "declared": "fixtures/002/ledger.csv",
+              "canonical": "fixtures/002/ledger.csv",
+              "class": "unclassified"
+            }
+          ],
+          "applied": true,
+          "severity": "error"
+        }
+      },
+      "file": "runs/round4/EX-03.json",
+      "sha256": "4681b8a3c2673aa357bb5fe2a611fc79e31528bce6d49f61fd4763f649629072"
+    },
+    {
+      "seat": "AD-01",
+      "status": "valid",
+      "errors": [],
+      "warnings": [
+        {
+          "code": "W_OVER_LENGTH",
+          "field": "conclusion",
+          "msg": "312 字 > 预算 200"
+        },
+        {
+          "code": "W_MISSING_CONFIDENCE",
+          "field": "confidence",
+          "msg": "软性字段缺失：confidence"
+        },
+        {
+          "code": "W_MISSING_DISSENT",
+          "field": "dissent",
+          "msg": "软性字段缺失：dissent"
+        },
+        {
+          "code": "W_MISSING_NEEDS_MORE_DATA",
+          "field": "needs_more_data",
+          "msg": "软性字段缺失：needs_more_data"
+        }
+      ],
+      "stance_mismatches": [],
+      "derived": {
+        "evidence_pointer_count": 8,
+        "evidence_pointers": [
+          {
+            "pointer": "runs/round4/verdict-layered.json",
+            "what_it_shows": "verdict=pending_adjudication、spec_layer=all、ts=2026-10-20T01:53:49+08:00、summary pending=2——时序锚定与第 3/5 查依据。",
+            "pointer_parts": [
+              {
+                "file": "runs/round4/verdict-layered.json",
+                "selector": ""
+              }
+            ],
+            "pointer_id": "23c6770e65eb0798"
+          },
+          {
+            "pointer": "runs/round4/pending-adjudication.json",
+            "what_it_shows": "pending 含 ADJ-001（count/exclude）与 ADJ-002（7/6/5/4），adjudication_source=none——第 5 查 HOLD 的直接依据。",
+            "pointer_parts": [
+              {
+                "file": "runs/round4/pending-adjudication.json",
+                "selector": ""
+              }
+            ],
+            "pointer_id": "e22052bbbb833431"
+          },
+          {
+            "pointer": "runs/round4/seat-check.json",
+            "what_it_shows": "6 席中 EX-01/EX-03/AD-01(上一版) invalid（E_STANCE_OUT_OF_SPACE / E_BAD_EVIDENCE_ITEM×7 / E_AUDIT_INPUT_MISSING），aggregation_admissible=[EX-02,PM-01,XJ-01]——第 4/6 查依据及「被否决」结构事实。",
+            "pointer_parts": [
+              {
+                "file": "runs/round4/seat-check.json",
+                "selector": ""
+              }
+            ],
+            "pointer_id": "e527ed290e7ee6fd"
+          },
+          {
+            "pointer": "runs/round4/read-domain-check.json",
+            "what_it_shows": "verdict=CLEAN、hits=0、seats_declaring_reads=6——第 9 查 PASS 依据（声明式下界）。",
+            "pointer_parts": [
+              {
+                "file": "runs/round4/read-domain-check.json",
+                "selector": ""
+              }
+            ],
+            "pointer_id": "8429f0f972887c49"
+          },
+          {
+            "pointer": "runs/round4/（目录清单）",
+            "what_it_shows": "目录含 answer-final.json、pending-adjudication.json、verdict-layered.json、read-domain-check.json、seat-check.json、wd-baseline.json 等，但 write-domain-check.json 不存在——第 8 查 HOLD 依据。",
+            "pointer_parts": [
+              {
+                "file": "runs/round4/",
+                "selector": ""
+              }
+            ],
+            "pointer_id": "f1cb7afc41ecfd30"
+          },
+          {
+            "pointer": "runs/round4/PM-01.json#board",
+            "what_it_shows": "board 各项均带 judge 状态与 blocker；EX-01/EX-03 记为阻塞+fail——第 4/7 查依据。",
+            "pointer_parts": [
+              {
+                "file": "runs/round4/PM-01.json",
+                "selector": "#board"
+              }
+            ],
+            "pointer_id": "ff6216edb947ad16"
+          },
+          {
+            "pointer": "runs/round4/XJ-01.json",
+            "what_it_shows": "5 项分歧（T208 入清单、dedup_amount 语义、ADJ-001 轴义、excluded 差额列别、日期基准）与 self_caution——第 4 查分歧留存依据。",
+            "pointer_parts": [
+              {
+                "file": "runs/round4/XJ-01.json",
+                "selector": ""
+              }
+            ],
+            "pointer_id": "bff6f5a2c3ac8a1e"
+          },
+          {
+            "pointer": "runs/round4/wd-baseline.json",
+            "what_it_shows": "轮前写入域基线存在（deny 前缀含 fixtures/、outputs/、docs/ 等），但轮后比对产物缺失——第 8 查核验链条断裂的物证。",
+            "pointer_parts": [
+              {
+                "file": "runs/round4/wd-baseline.json",
+                "selector": ""
+              }
+            ],
+            "pointer_id": "89bae014a261bd96"
+          }
+        ],
+        "pointer_id_definition": "sha256(sorted('<file>|<selector>'))[:16]",
+        "declared_stance": {},
+        "derived_stance": {},
+        "axes": [],
+        "semantic_conflicts": [],
+        "usage": {
+          "tokens": 48000,
+          "minutes": 12.0,
+          "source": "self_report"
+        },
+        "read_domain": {
+          "declared_reads": [
+            {
+              "source": "reads[0]",
+              "declared": "runs/round4/prompts/AD-01.md",
+              "canonical": "runs/round4/prompts/AD-01.md",
+              "class": "allow"
+            },
+            {
+              "source": "reads[1]",
+              "declared": "runs/round4/verdict-layered.json",
+              "canonical": "runs/round4/verdict-layered.json",
+              "class": "allow"
+            },
+            {
+              "source": "reads[2]",
+              "declared": "runs/round4/pending-adjudication.json",
+              "canonical": "runs/round4/pending-adjudication.json",
+              "class": "allow"
+            },
+            {
+              "source": "reads[3]",
+              "declared": "runs/round4/read-domain-check.json",
+              "canonical": "runs/round4/read-domain-check.json",
+              "class": "allow"
+            },
+            {
+              "source": "reads[4]",
+              "declared": "runs/round4/seat-check.json",
+              "canonical": "runs/round4/seat-check.json",
+              "class": "allow"
+            },
+            {
+              "source": "reads[5]",
+              "declared": "runs/round4/EX-01.json",
+              "canonical": "runs/round4/EX-01.json",
+              "class": "allow"
+            },
+            {
+              "source": "reads[6]",
+              "declared": "runs/round4/EX-02.json",
+              "canonical": "runs/round4/EX-02.json",
+              "class": "allow"
+            },
+            {
+              "source": "reads[7]",
+              "declared": "runs/round4/EX-03.json",
+              "canonical": "runs/round4/EX-03.json",
+              "class": "allow"
+            },
+            {
+              "source": "reads[8]",
+              "declared": "runs/round4/XJ-01.json",
+              "canonical": "runs/round4/XJ-01.json",
+              "class": "allow"
+            },
+            {
+              "source": "reads[9]",
+              "declared": "runs/round4/PM-01.json",
+              "canonical": "runs/round4/PM-01.json",
+              "class": "allow"
+            },
+            {
+              "source": "reads[10]",
+              "declared": "runs/round4/（目录清单，ls）",
+              "canonical": "runs/round4/",
+              "class": "allow"
+            }
+          ],
+          "evidence_derived": [
+            {
+              "source": "evidence[0]",
+              "declared": "runs/round4/verdict-layered.json",
+              "canonical": "runs/round4/verdict-layered.json",
+              "class": "allow"
+            },
+            {
+              "source": "evidence[1]",
+              "declared": "runs/round4/pending-adjudication.json",
+              "canonical": "runs/round4/pending-adjudication.json",
+              "class": "allow"
+            },
+            {
+              "source": "evidence[2]",
+              "declared": "runs/round4/seat-check.json",
+              "canonical": "runs/round4/seat-check.json",
+              "class": "allow"
+            },
+            {
+              "source": "evidence[3]",
+              "declared": "runs/round4/read-domain-check.json",
+              "canonical": "runs/round4/read-domain-check.json",
+              "class": "allow"
+            },
+            {
+              "source": "evidence[4]",
+              "declared": "runs/round4/（目录清单）",
+              "canonical": "runs/round4/",
+              "class": "allow"
+            },
+            {
+              "source": "evidence[5]",
+              "declared": "runs/round4/PM-01.json#board",
+              "canonical": "runs/round4/PM-01.json",
+              "class": "allow"
+            },
+            {
+              "source": "evidence[6]",
+              "declared": "runs/round4/XJ-01.json",
+              "canonical": "runs/round4/XJ-01.json",
+              "class": "allow"
+            },
+            {
+              "source": "evidence[7]",
+              "declared": "runs/round4/wd-baseline.json",
+              "canonical": "runs/round4/wd-baseline.json",
+              "class": "allow"
+            }
+          ],
+          "applied": true,
+          "severity": "error"
+        }
+      },
+      "file": "runs/round4/AD-01.json",
+      "sha256": "442a085e39838990a41b1239f0e756d295b40dd05ce8d5763c2e8b0ec6d551db"
+    },
+    {
+      "seat": "PM-01",
+      "status": "valid",
+      "errors": [],
+      "warnings": [
+        {
+          "code": "W_MISSING_CONFIDENCE",
+          "field": "confidence",
+          "msg": "软性字段缺失：confidence"
+        },
+        {
+          "code": "W_MISSING_DISSENT",
+          "field": "dissent",
+          "msg": "软性字段缺失：dissent"
+        },
+        {
+          "code": "W_MISSING_NEEDS_MORE_DATA",
+          "field": "needs_more_data",
+          "msg": "软性字段缺失：needs_more_data"
+        },
+        {
+          "code": "W_READS_UNCLASSIFIED",
+          "field": "reads[3]",
+          "msg": "路径不在读取域任何清单内：fixtures/002/TASK.md"
+        },
+        {
+          "code": "W_READS_UNCLASSIFIED",
+          "field": "reads[4]",
+          "msg": "路径不在读取域任何清单内：fixtures/002/ledger.csv"
+        },
+        {
+          "code": "W_READS_UNCLASSIFIED",
+          "field": "reads[5]",
+          "msg": "路径不在读取域任何清单内：fixtures/002/bill.csv"
+        }
+      ],
+      "stance_mismatches": [],
+      "derived": {
+        "evidence_pointer_count": 0,
+        "evidence_pointers": [],
+        "pointer_id_definition": "sha256(sorted('<file>|<selector>'))[:16]",
+        "declared_stance": {},
+        "derived_stance": {},
+        "axes": [],
+        "semantic_conflicts": [],
+        "usage": {
+          "tokens": 14000,
+          "minutes": 30.0,
+          "source": "self_report"
+        },
+        "read_domain": {
+          "declared_reads": [
+            {
+              "source": "reads[0]",
+              "declared": "runs/round4/prompts/PM-01.md",
+              "canonical": "runs/round4/prompts/PM-01.md",
+              "class": "allow"
+            },
+            {
+              "source": "reads[1]",
+              "declared": "runs/round4/EX-02.json",
+              "canonical": "runs/round4/EX-02.json",
+              "class": "allow"
+            },
+            {
+              "source": "reads[2]",
+              "declared": "runs/round4/XJ-01.json",
+              "canonical": "runs/round4/XJ-01.json",
+              "class": "allow"
+            },
+            {
+              "source": "reads[3]",
+              "declared": "fixtures/002/TASK.md",
+              "canonical": "fixtures/002/TASK.md",
+              "class": "unclassified"
+            },
+            {
+              "source": "reads[4]",
+              "declared": "fixtures/002/ledger.csv",
+              "canonical": "fixtures/002/ledger.csv",
+              "class": "unclassified"
+            },
+            {
+              "source": "reads[5]",
+              "declared": "fixtures/002/bill.csv",
+              "canonical": "fixtures/002/bill.csv",
+              "class": "unclassified"
+            }
+          ],
+          "evidence_derived": [],
+          "applied": true,
+          "severity": "error"
+        }
+      },
+      "file": "runs/round4/PM-01.json",
+      "sha256": "64ad20ec3cab179f01d4ad7df25d78a59ae67068a87d29ca731c709df1823ad2"
+    },
+    {
+      "seat": "XJ-01",
+      "status": "valid",
+      "errors": [],
+      "warnings": [
+        {
+          "code": "W_OVER_LENGTH",
+          "field": "conclusion",
+          "msg": "292 字 > 预算 200"
+        },
+        {
+          "code": "W_MISSING_CONFIDENCE",
+          "field": "confidence",
+          "msg": "软性字段缺失：confidence"
+        },
+        {
+          "code": "W_READS_UNCLASSIFIED",
+          "field": "reads[4]",
+          "msg": "路径不在读取域任何清单内：fixtures/002/TASK.md"
+        },
+        {
+          "code": "W_READS_UNCLASSIFIED",
+          "field": "reads[5]",
+          "msg": "路径不在读取域任何清单内：fixtures/002/ledger.csv"
+        },
+        {
+          "code": "W_READS_UNCLASSIFIED",
+          "field": "reads[6]",
+          "msg": "路径不在读取域任何清单内：fixtures/002/bill.csv"
+        },
+        {
+          "code": "W_READS_UNCLASSIFIED",
+          "field": "evidence[0]",
+          "msg": "路径不在读取域任何清单内：fixtures/002/bill.csv"
+        },
+        {
+          "code": "W_READS_UNCLASSIFIED",
+          "field": "evidence[0]",
+          "msg": "路径不在读取域任何清单内：fixtures/002/ledger.csv"
+        },
+        {
+          "code": "W_READS_UNCLASSIFIED",
+          "field": "evidence[3]",
+          "msg": "路径不在读取域任何清单内：fixtures/002/ledger.csv"
+        }
+      ],
+      "stance_mismatches": [],
+      "derived": {
+        "evidence_pointer_count": 5,
+        "evidence_pointers": [
+          {
+            "pointer": "fixtures/002/bill.csv#行8-9 txn_id=T208 fee_total 列 + fixtures/002/ledger.csv#行7 T208 fee_total 列",
+            "what_it_shows": "bill 侧 T208 两行费用合计 3.77+3.77=7.54，ledger 侧为 7.50，费用列存在 0.04 差额——据此可检验两席「去重后四列无差」断言的事实基础。",
+            "pointer_parts": [
+              {
+                "file": "fixtures/002/bill.csv",
+                "selector": "#行8-9 txn_id=T208 fee_total 列"
+              },
+              {
+                "file": "fixtures/002/ledger.csv",
+                "selector": "#行7 T208 fee_total 列"
+              }
+            ],
+            "pointer_id": "0014c694f2e8aad3"
+          },
+          {
+            "pointer": "runs/round4/EX-01.json#summary.excluded_amount_total / EX-02.json#summary.excluded_amount_total / EX-03.json#summary.excluded_amount_total",
+            "what_it_shows": "三席同一字段三种取值（58.06 / 0.0 / 4360.0），对应定义 C「取差额」的三种解释，契约欠约束。",
+            "pointer_parts": [
+              {
+                "file": "runs/round4/EX-01.json",
+                "selector": "#summary.excluded_amount_total / EX-02.json#summary.excluded_amount_total / EX-03.json#summary.excluded_amount_total"
+              }
+            ],
+            "pointer_id": "62a1b47205c6fa74"
+          },
+          {
+            "pointer": "runs/round4/EX-01.json#summary.dedup_amount / EX-02.json#summary.dedup_amount / EX-03.json#summary.dedup_amount",
+            "what_it_shows": "dedup_amount 两值并存（30000 / 15000 / 30000），对应 TASK 定义 B「多出行」的两种读法。",
+            "pointer_parts": [
+              {
+                "file": "runs/round4/EX-01.json",
+                "selector": "#summary.dedup_amount / EX-02.json#summary.dedup_amount / EX-03.json#summary.dedup_amount"
+              }
+            ],
+            "pointer_id": "97267ddfb155ce87"
+          },
+          {
+            "pointer": "fixtures/002/ledger.csv#行2 T201 date=2026-09-01 vs fixtures/002/bill.csv#行2 T201 settle_date=2026-09-02",
+            "what_it_shows": "任务背景声称自记账按交割日入账，但该行 date 等于成交日而非交割日，背景陈述与数据矛盾，三席产出均未提及。",
+            "pointer_parts": [
+              {
+                "file": "fixtures/002/ledger.csv",
+                "selector": "#行2 T201 date=2026-09-01 vs fixtures/002/bill.csv#行2 T201 settle_date=2026-09-02"
+              }
+            ],
+            "pointer_id": "a80025fb51bec911"
+          },
+          {
+            "pointer": "runs/round4/EX-01.json#stance[ADJ-001]=exclude vs EX-01.json#summary.amount_diff_total=4480.0",
+            "what_it_shows": "该席表态 exclude 却在 amount_diff_total 中计入了单侧 4360.00——或为 ADJ-001 轴义歧义所致的错位对照，需裁判澄清轴义后再解读。",
+            "pointer_parts": [
+              {
+                "file": "runs/round4/EX-01.json",
+                "selector": "#stance[ADJ-001]=exclude vs EX-01.json#summary.amount_diff_total=4480.0"
+              }
+            ],
+            "pointer_id": "e46b92a2c956c3f3"
+          }
+        ],
+        "pointer_id_definition": "sha256(sorted('<file>|<selector>'))[:16]",
+        "declared_stance": {},
+        "derived_stance": {},
+        "axes": [],
+        "semantic_conflicts": [],
+        "usage": {
+          "tokens": 26000,
+          "minutes": 14.0,
+          "source": "self_report"
+        },
+        "read_domain": {
+          "declared_reads": [
+            {
+              "source": "reads[0]",
+              "declared": "runs/round4/prompts/XJ-01.md",
+              "canonical": "runs/round4/prompts/XJ-01.md",
+              "class": "allow"
+            },
+            {
+              "source": "reads[1]",
+              "declared": "runs/round4/EX-01.json",
+              "canonical": "runs/round4/EX-01.json",
+              "class": "allow"
+            },
+            {
+              "source": "reads[2]",
+              "declared": "runs/round4/EX-02.json",
+              "canonical": "runs/round4/EX-02.json",
+              "class": "allow"
+            },
+            {
+              "source": "reads[3]",
+              "declared": "runs/round4/EX-03.json",
+              "canonical": "runs/round4/EX-03.json",
+              "class": "allow"
+            },
+            {
+              "source": "reads[4]",
+              "declared": "fixtures/002/TASK.md",
+              "canonical": "fixtures/002/TASK.md",
+              "class": "unclassified"
+            },
+            {
+              "source": "reads[5]",
+              "declared": "fixtures/002/ledger.csv",
+              "canonical": "fixtures/002/ledger.csv",
+              "class": "unclassified"
+            },
+            {
+              "source": "reads[6]",
+              "declared": "fixtures/002/bill.csv",
+              "canonical": "fixtures/002/bill.csv",
+              "class": "unclassified"
+            }
+          ],
+          "evidence_derived": [
+            {
+              "source": "evidence[0]",
+              "declared": "fixtures/002/bill.csv#行8-9 txn_id=T208 fee_total 列 + fixtures/002/ledger.csv#行7 T208 fee_total 列",
+              "canonical": "fixtures/002/bill.csv",
+              "class": "unclassified"
+            },
+            {
+              "source": "evidence[0]",
+              "declared": "fixtures/002/bill.csv#行8-9 txn_id=T208 fee_total 列 + fixtures/002/ledger.csv#行7 T208 fee_total 列",
+              "canonical": "fixtures/002/ledger.csv",
+              "class": "unclassified"
+            },
+            {
+              "source": "evidence[1]",
+              "declared": "runs/round4/EX-01.json#summary.excluded_amount_total / EX-02.json#summary.excluded_amount_total / EX-03.json#summary.excluded_amount_total",
+              "canonical": "runs/round4/EX-01.json",
+              "class": "allow"
+            },
+            {
+              "source": "evidence[2]",
+              "declared": "runs/round4/EX-01.json#summary.dedup_amount / EX-02.json#summary.dedup_amount / EX-03.json#summary.dedup_amount",
+              "canonical": "runs/round4/EX-01.json",
+              "class": "allow"
+            },
+            {
+              "source": "evidence[3]",
+              "declared": "fixtures/002/ledger.csv#行2 T201 date=2026-09-01 vs fixtures/002/bill.csv#行2 T201 settle_date=2026-09-02",
+              "canonical": "fixtures/002/ledger.csv",
+              "class": "unclassified"
+            },
+            {
+              "source": "evidence[4]",
+              "declared": "runs/round4/EX-01.json#stance[ADJ-001]=exclude vs EX-01.json#summary.amount_diff_total=4480.0",
+              "canonical": "runs/round4/EX-01.json",
+              "class": "allow"
+            }
+          ],
+          "applied": true,
+          "severity": "error"
+        }
+      },
+      "file": "runs/round4/XJ-01.json",
+      "sha256": "b4d060a2b2b64c52367f8e9dda5cc4eeeaaa833967e6a907ed9e64f2ed5ea9fa"
+    }
+  ],
+  "aggregation_admissible": [
+    "EX-02",
+    "AD-01",
+    "PM-01",
+    "XJ-01"
+  ],
+  "aggregation_blocked": [
+    {
+      "seat": "EX-01",
+      "sha256": "9a1c254598134c764864d3021f501848eeaea3e463948f712b024f50682c0850",
+      "errors": [
+        "E_STANCE_OUT_OF_SPACE"
+      ]
+    },
+    {
+      "seat": "EX-03",
+      "sha256": "4681b8a3c2673aa357bb5fe2a611fc79e31528bce6d49f61fd4763f649629072",
+      "errors": [
+        "E_BAD_EVIDENCE_ITEM",
+        "E_BAD_EVIDENCE_ITEM",
+        "E_BAD_EVIDENCE_ITEM",
+        "E_BAD_EVIDENCE_ITEM",
+        "E_BAD_EVIDENCE_ITEM",
+        "E_BAD_EVIDENCE_ITEM",
+        "E_BAD_EVIDENCE_ITEM"
+      ]
+    }
+  ],
+  "verdict": "has_invalid",
+  "summary": {
+    "total": 6,
+    "valid": 4,
+    "invalid": 2
+  },
+  "spec_sha256": "5027ac958dff333938d8fbf7d3bf17d3c6034f1d7b855582b2ffbe9452984263",
+  "read_domain_verdict": "CLEAN"
+}

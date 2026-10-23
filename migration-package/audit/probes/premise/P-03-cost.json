@@ -1,0 +1,14 @@
+{
+  "id": "P-03-cost",
+  "layer": "L3-premise",
+  "question": "如果不做这件事，最坏结果是什么？能和『做』比较吗？",
+  "field": "do_nothing_cost",
+  "hit_action": "hold_for_comparability",
+  "severity": "medium",
+  "rules": {
+    "type": "comparable_cost",
+    "required_keys": ["description", "comparable"],
+    "must_be_true": ["comparable"]
+  },
+  "why": "只讲『做了有什么好处』不讲『不做会怎样』，就无法判断投入是否值得。"
+}

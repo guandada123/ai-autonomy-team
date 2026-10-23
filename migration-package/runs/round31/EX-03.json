@@ -1,0 +1,97 @@
+{
+  "seat": "EX-03",
+  "round": 31,
+  "conclusion": "可执行基线：日期列固定 bill.trade_date（依 TASK「按成交日列示」，非自选）、金额一律 Decimal 取原值，得 diff_count=6、amount_diff_total 76640.00、excluded 0.00、dedup 0 单 0.00 元。落地前须把日期列写成规则并留痕：否则同一份数据可出 6 或 7 单而金额恒 76640.00，审计复现不了。",
+  "execution_path": [
+    "① 固化规则（一次性，人工签字）：日期列=trade_date；金额=amount 原值；费用=fee_total 原值；重复=按 txn_id 计。该四项写入执行说明，后续同构任务直接复用。",
+    "② 结构校验：断言两表表头含 TASK 声明字段、txn_id 非空且一侧内无重复；任一不满足即停，不进入比对。",
+    "③ 逐单四列比对（shares/amount/fee_total/date），用 Decimal(str) 比较而非 float；单侧单号直接计为差异，差额取该侧 amount。",
+    "④ 分类并计算：仅对非重复单号分组求和；amount_diff_total 与 excluded_amount_total 均取 abs 差额，二者之和必须等于 raw_total_gap（本例 76120/76640 校验点）。",
+    "⑤ 交付与自检：输出 answer JSON；附三个可回读校验点（两表行数、两表合计、gap=逐项差额之和），任一不闭合即 HOLD。"
+  ],
+  "cost": {
+    "token_estimate": "单席位单轮 ≈6.2k tokens：读 TASK+2 CSV 约 3.2k、复算与自检约 1.5k、产出 JSON 约 1.5k。三席并行 + 交叉质询 + 聚合 + 裁判按 15× 单轮估算，单任务 ≈90–120k tokens；若每日跑一次同构任务，月度 ≈2.7–3.6M tokens。",
+    "wall_clock": "单席位 3–5 min；三席并行 + 质询 + 聚合 ≈12–18 min。人工瓶颈在规则确认（首次 ≈15 min，之后 0）。",
+    "human_touchpoints": "2 次：①首次裁定「日期列/费用口径」并留痕（一次性，可复用）；②每期抽验 3 单（建议固定抽 T083 口径差、T084 单侧大额、T086 股数差），≈5 min/期。"
+  },
+  "rollback": "只读两份 CSV、只新增 runs/round31/EX-03.json，不触碰任何输入。回滚 = 丢弃或把该 JSON 移入 _trash/（不调用 unlink，避免沙箱拦截），CSV 与基线零脏状态。若下游已按 76640.00 生成了调账分录，则回滚必须包含冲销分录，因此交付物须先停在 pending 状态、由人确认后再落账——这是本方案不自动写账的原因。",
+  "op_grade": "🟢",
+  "cross_platform_risks": [
+    {"risk": "float 累加导致合计漂移（76640.00000000001 一类），金额比对出现假差异", "mitigation": "一律 Decimal(str(x))，quantize 到 0.01，比较用等值而非容差；金额字段禁用 numeric_equals"},
+    {"risk": "Windows 默认 GBK 读 CSV，中文 side/note 乱码，分类名匹配失败", "mitigation": "显式 encoding='utf-8'，读写均声明；输出同样 utf-8"},
+    {"risk": "CRLF 混入导致末列 note 带 \\r，字符串比较把「正常」判为不相等", "mitigation": "csv 读取 newline=''，输出固定 \\n（LF）；本题为 UTF-8 LF"},
+    {"risk": "字符串拼接路径在 macOS/Windows 分隔符不一致", "mitigation": "全部 pathlib.Path 拼接，不出现手工 '/' 或 '\\\\'"},
+    {"risk": "假定解释器名：Windows 无 python3 别名，macOS 无 py 启动器", "mitigation": "脚本内不写死解释器；调度入口分别探测 python3 / py -3"},
+    {"risk": "日期比较依赖 ISO 定长零填充（2026-09-05），若上游出现 2026-9-5 则字典序比较判错", "mitigation": "先 date.fromisoformat 解析再比较，禁止直接字符串比对；解析失败即 HOLD"},
+    {"risk": "清理临时文件调用 unlink，在受限沙箱被拦截导致流程中断", "mitigation": "改为移动到 _trash/ 保留，不删除"}
+  ],
+  "evidence": [
+    {"pointer": "fixtures/tasks/T-11/TASK.md#交割单字段表与「按成交日列示」", "what_it_shows": "日期列取 trade_date 有文本依据，可写成规则"},
+    {"pointer": "fixtures/tasks/T-11/bill.csv#T088{settle_date=09-18}", "what_it_shows": "换列即 6↔7 单，而金额恒 76640.00"},
+    {"pointer": "fixtures/tasks/T-11/ledger.csv#amount / bill.csv#amount", "what_it_shows": "256800.00 与 333440.00，gap 76640.00 可作闭合校验"},
+    {"pointer": "fixtures/tasks/T-11/bill.csv#T086{shares=30}", "what_it_shows": "股数差而金额 0.00 → 入列条件不能写成差额>0"}
+  ],
+  "falsification": "若 TASK 未把日期列写成明文规则（或规则改为 settle_date），则本方案的 diff_count 不成立，清单应为 7 条且需重新走人工裁定；若上游 CSV 出现非定长日期、千分位金额或跨表 txn_id 重复，第 ②③ 步的断言会失败，方案须加清洗层后再执行；若下游要求自动生成调账分录，则操作级别由 🟢 升为 🔴，本方案不足以直接执行。",
+  "reads": [
+    {"path": "runs/round31/prompts/EX-03.md", "purpose": "读取落地席位的成本/回滚/跨平台检查项与字段要求"},
+    {"path": "runs/round31/prompts/EX-01.md", "purpose": "确认共同字段与 stance 取值域（仅作格式对照，不作证据）"},
+    {"path": "runs/round31/prompts/EX-02.md", "purpose": "确认对立面字段要求（仅作格式对照，不作证据）"},
+    {"path": "fixtures/tasks/T-11/TASK.md", "purpose": "提取字段定义、四列口径与 schema，作为流程断言依据"},
+    {"path": "fixtures/tasks/T-11/ledger.csv", "purpose": "取 5 行金额/股数/日期，验证合计与股数差形态"},
+    {"path": "fixtures/tasks/T-11/bill.csv", "purpose": "取 8 行双日期与金额，定位日期口径杠杆点"},
+    {"path": "protocol/02-辩论协议.md", "purpose": "确认单任务 token 预算与 15× 量级依据"},
+    {"path": "protocol/06-写入域与判据分层.md", "purpose": "确认写域 allow/deny 与「未裁决必须非零退出」对流程的影响"}
+  ],
+  "dissent": [
+    {
+      "against": "ANON-A",
+      "reason": "若其方案把 diff_count 交给脚本「自动判定」而不先固化日期列，则该脚本在本份数据上本身就是非确定的：同一输入可得 6 或 7，而金额校验（76640.00）两种情况都通过——阈值检查抓不住它，回归测试也抓不住它。无规则化的自动化在这里不是提效，是把一个可裁决的歧义变成不可观测的分歧。",
+      "reverse_evidence": "若其脚本内已显式声明日期列并在输出中回显该声明，则此反对不成立。"
+    },
+    {
+      "against": "ANON-B",
+      "reason": "若其以「金额恒等于总差」作为流程正确性的验收标准，该标准恒真、不可证伪：本例逐项差额之和与 raw_total_gap 必然相等，故它无法区分正确归因与错误归因。验收必须落在「清单条数 + 分类 + 排除项」三项联合上，而这恰恰是成本最高的部分（需人工签字）。",
+      "reverse_evidence": "若存在重复单号使等式不再恒成立，或验收标准已改为三项联合，则我撤回。"
+    }
+  ],
+  "confidence": "medium",
+  "needs_more_data": [
+    {"type": "缺规则", "item": "日期列是否被正式锁定为 trade_date（本方案据 TASK 措辞推定，未获规范确认）"},
+    {"type": "缺规则", "item": "excluded_amount_total 的应用边界：非成交类权益（股息 520.00、送转 0.00）是否允许排除，决定金额 76120.00 还是 76640.00"},
+    {"type": "缺数据", "item": "T086 送转基数（bill 30 股 vs 10送3×1000 应为 300 股），缺权益分派公告无法断言孰错"},
+    {"type": "缺数据", "item": "下游是否直接消费 amount_diff_total 生成调账分录（决定操作级别 🟢 还是 🔴）"}
+  ],
+  "stance": [
+    {"axis": "ADJ-001", "choice": "count"},
+    {"axis": "DIFFSET", "choice": "6"}
+  ],
+  "summary": {
+    "ledger_rows": 5,
+    "bill_rows": 8,
+    "ledger_total": 256800.00,
+    "bill_total": 333440.00,
+    "raw_total_gap": 76640.00,
+    "dedup_removed_txn_count": 0,
+    "dedup_amount": 0.00,
+    "diff_count": 6,
+    "amount_diff_total": 76640.00,
+    "excluded_amount_total": 0.00,
+    "excluded_categories": []
+  },
+  "diffs": [
+    {"id": "T083", "category": "成交价口径差（委托价记账）"},
+    {"id": "T084", "category": "单侧缺失·交易（中签买入）"},
+    {"id": "T085", "category": "单侧缺失·非交易（股息入账）"},
+    {"id": "T086", "category": "股数差（送转未更新）"},
+    {"id": "T087", "category": "单侧缺失·非交易（股息入账）"},
+    {"id": "T088", "category": "日期差（入账日≠成交日）"}
+  ],
+  "categories": {
+    "成交价口径差（委托价记账）": ["T083"],
+    "单侧缺失·交易（中签买入）": ["T084"],
+    "单侧缺失·非交易（股息入账）": ["T085", "T087"],
+    "股数差（送转未更新）": ["T086"],
+    "日期差（入账日≠成交日）": ["T088"]
+  },
+  "usage": {"tokens": 5800, "minutes": 3, "source": "self_report"}
+}

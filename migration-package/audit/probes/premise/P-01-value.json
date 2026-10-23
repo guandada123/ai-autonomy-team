@@ -1,0 +1,24 @@
+{
+  "id": "P-01-value",
+  "layer": "L3-premise",
+  "question": "如果这东西明天消失，谁会受损？请给出具体受损方。",
+  "field": "beneficiary",
+  "hit_action": "terminate_proposed",
+  "severity": "high",
+  "rules": {
+    "type": "concrete_subject",
+    "min_chars_specific": 5,
+    "_note": "判『去掉泛称后还剩多少字』。取值 5：敏感性分析显示 3–6 全稳定、7 起出现误报，6 是平台右边缘，取 5 留一格余量。2026-10-22 校准见 calibration.json。",
+    "generic_blacklist": [
+      "我们",
+      "团队",
+      "自己",
+      "大家",
+      "公司",
+      "系统",
+      "流程",
+      "机制"
+    ]
+  },
+  "why": "答不出具体受损方，说明这个产出没有外部使用者；33 轮的教训是『机制没有使用者』却无人提出。"
+}

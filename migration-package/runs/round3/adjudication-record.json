@@ -1,0 +1,18 @@
+{
+  "task_id": "SYNTH-RECON-001",
+  "source": "human_adjudication",
+  "recorded_by": "关",
+  "recorded_at": "2026-10-20T02:45:00+08:00",
+  "decisions": [
+    {
+      "id": "ADJ-001",
+      "chosen": "count",
+      "rationale": "口径差（含税/不含税，差额恰为税额）的「税率」归纳只有 n=2 支撑，不是数据里给定的列。与本人在 round4（TASK-BROKER-RECON-002）确立的裁决原则一致：多报的代价是一次人工复核，少报的代价是差额永久从账上消失且不再被复查——计入。"
+    },
+    {
+      "id": "ADJ-002",
+      "chosen": "7",
+      "rationale": "diffs 是「需不需要跟进」的清单：跨月归属与口径差都留着，才能持续暴露口径假设是否成立；剔除等于放弃复查。"
+    }
+  ]
+}

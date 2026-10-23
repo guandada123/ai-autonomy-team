@@ -1,0 +1,99 @@
+{
+ "task_id": "T-10",
+ "round": 16,
+ "aggregated_by": "PM-01",
+ "summary": {
+  "ledger_rows": 5,
+  "bill_rows": 8,
+  "ledger_total": 271800.0,
+  "bill_total": 286240.0,
+  "raw_total_gap": 14440.0,
+  "dedup_removed_txn_count": 0,
+  "dedup_amount": 0.0,
+  "diff_count": 6,
+  "amount_diff_total": 14440.0,
+  "excluded_amount_total": 0.0,
+  "fee_diff_total": 5.17,
+  "excluded_categories": [
+   "股数差异-送转未更新",
+   "日期差异-入账日与成交日"
+  ]
+ },
+ "diffs": [
+  {
+   "id": "T075",
+   "category": "价格差异-成交价大于记账价"
+  },
+  {
+   "id": "T076",
+   "category": "单侧存在-券商独有"
+  },
+  {
+   "id": "T077",
+   "category": "单侧存在-券商独有"
+  },
+  {
+   "id": "T078",
+   "category": "股数差异-送转未更新"
+  },
+  {
+   "id": "T079",
+   "category": "单侧存在-券商独有"
+  },
+  {
+   "id": "T080",
+   "category": "日期差异-入账日与成交日"
+  }
+ ],
+ "categories": {
+  "价格差异-成交价大于记账价": [
+   "T075"
+  ],
+  "单侧存在-券商独有": [
+   "T076",
+   "T077",
+   "T079"
+  ],
+  "股数差异-送转未更新": [
+   "T078"
+  ],
+  "日期差异-入账日与成交日": [
+   "T080"
+  ]
+ },
+ "falsification": "本结论在以下任一条件下作废：①§D 的「日期」实指 settle_date（交割日）而非 trade_date，则 T073/T074/T075 亦成日期差异、diff_count 应为 8，六条清单与全部金额分类前提失效；②持股/派息明细证明 T077 与 T079 属同一权益登记日、同一派息方案（换号重复），则 520.00 应走重复口径，dedup 字段与金额字段均须重算；③派息公告或裁决确认现金分红应计入交易金额差，则 amount_diff_total 应为 14440.00、excluded_amount_total 应为 520.00（EX-02 少数方案）；④若 ledger.date 实为统一交割日口径、T073 与 trade_date 相等仅属巧合，则 T080 应移出清单、diff_count 降为 5，金额字段不变；⑤「Σabs 差额 = raw_total_gap」在同号差额下恒成立，只是闭合检查，不构成本结论正确性的独立证据——若数据中出现异号差额使二者分离，该闭合即失效，须以逐号四列比对为唯一依据。",
+ "diff_preserved": [
+  {
+   "side": "多数",
+   "conclusion": "ADJ-001=count：T077/T079 两笔股息 260.00+260.00 按 §D「单侧存在即差异、差额取该侧 amount」全额计入金额差，amount_diff_total=14440.00、excluded_amount_total=0.00（EX-01 / EX-03 主张，PM 采纳并拍板）",
+   "falsification": "若派息公告或权益登记日记录证明该 520.00 属账外非交易现金流、不应与交易金额差同口径（即 EX-02 成立），或契约给出 excluded 的封闭枚举且包含非交易现金流，则本条作废，改为 13920.00 / 520.00。"
+  },
+  {
+   "side": "少数",
+   "conclusion": "ADJ-001=exclude：T077/T079 的 520.00 属账外非交易现金流（600519 在 ledger 全表无对应持仓），应从金额差剔除，amount_diff_total=13920.00、excluded_amount_total=520.00、excluded_categories=[\"非交易现金流-股息入账\"]；清单仍为 6 条（EX-02 主张，seat_check 记 W_STANCE_MISMATCH：自述 exclude 反推 abstain，说明该取值可能不在 ADJ-001 选项域内）",
+   "falsification": "若 §D 口径坚持单侧存在一律计入、或契约明示 excluded 集合为空、或证明「Σabs 差额=raw_total_gap」并非恒等式因而可作为分类正确的证据，则少数方案作废。"
+  },
+  {
+   "side": "多数",
+   "conclusion": "excluded_categories 登记为两个零金额类别（股数差异-送转未更新 T078、日期差异-入账日与成交日 T080），二者差额均为 0.00，故 excluded_amount_total 仍为 0.00、amount_diff_total 仍为 14440.00——不改变任何金额数值，仅使类别得以落名（口径纪律要求该字段非空）",
+   "falsification": "若裁决要求 excluded_categories 严格按「存在被剔除金额」定义、无剔除即须为 []，则本登记应回退为空数组，金额字段不变（两种登记下 summary 的全部数值完全相同）。"
+  }
+ ],
+ "aggregation_inputs": [
+  {
+   "seat": "EX-01",
+   "sha256": "8375d237b02ca19b35dcc6af6c7c85fd26d694a5f7e874f0255a28bcf5ebafea",
+   "seat_check_status": "valid"
+  },
+  {
+   "seat": "EX-02",
+   "sha256": "2e97b57e183919fee35e1c12884324c9df789c9fb482f9db2733ed1191e28a25",
+   "seat_check_status": "valid"
+  },
+  {
+   "seat": "EX-03",
+   "sha256": "cf5753c0d73def698451376c25057554631a95dd11430dcd84d11fdd9b950c0a",
+   "seat_check_status": "valid"
+  }
+ ]
+}

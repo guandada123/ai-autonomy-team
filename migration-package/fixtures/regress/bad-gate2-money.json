@@ -1,0 +1,14 @@
+{
+  "_purpose": "回归7用：故意对金额路径使用 float 语义的 numeric_equals，期望被拒载（exit 2）",
+  "task_id": "GATE-TEST-07",
+  "layer": "arithmetic",
+  "checks": [
+    {
+      "name": "★违规：金额路径未用 decimal_equals",
+      "type": "numeric_equals",
+      "path": "summary.ledger_total",
+      "expected": 37490.5,
+      "tol": 0.01
+    }
+  ]
+}

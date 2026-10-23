@@ -1,0 +1,120 @@
+{
+  "seat": "EX-01",
+  "round": 30,
+  "conclusion": "逐行复算：ledger 5 行/101820.00，bill 8 行/128460.00，毛利差 26640.00；差异单号 6 个（T051/T052/T053/T054/T055/T056），无重复单号（0 个/0.00）。契约 C 段只定义两个金额字段、未授权排除任何差异类别，故按字面执行：amount_diff_total=26640.00、excluded_amount_total=0.00。",
+  "evidence": [
+    {
+      "pointer": "fixtures/tasks/T-07/ledger.csv#全部5个数据行(T049,T050,T051,T054,T056)",
+      "what_it_shows": "5 个唯一单号，amount 合计 101820.00（26000.00+30000.00+45000.00+0.00+820.00）；单号无重复，故 dedup 计数口径上为 0。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-07/bill.csv#全部8个数据行(T049..T056)",
+      "what_it_shows": "8 个唯一单号，amount 合计 128460.00；与 ledger 差 26640.00。T049/T050 四列（股数/金额/费用/日期）与 ledger 完全一致，故为仅有的一对无差异单号。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-07/bill.csv#T051 与 ledger.csv#T051",
+      "what_it_shows": "组内自洽性反算：1000×45.12=45120.00，费用 11.28+0.45=11.73；对侧 1000×45.00=45000.00、11.70。差额 120.00（金额）与 0.03（费用），两侧日期同为 2026-09-08。属台账按委托价记账的价格差。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-07/bill.csv#T052,T053,T055",
+      "what_it_shows": "三个仅单侧存在单号，amount 分别 26000.00（中签买入 500×52.00）/260.00（股息，code 600519）/260.00（股息）；契约 D 段「仅单侧存在亦为差异单号，差额取该侧 amount」直接适用。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-07/ledger.csv#T054 与 bill.csv#T054",
+      "what_it_shows": "两侧金额均 0.00，但股数 0 对 30（10 送 3 未更新），四列比较中股数列不等，属差异单号且差额为 0.00。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-07/ledger.csv#T056 与 bill.csv#T056",
+      "what_it_shows": "金额/股数/费用三项全等（820.00/100/5.01，费用 5.00+0.01=5.01），仅日期不同：入账 2026-09-17 对成交日 2026-09-16；日期列比对基准取成交日时（T049/T050/T051 三行 ledger.date 均等于 bill.trade_date）T056 单独偏离。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-07/ledger.csv#code 列与 bill.csv#T052 股数勾稽",
+      "what_it_shows": "000858 自记账买入 500+1000+100=1600、卖出 2000，净 −400 股不自洽；补入 bill 的 T052 中签 500 股后为 +100 股，恰等于 T056 的持仓 100 股。故 T052 系自记账漏记，非券商多记——支持其金额 26000.00 属真实差异而非对侧错误。"
+    }
+  ],
+  "falsification": "若契约被解释为「非成交类权益变动（T053/T055 股息、T054 送转）不得计入金额差异」，则 amount_diff_total 应为 26120.00、excluded_amount_total 应为 520.00，我方 26640.00 与 0.00 同时为错；若 ledger.date 的正确对照列是 settle_date 而非 trade_date，则 T056 不构成差异（差异单号降为 5），但 T049/T050/T051 会全部变为差异，说明该解释与数据自相矛盾。",
+  "reads": [
+    {
+      "path": "runs/round30/prompts/EX-01.md",
+      "purpose": "读取本席位任务、读取域、输出契约与 stance 选项空间"
+    },
+    {
+      "path": "runs/round30/prompts/EX-02.md",
+      "purpose": "对齐同族席位模板字段（conclusion/strongest_counter_arguments），避免契约字段漂移；不作证据"
+    },
+    {
+      "path": "runs/round30/prompts/EX-03.md",
+      "purpose": "读取落地席位模板的 cost/op_grade 字段要求，确认三席 summary 同构；不作证据"
+    },
+    {
+      "path": "fixtures/tasks/T-07/TASK.md",
+      "purpose": "读取 summary 11 字段定义、重复项判定、差异判定口径 D 段与四个易错点"
+    },
+    {
+      "path": "fixtures/tasks/T-07/ledger.csv",
+      "purpose": "逐行读取自记账 5 行，复算行数与 amount 合计，取 date/shares/amount/fee_total"
+    },
+    {
+      "path": "fixtures/tasks/T-07/bill.csv",
+      "purpose": "逐行读取交割单 8 行，复算行数与 amount 合计，取 trade_date/settle_date/分项费用"
+    },
+    {
+      "path": "protocol/02-辩论协议.md",
+      "purpose": "确认四阶段、强制反对义务与输出契约字段"
+    },
+    {
+      "path": "protocol/06-写入域与判据分层.md",
+      "purpose": "确认算术层/裁决层分层：diff_count 与两个金额字段属 adjudication 层，无 expected 可对"
+    },
+    {
+      "path": "protocol/07-轮次与指标.md",
+      "purpose": "确认 stance 反推规则、DIFFSET 取值即 summary.diff_count、以及 W_STANCE_SEMANTIC_CONFLICT 的触发式"
+    }
+  ],
+  "dissent": [
+    {
+      "against": "ANON-A",
+      "reason": "把股息/送转等非成交权益变动排除在金额差异之外（excluded_amount_total=520.00、amount_diff_total=26120.00）在会计上更接近实务，但契约 C 段只给字段定义、未给排除准则，排除动作没有可回读的文本依据；且该口径下 26120.00+520.00=26640.00 与全计入口径 26640.00+0.00 同样闭合，两个口径在数据上不可区分，凭「更合理」选边属于把判断伪装成算术。",
+      "reverse_evidence": "若能在 TASK.md 或裁决记录中找到「权益类不计入」的明文授权，或给出 excluded_categories 的判定准则（而非类别名自拟），则我方字面口径失据，应改为排除口径。"
+    }
+  ],
+  "confidence": "high",
+  "needs_more_data": [
+    "缺规则：契约 C 段未定义「计入/不计入」类别的判定准则，仅定义字段；excluded_categories 的类别名由席位自拟，跨席不可对齐。",
+    "缺规则：本任务 8 个单号中无跨自然月的单号，但 stance 的 DIFFSET 选项空间为 7/6/5/4（含「跨月」维度），与本任务实际结构（6 个差异单号、无跨月项）不自洽；选项空间疑为通用模板值，非任务相对生成值。",
+    "缺数据：无持仓余额表与资金流水，无法独立核验 T054 送转 30 股的基准股数，也无法核验 T053（code 600519）是否属本账户。"
+  ],
+  "stance": [
+    {"axis": "ADJ-001", "choice": "count"},
+    {"axis": "DIFFSET", "choice": "6"}
+  ],
+  "summary": {
+    "ledger_rows": 5,
+    "bill_rows": 8,
+    "ledger_total": 101820.00,
+    "bill_total": 128460.00,
+    "raw_total_gap": 26640.00,
+    "dedup_removed_txn_count": 0,
+    "dedup_amount": 0.00,
+    "diff_count": 6,
+    "amount_diff_total": 26640.00,
+    "excluded_amount_total": 0.00,
+    "excluded_categories": []
+  },
+  "diffs": [
+    {"id": "T051", "category": "成交价口径差(按委托价记账)"},
+    {"id": "T052", "category": "自记账遗漏(中签买入)"},
+    {"id": "T053", "category": "自记账遗漏(股息)"},
+    {"id": "T054", "category": "股数未更新(送转)"},
+    {"id": "T055", "category": "自记账遗漏(股息)"},
+    {"id": "T056", "category": "入账日口径差(按交割日入账)"}
+  ],
+  "categories": {
+    "成交价口径差(按委托价记账)": ["T051"],
+    "自记账遗漏(中签买入)": ["T052"],
+    "自记账遗漏(股息)": ["T053", "T055"],
+    "股数未更新(送转)": ["T054"],
+    "入账日口径差(按交割日入账)": ["T056"]
+  },
+  "usage": {"tokens": 6100, "minutes": 9, "source": "self_report"}
+}

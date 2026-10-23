@@ -1,0 +1,104 @@
+{
+  "seat": "EX-02",
+  "round": 16,
+  "conclusion": "主张 ADJ-001=exclude：T077/T079 两笔股息合计 520.00 属账外非交易现金流，应从金额差剔除，得 amount_diff_total=13920.00、excluded_amount_total=520.00；清单仍为全部 6 个单号。并指出主流论证的漏洞：「六项合计恰等于 raw_total_gap」是恒等式，零信息量，不能充当正确性证明。",
+  "strongest_counter_arguments": [
+    {
+      "target": "ANON-A",
+      "argument": "用 14440.00=raw_total_gap 的「对账闭合」证明分类正确是循环论证：差额全部同号时 Σabs 恒等于 bill_total−ledger_total，任何「全计入」方案都必然闭合，该等式对本数据的 6 条清单一条也不能证伪；真正待裁的是哪些条目同属一个口径，而契约把该判断留白。",
+      "reverse_evidence": "若契约明示 excluded 集合为空、一律计入，或证明该恒等式在本数据上并非恒成立（存在异号差额使 abs≠signed），则本反论失效。"
+    },
+    {
+      "target": "ANON-A",
+      "argument": "把 T078 记为「我方股数差异」是把对方的错记成我方的错：bill.note 自称「10送3」，而 09-06 买入后持仓 1000 股应 +300 股，交割单只列 30 股，差 10 倍；契约只比对 shares 数值，分不清「我方漏记 30」与「对方少记 270」，该条应为 data_insufficient。",
+      "reverse_evidence": "若提供 09-10 收盘持仓=100 股的对账单，则 +30 自洽，我方记 0 确属漏记，归因成立。"
+    },
+    {
+      "target": "ANON-C",
+      "argument": "若为消掉 520.00 而把 T077/T079 判重（dedup_amount=260.00），直接违反 §B「同一 txn_id 在一侧出现多次」：两行单号与日期都不同。正确处置是承认 §B 抓不到「同一经济事项换号重复」这一形态并记规则缺口，而不是改数字迁就结论。",
+      "reverse_evidence": "若两行确属同一派息方案的重复列示（同一权益登记日），则判重成立，但须走契约修订而非套用现有定义。"
+    },
+    {
+      "target": "ANON-A",
+      "argument": "T076 与 T080 四列完全相同（各 13800.00、5.14），仅成交日差 6 天；若按四列相似判重，dedup 会误记 13800.00、amount_diff_total 掉到 640.00。这反证 dedup 只能锁 txn_id——同一条理由也反证不能把股息判重。",
+      "reverse_evidence": "若两行属同一笔中签缴款的两次列示（同一缴款编号），则判重成立。"
+    }
+  ],
+  "what_would_change_my_mind": "任一条即可：①派息公告/权益登记日证明 T077 与 T079 属两个独立派息方案（520.00 须计入）；②契约明示 excluded 集合为空或封闭枚举不含非交易现金流；③裁决记录已就 ADJ-001 作出 count 并留痕（我服从裁决，但保留本条反对入档）。",
+  "evidence": [
+    {"pointer": "fixtures/tasks/T-10/bill.csv#T077,T079", "what_it_shows": "600519 股息各 260.00、合计 520.00，ledger 全表无 600519 → 完全账外现金流。"},
+    {"pointer": "fixtures/tasks/T-10/bill.csv#T078.shares", "what_it_shows": "30 股 vs ledger.note「10送3」（1000 股应 +300），差 10 倍 → 归属不可单向判我方。"},
+    {"pointer": "fixtures/tasks/T-10/TASK.md#L42-L44,L71-L73", "what_it_shows": "契约只定算法、不预设判断，excluded_amount_total/categories 即承载该判断的字段。"},
+    {"pointer": "fixtures/tasks/T-10/bill.csv#T076,T080", "what_it_shows": "四列全同（13800.00、5.14）仅日期异 → dedup 须锁 txn_id，相似判重会误删 13800.00。"}
+  ],
+  "diffs": [
+    {"id": "T075", "category": "价格差异-成交价大于记账价"},
+    {"id": "T076", "category": "单侧存在-券商独有"},
+    {"id": "T077", "category": "非交易现金流-股息入账"},
+    {"id": "T078", "category": "股数差异-送转未更新"},
+    {"id": "T079", "category": "非交易现金流-股息入账"},
+    {"id": "T080", "category": "日期差异-入账日与成交日"}
+  ],
+  "categories": {
+    "价格差异-成交价大于记账价": ["T075"],
+    "单侧存在-券商独有": ["T076"],
+    "非交易现金流-股息入账": ["T077", "T079"],
+    "股数差异-送转未更新": ["T078"],
+    "日期差异-入账日与成交日": ["T080"]
+  },
+  "summary": {
+    "ledger_rows": 5,
+    "bill_rows": 8,
+    "ledger_total": 271800.00,
+    "bill_total": 286240.00,
+    "raw_total_gap": 14440.00,
+    "dedup_removed_txn_count": 0,
+    "dedup_amount": 0.00,
+    "diff_count": 6,
+    "amount_diff_total": 13920.00,
+    "excluded_amount_total": 520.00,
+    "excluded_categories": ["非交易现金流-股息入账"]
+  },
+  "falsification": "两处软肋：①若 §D 的「日期」实指 settle_date，清单应为 8 条并越出选项空间，整个分类前提失效；②若裁决或派息公告确认股息应计入，则 13920.00/520.00 退化为 14440.00/0.00，立场被推翻——但「闭合恒等式不能证明分类正确」这条方法论反对与金额无关，仍然成立。",
+  "reads": [
+    {"path": "fixtures/tasks/T-10/TASK.md", "purpose": "逐条核对 §A–§D，寻找「字面可算」与「留待判断」的边界"},
+    {"path": "fixtures/tasks/T-10/ledger.csv", "purpose": "逐行复算 5 行金额与费用，核对单号唯一性与送转 note"},
+    {"path": "fixtures/tasks/T-10/bill.csv", "purpose": "逐行复算 8 行金额与费用，比对四列与两种日期口径，检查 T076/T080 同值陷阱"},
+    {"path": "protocol/02-辩论协议.md", "purpose": "确认对立席位 KPI 与「必交反对 + 反证条件」的契约"},
+    {"path": "protocol/06-写入域与判据分层.md", "purpose": "确认算术层与判断项分层，diff 类字段不得由机器单方裁决"},
+    {"path": "protocol/07-轮次与指标.md", "purpose": "确认 ADJ-001/DIFFSET 取值域、越界告警与语义冲突判据"},
+    {"path": "protocol/", "purpose": "列举协议文件，确定需读的三份"},
+    {"path": "runs/round16/prompts/EX-02.md", "purpose": "读取本席字段（strongest_counter_arguments/what_would_change_my_mind）与匿名约束"},
+    {"path": "runs/round16/prompts/", "purpose": "同批次读取三份席位提示词（含本席）以对齐字段与匿名编号要求"},
+    {"path": "runs/round16/inputs/", "purpose": "检查是否有匿名同伴产出（空目录，反论基于假设立场而非实际同伴文本）"}
+  ],
+  "dissent": [
+    {
+      "against": "ANON-A",
+      "reason": "以 14440.00 与 raw gap 相等作为分类正确的证据属恒等式误用；且把 520.00 股息计入交易金额差，使「记账漏项」与「账外现金流」混为一口径，日后不可区分。",
+      "reverse_evidence": "若契约给出 excluded 的封闭空集，或证明该恒等式在本数据并非恒成立，则本条撤回。"
+    },
+    {
+      "against": "ANON-C",
+      "reason": "以 settle_date 为日期列会使 diff_count 升至 8 并越出选项空间，等于把「契约表述不全」当成「数据有 8 处差异」，向人类闸门提交一个无法表态的立场。",
+      "reverse_evidence": "若选项空间被合法扩展为含 8，则该读法转为可裁，反对失效。"
+    }
+  ],
+  "confidence": "medium",
+  "needs_more_data": [
+    "【缺规则】§D 未定义「日期」对齐 trade_date 还是 settle_date；本席按成交日执行，属规则缺口。",
+    "【缺规则】excluded_categories 无定义域与判定标准，使 14440.00/0.00 与 13920.00/520.00 两套结果都合规——本轮最大规则缺口。",
+    "【缺规则】§B 的重复只覆盖「同一 txn_id 同侧多行」，不覆盖「同一经济事项换号重复」，字段语义不完备。",
+    "【缺数据】T078 送转股数：交割单 30 股 vs 「10送3」应 +300，缺 09-10 收盘持仓明细，无法判 270 股差额归属。",
+    "【缺数据】600519 的持仓与派息明细：ledger 全表无该代码，无法核验 T077/T079 是否两次独立派息。"
+  ],
+  "stance": [
+    {"axis": "ADJ-001", "choice": "exclude"},
+    {"axis": "DIFFSET", "choice": "6"}
+  ],
+  "usage": {
+    "tokens": 14100,
+    "minutes": 12,
+    "source": "self_report"
+  }
+}

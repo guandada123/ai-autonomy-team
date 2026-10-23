@@ -1,0 +1,152 @@
+{
+  "seat": "EX-02",
+  "round": 11,
+  "conclusion": "自记账 date 被 TASK.md 定义为「入账日」，语义对应交割单 settle_date 而非 trade_date；据此作四列比对，差异单号应为 7 个（T025、T026、T027、T028、T029、T030、T031），T032 四列完全一致故非差异。金额侧不受口径影响：amount_diff_total=26640.00、excluded=0，恰等于 raw_total_gap，残差为零。",
+  "strongest_counter_arguments": [
+    {
+      "target": "ANON-A",
+      "argument": "通行做法以 ledger.date↔bill.trade_date 比对得 6 条（含 T032、不含 T025/T026）。该口径把交割单的 settle_date 变成死列——若它不参与核对，文件为何要列它？TASK.md 只用「入账日」三字定义 ledger.date，而资金入账发生在交割（T+1）而非成交；依此 T032 的 09-16 入账日与 settle_date 09-16 同日，四列（100 股／13800.00／5.14／09-16）全同，被判差异属伪阳性。",
+      "reverse_evidence": "若协议或自记账说明确立「按成交日入账」，则 A 成立、我错。"
+    },
+    {
+      "target": "ANON-B",
+      "argument": "另一路主张把 T029／T031 现金分红归入 excluded_categories，报 amount_diff_total=26120、excluded=520。但这 520 元是券商侧真实已入账的现金，自记账零记录，是实质遗漏而非口径差异；把它降级为「不计入金额差异」会让 520 元缺口从待补记事项里消失，且与「差异＝记账缺失」的归因语义自相矛盾。",
+      "reverse_evidence": "若协议把金额差异严格限定为「成交金额」口径（股息非成交），则 B 成立。"
+    },
+    {
+      "target": "ANON-C",
+      "argument": "还有主张只保留有金额影响的 4 条（T027/T028/T029/T031），剔除 T030 股数差异与 T032 日期差异。但 TASK.md 的差异定义是「股数／成交金额／费用／日期四列不完全相同」，股数与日期是显式列；10 送 3 未更新持仓（0 股 vs 30 股）是持仓层面的真实错账，因 amount=0 就剔除，等于用金额字段能否非零来反推该不该算差异，属口径越权。",
+      "reverse_evidence": "若契约改为「差异仅指金额层面」，则 C 成立。"
+    }
+  ],
+  "what_would_change_my_mind": "自记账口径说明文件，或 T025/T026/T027 三行 date 恰等于 trade_date（5 行中 3 行）这一事实被解释为「该账套按成交日入账」的规范而非偶然——后者我承认是强反证。",
+  "evidence": [
+    {
+      "pointer": "fixtures/tasks/T-04/TASK.md:L18（自记账字段 date=入账日；交割单字段含 trade_date 与 settle_date）",
+      "what_it_shows": "两侧日期字段语义不同源，ledger 只有一个「入账日」，交割单同时给成交日与交割日；「入账日」只能映射 settle_date。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-04/ledger.csv#txn_id=T032 + bill.csv#txn_id=T032",
+      "what_it_shows": "ledger date=2026-09-16、note=按交割日入账；bill trade_date=09-15、settle_date=09-16、note=按成交日列示。股数 100/100、amount 13800.00/13800.00、fee_total 5.14/5.14 全同——差异仅由日期口径制造。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-04/bill.csv#txn_id=T027",
+      "what_it_shows": "bill amount=45120.00（价 45.12）vs ledger 45000.00（价 45.00），abs 差 120.00；fee_total 11.73 vs 11.70。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-04/bill.csv#txn_id=T028,T029,T031（ledger 侧无）",
+      "what_it_shows": "单侧存在：中签买入 26000.00、现金分红 260.00、现金分红 260.00，合计 26520.00。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-04/ledger.csv + bill.csv 逐行复算",
+      "what_it_shows": "ledger_rows=5、bill_rows=8、252800.00 vs 279440.00、raw_total_gap=26640.00；26640.00=120.00+26000.00+260.00+260.00，残差 0。两侧 txn_id 均无重号，dedup 计数=0。"
+    }
+  ],
+  "falsification": "若自记账入账口径确为成交日（T025/T026/T027 的 date 均等于 trade_date，5 行占 3 行，即为现成反例），则日期语义反转，diff_count 应回落为 6（T032 计入、T025/T026 剔除），我的 stance 失效；若协议禁止用 settle_date 参与比对，同样失效。注意 amount_diff_total=26640.00 在任何口径下都不变，故本轮争议不影响金额字段。",
+  "reads": [
+    {
+      "path": "runs/round11/prompts/EX-02.md",
+      "purpose": "席位职责、读取域、输出契约与字数预算"
+    },
+    {
+      "path": "fixtures/tasks/T-04/TASK.md",
+      "purpose": "字段定义、易错点、差异判定口径与输出结构"
+    },
+    {
+      "path": "fixtures/tasks/T-04/ledger.csv",
+      "purpose": "自记账 5 行逐行取 date/shares/amount/fee_total/note"
+    },
+    {
+      "path": "fixtures/tasks/T-04/bill.csv",
+      "purpose": "交割单 8 行逐行取 trade_date/settle_date/shares/amount/fee_total/note"
+    },
+    {
+      "path": "protocol/02-辩论协议.md",
+      "purpose": "对立席 KPI、输出契约、聚合规则（证据制非投票制）"
+    },
+    {
+      "path": "protocol/ 与 runs/round11/{inputs,prompts} 目录列举",
+      "purpose": "确认 inputs 为空、无同伴产出可读（清单仅目录名，未读文件内容）"
+    }
+  ],
+  "dissent": [
+    {
+      "against": "ANON-A",
+      "reason": "其 6 条口径把 settle_date 当死列，与 TASK.md 的「入账日」定义冲突；且 T032 在入账语义下四列全同却被判差异，属口径造成的伪阳性。",
+      "reverse_evidence": "若账套被证实按成交日入账，则 A 对、我错。"
+    },
+    {
+      "against": "ANON-B",
+      "reason": "把 520 元现金分红塞进 excluded_categories，会让真实存在、自记账零记录的现金流缺口从待补记清单消失。",
+      "reverse_evidence": "若协议限定金额差异仅指成交金额，B 对。"
+    },
+    {
+      "against": "ANON-C",
+      "reason": "以 amount=0 为由剔除 T030 股数与 T032 日期，等于用金额列反推差异范围，违背契约「四列不完全相同」的显式定义。",
+      "reverse_evidence": "若契约收窄为金额层面差异，C 对。"
+    }
+  ],
+  "confidence": "medium",
+  "needs_more_data": [
+    "自记账入账口径说明（按成交日 or 按交割日）——这是 T032 归属的唯一决定性输入",
+    "T030 送转在自记账侧的持仓字段（本表无持仓列，无法验证 +30 股是否已补记）"
+  ],
+  "stance": [
+    {
+      "axis": "ADJ-001",
+      "choice": "count"
+    },
+    {
+      "axis": "DIFFSET",
+      "choice": "7"
+    }
+  ],
+  "summary": {
+    "ledger_rows": 5,
+    "bill_rows": 8,
+    "ledger_total": 252800.0,
+    "bill_total": 279440.0,
+    "raw_total_gap": 26640.0,
+    "dedup_removed_txn_count": 0,
+    "dedup_amount": 0.0,
+    "diff_count": 7,
+    "amount_diff_total": 26640.0,
+    "excluded_amount_total": 0.0,
+    "excluded_categories": []
+  },
+  "diffs": [
+    {
+      "id": "T025",
+      "category": "日期口径差异（入账日=交割日 vs 成交日）"
+    },
+    {
+      "id": "T026",
+      "category": "日期口径差异（入账日=交割日 vs 成交日）"
+    },
+    {
+      "id": "T027",
+      "category": "成交价与费用不一致"
+    },
+    {
+      "id": "T028",
+      "category": "单侧遗漏-券商有自记账无（中签买入）"
+    },
+    {
+      "id": "T029",
+      "category": "单侧遗漏-券商有自记账无（现金分红）"
+    },
+    {
+      "id": "T030",
+      "category": "股数不一致（送转未更新）"
+    },
+    {
+      "id": "T031",
+      "category": "单侧遗漏-券商有自记账无（现金分红）"
+    }
+  ],
+  "usage": {
+    "tokens": 26000,
+    "minutes": 9,
+    "source": "self_report"
+  }
+}

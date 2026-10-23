@@ -1,0 +1,42 @@
+{
+  "round": "round10",
+  "role": "revision_round",
+  "role_valid_values": [
+    "evidence_round",
+    "revision_round",
+    "devils_advocate_round"
+  ],
+  "introduces_new_evidence": false,
+  "prev_round": "round7",
+  "contract_version": "2.1",
+  "usage_required": true,
+  "expected_seats": [
+    "EX-01",
+    "EX-02",
+    "EX-03"
+  ],
+  "optional_seats": [
+    "AD-01",
+    "PM-01",
+    "XJ-01"
+  ],
+  "seed": "9938282b",
+  "created_at": "2026-10-20T11:52:01+08:00",
+  "write_domain": {
+    "allow": [
+      "round10/"
+    ],
+    "deny_from": "../config/write_domains.json"
+  },
+  "read_domain": {
+    "from": "../config/read_domains.json",
+    "seats_must_declare_reads": true
+  },
+  "termination": {
+    "condition": "rounds_exhausted",
+    "declared_by": "orchestrator",
+    "note": "evidence_round 以 adjudication 层 pending 为预期终态，人类签字为最终终止；protocol/02 §4.2 四选一。"
+  },
+  "note": "★ 子代理只能由主会话通过 Agent 工具发起，脚本无法代劳。本目录的 prompts/ 是提示词文件，不是已发起的会话。",
+  "task": "tasks/T-03"
+}

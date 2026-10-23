@@ -1,0 +1,97 @@
+{
+ "task_id": "T-12",
+ "round": 17,
+ "aggregated_by": "PM-01",
+ "summary": {
+  "ledger_rows": 7,
+  "bill_rows": 8,
+  "ledger_total": 146820.0,
+  "bill_total": 147200.0,
+  "raw_total_gap": 380.0,
+  "dedup_removed_txn_count": 0,
+  "dedup_amount": 0.0,
+  "diff_count": 6,
+  "amount_diff_total": 380.0,
+  "excluded_amount_total": 0.0,
+  "fee_diff_total": 15.33,
+  "excluded_categories": [
+   "费用列差异（成交金额不变）",
+   "股数差异（权益变动未更新）",
+   "日期基准差异（成交日vs入账日）"
+  ]
+ },
+ "diffs": [
+  {
+   "id": "T091",
+   "category": "成交金额差异（实际成交价与记账价不一致）"
+  },
+  {
+   "id": "T092",
+   "category": "费用列差异（成交金额不变）"
+  },
+  {
+   "id": "T093",
+   "category": "费用列差异（成交金额不变）"
+  },
+  {
+   "id": "T094",
+   "category": "股数差异（权益变动未更新）"
+  },
+  {
+   "id": "T095",
+   "category": "单侧存在（交割单独有现金流入·股息入账）"
+  },
+  {
+   "id": "T096",
+   "category": "日期基准差异（成交日vs入账日）"
+  }
+ ],
+ "categories": {
+  "成交金额差异（实际成交价与记账价不一致）": [
+   "T091"
+  ],
+  "费用列差异（成交金额不变）": [
+   "T092",
+   "T093"
+  ],
+  "股数差异（权益变动未更新）": [
+   "T094"
+  ],
+  "单侧存在（交割单独有现金流入·股息入账）": [
+   "T095"
+  ],
+  "日期基准差异（成交日vs入账日）": [
+   "T096"
+  ]
+ },
+ "falsification": "本结论在下列任一条件下为错：(1) 若裁决层认定『日期』列应取 settle_date（交割日）而非 trade_date（成交日），则 T096 不再是差异单号，且 T089–T093 五笔同时新增日期差，diff_count 会由 6 变 7（而非 5），本清单的 6 作废；(2) 若裁决层认定 T095 的 260.00 属『非金额差异』（股息现金流不计入成交金额核对），则 amount_diff_total 应为 120.00、excluded_amount_total 应为 260.00、excluded_categories 应含『权益分派（股息入账）』，本处 380.00/0.00 的分配作废（EX-02 持此口径）；(3) 若 T094 送转不被视为可比的同一单号（例如按权益事件单列而非成交单号），diff_count 降至 5；(4) 若 CSV 的 amount 列存在未披露的含费/净额口径（例如 bill 侧 amount 已扣费），则 146820.00/147200.00/380.00 三个合计值需按原始列重取后重算。上述任一成立，本文件的 raw_total_gap=380.00 之外的分类与金额分配即不得引用。",
+ "diff_preserved": [
+  {
+   "side": "多数",
+   "conclusion": "amount_diff_total=380.00、excluded_amount_total=0.00、excluded_categories 在数值上不含任何非零金额项（EX-01 与 EX-03 各自独立复算得出；PM-01 用 Decimal 逐单号全外连接复算亦得 380.00=120.00+260.00，费用差 15.33 不进入任何金额字段）。指派口径：T095 单侧存在的 260.00 作为差异单号计入金额差异，T092/T093（仅费用差）、T094（仅股数差）、T096（仅日期差）虽为差异单号，但其 amount 差额均为 0.00，故以其类别名列入 excluded_categories，excluded_amount_total 合计 0.00。",
+   "falsification": "若裁决层给出 categories 白名单，规定『单侧存在』类必须整体排除在 amount_diff_total 之外（即金额差异只统计双侧可比单号），则 380.00 与 0.00 的分配立即失效，应改为 120.00 / 260.00；另若 amount_diff_total + excluded_amount_total == raw_total_gap 被证明只是代数恒等式而无归因意义（T095 归入任一字段该等式均成立），则本口径的『闭合』不构成正确性证据，仅可作为自洽性检查。"
+  },
+  {
+   "side": "少数",
+   "conclusion": "EX-02：amount_diff_total=120.00（仅 T091 成交金额差）、excluded_amount_total=260.00（T095）、excluded_categories=['权益分派（股息入账）']。理由：380.00 的『完全闭合』是定义性同义反复——Σ(bill−ledger) 恒等于 bill_total−ledger_total，在 excluded 留空时必然成立，故不提供归因证据；且 T095 的 side 为『股息入账』，属权益现金流而非成交金额，与其余 7 条成交单号不同类，进入 amount 差异属类别错置；真正被两个金额字段同时吞掉的是 15.33 的费用差（T091 0.03、T092/T093 各 7.65），它在 summary 11 字段中无任何承载位置。",
+   "falsification": "若裁决层将 amount 明确定义为『账户现金净流入（含股息）』，或明示 excluded 仅收纳非现金权益事项（不以 side 分类而以现金性分类），则 T095 应计入 amount_diff_total，本少数口径应改为 380.00 / 0.00 / []；另若提供 categories 白名单且白名单把『股息入账』列为计入项，本口径同样作废。（此条为 EX-02 自陈的 what_would_change_my_mind，PM-01 原样保留未改写。）"
+  }
+ ],
+ "aggregation_inputs": [
+  {
+   "seat": "EX-01",
+   "sha256": "c2c4bc7ba6a5844fa435ad4886ab8b33b78008c92312c6f59a4537eaabf16200",
+   "seat_check_status": "valid"
+  },
+  {
+   "seat": "EX-02",
+   "sha256": "abe2278a619625dbc0a06c9e42295084d0fdcffc5bce866605314945f8e36859",
+   "seat_check_status": "valid"
+  },
+  {
+   "seat": "EX-03",
+   "sha256": "5979d195404b506e5ba946cdf85e31029411f1861a7036cf093d2b7340cc9392",
+   "seat_check_status": "valid"
+  }
+ ]
+}

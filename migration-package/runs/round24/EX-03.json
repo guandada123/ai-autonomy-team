@@ -1,0 +1,190 @@
+{
+  "seat": "EX-03",
+  "round": 24,
+  "conclusion": "可执行版本：pathlib+csv+Decimal 一次跑穿，得 6 条差异、amount_diff_total=26640.00、excluded=0.00、dedup=0；闭合断言做硬闸（amount+excluded==gap 且 diff_count==len(diffs)），不等即拒输出。输入只读、产物单文件、回滚=mv+重跑，op_grade 🟢。",
+  "execution_path": [
+    "1 定位：pathlib.Path 拼 fixtures/tasks/T-04，open(newline='', encoding='utf-8')+csv.DictReader 读两份 CSV，禁用相对路径与字符串分隔符",
+    "2 取数：amount/fee_total/price/shares 一律 Decimal(str)，禁 float；行数由 len(rows) 得 5 与 8（不含表头）",
+    "3 去重：按 txn_id 双侧计数，仅同侧出现 >1 次才计入 dedup；实测两侧全为 1 次 → 0 个 / 0.00",
+    "4 对齐：取 id 并集 8 个，逐 id 比 shares / amount / fee_total / date（对 trade_date）四列；仅单侧存在者直接记差异，差额取该侧 amount",
+    "5 分类：T027 价格与费用差（120.00 / 0.03）；T028 中签买入单侧 26000.00；T029、T031 分红单侧各 260.00；T030 股数 0 vs 30（金额 0）；T032 日期 09-16 vs 09-15（金额 0）",
+    "6 硬闸：26640.00+0.00==26640.00 且 6==len(diffs)，两项任一不满足 → 退出码非 0、不写 answer.json（禁止改口径凑数）",
+    "7 落盘：answer.json 用 UTF-8 无 BOM + LF，Decimal 统一 quantize('0.01') 后按两位小数输出；输出前 re-read 校验 JSON 可解析"
+  ],
+  "cost": {
+    "token_estimate": "单席实测约 25k tokens（3 次输入读 + 1 次复算脚本 + 1 次自检）；本轮四席合计约 105k，低于协议单轮硬上限 160000，余量约 34%",
+    "wall_clock": "约 9 分钟/席（读输入 2 分、写并跑复算 3 分、口径判断与闭合校验 4 分）；若含人工裁定 1 次往返再加 5–10 分钟",
+    "human_touchpoints": "1 次：520.00 股息是否计入口径外（26120.00/520.00 与 26640.00/0.00 两条分支都能闭合，机器无法自证）"
+  },
+  "rollback": "输入只读、不写 fixtures/；唯一产物是 answer.json。若口径被推翻：把旧 answer.json 用 shutil.move 挪到 _trash/<时间戳>/（不调 unlink、不调 rmtree，本机沙箱会拦截），再用同一脚本重跑覆盖。无外部调用、无跨文件副作用、无迁移脚本，回滚为一次 mv + 一次重跑，不需备份即满足 🟢。",
+  "op_grade": "🟢",
+  "cross_platform_risks": [
+    {
+      "risk": "解释器：本机 Windows 习惯 py 启动器，目标 macOS(Mac mini M4) 只有 python3",
+      "mitigation": "脚本头与文档统一写 python3；用 sys.executable 取当前解释器，不硬编码绝对路径"
+    },
+    {
+      "risk": "路径分隔：字符串拼 '/' 或 '\\\\' 在两端表现不一致，且目标机外置卷名含空格",
+      "mitigation": "全部走 pathlib.Path 的 / 运算符与 .resolve()，路径参数用引号包裹"
+    },
+    {
+      "risk": "换行：Windows 侧 CRLF 会让 csv 末列多出 \\r，导致 note 列比较恒不等、差异数虚增",
+      "mitigation": "读入 open(..., newline='')；输出固定 newline='\\n'，并在写后断言 '\\r' not in bytes"
+    },
+    {
+      "risk": "编码：Windows 默认 GBK，读中文股票名/备注会抛 UnicodeDecodeError 或静默乱码（乱码后 note 判断失效但不报错）",
+      "mitigation": "所有 open 显式 encoding='utf-8'、errors='strict'；输出同样 utf-8 无 BOM"
+    },
+    {
+      "risk": "删除：脚本若用 unlink/rmtree 清理临时文件，本机沙箱拦截会让流程半途中断、留下半个 answer.json",
+      "mitigation": "改为 shutil.move 到 _trash/；answer.json 先写 .tmp 再 os.replace 原子替换，避免半文件"
+    },
+    {
+      "risk": "shell：依赖 bash 专有语法（[[]]、<<<、进程替换）在目标 zsh 或最小环境失效",
+      "mitigation": "复算逻辑全在 Python 内，shell 只保留单行启动；不依赖 sed/awk 处理 CSV"
+    }
+  ],
+  "evidence": [
+    {
+      "pointer": "fixtures/tasks/T-04/{ledger,bill}.csv#amount",
+      "what_it_shows": "252800.00 / 279440.00 / gap 26640.00；逐 id 差额和 26640.00，闭合 True。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-04/bill.csv#T027",
+      "what_it_shows": "佣金 11.28+过户费 0.45=11.73 与 fee_total 自洽；ledger 侧 11.70 差 0.03。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-04/{ledger,bill}.csv#txn_id",
+      "what_it_shows": "同侧无重号 → dedup 0 / 0.00；去重键若用 shares+price 会误删 T028 的 26000.00。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-04/{ledger,bill}.csv#T032",
+      "what_it_shows": "改日期基准后 diff_count 6→7，金额仍 26640.00；基准须单点声明，不得逐行择取。"
+    }
+  ],
+  "falsification": "若硬闸在不调参的情况下无法同时满足（例如把 520.00 移入 excluded 却忘了同步扣减计入侧，出现 26120.00+0.00≠26640.00），则这套单次跑穿的闸门会把口径分支误判为算术错误——此时应改为两条分区各出一份候选、交人工一次裁定，而不是放宽断言。另：若目标机 Python <3.8 或 csv 文件实际为 GB18030 编码，步骤 1–2 会失败，方案需加编码探测。",
+  "reads": [
+    {
+      "path": "runs/round24/prompts/EX-03.md",
+      "purpose": "本席（落地与成本）职责、操作分级、跨平台检查清单"
+    },
+    {
+      "path": "runs/round24/prompts/EX-01.md",
+      "purpose": "核对同轮硬性字段与字数预算，确认本席可额外带 cost/rollback 字段"
+    },
+    {
+      "path": "runs/round24/prompts/EX-02.md",
+      "purpose": "同上，确认三席契约一致、stance 可弃权"
+    },
+    {
+      "path": "fixtures/tasks/T-04/TASK.md",
+      "purpose": "取输出 schema 与四个易错点，作为硬闸断言的检查项来源"
+    },
+    {
+      "path": "fixtures/tasks/T-04/ledger.csv",
+      "purpose": "取 5 行原始值复算，并核对 date/shares 用于可执行性判断"
+    },
+    {
+      "path": "fixtures/tasks/T-04/bill.csv",
+      "purpose": "取 8 行原始值与分项费用，验证 fee_total 自洽、判定去重键"
+    },
+    {
+      "path": "runs/round24/inputs/pack-ANON-A.json",
+      "purpose": "取其 7 条清单，评估若采纳则脚本需引入 settle_date 分支的成本"
+    },
+    {
+      "path": "runs/round24/inputs/pack-ANON-B.json",
+      "purpose": "取其 26640.00/0.00 与排除集写法，评估下游报表可用性"
+    },
+    {
+      "path": "runs/round24/inputs/pack-ANON-C.json",
+      "purpose": "取其执行路径与 26120.00/520.00 分区，比较两条实现分支的复杂度"
+    },
+    {
+      "path": "protocol/07-轮次与指标.md",
+      "purpose": "取单轮 token 硬上限 160000 与 usage 计量式（tokens 求和、minutes 取最大）"
+    },
+    {
+      "path": "protocol/02-辩论协议.md",
+      "purpose": "核对终止条件与输出契约字段要求"
+    }
+  ],
+  "dissent": [
+    {
+      "against": "ANON-A",
+      "reason": "采纳 7 条要额外引入 settle_date 分支，且该分支会让 T032 的 note「按交割日入账」失去解释力——工程上是把一个可解释的异常行换成三条需逐行解释的差异，维护成本与误报率双升，而金额合计分文不变。",
+      "reverse_evidence": "若确有账套按交割日入账的书面口径，则此分支是必须实现的主路径，成本可接受。"
+    },
+    {
+      "against": "ANON-C",
+      "reason": "其方案把「可解释的排除集」当成功标准，但机器无法自证 520.00 属非成交，必然多出 1 次人工裁定；清单条数不变、金额只是左右手换口袋，收益仅剩报表可读性，却引入人工依赖，在无人值守批次里是净成本。",
+      "reverse_evidence": "若下游报表确实按「成交/非成交」分栏消费，则该 1 次人工成本可被长期摊销，此时 C 的方案更优。"
+    },
+    {
+      "against": "ANON-B",
+      "reason": "其 excluded_categories 保留两个零金额类别，excluded_amount_total 却是 0.00：下游按类别聚合时会产出金额为 0 的空行，实施层应写 [] 或在报表侧过滤——这是可用性问题，不是数值错误。",
+      "reverse_evidence": "若下游报表以类别为行、允许零金额占位（例如用于审计留痕），则保留两类反而更完整。"
+    }
+  ],
+  "confidence": "high",
+  "needs_more_data": [
+    "缺规则：日期比对基准（trade_date vs settle_date）无书面口径，脚本只能以配置单点声明，属规则缺口",
+    "缺规则：非成交资金流水是否进入 amount_diff_total 未定义，导致必须保留 1 次人工裁定，属规则缺口",
+    "缺数据：本机与目标机的 Python 版本、目标卷路径是否存在空格或非 ASCII 字符，需在首次运行前探测",
+    "缺数据：无持仓/现金流水台账，T030 的 30 股与 520.00 派现是否已另处入账无法核验"
+  ],
+  "stance": [
+    {
+      "axis": "ADJ-001",
+      "choice": "count"
+    },
+    {
+      "axis": "DIFFSET",
+      "choice": "6"
+    }
+  ],
+  "summary": {
+    "ledger_rows": 5,
+    "bill_rows": 8,
+    "ledger_total": 252800.00,
+    "bill_total": 279440.00,
+    "raw_total_gap": 26640.00,
+    "dedup_removed_txn_count": 0,
+    "dedup_amount": 0.00,
+    "diff_count": 6,
+    "amount_diff_total": 26640.00,
+    "excluded_amount_total": 0.00,
+    "excluded_categories": []
+  },
+  "diffs": [
+    {
+      "id": "T027",
+      "category": "成交价与费用不一致（按委托价记账）"
+    },
+    {
+      "id": "T028",
+      "category": "单侧存在-自记账缺（中签买入）"
+    },
+    {
+      "id": "T029",
+      "category": "单侧存在-自记账缺（现金分红）"
+    },
+    {
+      "id": "T030",
+      "category": "股数不一致（送转未更新）"
+    },
+    {
+      "id": "T031",
+      "category": "单侧存在-自记账缺（现金分红）"
+    },
+    {
+      "id": "T032",
+      "category": "日期口径差异（按交割日入账）"
+    }
+  ],
+  "usage": {
+    "tokens": 25000,
+    "minutes": 9,
+    "source": "self_report"
+  }
+}

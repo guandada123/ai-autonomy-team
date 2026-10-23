@@ -1,0 +1,96 @@
+{
+  "task_id": "SYNTH-RECON-001",
+  "summary": {
+    "ledger_rows": 27,
+    "bill_rows": 27,
+    "ledger_total": 37490.5,
+    "bill_total": 38010.52,
+    "raw_total_gap": 520.02,
+    "dedup_removed_txn_count": 1,
+    "dedup_amount": 1200.0,
+    "diff_count": 7,
+    "amount_diff_total": 680.02,
+    "excluded_amount_total": 0.0,
+    "excluded_categories": [
+      "跨月归属"
+    ]
+  },
+  "diffs": [
+    {
+      "id": "T101",
+      "category": "舍入差"
+    },
+    {
+      "id": "T102",
+      "category": "舍入差"
+    },
+    {
+      "id": "T103",
+      "category": "重复导入"
+    },
+    {
+      "id": "T104",
+      "category": "口径差异"
+    },
+    {
+      "id": "T105",
+      "category": "口径差异"
+    },
+    {
+      "id": "T106",
+      "category": "跨月归属"
+    },
+    {
+      "id": "T107",
+      "category": "单边缺失"
+    }
+  ],
+  "categories": {
+    "舍入差": [
+      "T101",
+      "T102"
+    ],
+    "重复导入": [
+      "T103"
+    ],
+    "口径差异": [
+      "T104",
+      "T105"
+    ],
+    "跨月归属": [
+      "T106"
+    ],
+    "单边缺失": [
+      "T107"
+    ]
+  },
+  "falsification": "以下任一条成立，本结果即错或须重算：(1) 若 T104/T105 台账侧 tax_included 亦为 N，或出现第三个口径样本且比率≠1.06，则 180.00 应转入金额差异，两字段变为 680.02/0.00；(2) 若 T107 以其他单号出现在账单且金额吻合，则 500.00 退出计入类，amount_diff_total 降至 0.02；(3) 若账单 T103 两行被认定为两笔独立合法交易而非重复导入，则 dedup_amount≠1200.00，闭合式 1200.00+0.02−(500.02+180.00)=520.02 失效；(4) 若 T106 被排除出清单（DIFFSET 取 6 或 4），diff_count 改变，但两个金额字段不变（其差额为 0.00）；(5) 若 CSV 存在 BOM、编码或重复行误读，27/27 行数与任一合计须整体重算；(6) 若人类闸门记录 ADJ-001=count，则本结果的金额拆分作废，改为 680.02/0.00，diff_count 与 diffs 不变。",
+  "aggregation_inputs": [
+    {
+      "seat": "EX-01",
+      "sha256": "1ab232727112c50a57fb9b820b589683715c63f4d25acd4e69c7955a9a235a97",
+      "seat_check_status": "valid"
+    },
+    {
+      "seat": "EX-02",
+      "sha256": "6abe0627f6d62f49575f8586a55f518ef74455f794d3ae2f134069de426ae36b",
+      "seat_check_status": "valid"
+    },
+    {
+      "seat": "EX-03",
+      "sha256": "06c7dadf71dc7a064a126efe2a6d32e9b09708441bd54b860cb1bea606627737",
+      "seat_check_status": "valid"
+    },
+    {
+      "seat": "XJ-01",
+      "sha256": "3d967e651f5c9c23ec07e97e754e64cb9437cdbe29cb8df74f7a0ac6524fa397",
+      "seat_check_status": "valid"
+    }
+  ],
+  "pm_note": "① 本轮存在真实分歧，未抹平：EX-02 在 ADJ-001 上持 count（680.02/0.00），与 EX-01/EX-03 的 exclude（500.02/180.00）正面冲突，且 EX-02 有真实翻边记录（metrics.flip_rate=0.2，1/5）。三方都有证据，故不适用「无证据的多数权重为 0」，也不适用「按票数定案」。本席采纳 exclude，依据是 tax_included 列翻转（非比值反解）+ 两样本同率零残差这两条可回读证据，并对 EX-02 的两项指控逐条复核：循环论证指控只对「比值自证」成立，含税换算指控在机制上不成立（180.00 仍由原始值算出并全额上报，未换算、未抹平）。② 少数派全文保留：EX-02 的结论、金额字段与四条 falsification 已逐字进入 PM-01.diff_preserved，未做任何删改；XJ-01 的 6 条 overlooked_stances（含「500.00 单边缺失也可归入 excluded → 0.02/680.00」这一第三种归属）与 6 条分歧亦保留，权重 0。③ 判断层未裁定，不得假装已裁定：按 protocol/06 §2.3，diff_count/diffs/amount_diff_total/excluded_amount_total 被白名单机械挡在算术层外，属 adjudication 层；本轮不存在 human_adjudication 记录，因此在程序上 ADJ-001 与 DIFFSET 仍为「待裁决」（对应 exit 3），本对象的两个金额字段是 PM 的可回滚临时取值，不是机器裁定，也不是人类裁定。④ 类别名归一化留痕：EX-01 写「口径差」、EX-03 写「口径差异」，TASK.md 要求类别名全程一致，本席统一为「口径差异」，并在 excluded_categories 中使用该名；这是 schema 层的命名归一，不涉两个席位的结论内容。⑤ 自洽校验：amount_diff_total 500.02 + excluded_amount_total 180.00 = 680.02，即 0.02（T101+T102）+ 120.00（T104）+ 60.00（T105）+ 500.00（T107）逐单号闭合，重复项 1200.00 只由 dedup_amount 表达、未参与两桶；有符号复核 0.01+0.01+1200.00−120.00−60.00+0.00−500.00=520.02=raw_total_gap。⑥ 预算如实提示：四席申报 tokens 合计 71100，本轮 cap 为 80000，余量仅 8900；若把本席申报的 24000 计入，tokens_total≈95100 将越过 cap，metrics 会把 budget.status 判为 exhausted 并触发 terminate_branch。这是「6 席流程配 80000 cap」的结构性不足，不应被记为模型失败或数据不足；建议下轮前重设单任务 token 上限。⑦ 权限留痕：本席全程未创建、未修改、未删除任何文件，仅做读取与计算；所有落盘由主会话完成。",
+  "redo": {
+    "triggered_by": "runs/round3/adjudication-record.json（ADJ-001=count，verdict=fail 于 adjudicated.json）",
+    "rule": "ADJ-001=count implies：amount_diff_total=680.02、excluded_amount_total=0.00",
+    "note": "机械改判：数值由裁决记录 × spec implies 唯一确定，verify 复核"
+  }
+}

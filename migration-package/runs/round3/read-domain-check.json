@@ -1,0 +1,927 @@
+{
+  "check": "read_domain",
+  "round_dir": "runs/round3",
+  "round_role": "revision_round",
+  "contract_version": "2.0",
+  "stage": "all",
+  "generated_at": "2026-10-19T17:20:12+08:00",
+  "read_domains": "config/read_domains.json",
+  "applied": true,
+  "verdict": "CLEAN",
+  "hits": [],
+  "per_seat": [
+    {
+      "seat": "EX-01",
+      "status": "valid",
+      "declared_reads": [
+        {
+          "source": "reads[0]",
+          "declared": "runs/round3/prompts/EX-01.md",
+          "canonical": "runs/round3/prompts/EX-01.md",
+          "class": "allow"
+        },
+        {
+          "source": "reads[1]",
+          "declared": "fixtures/TASK.md",
+          "canonical": "fixtures/TASK.md",
+          "class": "allow"
+        },
+        {
+          "source": "reads[2]",
+          "declared": "fixtures/ledger.csv",
+          "canonical": "fixtures/ledger.csv",
+          "class": "allow"
+        },
+        {
+          "source": "reads[3]",
+          "declared": "fixtures/bill.csv",
+          "canonical": "fixtures/bill.csv",
+          "class": "allow"
+        },
+        {
+          "source": "reads[4]",
+          "declared": "protocol/02-辩论协议.md",
+          "canonical": "protocol/02-辩论协议.md",
+          "class": "allow"
+        },
+        {
+          "source": "reads[5]",
+          "declared": "protocol/07-轮次与指标.md",
+          "canonical": "protocol/07-轮次与指标.md",
+          "class": "allow"
+        },
+        {
+          "source": "reads[6]",
+          "declared": "protocol/03-结构审计七查.md",
+          "canonical": "protocol/03-结构审计七查.md",
+          "class": "allow"
+        },
+        {
+          "source": "reads[7]",
+          "declared": "protocol/",
+          "canonical": "protocol/",
+          "class": "allow"
+        },
+        {
+          "source": "reads[8]",
+          "declared": "runs/round3/inputs/",
+          "canonical": "runs/round3/inputs/",
+          "class": "allow"
+        },
+        {
+          "source": "reads[9]",
+          "declared": "runs/round3/inputs/pack-ANON-A.json",
+          "canonical": "runs/round3/inputs/pack-ANON-A.json",
+          "class": "allow"
+        },
+        {
+          "source": "reads[10]",
+          "declared": "runs/round3/inputs/pack-ANON-B.json",
+          "canonical": "runs/round3/inputs/pack-ANON-B.json",
+          "class": "allow"
+        },
+        {
+          "source": "reads[11]",
+          "declared": "runs/round3/inputs/pack-ANON-C.json",
+          "canonical": "runs/round3/inputs/pack-ANON-C.json",
+          "class": "allow"
+        }
+      ],
+      "evidence_derived": [
+        {
+          "source": "evidence[0]",
+          "declared": "fixtures/ledger.csv#T101-T107 + fixtures/bill.csv#T101-T106（逐单号比对 27 行 vs 27 行）",
+          "canonical": "fixtures/bill.csv",
+          "class": "allow"
+        },
+        {
+          "source": "evidence[0]",
+          "declared": "fixtures/ledger.csv#T101-T107 + fixtures/bill.csv#T101-T106（逐单号比对 27 行 vs 27 行）",
+          "canonical": "fixtures/ledger.csv",
+          "class": "allow"
+        },
+        {
+          "source": "evidence[1]",
+          "declared": "fixtures/TASK.md#L69-L81",
+          "canonical": "fixtures/TASK.md",
+          "class": "allow"
+        },
+        {
+          "source": "evidence[2]",
+          "declared": "fixtures/ledger.csv + fixtures/bill.csv 的全表合计（用于闭合检查）",
+          "canonical": "fixtures/bill.csv",
+          "class": "allow"
+        },
+        {
+          "source": "evidence[2]",
+          "declared": "fixtures/ledger.csv + fixtures/bill.csv 的全表合计（用于闭合检查）",
+          "canonical": "fixtures/ledger.csv",
+          "class": "allow"
+        },
+        {
+          "source": "evidence[3]",
+          "declared": "runs/round3/inputs/pack-ANON-C.json#evidence[0..3]",
+          "canonical": "runs/round3/inputs/pack-ANON-C.json",
+          "class": "allow"
+        }
+      ],
+      "severity": "error"
+    },
+    {
+      "seat": "EX-02",
+      "status": "valid",
+      "declared_reads": [
+        {
+          "source": "reads[0]",
+          "declared": "runs/round3/prompts/EX-02.md",
+          "canonical": "runs/round3/prompts/EX-02.md",
+          "class": "allow"
+        },
+        {
+          "source": "reads[1]",
+          "declared": "fixtures/TASK.md",
+          "canonical": "fixtures/TASK.md",
+          "class": "allow"
+        },
+        {
+          "source": "reads[2]",
+          "declared": "fixtures/ledger.csv",
+          "canonical": "fixtures/ledger.csv",
+          "class": "allow"
+        },
+        {
+          "source": "reads[3]",
+          "declared": "fixtures/bill.csv",
+          "canonical": "fixtures/bill.csv",
+          "class": "allow"
+        },
+        {
+          "source": "reads[4]",
+          "declared": "protocol/02-辩论协议.md",
+          "canonical": "protocol/02-辩论协议.md",
+          "class": "allow"
+        },
+        {
+          "source": "reads[5]",
+          "declared": "protocol/06-写入域与判据分层.md",
+          "canonical": "protocol/06-写入域与判据分层.md",
+          "class": "allow"
+        },
+        {
+          "source": "reads[6]",
+          "declared": "runs/round3/inputs/pack-ANON-A.json",
+          "canonical": "runs/round3/inputs/pack-ANON-A.json",
+          "class": "allow"
+        },
+        {
+          "source": "reads[7]",
+          "declared": "runs/round3/inputs/pack-ANON-B.json",
+          "canonical": "runs/round3/inputs/pack-ANON-B.json",
+          "class": "allow"
+        },
+        {
+          "source": "reads[8]",
+          "declared": "runs/round3/inputs/pack-ANON-C.json",
+          "canonical": "runs/round3/inputs/pack-ANON-C.json",
+          "class": "allow"
+        }
+      ],
+      "evidence_derived": [
+        {
+          "source": "evidence[0]",
+          "declared": "fixtures/ledger.csv:26-27 与 fixtures/bill.csv:26-27",
+          "canonical": "fixtures/bill.csv",
+          "class": "allow"
+        },
+        {
+          "source": "evidence[0]",
+          "declared": "fixtures/ledger.csv:26-27 与 fixtures/bill.csv:26-27",
+          "canonical": "fixtures/ledger.csv",
+          "class": "allow"
+        },
+        {
+          "source": "evidence[1]",
+          "declared": "fixtures/TASK.md:49-51,81,85",
+          "canonical": "fixtures/TASK.md",
+          "class": "allow"
+        },
+        {
+          "source": "evidence[2]",
+          "declared": "protocol/02-辩论协议.md:44-51,63",
+          "canonical": "protocol/02-辩论协议.md:44-51,63",
+          "class": "allow"
+        },
+        {
+          "source": "evidence[3]",
+          "declared": "protocol/06-写入域与判据分层.md:91-115",
+          "canonical": "protocol/06-写入域与判据分层.md:91-115",
+          "class": "allow"
+        },
+        {
+          "source": "evidence[4]",
+          "declared": "runs/round3/inputs/pack-ANON-C.json:2,6,21",
+          "canonical": "runs/round3/inputs/pack-ANON-C.json",
+          "class": "allow"
+        },
+        {
+          "source": "evidence[5]",
+          "declared": "runs/round3/inputs/pack-ANON-B.json:21",
+          "canonical": "runs/round3/inputs/pack-ANON-B.json",
+          "class": "allow"
+        }
+      ],
+      "severity": "error"
+    },
+    {
+      "seat": "EX-03",
+      "status": "valid",
+      "declared_reads": [
+        {
+          "source": "reads[0]",
+          "declared": "runs/round3/prompts/EX-03.md",
+          "canonical": "runs/round3/prompts/EX-03.md",
+          "class": "allow"
+        },
+        {
+          "source": "reads[1]",
+          "declared": "fixtures/TASK.md",
+          "canonical": "fixtures/TASK.md",
+          "class": "allow"
+        },
+        {
+          "source": "reads[2]",
+          "declared": "fixtures/ledger.csv",
+          "canonical": "fixtures/ledger.csv",
+          "class": "allow"
+        },
+        {
+          "source": "reads[3]",
+          "declared": "fixtures/bill.csv",
+          "canonical": "fixtures/bill.csv",
+          "class": "allow"
+        },
+        {
+          "source": "reads[4]",
+          "declared": "protocol/06-写入域与判据分层.md",
+          "canonical": "protocol/06-写入域与判据分层.md",
+          "class": "allow"
+        },
+        {
+          "source": "reads[5]",
+          "declared": "protocol/07-轮次与指标.md",
+          "canonical": "protocol/07-轮次与指标.md",
+          "class": "allow"
+        },
+        {
+          "source": "reads[6]",
+          "declared": "protocol/02-辩论协议.md",
+          "canonical": "protocol/02-辩论协议.md",
+          "class": "allow"
+        },
+        {
+          "source": "reads[7]",
+          "declared": "runs/round3/inputs/pack-ANON-A.json",
+          "canonical": "runs/round3/inputs/pack-ANON-A.json",
+          "class": "allow"
+        },
+        {
+          "source": "reads[8]",
+          "declared": "runs/round3/inputs/pack-ANON-B.json",
+          "canonical": "runs/round3/inputs/pack-ANON-B.json",
+          "class": "allow"
+        },
+        {
+          "source": "reads[9]",
+          "declared": "runs/round3/inputs/pack-ANON-C.json",
+          "canonical": "runs/round3/inputs/pack-ANON-C.json",
+          "class": "allow"
+        }
+      ],
+      "evidence_derived": [
+        {
+          "source": "evidence[0]",
+          "declared": "fixtures/ledger.csv:2-29 + fixtures/bill.csv:2-29",
+          "canonical": "fixtures/bill.csv",
+          "class": "allow"
+        },
+        {
+          "source": "evidence[0]",
+          "declared": "fixtures/ledger.csv:2-29 + fixtures/bill.csv:2-29",
+          "canonical": "fixtures/ledger.csv",
+          "class": "allow"
+        },
+        {
+          "source": "evidence[1]",
+          "declared": "fixtures/ledger.csv:26-27 + fixtures/bill.csv:26-27",
+          "canonical": "fixtures/bill.csv",
+          "class": "allow"
+        },
+        {
+          "source": "evidence[1]",
+          "declared": "fixtures/ledger.csv:26-27 + fixtures/bill.csv:26-27",
+          "canonical": "fixtures/ledger.csv",
+          "class": "allow"
+        },
+        {
+          "source": "evidence[2]",
+          "declared": "fixtures/ledger.csv:22-24,28 + fixtures/bill.csv:22-24,28",
+          "canonical": "fixtures/bill.csv",
+          "class": "allow"
+        },
+        {
+          "source": "evidence[2]",
+          "declared": "fixtures/ledger.csv:22-24,28 + fixtures/bill.csv:22-24,28",
+          "canonical": "fixtures/ledger.csv",
+          "class": "allow"
+        },
+        {
+          "source": "evidence[3]",
+          "declared": "protocol/06-写入域与判据分层.md:117-123",
+          "canonical": "protocol/06-写入域与判据分层.md:117-123",
+          "class": "allow"
+        },
+        {
+          "source": "evidence[4]",
+          "declared": "protocol/06-写入域与判据分层.md:70-78",
+          "canonical": "protocol/06-写入域与判据分层.md:70-78",
+          "class": "allow"
+        },
+        {
+          "source": "evidence[5]",
+          "declared": "protocol/07-轮次与指标.md:79-82,120-128",
+          "canonical": "protocol/07-轮次与指标.md:79-82,120-128",
+          "class": "allow"
+        },
+        {
+          "source": "evidence[6]",
+          "declared": "protocol/02-辩论协议.md:17-33",
+          "canonical": "protocol/02-辩论协议.md:17-33",
+          "class": "allow"
+        }
+      ],
+      "severity": "error"
+    },
+    {
+      "seat": "AD-01",
+      "status": "valid",
+      "declared_reads": [
+        {
+          "source": "reads[0]",
+          "declared": "migration-package/（目录列举）",
+          "canonical": "./",
+          "class": "unclassified"
+        },
+        {
+          "source": "reads[1]",
+          "declared": "runs/round3/prompts/AD-01.md",
+          "canonical": "runs/round3/prompts/AD-01.md",
+          "class": "allow"
+        },
+        {
+          "source": "reads[2]",
+          "declared": "protocol/03-结构审计七查.md",
+          "canonical": "protocol/03-结构审计七查.md",
+          "class": "allow"
+        },
+        {
+          "source": "reads[3]",
+          "declared": "protocol/06-写入域与判据分层.md",
+          "canonical": "protocol/06-写入域与判据分层.md",
+          "class": "allow"
+        },
+        {
+          "source": "reads[4]",
+          "declared": "protocol/07-轮次与指标.md",
+          "canonical": "protocol/07-轮次与指标.md",
+          "class": "allow"
+        },
+        {
+          "source": "reads[5]",
+          "declared": "runs/round3/round-manifest.json",
+          "canonical": "runs/round3/round-manifest.json",
+          "class": "allow"
+        },
+        {
+          "source": "reads[6]",
+          "declared": "runs/round3/EX-01.json",
+          "canonical": "runs/round3/EX-01.json",
+          "class": "allow"
+        },
+        {
+          "source": "reads[7]",
+          "declared": "runs/round3/EX-02.json",
+          "canonical": "runs/round3/EX-02.json",
+          "class": "allow"
+        },
+        {
+          "source": "reads[8]",
+          "declared": "runs/round3/EX-03.json",
+          "canonical": "runs/round3/EX-03.json",
+          "class": "allow"
+        },
+        {
+          "source": "reads[9]",
+          "declared": "runs/round3/XJ-01.json",
+          "canonical": "runs/round3/XJ-01.json",
+          "class": "allow"
+        },
+        {
+          "source": "reads[10]",
+          "declared": "runs/round3/PM-01.json",
+          "canonical": "runs/round3/PM-01.json",
+          "class": "allow"
+        },
+        {
+          "source": "reads[11]",
+          "declared": "runs/round3/answer-final.json",
+          "canonical": "runs/round3/answer-final.json",
+          "class": "allow"
+        },
+        {
+          "source": "reads[12]",
+          "declared": "runs/round3/seat-check.json",
+          "canonical": "runs/round3/seat-check.json",
+          "class": "allow"
+        },
+        {
+          "source": "reads[13]",
+          "declared": "runs/round3/seat-check-stageA.json",
+          "canonical": "runs/round3/seat-check-stageA.json",
+          "class": "allow"
+        },
+        {
+          "source": "reads[14]",
+          "declared": "runs/round3/read-domain-check.json",
+          "canonical": "runs/round3/read-domain-check.json",
+          "class": "allow"
+        },
+        {
+          "source": "reads[15]",
+          "declared": "runs/round3/write-domain-check.json",
+          "canonical": "runs/round3/write-domain-check.json",
+          "class": "allow"
+        },
+        {
+          "source": "reads[16]",
+          "declared": "runs/round3/metrics.json",
+          "canonical": "runs/round3/metrics.json",
+          "class": "allow"
+        },
+        {
+          "source": "reads[17]",
+          "declared": "runs/round3/（目录列举）",
+          "canonical": "runs/round3/",
+          "class": "allow"
+        },
+        {
+          "source": "reads[18]",
+          "declared": "runs/round3/inputs/pack-ANON-A.json",
+          "canonical": "runs/round3/inputs/pack-ANON-A.json",
+          "class": "allow"
+        },
+        {
+          "source": "reads[19]",
+          "declared": "runs/round3/inputs/pack-ANON-B.json",
+          "canonical": "runs/round3/inputs/pack-ANON-B.json",
+          "class": "allow"
+        },
+        {
+          "source": "reads[20]",
+          "declared": "runs/round3/inputs/pack-ANON-C.json",
+          "canonical": "runs/round3/inputs/pack-ANON-C.json",
+          "class": "allow"
+        },
+        {
+          "source": "reads[21]",
+          "declared": "runs/round3/presentation/anon-map.json",
+          "canonical": "runs/round3/presentation/anon-map.json",
+          "class": "allow"
+        },
+        {
+          "source": "reads[22]",
+          "declared": "runs/round3/presentation/order.json",
+          "canonical": "runs/round3/presentation/order.json",
+          "class": "allow"
+        },
+        {
+          "source": "reads[23]",
+          "declared": "runs/round3/presentation/redaction.json",
+          "canonical": "runs/round3/presentation/redaction.json",
+          "class": "allow"
+        },
+        {
+          "source": "reads[24]",
+          "declared": "runs/round3/prompts/EX-01.md",
+          "canonical": "runs/round3/prompts/EX-01.md",
+          "class": "allow"
+        },
+        {
+          "source": "reads[25]",
+          "declared": "runs/round2/pending-adjudication.json",
+          "canonical": "runs/round2/pending-adjudication.json",
+          "class": "allow"
+        },
+        {
+          "source": "reads[26]",
+          "declared": "runs/round2/verdict-layered.json",
+          "canonical": "runs/round2/verdict-layered.json",
+          "class": "allow"
+        },
+        {
+          "source": "reads[27]",
+          "declared": "runs/round2/metrics.json",
+          "canonical": "runs/round2/metrics.json",
+          "class": "allow"
+        },
+        {
+          "source": "reads[28]",
+          "declared": "runs/round2/EX-01.json、EX-02.json、EX-03.json",
+          "canonical": "runs/round2/EX-01.json",
+          "class": "allow"
+        },
+        {
+          "source": "reads[28]",
+          "declared": "runs/round2/EX-01.json、EX-02.json、EX-03.json",
+          "canonical": "runs/round3/EX-02.json",
+          "class": "allow"
+        },
+        {
+          "source": "reads[28]",
+          "declared": "runs/round2/EX-01.json、EX-02.json、EX-03.json",
+          "canonical": "runs/round3/EX-03.json",
+          "class": "allow"
+        },
+        {
+          "source": "reads[29]",
+          "declared": "runs/round2/answer-final.json",
+          "canonical": "runs/round2/answer-final.json",
+          "class": "allow"
+        },
+        {
+          "source": "reads[30]",
+          "declared": "runs/round2/seat-check.json",
+          "canonical": "runs/round2/seat-check.json",
+          "class": "allow"
+        },
+        {
+          "source": "reads[31]",
+          "declared": "fixtures/TASK.md",
+          "canonical": "fixtures/TASK.md",
+          "class": "allow"
+        },
+        {
+          "source": "reads[32]",
+          "declared": "fixtures/ledger.csv",
+          "canonical": "fixtures/ledger.csv",
+          "class": "allow"
+        },
+        {
+          "source": "reads[33]",
+          "declared": "fixtures/bill.csv",
+          "canonical": "fixtures/bill.csv",
+          "class": "allow"
+        }
+      ],
+      "evidence_derived": [
+        {
+          "source": "evidence[0]",
+          "declared": "runs/round3/answer-final.json",
+          "canonical": "runs/round3/answer-final.json",
+          "class": "allow"
+        },
+        {
+          "source": "evidence[1]",
+          "declared": "runs/round3/seat-check.json 与 runs/round3/seat-check-stageA.json",
+          "canonical": "runs/round3/seat-check-stageA.json",
+          "class": "allow"
+        },
+        {
+          "source": "evidence[1]",
+          "declared": "runs/round3/seat-check.json 与 runs/round3/seat-check-stageA.json",
+          "canonical": "runs/round3/seat-check.json",
+          "class": "allow"
+        },
+        {
+          "source": "evidence[2]",
+          "declared": "runs/round3/inputs/pack-ANON-C.json#conclusion",
+          "canonical": "runs/round3/inputs/pack-ANON-C.json",
+          "class": "allow"
+        },
+        {
+          "source": "evidence[3]",
+          "declared": "runs/round3/presentation/redaction.json",
+          "canonical": "runs/round3/presentation/redaction.json",
+          "class": "allow"
+        },
+        {
+          "source": "evidence[4]",
+          "declared": "fixtures/ledger.csv:26-28 与 fixtures/bill.csv:26-27",
+          "canonical": "fixtures/bill.csv",
+          "class": "allow"
+        },
+        {
+          "source": "evidence[4]",
+          "declared": "fixtures/ledger.csv:26-28 与 fixtures/bill.csv:26-27",
+          "canonical": "fixtures/ledger.csv",
+          "class": "allow"
+        },
+        {
+          "source": "evidence[5]",
+          "declared": "runs/round3/metrics.json#dissent_entropy",
+          "canonical": "runs/round3/metrics.json",
+          "class": "allow"
+        },
+        {
+          "source": "evidence[6]",
+          "declared": "runs/round2/pending-adjudication.json 与 runs/round2/verdict-layered.json",
+          "canonical": "runs/round2/pending-adjudication.json",
+          "class": "allow"
+        },
+        {
+          "source": "evidence[6]",
+          "declared": "runs/round2/pending-adjudication.json 与 runs/round2/verdict-layered.json",
+          "canonical": "runs/round2/verdict-layered.json",
+          "class": "allow"
+        },
+        {
+          "source": "evidence[7]",
+          "declared": "runs/round3/write-domain-check.json 与 runs/round3/read-domain-check.json",
+          "canonical": "runs/round3/read-domain-check.json",
+          "class": "allow"
+        },
+        {
+          "source": "evidence[7]",
+          "declared": "runs/round3/write-domain-check.json 与 runs/round3/read-domain-check.json",
+          "canonical": "runs/round3/write-domain-check.json",
+          "class": "allow"
+        }
+      ],
+      "severity": "error"
+    },
+    {
+      "seat": "PM-01",
+      "status": "valid",
+      "declared_reads": [
+        {
+          "source": "reads[0]",
+          "declared": "runs/round3/prompts/PM-01.md",
+          "canonical": "runs/round3/prompts/PM-01.md",
+          "class": "allow"
+        },
+        {
+          "source": "reads[1]",
+          "declared": "fixtures/TASK.md",
+          "canonical": "fixtures/TASK.md",
+          "class": "allow"
+        },
+        {
+          "source": "reads[2]",
+          "declared": "fixtures/ledger.csv",
+          "canonical": "fixtures/ledger.csv",
+          "class": "allow"
+        },
+        {
+          "source": "reads[3]",
+          "declared": "fixtures/bill.csv",
+          "canonical": "fixtures/bill.csv",
+          "class": "allow"
+        },
+        {
+          "source": "reads[4]",
+          "declared": "protocol/02-辩论协议.md",
+          "canonical": "protocol/02-辩论协议.md",
+          "class": "allow"
+        },
+        {
+          "source": "reads[5]",
+          "declared": "protocol/06-写入域与判据分层.md",
+          "canonical": "protocol/06-写入域与判据分层.md",
+          "class": "allow"
+        },
+        {
+          "source": "reads[6]",
+          "declared": "protocol/07-轮次与指标.md",
+          "canonical": "protocol/07-轮次与指标.md",
+          "class": "allow"
+        },
+        {
+          "source": "reads[7]",
+          "declared": "runs/round3/EX-01.json",
+          "canonical": "runs/round3/EX-01.json",
+          "class": "allow"
+        },
+        {
+          "source": "reads[8]",
+          "declared": "runs/round3/EX-02.json",
+          "canonical": "runs/round3/EX-02.json",
+          "class": "allow"
+        },
+        {
+          "source": "reads[9]",
+          "declared": "runs/round3/EX-03.json",
+          "canonical": "runs/round3/EX-03.json",
+          "class": "allow"
+        },
+        {
+          "source": "reads[10]",
+          "declared": "runs/round3/XJ-01.json",
+          "canonical": "runs/round3/XJ-01.json",
+          "class": "allow"
+        },
+        {
+          "source": "reads[11]",
+          "declared": "runs/round3/seat-check.json",
+          "canonical": "runs/round3/seat-check.json",
+          "class": "allow"
+        },
+        {
+          "source": "reads[12]",
+          "declared": "runs/round3/metrics.json",
+          "canonical": "runs/round3/metrics.json",
+          "class": "allow"
+        },
+        {
+          "source": "reads[13]",
+          "declared": "runs/round3/round-manifest.json",
+          "canonical": "runs/round3/round-manifest.json",
+          "class": "allow"
+        },
+        {
+          "source": "reads[14]",
+          "declared": "runs/round3/",
+          "canonical": "runs/round3/",
+          "class": "allow"
+        },
+        {
+          "source": "reads[15]",
+          "declared": "protocol/",
+          "canonical": "protocol/",
+          "class": "allow"
+        },
+        {
+          "source": "reads[16]",
+          "declared": "fixtures/",
+          "canonical": "fixtures/",
+          "class": "unclassified"
+        }
+      ],
+      "evidence_derived": [
+        {
+          "source": "evidence[0]",
+          "declared": "fixtures/ledger.csv:25-27 + fixtures/bill.csv:26-27",
+          "canonical": "fixtures/bill.csv",
+          "class": "allow"
+        },
+        {
+          "source": "evidence[0]",
+          "declared": "fixtures/ledger.csv:25-27 + fixtures/bill.csv:26-27",
+          "canonical": "fixtures/ledger.csv",
+          "class": "allow"
+        },
+        {
+          "source": "evidence[1]",
+          "declared": "fixtures/TASK.md#L49-L51,L74-L81",
+          "canonical": "fixtures/TASK.md",
+          "class": "allow"
+        },
+        {
+          "source": "evidence[2]",
+          "declared": "runs/round3/EX-02.json#conclusion",
+          "canonical": "runs/round3/EX-02.json",
+          "class": "allow"
+        },
+        {
+          "source": "evidence[3]",
+          "declared": "runs/round3/XJ-01.json#overlooked_stances",
+          "canonical": "runs/round3/XJ-01.json",
+          "class": "allow"
+        },
+        {
+          "source": "evidence[4]",
+          "declared": "protocol/02-辩论协议.md#L44-L52",
+          "canonical": "protocol/02-辩论协议.md#L44-L52",
+          "class": "allow"
+        },
+        {
+          "source": "evidence[5]",
+          "declared": "protocol/06-写入域与判据分层.md#L91-L115",
+          "canonical": "protocol/06-写入域与判据分层.md#L91-L115",
+          "class": "allow"
+        },
+        {
+          "source": "evidence[6]",
+          "declared": "runs/round3/seat-check.json#aggregation_admissible",
+          "canonical": "runs/round3/seat-check.json",
+          "class": "allow"
+        },
+        {
+          "source": "evidence[7]",
+          "declared": "runs/round3/metrics.json#flip_rate",
+          "canonical": "runs/round3/metrics.json",
+          "class": "allow"
+        }
+      ],
+      "severity": "error"
+    },
+    {
+      "seat": "XJ-01",
+      "status": "valid",
+      "declared_reads": [
+        {
+          "source": "reads[0]",
+          "declared": "runs/round3/prompts/XJ-01.md",
+          "canonical": "runs/round3/prompts/XJ-01.md",
+          "class": "allow"
+        },
+        {
+          "source": "reads[1]",
+          "declared": "fixtures/TASK.md",
+          "canonical": "fixtures/TASK.md",
+          "class": "allow"
+        },
+        {
+          "source": "reads[2]",
+          "declared": "runs/round3/inputs/pack-ANON-A.json",
+          "canonical": "runs/round3/inputs/pack-ANON-A.json",
+          "class": "allow"
+        },
+        {
+          "source": "reads[3]",
+          "declared": "runs/round3/inputs/pack-ANON-B.json",
+          "canonical": "runs/round3/inputs/pack-ANON-B.json",
+          "class": "allow"
+        },
+        {
+          "source": "reads[4]",
+          "declared": "runs/round3/inputs/pack-ANON-C.json",
+          "canonical": "runs/round3/inputs/pack-ANON-C.json",
+          "class": "allow"
+        },
+        {
+          "source": "reads[5]",
+          "declared": "protocol/04-双裁判规范.md",
+          "canonical": "protocol/04-双裁判规范.md",
+          "class": "allow"
+        },
+        {
+          "source": "reads[6]",
+          "declared": "protocol/06-写入域与判据分层.md",
+          "canonical": "protocol/06-写入域与判据分层.md",
+          "class": "allow"
+        }
+      ],
+      "evidence_derived": [
+        {
+          "source": "evidence[0]",
+          "declared": "runs/round3/inputs/pack-ANON-C.json#conclusion",
+          "canonical": "runs/round3/inputs/pack-ANON-C.json",
+          "class": "allow"
+        },
+        {
+          "source": "evidence[1]",
+          "declared": "runs/round3/inputs/pack-ANON-B.json#evidence",
+          "canonical": "runs/round3/inputs/pack-ANON-B.json",
+          "class": "allow"
+        },
+        {
+          "source": "evidence[2]",
+          "declared": "runs/round3/inputs/pack-ANON-B.json#strongest_counter_arguments",
+          "canonical": "runs/round3/inputs/pack-ANON-B.json",
+          "class": "allow"
+        },
+        {
+          "source": "evidence[3]",
+          "declared": "runs/round3/inputs/pack-ANON-A.json#needs_more_data",
+          "canonical": "runs/round3/inputs/pack-ANON-A.json",
+          "class": "allow"
+        },
+        {
+          "source": "evidence[4]",
+          "declared": "fixtures/TASK.md#L49-L51 与 #L69-L81",
+          "canonical": "fixtures/TASK.md",
+          "class": "allow"
+        },
+        {
+          "source": "evidence[5]",
+          "declared": "protocol/06-写入域与判据分层.md#L98-L136",
+          "canonical": "protocol/06-写入域与判据分层.md#L98-L136",
+          "class": "allow"
+        },
+        {
+          "source": "evidence[6]",
+          "declared": "protocol/04-双裁判规范.md#L86-L118",
+          "canonical": "protocol/04-双裁判规范.md#L86-L118",
+          "class": "allow"
+        }
+      ],
+      "severity": "error"
+    }
+  ],
+  "summary": {
+    "seats": 6,
+    "hits": 0,
+    "seats_declaring_reads": 6
+  },
+  "boundary": "本文件是【声明式下界】：CLEAN 只说明「没有可检出的越界」，不说明「没有越界」。席位读取未申报的文件，对脚本完全不可见。",
+  "action": "PASS"
+}

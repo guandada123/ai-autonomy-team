@@ -1,0 +1,111 @@
+{
+ "task_id": "T-04",
+ "round": 11,
+ "aggregated_by": "PM-01",
+ "summary": {
+  "ledger_rows": 5,
+  "bill_rows": 8,
+  "ledger_total": 252800.0,
+  "bill_total": 279440.0,
+  "raw_total_gap": 26640.0,
+  "dedup_removed_txn_count": 0,
+  "dedup_amount": 0.0,
+  "diff_count": 6,
+  "amount_diff_total": 26640.0,
+  "excluded_amount_total": 0.0,
+  "fee_diff_total": 6.79,
+  "excluded_categories": [
+   "股数不符(送转)",
+   "日期口径差"
+  ]
+ },
+ "diffs": [
+  {
+   "id": "T027",
+   "category": "成交价与费用不一致"
+  },
+  {
+   "id": "T028",
+   "category": "单侧遗漏-券商有自记账无（中签买入）"
+  },
+  {
+   "id": "T029",
+   "category": "单侧遗漏-券商有自记账无（现金分红）"
+  },
+  {
+   "id": "T030",
+   "category": "股数不符(送转)"
+  },
+  {
+   "id": "T031",
+   "category": "单侧遗漏-券商有自记账无（现金分红）"
+  },
+  {
+   "id": "T032",
+   "category": "日期口径差"
+  }
+ ],
+ "categories": {
+  "成交价与费用不一致": [
+   "T027"
+  ],
+  "单侧遗漏-券商有自记账无（中签买入）": [
+   "T028"
+  ],
+  "单侧遗漏-券商有自记账无（现金分红）": [
+   "T029",
+   "T031"
+  ],
+  "股数不符(送转)": [
+   "T030"
+  ],
+  "日期口径差": [
+   "T032"
+  ]
+ },
+ "falsification": "本结论在以下任一条件成立时为错：①若自记账的入账口径被证实为「按交割日入账」而非「按成交日入账」，则日期基准应改为 settle_date，T025/T026 转入差异、T032 退出，diff_count 应由 6 变 7（金额字段不变）；②若协议或规格对 TASK.md D 段的「日期」列给出 date↔settle_date 的显式映射，同样推翻第①条的比对基准；③若现金分红 260.00×2 被判为「不计入金额差异」的口径外项目，则 amount_diff_total 应为 26120.00、excluded_amount_total 应为 520.00（总额 26640.00 不变，故闭合式无法区分此二读法）；④若 T028「中签买入」并非真实成交（如撤销/未成交），则 26000.00 不应计入，amount_diff_total 降为 640.00 且 raw_total_gap 无法闭合；⑤若任一 txn_id 在单侧出现≥2 次，则 dedup_removed_txn_count 与 dedup_amount 应大于 0，当前 dedup=0 不成立；⑥若 T030 送转行在交割单侧的 amount 非 0，则「口径差对金额零贡献」不成立。以上六条均由独立 Decimal 复算脚本在两份 CSV 全量 5+8 行上执行，与本产出摘要的一处差异（26640.00 = 120.00 + 26000.00 + 260.00 + 260.00，残差 0.00）互为校验。",
+ "diff_preserved": [
+  {
+   "side": "多数",
+   "conclusion": "日期比对基准取 trade_date（ledger.date ↔ bill.trade_date），diff_count=6：T027/T028/T029/T030/T031/T032；T032 因 date=2026-09-16 ≠ trade_date=2026-09-15 而列入「日期口径差」，T025/T026 四列全同不列入。持此立场：EX-01、EX-03（2/3 席）。",
+   "falsification": "若自记账账套被证实按交割日入账，或 spec 给出 date↔settle_date 的显式映射，则本结论失效，应改判 7 条（T025/T026 转入、T032 退出）。"
+  },
+  {
+   "side": "少数",
+   "conclusion": "日期比对基准取 settle_date（TASK.md 将 ledger.date 定义为「入账日」，资金入账发生在交割 T+1），diff_count=7：T025/T026/T027/T028/T029/T030/T031；T032 四列（100 股／13800.00／5.14／09-16）全同，属口径制造的伪阳性。持此立场：EX-02（1/3 席）。",
+   "falsification": "若账套被证实按成交日入账，则本结论失效。现成反证：ledger 5 行中 4 行（T025/T026/T027/T030）date 恰等于 trade_date，仅 T032 等于 settle_date；且 ledger 对 T032 自注「按交割日入账」、bill 自注「按成交日列示」，即该行差异是数据显式标记的既知差异，而非基准本身。"
+  },
+  {
+   "side": "多数",
+   "conclusion": "现金分红 T029/T031（各 260.00）计入「计入金额差异」，amount_diff_total=26640.00、excluded_amount_total=0.00、excluded_categories 只含零金额类别（股数不符(送转)、日期口径差）。持此数值者：EX-01（summary 口径）、EX-02（stance=count），2/3 席。理由：ledger 侧零记录，是实质漏记而非口径换算，降级为排除会让 520.00 从待补记清单消失。",
+   "falsification": "若「金额差异」被限定为成交金额口径（股息非成交、shares=0 且三费全 0），则应改为 amount_diff_total=26120.00、excluded_amount_total=520.00、excluded_categories 含「单侧遗漏-券商有自记账无（现金分红）」。注意二者总额均为 26640.00，闭合式无法证伪其中任一读法。"
+  },
+  {
+   "side": "少数",
+   "conclusion": "股息属资金流水而非成交金额，应排除在外：amount_diff_total=26120.00、excluded_amount_total=520.00、excluded_categories=[\"单侧存在-现金分红\"]。持此立场：EX-03（1/3 席）。",
+   "falsification": "若 T029/T031 在自记账侧另有现金流水账且已单独入账（即非漏记），或协议把现金分红明确纳入金额差异，则本结论失效。"
+  },
+  {
+   "side": "少数",
+   "conclusion": "EX-03 的 falsification② 称「settle 基准得 8 条、超出 {4,5,6,7} 选项空间」——方向（8 超空间）正确但推导错误：settle 基准下 T032 因 date=settle_date 退出，独立复算实得 7 条，7 在选项空间内。其「gap 已被 6 条精确填满，多报必超 gap」的论证亦不成立：T025/T026/T030/T032 均为零金额差异，条数与金额闭合解耦。",
+   "falsification": "若逐单复算显示 settle 基准确得 8 条（即存在第 8 个四列不全同的单号），则此条修正为错；本修正基于 Decimal 复算的逐单输出，若该脚本存在列错位或编码错误则一并失效。"
+  }
+ ],
+ "aggregation_inputs": [
+  {
+   "seat": "EX-01",
+   "sha256": "e0f5444475b031acfb9ae3ae50e62c7760ef04e6a983ae6769d5e27aa7477fcc",
+   "seat_check_status": "valid"
+  },
+  {
+   "seat": "EX-02",
+   "sha256": "0f7a8706ae479b0214cab2db624f2a76f9f2cf3e5766734b9b9de13a1e4f09f7",
+   "seat_check_status": "valid"
+  },
+  {
+   "seat": "EX-03",
+   "sha256": "8d5ad6f6b299690bb8b0f4450b3347ee00338715724ccf0d0e8733efd3a88aa7",
+   "seat_check_status": "valid"
+  }
+ ]
+}

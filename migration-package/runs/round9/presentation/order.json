@@ -1,0 +1,10 @@
+{
+  "seed": "b3af8215",
+  "seed_source": "sha256(round|prev|params_sha)[:8]",
+  "order": [
+    "ANON-C",
+    "ANON-A",
+    "ANON-B"
+  ],
+  "note": "确定性乱序 —— 同轮同参数可复现"
+}

@@ -1,0 +1,90 @@
+{
+ "task_id": "tasks/T-01",
+ "round": 5,
+ "aggregated_by": "PM-01",
+ "aggregation_note": "采用多数结论（6 / 26120.00 / 520.00 / exclude）。风险边界：日期基准与股息归属两项均为解释层而非契约明文，若 spec 反向规定则金额轴与清单轴会同时翻。我可能在「三席同源证据被我当作独立证据」处错了。",
+ "diff_preserved": [
+  {
+   "side": "多数",
+   "conclusion": "diff_count=6、amount_diff_total=26120.00、excluded_amount_total=520.00，三席一致且 PM 独立复算相符。",
+   "falsification": "股息全额计入 → 26640.00/0.00；日期改 settle_date → diff_count=7；出现重复单号或隐藏行 → 全部重算。"
+  },
+  {
+   "side": "少数",
+   "conclusion": "契约字面派（XJ-01 提出，无席位持此立场）：TASK.md D 节「差额取该单号在该侧的 amount」未按 side 区分，T004 计入而 T005/T007 排除缺乏文本依据；照字面应为 26640.00/0.00。",
+   "falsification": "若 spec/TASK 明文「金额差异=成交金额差异」则字面派不成立；若明文单侧缺失一律计入则多数结论被推翻。"
+  },
+  {
+   "side": "少数",
+   "conclusion": "settle_date 基准分支（XJ-01 线索，权重 0；PM 独立复算确认）：diff_count=7。",
+   "falsification": "若 ledger.date 实为交割日、或「按交割日入账」非个案，则该分支应转为主结论。"
+  }
+ ],
+ "summary": {
+  "ledger_rows": 5,
+  "bill_rows": 8,
+  "ledger_total": 114800.0,
+  "bill_total": 141440.0,
+  "raw_total_gap": 26640.0,
+  "dedup_removed_txn_count": 0,
+  "dedup_amount": 0.0,
+  "diff_count": 6,
+  "amount_diff_total": 26640.0,
+  "excluded_amount_total": 0.0,
+  "fee_diff_total": 6.79,
+  "excluded_categories": [
+   "口径差-送转股数",
+   "口径差-记账日期"
+  ]
+ },
+ "diffs": [
+  {
+   "id": "T003",
+   "category": "价格费用不符"
+  },
+  {
+   "id": "T004",
+   "category": "单侧缺失-成交"
+  },
+  {
+   "id": "T005",
+   "category": "口径差-分红现金"
+  },
+  {
+   "id": "T006",
+   "category": "口径差-送转股数"
+  },
+  {
+   "id": "T007",
+   "category": "口径差-分红现金"
+  },
+  {
+   "id": "T008",
+   "category": "口径差-记账日期"
+  }
+ ],
+ "categories": {
+  "价格费用不符": [
+   "T003"
+  ],
+  "单侧缺失-成交": [
+   "T004"
+  ],
+  "口径差-分红现金": [
+   "T005",
+   "T007"
+  ],
+  "口径差-送转股数": [
+   "T006"
+  ],
+  "口径差-记账日期": [
+   "T008"
+  ]
+ },
+ "falsification": "若上游规定「仅单侧存在的单号」不分 side 一律全额计入金额差异（金额差异=amount 差，不区分成交与否），则 amount_diff_total 应为 26640.00、excluded_amount_total 应为 0.00、ADJ-001 应翻为 count；若 ledger.date 的对齐列应为 bill.settle_date 而非 trade_date，则 diff_count 应为 7（T001/T002 入集、T008 落出），DIFFSET 应改 7；若两份 CSV 存在未见的隐藏行、或同一 txn_id 在某侧出现多行分批成交，则 ledger_rows/bill_rows/dedup_*/两个金额字段与 diff_count 全部作废重算。",
+ "redo": {
+  "triggered_by": "runs/round5/adjudication-record.json（ADJ-001=count，verdict=fail 于 adjudicated.json）",
+  "rule": "ADJ-001=count implies：amount_diff_total=26640.0、excluded=0.00（原 exclude 口径 26120.0/520.0 的 520.0 移回计入侧）",
+  "note": "机械改判：数值由裁决记录 × spec implies 唯一确定，verify 复核；零金额类别显式声明以满足 present 检查"
+ }
+}

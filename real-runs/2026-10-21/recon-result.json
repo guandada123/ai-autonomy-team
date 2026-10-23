@@ -1,0 +1,111 @@
+{
+  "source": "/Volumes/ZHITAI/WorkBuddy/Claw/.workbuddy/data/simulation/portfolio.json",
+  "generated_from": "real_recon.py",
+  "coverage": {
+    "transactions": 21,
+    "first_tx": "2026-07-09",
+    "last_tx": "2026-10-20"
+  },
+  "summary": {
+    "cash": "46829.3",
+    "positions": {
+      "600036": 100
+    },
+    "total_asset": "51057.3",
+    "effective_capital": "50000.0",
+    "return_pct": "2.11"
+  },
+  "checks": [
+    {
+      "id": "I1",
+      "name": "现金恒等",
+      "expect": "46829.30",
+      "actual": "46829.3",
+      "ok": true,
+      "note": "本金 + 加仓 − 买入 + 卖出净；adjustments 为冲销备忘录，不参与"
+    },
+    {
+      "id": "I2",
+      "name": "持仓股数 000333",
+      "expect": "0",
+      "actual": "0",
+      "ok": true,
+      "note": "Σ买入股数 − Σ卖出股数"
+    },
+    {
+      "id": "I2",
+      "name": "持仓股数 600031",
+      "expect": "0",
+      "actual": "0",
+      "ok": true,
+      "note": "Σ买入股数 − Σ卖出股数"
+    },
+    {
+      "id": "I2",
+      "name": "持仓股数 600036",
+      "expect": "100",
+      "actual": "100",
+      "ok": true,
+      "note": "Σ买入股数 − Σ卖出股数"
+    },
+    {
+      "id": "I3",
+      "name": "持仓成本 600036",
+      "expect": "3893.50",
+      "actual": "3893.5",
+      "ok": true,
+      "note": "买入总额按剩余股数均摊（含佣金）"
+    },
+    {
+      "id": "I2",
+      "name": "持仓股数 600900",
+      "expect": "0",
+      "actual": "0",
+      "ok": true,
+      "note": "Σ买入股数 − Σ卖出股数"
+    },
+    {
+      "id": "I2",
+      "name": "持仓股数 601668",
+      "expect": "0",
+      "actual": "0",
+      "ok": true,
+      "note": "Σ买入股数 − Σ卖出股数"
+    },
+    {
+      "id": "I2",
+      "name": "持仓股数 601899",
+      "expect": "0",
+      "actual": "0",
+      "ok": true,
+      "note": "Σ买入股数 − Σ卖出股数"
+    },
+    {
+      "id": "I4",
+      "name": "市值 600036",
+      "expect": "4228.00",
+      "actual": "4228.0",
+      "ok": true,
+      "note": "current_price × shares"
+    },
+    {
+      "id": "I5",
+      "name": "浮盈 600036",
+      "expect": "334.50",
+      "actual": "334.5",
+      "ok": true,
+      "note": "market_value − total_cost"
+    },
+    {
+      "id": "I6",
+      "name": "同义字段 600036（已收敛）",
+      "expect": "—",
+      "actual": "—",
+      "ok": true,
+      "note": "单一真源：pnl 已移除，只保留 floating_pnl"
+    }
+  ],
+  "diffs": [],
+  "verdict": "closed",
+  "falsification": "任一恒等式在给定 transactions/cash/positions 下不成立，即本次结论错；全部数字可由 --portfolio 指向的文件逐笔重算。"
+}

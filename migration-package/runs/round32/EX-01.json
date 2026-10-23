@@ -1,0 +1,95 @@
+{
+  "seat": "EX-01",
+  "round": 32,
+  "conclusion": "逐行复算：7/8 行、合计 299400.00/299780.00、raw_gap 380.00、无重复单号；六条差异（T115/T116/T117/T118/T119/T120）按契约字面全部计入，amount_diff_total=380.00、excluded_amount_total=0.00。",
+  "evidence": [
+    {
+      "pointer": "fixtures/tasks/T-15/ledger.csv#amount（7 行）",
+      "what_it_shows": "合计 299400.00；7 行；txn_id 互异→重复 0"
+    },
+    {
+      "pointer": "fixtures/tasks/T-15/bill.csv#amount（8 行）",
+      "what_it_shows": "合计 299780.00；8 行；raw_gap 380.00"
+    },
+    {
+      "pointer": "fixtures/tasks/T-15/ledger.csv#date × bill#trade_date",
+      "what_it_shows": "仅 T120 不等（09-16 vs 09-15），余 6 号全等"
+    },
+    {
+      "pointer": "fixtures/tasks/T-15/TASK.md#D 口径",
+      "what_it_shows": "单侧单号亦为差异，差额取该侧 amount→T119 计 260.00"
+    },
+    {
+      "pointer": "fixtures/tasks/T-15/bill.csv#T119",
+      "what_it_shows": "shares=0、price=0、amount=260.00；集合差 {T119}"
+    }
+  ],
+  "falsification": "若契约规定「日期一律按 settle_date 比对」，则 T113/T114 转为差异、T120 取消，条数为 7 而非 6；若规定「非成交类单侧项不计入成交金额差异」，则 380.00 须拆为 120.00 与 260.00。任一成真，本结论的条数与金额均错。",
+  "reads": [
+    {
+      "path": "runs/round32/prompts/EX-01.md",
+      "purpose": "本席位提示词（其余两份席位提示词由编排层统一读取，未进入本席位证据链，故不在本席位 reads 内申报）"
+    },
+    {
+      "path": "fixtures/tasks/T-15/TASK.md",
+      "purpose": "字段计算方法、四列差异口径、四个易错点"
+    },
+    {
+      "path": "fixtures/tasks/T-15/ledger.csv",
+      "purpose": "逐行读取自记账 7 行并合计 amount"
+    },
+    {
+      "path": "fixtures/tasks/T-15/bill.csv",
+      "purpose": "逐行读取交割单 8 行并合计 amount"
+    },
+    {
+      "path": "protocol/06-写入域与判据分层.md",
+      "purpose": "确认 diff_count/amount_diff_total 属 adjudication 层、不设 expected"
+    },
+    {
+      "path": "protocol/02-辩论协议.md",
+      "purpose": "确认证据制聚合与 falsification 必填"
+    }
+  ],
+  "dissent": [
+    {
+      "against": "ANON-B",
+      "reason": "把 T119 的 260.00 归入「不计入」缺乏契约依据：D 段明文将单侧单号纳入差异并以该侧 amount 计差额，排除它等于用自定类别改写一个算术可见的总差（380.00），而 380.00 恰等于 raw_total_gap，可被独立复算证伪；120.00+260.00 的切分则只能由类别定义自证。",
+      "reverse_evidence": "若 spec 的 excluded_categories 含「非交易项/权益项」且 excluded_amount_total=260.00、amount_diff_total=120.00，则我错，ANON-B 对。"
+    }
+  ],
+  "confidence": "medium",
+  "needs_more_data": [
+    "缺规则：ledger.date 应比对 bill.trade_date 还是 settle_date，契约未指定（导致 6 条 / 7 条两解，非数据缺口）",
+    "缺规则：非成交类权益项（T119 股息 260.00）是否属「成交金额差异」，契约未定义（非数据缺口）",
+    "缺数据：无 —— 两侧行级数据完整，8 个单号全部可定位，无缺失行"
+  ],
+  "stance": [
+    {
+      "axis": "ADJ-001",
+      "choice": "count"
+    },
+    {
+      "axis": "DIFFSET",
+      "choice": "6"
+    }
+  ],
+  "summary": {
+    "ledger_rows": 7,
+    "bill_rows": 8,
+    "ledger_total": 299400.00,
+    "bill_total": 299780.00,
+    "raw_total_gap": 380.00,
+    "dedup_removed_txn_count": 0,
+    "dedup_amount": 0.00,
+    "diff_count": 6,
+    "amount_diff_total": 380.00,
+    "excluded_amount_total": 0.00,
+    "excluded_categories": []
+  },
+  "usage": {
+    "tokens": 9800,
+    "minutes": 9,
+    "source": "self_report"
+  }
+}

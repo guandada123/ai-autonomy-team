@@ -1,0 +1,117 @@
+{
+  "round": 27,
+  "seat": "PM-01",
+  "role": "唯一写入者（项目经理）",
+  "board": [
+    {
+      "id": "T-08/EX-01",
+      "owner": "EX-01",
+      "state": "通过",
+      "next_action": "无（结论已并入 answer-final.json；其 76120.00/520.00 被采纳）",
+      "blocker": "无",
+      "evidence": "runs/round27/EX-01.json（sha256 0ebb3c1b…81ce6）；fixtures/tasks/T-08/{ledger.csv,bill.csv}",
+      "judge": "pass",
+      "deadline": "round27 关闭前"
+    },
+    {
+      "id": "T-08/EX-02",
+      "owner": "EX-02",
+      "state": "通过",
+      "next_action": "无（少数派结论 76640.00/0.00 已原样留痕于 answer-final.json 的 diff_preserved 与 PM-01.json 的 alternatives_rejected，未被改写）",
+      "blocker": "无",
+      "evidence": "runs/round27/EX-02.json（sha256 f3b47743…139d）；fixtures/tasks/T-08/TASK.md §D 末句",
+      "judge": "pass",
+      "deadline": "round27 关闭前"
+    },
+    {
+      "id": "T-08/EX-03",
+      "owner": "EX-03",
+      "state": "通过",
+      "next_action": "无（可执行方案与回滚三级并入 risk.rollback；开关 --include-nontrade-cash 作为被拒选项记录）",
+      "blocker": "无",
+      "evidence": "runs/round27/EX-03.json（sha256 bd3bbda5…daf9）；fixtures/tasks/T-08/bill.csv#T060,T061,T063:amount",
+      "judge": "pass",
+      "deadline": "round27 关闭前"
+    },
+    {
+      "id": "T-08/ADJ-001",
+      "owner": "PM-01",
+      "state": "待裁",
+      "next_action": "人类闸门签署「现金分红是否计入 amount_diff_total」；默认按多数 exclude 报送，签字后可一参数翻回 76640.00/0.00",
+      "blocker": "契约未定义「计入/不计入」判据（判断层缺口，非数据缺口），只能由人类裁决，机器不得自行冒充",
+      "evidence": "runs/round27/answer-final.json#diff_preserved；protocol/06 §判据分层",
+      "judge": "无",
+      "deadline": "报送前"
+    }
+  ],
+  "decision": "采用多数席位结论（ADJ-001=exclude）：diff_count=6、amount_diff_total=76120.00、excluded_amount_total=520.00、excluded_categories=[\"非交易现金流-现金分红\"]，raw_total_gap=76640.00 由 diff_preserved 留痕；DIFFSET 采用 6（日期按 trade_date 对齐）。少数派 EX-02 的 count（76640.00/0.00）一字未改地保留，待人类闸门裁决。",
+  "basis": [
+    "独立 Decimal 复算（不引用任何席位数字）：ledger 5 行合计 258820.00、bill 8 行合计 335460.00、gap 76640.00、两侧单号唯一（去重 0/0.00）；逐单号四列比对得差异 6 条 T059–T064，分项 120.00／76000.00／260.00／0.00／260.00／0.00，合计 76640.00，与 76120.00+520.00+0.00 勾稽一致。",
+    "TASK.md §C 注1 把 amount 定义为「成交金额」并禁止与 fee 相加、禁止净额换算；T061/T063 为 side=股息入账、shares=0、price=0.00，其 260.00 是现金分红流入而非成交金额，计入「成交金额差异合计」会污染该轴语义。",
+    "TASK.md §C 同时把 excluded_amount_total 与 excluded_categories 列为一级字段，契约本身为「不计入」类别预留了位置；若一切计入，这两个字段恒为空，契约分支形同虚设。",
+    "§D 末句只规定「差异单号」的识别与单侧差额的取值（260.00/条），未规定计入/不计入归属；因此排除 520.00 不违反 §D，EX-02 的反驳命中的是分类口径而非条文冲突。",
+    "seat_check 结论：三席全部 valid、aggregation_blocked 为空、read_domain_verdict=CLEAN，故三席 sha256 均可进入 aggregation_inputs。",
+    "席位对 settle_date 口径的反事实（条数应为 7 而非 5）经我独立复算成立：T057/T058 各增 1 天日期差、T064 退出，6−1+2=7；三席共同主张的 6 与该反事实自洽。"
+  ],
+  "alternatives_rejected": [
+    {
+      "option": "ADJ-001=count：全数计入，amount_diff_total=76640.00、excluded_amount_total=0.00、excluded_categories=[]（EX-02）",
+      "why_not": "条文字面有据（§D 末句），但它把 76000.00 的成交未入账与 520.00 的现金分红压进同一个「成交金额差异合计」，与 §C 注1 对 amount 的定义冲突，并使 excluded_* 两个契约字段永久为空。按聚合规则，多数席位的该结论有独立证据支撑，故不采纳少数；其结论与证伪条件全文保留，未删改。"
+    },
+    {
+      "option": "日期按 settle_date 对齐（diff_count=7）",
+      "why_not": "ledger.date 定义为「入账日」，与 bill.trade_date（成交日）语义对位，与 settle_date（交割日）不对位；且三席一致主张 6，我复算亦为 6。settle 口径作为反事实写入 falsification，不采纳。"
+    },
+    {
+      "option": "日期按「两侧任一命中即通过」对齐（diff_count=5，T064 视为无差异）",
+      "why_not": "无任何条文授权该宽松规则，且 ledger 明确写「按交割日入账」即自述其日期口径与成交日不一致，正是待归因的差异本身；用它抹掉 T064 等于用结论消除差异。"
+    },
+    {
+      "option": "把 exclude 写成脚本默认值并保留 --include-nontrade-cash 开关（EX-03）",
+      "why_not": "方案本身采纳为落地路径与回滚手段，但不采纳「默认值即裁决」的隐含语义：默认值会被下游当作既有事实消费。本轮把它标注为「待人类签署的暂时默认」，而非既有结论。"
+    }
+  ],
+  "risk": {
+    "rating": "中",
+    "irreversible": "否",
+    "rollback": "三级：①参数级——加 --include-nontrade-cash 重跑即回到 76640.00/0.00/[]，不改代码、不改数据；②文件级——旧产物先 rename 到 _trash/ 再覆盖（沙箱禁 unlink），保留可恢复副本；③已报送——按 categories 中 T061/T063 明细逐笔反查更正，520.00 的构成始终留在 diffs 清单内，可回溯。风险边界：本结论仅覆盖 T-08 两份合成 CSV 的 8 个单号，不外推到其他账户或真实交割单。"
+  },
+  "diff_preserved": [
+    {
+      "side": "多数",
+      "conclusion": "ADJ-001=exclude：76120.00 / 520.00 / 6 条 / excluded_categories=[\"非交易现金流-现金分红\"]（EX-01、EX-03）",
+      "falsification": "契约明文规定所有单侧存在项一律计入、或 excluded_* 仅为向后兼容；或 T061/T063 出现非零 shares/price 使其可被解释为成交。"
+    },
+    {
+      "side": "少数",
+      "conclusion": "ADJ-001=count：76640.00 / 0.00 / 6 条 / excluded_categories=[]（EX-02，类别名「单侧缺失-股息入账」）",
+      "falsification": "契约补入「现金分红等非成交现金流不计入 amount_diff_total」，或 ledger 出现可与 260.00 对减的现金/资金科目行。"
+    },
+    {
+      "side": "多数",
+      "conclusion": "DIFFSET=6（trade_date 口径，三席一致）",
+      "falsification": "改按 settle_date 对齐则 7 条；「任一命中」则 5 条；4 在任何单一口径下不可达。"
+    }
+  ],
+  "self_doubt": "我可能在两处错。第一，把 §D 末句读成「只定清单、不定归属」是我的解释，而 EX-02 把它读成「同时定归属」；若契约原意是后者，则我的排除是根据「§C 注1 的成交金额语义」外加了一层未被授权的限制，76120.00 与 520.00 同时作废，正确值应为 76640.00/0.00。第二，我以「excluded_* 字段存在即意味着应被使用」作为契约意图的推断，这本身是弱证据——字段可以合法地为空，我把「字段非空」当成了正确性信号，这是从交付形状反推语义，方向恰好是反的。此外我未能引入任何独立于两表 amount 的外部锚（券商资金余额、对账单期初期末），因此 520.00 与 76000.00 的分类正确性在数据层面不可外部检验，只由条文解释支撑。",
+  "next": [
+    "人类闸门签署 ADJ-001（exclude / count）与 DIFFSET（6 / 7），签署文件写入 runs/round27/adjudication-record.json",
+    "若签署 count：以 --include-nontrade-cash 重跑，answer-final 回填 76640.00/0.00/[]，并把类别名统一为「单侧缺失-股息入账」以与 EX-02 一致",
+    "向契约维护方提两条规则缺口：①日期列对齐口径（trade_date 还是 settle_date）；②「非交易现金流」的可执行判据（shares=0 且 price=0 且无对应成交），避免下轮继续按席位自造类别承载裁决",
+    "报送前备份当前 answer-final.json 至 _trash/，保留可恢复副本"
+  ],
+  "reads": [
+    {"path": "runs/round27/prompts/PM-01.md", "purpose": "逐字核对本席职责、写入域、硬字段与输出格式"},
+    {"path": "runs/round27/EX-01.json", "purpose": "读取执行席原始结论、证据指针、dissent 与 summary，作为聚合输入"},
+    {"path": "runs/round27/EX-02.json", "purpose": "读取少数派原始结论与其最强反驳、what_would_change_my_mind，确认不会被抹平"},
+    {"path": "runs/round27/EX-03.json", "purpose": "读取落地席的执行路径、成本、回滚与操作分级"},
+    {"path": "runs/round27/round-manifest.json", "purpose": "确认轮次类型 revision_round、contract_version 2.1、任务为 tasks/T-08"},
+    {"path": "runs/round27/seat-check.json", "purpose": "取三席 status=valid、aggregation_blocked 为空与 read_domain_verdict，决定 aggregation_inputs 可收录范围"},
+    {"path": "fixtures/tasks/T-08/TASK.md", "purpose": "核对 §A–§D 字段定义，判断计入/不计入有无条文授权"},
+    {"path": "fixtures/tasks/T-08/ledger.csv", "purpose": "逐行取数，独立 Decimal 复算合计、单号唯一性与四列比对"},
+    {"path": "fixtures/tasks/T-08/bill.csv", "purpose": "逐行复算分项差额与 settle 口径反事实条数"},
+    {"path": "protocol/06-写入域与判据分层.md", "purpose": "确认判断层与算术层分层、写盘边界与状态标注要求"},
+    {"path": "protocol/07-轮次与指标.md", "purpose": "确认 aggregation_inputs[] 硬门与 verify-final 的交叉核对规则"}
+  ],
+  "usage": {"tokens": 14300, "minutes": 11, "source": "self_report"}
+}

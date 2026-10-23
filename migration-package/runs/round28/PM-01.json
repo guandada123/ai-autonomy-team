@@ -1,0 +1,116 @@
+{
+  "seat": "PM-01",
+  "round": 28,
+  "task_id": "T-09",
+  "board": [
+    {
+      "id": "T-09/EX-01",
+      "owner": "EX-01",
+      "state": "通过",
+      "next_action": "无（seat_check=valid，已进 aggregation_inputs）",
+      "blocker": "无",
+      "evidence": "runs/round28/EX-01.json sha256=21d16548696384f1cddc46dde6c1ecaee6b9aa910a28f8c3281d2b78e07a80f9；fixtures/tasks/T-09/{TASK.md,ledger.csv,bill.csv}",
+      "judge": "pass",
+      "deadline": "2026-10-20T21:07:00+08:00"
+    },
+    {
+      "id": "T-09/EX-02",
+      "owner": "EX-02",
+      "state": "待裁",
+      "next_action": "结论以 diff_preserved[少数] 原文留痕；不进 aggregation_inputs；若下轮 spec 把选项空间改为含 7，须重开本轮裁决",
+      "blocker": "seat_check 判 E_STANCE_OUT_OF_SPACE：DIFFSET=7 不在本任务选项空间 [6,5,4,3] 内，产出不具备聚合资格（原文未被改写，仅被排除出聚合集合）",
+      "evidence": "runs/round28/EX-02.json sha256=8fb16f6283552384d6298ef1cdae430fb1f45d19d8ea807b026534436adf2cc6；runs/round28/seat-check.json#aggregation_blocked",
+      "judge": "fail",
+      "deadline": "2026-10-20T21:07:00+08:00"
+    },
+    {
+      "id": "T-09/EX-03",
+      "owner": "EX-03",
+      "state": "通过",
+      "next_action": "落地方案（--date-col 默认 trade_date + 金额自洽断言 380.00+0.00=380.00）留作下轮实现输入，本轮不执行任何写盘之外的落地",
+      "blocker": "无",
+      "evidence": "runs/round28/EX-03.json sha256=61e891db06feda9a37d0a502f65a4fb88c14bade2d07b36ba650f97ec93cdbbb",
+      "judge": "pass",
+      "deadline": "2026-10-20T21:07:00+08:00"
+    },
+    {
+      "id": "T-09/PM-01",
+      "owner": "PM-01",
+      "state": "通过",
+      "next_action": "本轮收口：answer-final.json 与 PM-01.json 已写入；口径缺口（§D「日期」未指名列）上报人类闸门，不自行补规范",
+      "blocker": "无（口径缺口已记录为 needs_human_ruling，非阻塞项）",
+      "evidence": "runs/round28/answer-final.json；runs/round28/PM-01.json；独立 Decimal 复算（7/8 行、163800.00/164180.00、gap 380.00、trade 读法 6 条 abs 和 380.00、settle 读法 7 条 abs 和 380.00）",
+      "judge": "pass",
+      "deadline": "2026-10-20T21:15:00+08:00"
+    }
+  ],
+  "decision": "采用多数结论：diff_count=6（日期取 trade_date），amount_diff_total=380.00，excluded_amount_total=0.00，dedup 0/0.00，excluded_categories 为三项费用/数量/日期口径类别。EX-02 的 7 条结论按原文保留在 diff_preserved[少数]，不抹平、不改写，但不进入 aggregation_inputs。",
+  "basis": [
+    "硬裁判：seat-check.json verdict=has_invalid，aggregation_admissible=[EX-01,EX-03]；EX-02 被 E_STANCE_OUT_OF_SPACE 挡下（summary.diff_count=7 不在选项空间 [6,5,4,3] 内）。按 06/seat_check 规则，非 valid 席位的 sha256 不得进入 aggregation_inputs，故聚合集合为 2 席。",
+    "独立 Decimal 复算（不采信任何席位的自报数字）：ledger 7 行 163800.00、bill 8 行 164180.00、gap 380.00、两侧 txn_id 均唯一 → dedup_removed_txn_count=0、dedup_amount=0.00。",
+    "四列逐号比对两分支均复现：trade_date 读法 6 条、abs 差额和 380.00；settle_date 读法 7 条、abs 差额和同为 380.00；两分支 excluded 均 0.00 → 金额侧不可分辨，条数是唯一分歧轴。",
+    "条数轴的判据只落在 TASK.md L8「交割单（按成交日列示）」这一句定义上；§D 的「日期」未指名列，属规则缺口（三席 needs_more_data 一致指出）。在缺口不可由我补写规范的前提下，取「背景定义句已把账单界定为按成交日列示」的读法，即 6。",
+    "与选项空间一致性交叉校验：6 是 [6,5,4,3] 空间内上界且恰为两 valid 席一致的取值；7 出界。此校验独立于 L8 的解释，构成第二根支柱——即便 L8 的解释被推翻，6 仍是本任务空间内唯一可交付的合法上界，须显式声明这是「空间约束下的取值」而非「已被证明的正确值」。",
+    "ADJ-001 在本夹具金额中性：口径差项 T072 的 amount 差额恒为 0.00，exclude 与 count 得同一 summary(380.00/0.00)，三席自述 exclude 而 seat_check 反推 count（W_STANCE_MISMATCH）不改变任何数值，故不构成需拍板的实质分歧；采信三席一致的 exclude 表述，数值上二者等价。"
+  ],
+  "alternatives_rejected": [
+    {
+      "option": "采用 EX-02 的 diff_count=7（settle_date 读法），以「§D 未指名列」为由取语义更近的列",
+      "why_not": "其一，seat_check 判 E_STANCE_OUT_OF_SPACE，7 不在本任务选项空间 [6,5,4,3] 内，交付即非法，会连带使 answer-final 不可验收；其二，其证据链本身承认两读法金额三值完全相同（380.00/380.00/0.00），无法用算术证据分出优劣，只能靠解释，而它用来反对的正是解释。其结论以少数派原文完整保留，未删改。"
+    },
+    {
+      "option": "把 6/7 之争降级为脚本参数 --date-col 并以「可复跑 + sha 一致」替代裁决（EX-03 方案中的默认值部分）",
+      "why_not": "参数化不消除裁决，只把裁决藏进默认值：默认值决定全部判断层字段，人类闸门看到的是已定型结果，只能确认不能选择。且 answer 契约无承载 date-col 的字段，口径选择不随产出留痕，下轮默认值漂移会被 metrics 记成席位翻边。故本轮显式拍板并留痕，参数化的工程建议仅作下轮实现输入，不作为本轮的裁决替代。"
+    },
+    {
+      "option": "以「两分支金额相同故无实质影响」为由拒绝表态，把条数留给人类闸门（EX-02 的处方）",
+      "why_not": "diff_count 与 diffs/categories 是交付物本体，不表态等于把未决状态包装成结论；且选项空间已由 seat-check 给出 [6,5,4,3]，7 本不在其中，缺口已被外部规则部分封闭，没有继续悬空的余地。停留在闸门不是零成本选项，它把一次性裁决变成每轮固定开销。"
+    },
+    {
+      "option": "把 T071 的 260.00 现金分红排除出 amount_diff_total（理由：自记账可能已记入其他科目）",
+      "why_not": "三席均将 T071 作为「仅单侧存在的单号」按 §D 取该侧 amount 作差额，且 260.00 是 gap 380.00 的组成部分（120.00+260.00=380.00），排除会使恒等式断裂。无凭证支持「已入他账」，不能以推测推翻可复算的算术。该风险改记为 falsification 条件。"
+    }
+  ],
+  "risk": {
+    "rating": "中",
+    "irreversible": "否",
+    "rollback": "全部结论由两份 CSV 唯一决定，任何时刻可从 ledger.csv/bill.csv 重算覆盖 answer-final.json，无外部状态、无写回自记账台账的动作，故完全可逆；本条目的是保证「重算」不被误用为「改口」——若重算结果变化，须同时更新 PM-01.json 的 decision 与 diff_preserved，不得只覆盖 answer-final.json。"
+  },
+  "diff_preserved": [
+    {
+      "side": "多数",
+      "conclusion": "diff_count=6，日期取 trade_date（TASK.md L8「交割单按成交日列示」），差异单号 T067/T068/T069/T070/T071/T072；amount_diff_total=380.00（T067 价差 120.00 + T071 单侧 260.00），excluded_amount_total=0.00，excluded_categories 三类。",
+      "falsification": "若 §D 或任何可读规范条款明示「日期」取交割日，或能证明 L8 仅描述排序而不约束列义，则 T072 退出、T065/T066 进入，条数变 7，本结论在条数上作废（金额不变）。"
+    },
+    {
+      "side": "少数",
+      "conclusion": "diff_count=7，日期取 settle_date（A股 T+1 交收下与「入账日」语义可对齐者为交割日；用背景段描述句补规范段缺口不成立），差异单号 T065/T066/T067/T068/T069/T070/T071，T072 在该读法下反而一致；金额侧同为 380.00/0.00。",
+      "falsification": "若 §D 或任何可读规范条款明示「日期=成交日」，或账本 date 定义被改写为成交日，则本结论作废；若 diff_count 被移入算术白名单并出现机器可判的正确值，「无可判优劣」这一前提亦作废。"
+    }
+  ],
+  "self_doubt": "我最可能错在把 TASK.md L8 这句背景描述当成规范条款使用——L8 说的是「交割单按成交日列示」（排版口径），我据此把 §D 的「日期」解成 trade_date，中间跨了一步「账单列示口径即比对基准」的隐含前提，而这一步正是争议本身，我在决策里没有把它证成，只是选择了它。第二处：我把「6 在选项空间内」与 «6 正确» 混用于同一段论证的两个支柱，空间约束只能说明 7 不可交付，不能说明 6 更对；若 spec 的空间本是 [7,6,5,4] 而 seat-check 的 [6,5,4,3] 来自另一处参数，我等于用一条错误的边界淘汰了正确结论。第三处：T071 的 260.00 我以「无凭证推翻算术」为由保留，但「自记账无此笔」也可能意味着它被记在应收股利而非成交金额，若如此 amount_diff_total 应降为 120.00——我用了举证责任分配，而不是证据。",
+  "next": [
+    "把「§D『日期』未指名字段」作为规则缺口上报人类闸门；闸门只需在 trade_date 与 settle_date 之间二选一并签字，不要以脚本默认值代替签字。",
+    "下轮实现须把 date-col 实取值与签署人写入裁决记录文件（answer 契约现无承载字段，需先补字段），否则口径选择不随产出留痕，翻边率会把参数漂移记成立场翻边。",
+    "下轮 spec/seat_check 若调整本任务 DIFFSET 选项空间，须同步重开本条数裁决；当前 [6,5,4,3] 与 L95-L98「由生成器另给」的表述存在口径张力，三席一致指出，未在本轮解决。",
+    "T071 的 260.00 需补分红入账凭证；若确认已记入应收股利等他科目，则 amount_diff_total 由 380.00 降为 120.00，raw_total_gap 与 amount_diff_total 的恒等式将不再成立，须重写 falsification 与多数结论。",
+    "口径落地后补一条恒等式断言进复算脚本：amount_diff_total + excluded_amount_total == raw_total_gap（本夹具 380.00+0.00=380.00）；这是唯一能自动发现归类漏项的检查，不应靠人复核。"
+  ],
+  "reads": [
+    {"path": "runs/round28/prompts/PM-01.md", "purpose": "逐字核对本席职责、读取域、禁读清单、reads/usage 硬字段与 PM-01.json 七字段 schema"},
+    {"path": "fixtures/tasks/T-09/TASK.md", "purpose": "取 §A/§B/§C/§D 计算法与四个易错点，定位 L8「按成交日列示」与 §D「日期」的表述缺口"},
+    {"path": "fixtures/tasks/T-09/ledger.csv", "purpose": "7 行原始取数，Decimal 累加 amount、逐号比对 shares/amount/fee_total/date"},
+    {"path": "fixtures/tasks/T-09/bill.csv", "purpose": "8 行原始取数，累加 amount，并分别用 trade_date 与 settle_date 做两分支逐号比对"},
+    {"path": "runs/round28/EX-01.json", "purpose": "读多数席原始产出（结论、summary、evidence、dissent、stance、needs_more_data），核对可复算性"},
+    {"path": "runs/round28/EX-02.json", "purpose": "读少数席原始产出，核实其 7 条复算与「金额不可分辨」论证，供 diff_preserved[少数] 原文留痕"},
+    {"path": "runs/round28/EX-03.json", "purpose": "读落地席原始产出（execution_path、cost、rollback、op_grade），核对其默认值与自报成本口径"},
+    {"path": "runs/round28/seat-check.json", "purpose": "取三席 valid/invalid 判定、E_STANCE_OUT_OF_SPACE 原文、选项空间 [6,5,4,3] 与 aggregation_admissible/blocked 名单"},
+    {"path": "runs/round28/round-manifest.json", "purpose": "核对轮次角色 revision_round、contract_version 2.1、写入域 round28/ 与 usage_required 硬要求"},
+    {"path": "runs/round28/read-domain-check.json", "purpose": "确认本轮读取域判定为 CLEAN、无 E_READ_DOMAIN_VIOLATION 席位"}
+  ],
+  "usage": {
+    "tokens": 31500,
+    "minutes": 11,
+    "source": "self_report"
+  }
+}

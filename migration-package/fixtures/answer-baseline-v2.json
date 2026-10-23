@@ -1,0 +1,65 @@
+{
+  "summary": {
+    "ledger_rows": 27,
+    "bill_rows": 27,
+    "dedup_removed_txn_count": 1,
+    "dedup_amount": 1200.0,
+    "diff_count": 7,
+    "amount_diff_total": 500.02,
+    "excluded_amount_total": 7980.0,
+    "excluded_categories": [
+      "口径差异",
+      "跨月归属差异"
+    ]
+  },
+  "diffs": [
+    {
+      "id": "T101",
+      "category": "舍入差异"
+    },
+    {
+      "id": "T102",
+      "category": "舍入差异"
+    },
+    {
+      "id": "T103",
+      "category": "重复导入"
+    },
+    {
+      "id": "T104",
+      "category": "口径差异"
+    },
+    {
+      "id": "T105",
+      "category": "口径差异"
+    },
+    {
+      "id": "T106",
+      "category": "跨月归属差异"
+    },
+    {
+      "id": "T107",
+      "category": "真实缺失"
+    }
+  ],
+  "categories": {
+    "舍入差异": [
+      "T101",
+      "T102"
+    ],
+    "重复导入": [
+      "T103"
+    ],
+    "口径差异": [
+      "T104",
+      "T105"
+    ],
+    "跨月归属差异": [
+      "T106"
+    ],
+    "真实缺失": [
+      "T107"
+    ]
+  },
+  "falsification": "若(1)舍入差按重要性被排除，则 amount_diff_total 应为 500.00、excluded_amount_total 应为 7980.02；(2)若口径差异(T104/T105)被认定为真实金额差异，则应计入 amount_diff_total，其值变为 680.02；(3)若跨月归属(T106)被认定不应排除，则 excluded_amount_total 应为 3180.00；(4)若重复项金额按两行合计统计，则 dedup_amount 应为 2400.00。以上任一前提成立，本结论即不成立。"
+}

@@ -1,0 +1,109 @@
+{
+  "seat": "EX-03",
+  "round": 19,
+  "conclusion": "路径 scripts/recon/recon_T14.py（python3+Decimal+csv，newline=''、utf-8、LF）：按 txn_id 建索引，显式声明 date↔trade_date 后比四列。实算 7/8 行、409420.00/409800.00/380.00、dedup 0、6 条、金额 380.00。生成结果 🟡，据以改账 🔴。",
+  "execution_path": [
+    "1. 输入固化：只读打开 fixtures/tasks/T-14/{ledger,bill}.csv（newline='' + encoding='utf-8'），行数记 7 与 8，先断言无空行、列头齐全",
+    "2. 索引：以 txn_id 为键分别建 ledger/bill 两个 dict；仅当同键出现多行才进 dedup 分支并累加多出行金额（§B 按单号计，不按值计）",
+    "3. 日期映射开关：date_key 默认 'trade_date'；'settle_date' 只在裁决明确后启用。开关状态必须写进 answer.json 旁的 meta，便于复现",
+    "4. 四列比对：shares 用 int、amount/fee_total 用 Decimal(str(x))、date 用字符串比较；仅单侧存在的单号走 one_sided 分支，差额取该侧 amount",
+    "5. 汇总：Decimal 累加后 quantize(Decimal('0.01'))；硬断言 raw_total_gap == amount_diff_total + excluded_amount_total（本例 380.00==380.00+0.00）",
+    "6. 落盘：answer.json（ensure_ascii=False、LF、UTF-8），并断言 diff_count==len(diffs)、set(diffs.id)==set(categories 各列表并集)",
+    "7. 自检：bill 每行做 commission+stamp_tax+transfer_fee==fee_total 断言（8/8 通过），捕获列错位"
+  ],
+  "cost": {
+    "token_estimate": "本轮三席自述合计 59300 tokens（21500+19800+18000），占 per_task_token_hard_cap=160000 的 37.1%；脚本侧 0 token（纯本地算术，15 行 CSV）。若让三席各自手算复核而不落脚本，按多智能体约 15× 单轮对话估算将逼近甚至越过该 cap——算术密集型任务必须由脚本承担。",
+    "wall_clock": "脚本 <1 s；席位-人工单轮往返约 30–40 min；本轮实际跨度 11 min（三席按定义取最大，不求和）。",
+    "human_touchpoints": "2 次：① ADJ-001/ADJ-002 裁决签署（结构性必需，脚本无法替代）；② 账务更正审批（T107 调价 120.00、T108/T109 各补费 7.04、T110 补 30 股、T111 补记分红 260.00）。"
+  },
+  "rollback": "三级：①未落盘——脚本纯读、无副作用，直接重跑即可；②已落 answer.json——文件为新增，删除一律改为移动到 _trash/<ts>/（沙箱拦截 unlink，不可用 os.remove），并按 round 前快照整体重放生成，禁止就地改数；③已进入下游——以 round 前的 ledger.csv/bill.csv 与 answer.json 哈希为锚，重放生成新版本，旧版留档不覆盖；已签署的裁决记录不回滚，只追加 superseded_by 指针（裁决不可逆，这是它要求人签的原因）。",
+  "op_grade": "🟡",
+  "cross_platform_risks": [
+    {"risk": "解释器差异：Windows 习惯 py -3，目标机 macOS 用 python3，硬写 py 会在 Mac mini 上直接失败", "mitigation": "shebang #!/usr/bin/env python3，文档统一写 python3 -m scripts.recon.recon_T14"},
+    {"risk": "路径分隔：字符串拼接 'fixtures'+'/'+'ledger.csv' 在跨平台与包根变化下断裂", "mitigation": "pathlib.Path(__file__).resolve().parents[2] / 'fixtures' / 'tasks' / 'T-14' / 'ledger.csv'"},
+    {"risk": "换行：Windows 默认写 CRLF，比对与哈希会与既有 LF 基线不符", "mitigation": "读用 newline=''，写时显式 '\\n' 并断言 '\\r' not in 输出"},
+    {"risk": "编码：Windows 默认 GBK，会把「格力电器」读成乱码或直接抛 UnicodeDecodeError", "mitigation": "显式 encoding='utf-8'；对 BOM 兜底用 utf-8-sig 先试"},
+    {"risk": "浮点：fee 差 0.03、0.14、7.04 用 float 会得 0.030000000000000027，导致 380.00 判定不相等", "mitigation": "全链路 Decimal(str(x))，比较与累加均用 Decimal，输出 quantize('0.01')"},
+    {"risk": "清零误判：Decimal('45000.00') 与 float 混用后格式化丢尾零，'168000.00'→'168000.0' 使字符串比对假阳性", "mitigation": "金额一律 Decimal 比较，打印时 format(d, 'f') 并统一两位"},
+    {"risk": "删除：os.remove/unlink 在本机沙箱被拦截，回滚脚本会在第 3 步中断", "mitigation": "shutil.move 到 _trash/<ts>/，不调用任何 unlink"}
+  ],
+  "evidence": [
+    {
+      "pointer": "fixtures/tasks/T-14/ledger.csv#表头(date，单一日期列) 对照 bill.csv#表头(trade_date,settle_date，双日期列)",
+      "what_it_shows": "两表 schema 不对等：自记账只有 1 个日期列，交割单有 2 个。脚本若不做显式映射，要么 KeyError，要么静默取到错误的日期列——这是本轮唯一的 schema 级可执行风险，与数值无关。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-14/bill.csv#commission+stamp_tax+transfer_fee 逐行等于 fee_total（8/8，如 T105 的 42.00+84.00+1.68=127.68、T108 的 5.00+6.90+0.14=12.04）",
+      "what_it_shows": "费用列内部自洽可写成断言，用于捕获列错位与千分位解析错误；同时 T108 的 12.04 可反推 ledger 的 5.00 漏了 6.90+0.14，是唯一可复现核对链路的费用证据。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-14/ledger.csv#T108,T109 整行同值(100/138.00/13800.00/5.00/同一 note)，仅 txn_id 与 date 不同",
+      "what_it_shows": "若按业务值去重，raw_total_gap 会从 380.00 变成 14180.00（差 13800.00），后续所有字段错位。脚本必须以 txn_id 为键，并断言 dedup 仅在「同键多行」时触发，否则 dedup_removed_txn_count 会误报 1。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-14/bill.csv#T110:shares=30,price=0.00,amount=0.00 对照 ledger.csv#T110:shares=0",
+      "what_it_shows": "股数列存在 0↔30 的语义差（送转），而金额列两侧都是 0.00；若脚本把 shares 与 amount 同池累加会引入噪声，四列必须分治（§D 是四列并列比较，不是合计比较）。"
+    },
+    {
+      "pointer": "protocol/07-轮次与指标.md#§6.1 预算计量定义式（tokens 求和、minutes 取最大、未申报记 missing 不记 0）",
+      "what_it_shows": "三席必须齐报 usage 才能得 budget.status=ok；任一席缺报会使状态落 unverifiable 而非 exhausted（不记 0 也不判超支）。本席按此申报 tokens/minutes。"
+    }
+  ],
+  "falsification": "①若下游按 answer.json 自动过账（无人签、无审批），本方案的 🟡 分级失效，须升 🔴 并补「方案/影响范围/回滚」三件套；②若 ledger 实际存在同号多行（分批成交），当前「按单号计数 + 多出行金额求和」需改为按行分摊，dedup_amount 会算错；③若裁决把日期映射改为 settle_date，第 3 步开关需切换，T112 例外断言（ledger.date 应等于 trade_date）将失败，全量结果重算；④若 cap 数值不在 160000（本席禁读 config/，无法核验），token 结论可能失效。",
+  "reads": [
+    {"path": "fixtures/tasks/T-14/TASK.md", "purpose": "取字段定义与四个易错点，确定脚本必须实现的断言点"},
+    {"path": "fixtures/tasks/T-14/ledger.csv", "purpose": "确认 schema（单日期列）与 T108/T109 的整行同值、T112 的入账日"},
+    {"path": "fixtures/tasks/T-14/bill.csv", "purpose": "确认双日期列、费用三列分解自洽、T110/T111 的零金额行"},
+    {"path": "protocol/02-辩论协议.md", "purpose": "确认预算参数与终止条件（15× token 量级、硬 cap）"},
+    {"path": "protocol/03-结构审计七查.md", "purpose": "确认「延迟×成本×不可逆性」判据，用于给对账结论定操作级别"},
+    {"path": "protocol/07-轮次与指标.md", "purpose": "取预算定义式（tokens 求和、minutes 取最大、missing 不记 0）与 usage 申报要求"},
+    {"path": "runs/round19/prompts/EX-03.md", "purpose": "本席提示词：操作分级、跨平台检查项、成本与回滚要求"}
+  ],
+  "dissent": [
+    {
+      "against": "ANON-B",
+      "reason": "exclude 方案把报告金额从 380.00 压到 120.00，代价是多一个类别、多一次人工裁决、回滚时两侧都要重算（成本翻倍），而真实缺口一分未减、仍是 380.00；信息量没增加，读者却更容易把 120.00 误读为全部差异。在「判错成本高、反馈延迟长」的对账场景，降低可读性换来的分类收益不足以抵偿。",
+      "reverse_evidence": "若存在按「成交类差异」单独报送的下游口径（如监管或内部报表只统计成交相关差异），则必须 exclude，否则报送口径错；此时该成本应计入合规风险而不是本方案的成本，本条撤回。"
+    }
+  ],
+  "confidence": "high",
+  "needs_more_data": [
+    "缺规则：日期映射（trade_date / settle_date）未裁，脚本开关的默认值因此没有契约依据。",
+    "缺规则：ADJ-001/ADJ-002 仍为未决项，按第 5 查规格假设会直接 HOLD。",
+    "缺数据：无持仓快照与科目余额表，T110 送转后股数、T111 应收股利均无法验算。",
+    "缺数据：config/ 在禁读域内，无法核验 per_task_wall_clock_hard_cap 的实际数值，预算是否超限不可判定。"
+  ],
+  "stance": [
+    {"axis": "ADJ-001", "choice": "count"},
+    {"axis": "DIFFSET", "choice": "6"}
+  ],
+  "summary": {
+    "ledger_rows": 7,
+    "bill_rows": 8,
+    "ledger_total": 409420.00,
+    "bill_total": 409800.00,
+    "raw_total_gap": 380.00,
+    "dedup_removed_txn_count": 0,
+    "dedup_amount": 0.00,
+    "diff_count": 6,
+    "amount_diff_total": 380.00,
+    "excluded_amount_total": 0.00,
+    "excluded_categories": []
+  },
+  "diffs": [
+    {"id": "T107", "category": "金额差异-按委托价记账"},
+    {"id": "T108", "category": "费用差异-漏印花税与过户费"},
+    {"id": "T109", "category": "费用差异-漏印花税与过户费"},
+    {"id": "T110", "category": "股数差异-送转未更新"},
+    {"id": "T111", "category": "单侧差异-股息未入账"},
+    {"id": "T112", "category": "日期差异-按交割日入账"}
+  ],
+  "categories": {
+    "金额差异-按委托价记账": ["T107"],
+    "费用差异-漏印花税与过户费": ["T108", "T109"],
+    "股数差异-送转未更新": ["T110"],
+    "单侧差异-股息未入账": ["T111"],
+    "日期差异-按交割日入账": ["T112"]
+  },
+  "usage": {"tokens": 18000, "minutes": 8, "source": "self_report"}
+}

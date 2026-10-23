@@ -1,0 +1,195 @@
+{
+  "seat": "EX-02",
+  "round": 9,
+  "conclusion": "立场不变，但更换首要依据：ADJ-001 的排除桶在语义上专指『口径差』，本任务唯一带金额的口径差是 T011 的 120.00（两侧 amount 各自等于 shares×price：45000=1000×45.00、45120=1000×45.12，差额源于 note 自陈的『按委托价记账』）。故 amount_diff_total=14320.00、excluded=120.00、diff_count=6。T013/T015 的 260.00×2 是单侧漏记而非口径差，按 §D『差额取该侧 amount』必须计入；若把它们塞进排除桶，ADJ-001 的语义会从『口径差是否计入』漂成『非交易项是否计入』。dedup=0/0.00（两侧单号全唯一）；日期基准取 trade_date。",
+  "evidence": [
+    {
+      "pointer": "fixtures/tasks/T-02/ledger.csv#amount列(5行) × bill.csv#amount列(8行)",
+      "what_it_shows": "逐行 Decimal 累加：30000+26000+45000+0+13800=114800.00；30000+26000+45120+13800+260+0+260+13800=129240.00；gap=14440.00。"
+    },
+    {
+      "pointer": "protocol/07-轮次与指标.md#§4.1 W_STANCE_SEMANTIC_CONFLICT 的显式假设",
+      "what_it_shows": "『excluded_amount_total 的非零部分只来自口径差』——排除桶被定义为收口径差，不是收任意非交易项。这是本轮我改换首要依据的出处。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-02/ledger.csv#T011 × bill.csv#T011",
+      "what_it_shows": "shares 1000 对 1000、日期同 09-10、fee 11.70 对 11.73；只有 price/amount 不同且两侧各自自洽 → 属计量基准差，非漏记或算错。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-02/bill.csv#T013,T015 × ledger.csv 无对应单号",
+      "what_it_shows": "side=股息入账、shares=0、amount=260.00、note『现金分红，自记账无』→ §D 单侧存在，差额取该侧 amount=260.00，共 520.00，必须计入。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-02/{ledger,bill}.csv#txn_id 频次",
+      "what_it_shows": "ledger 5 号、bill 8 号，各侧均无重复单号 → dedup_removed_txn_count=0、dedup_amount=0.00。"
+    },
+    {
+      "pointer": "复算脚本输出#trade_date 基准 vs settle_date 基准",
+      "what_it_shows": "trade_date 基准得 6 条差异，abs 差额 120+13800+260+260+0+0=14440.00；settle_date 基准得 8 条，abs 差额之和仍为 14440.00 → 闭合关系在正确答案与已知错误答案上同时成立。"
+    }
+  ],
+  "strongest_counter_arguments": [
+    {
+      "target": "ANON-C",
+      "argument": "契约 C 只规定『归入计入类别的取 abs 差额求和』，从未给口径差任何豁免条款。T011 的 45120.00 是真实资金流出，账面只记 45000.00，成本少计 120.00 是实打实的账实不符；『按委托价记账』只是自记账给自己写的注脚，不构成免责。任何排除都是席位自我赋权，而 excluded_categories=[] 恰是契约默认值，应当被当作缺省而非退路。",
+      "reverse_evidence": "若 protocol 的排除桶不变式被裁定不适用于本案（即 excluded 可收任意类别），则 14440.00/0.00/[] 胜出，我的 120.00 排除应撤销。"
+    },
+    {
+      "target": "ANON-B",
+      "argument": "股息 260.00 不是成交，把它计入『金额差异』会把非交易现金流混进成交口径的统计；且 TASK 易错点 1 明写 amount 列是『成交金额』，股息行的 amount 只是分红额，语义上就不是同一个量。因此排除 520.00、报 13920.00 更贴合字段名。",
+      "reverse_evidence": "若裁决确认 amount 列在股息行不具成交语义、且 §D『单侧取该侧 amount』不适用于非成交行，则 B 的划分胜出。"
+    },
+    {
+      "target": "ANON-A / ANON-C 共同的不变量",
+      "argument": "三份产出都把『逐单差额之和恰等于 raw_total_gap』当成强校验，甚至据此互相印证。若两条不同的划分都能让等式成立，这个等式就不承载任何判别信息，把它写进 evidence 只会制造『已被验证』的错觉——而这正是本轮审计最该警惕的那类高置信度共识。",
+      "reverse_evidence": "若能找到一个闭合成立但划分错误的算例被证伪，或某划分下等式不成立，则闭合具备判别力。"
+    }
+  ],
+  "what_would_change_my_mind": "① 裁决明确排除桶可收非交易现金流（则改判 13920.00/520.00）；② 裁决明确金额轴只认原始差额总量、口径差不得豁免（则改判 14440.00/0.00）；③ T011 的委托单或成交回报证明 45.00 是录入错误而非披露的记账基准。任一条成立，我放弃 14320.00/120.00。",
+  "falsification": "以下任一成立，本席位立场即错：① protocol 的『excluded 非零部分只来自口径差』不被视为本案不变式，排除桶可容任意类别；② T011 的 45.00 被证明是录入错误而非计账基准选择（此时 120.00 应计入）；③ T013/T015 在自记账侧其实存在（则不再属单侧漏记，520.00 的计入失去依据）；④ 任一 CSV 出现同 txn_id 多行，或 amount 列求和 ≠ 114800.00/129240.00。",
+  "reads": [
+    {
+      "path": "runs/round9/prompts/EX-02.md",
+      "purpose": "读取本轮 revision_round 职责、读取域、匿名化要求与字数预算"
+    },
+    {
+      "path": "runs/round9/inputs/pack-ANON-A.json",
+      "purpose": "读匿名同伴产出，比对其 ADJ-001 归属与证据链"
+    },
+    {
+      "path": "runs/round9/inputs/pack-ANON-B.json",
+      "purpose": "读匿名同伴产出，重点核其 520.00 排除主张与日期基准推导"
+    },
+    {
+      "path": "runs/round9/inputs/pack-ANON-C.json",
+      "purpose": "读匿名同伴产出，核其 count 立场与 14440.00 归因"
+    },
+    {
+      "path": "fixtures/tasks/T-02/TASK.md",
+      "purpose": "取字段定义、§C 两个金额桶、§D 四列判据与四个易错点"
+    },
+    {
+      "path": "fixtures/tasks/T-02/ledger.csv",
+      "purpose": "逐行取 5 条自记账原始值并累加 amount"
+    },
+    {
+      "path": "fixtures/tasks/T-02/bill.csv",
+      "purpose": "逐行取 8 条交割单原始值、日期双列与费用分解，逐单号比对四列"
+    },
+    {
+      "path": "protocol/07-轮次与指标.md",
+      "purpose": "取 ADJ-001/DIFFSET 取值域、反推规则、out_of_space 判据与排除桶的构造不变式"
+    },
+    {
+      "path": "runs/round6/EX-02.json",
+      "purpose": "回读我自己上一同类任务的立场，检查是否存在跨轮自相矛盾"
+    },
+    {
+      "path": "runs/round7/EX-02.json",
+      "purpose": "回读我自己上一轮立场，确认上一轮在金额桶归属上与我本轮相反，需在 disclosure 中如实交代"
+    }
+  ],
+  "dissent": [
+    {
+      "against": "ANON-B｜把 T013/T015 的 520.00 归入 excluded（非交易现金流）",
+      "reason": "协议 07 §4.1 明写排除桶的非零部分只来自口径差（夹具构造保证）。本任务的口径差只有 T011 的 120.00；股息行是『自记账无此行』，属 §D 的单侧存在单号，§D 对该情形的规定是『差额取该单号在该侧的 amount』=260.00，没有任何豁免。B 的排除理由是自造的语义标准（是否属成交），而契约 C 只问单号归入哪一类，不问该现金流性质。按 B 划分，ADJ-001 会从『口径差是否计入』漂移为『非交易项是否计入』，同一轴跨轮不可比。",
+      "reverse_evidence": "若 TASK 或裁决声明 amount 列在股息行不代表成交金额、且排除桶专收非交易现金流，则 13920.00/520.00 成立，我错。"
+    },
+    {
+      "against": "ANON-A｜以『14320+120=14440 精确闭合』支撑 ADJ-001 取值",
+      "reason": "闭合是恒等式，不是证据。六条差异的 abs 差额之和 120+13800+260+260+0+0=14440.00 只取决于哪些单号进了清单，与清单内部如何切两个桶无关：14320+120、13920+520、14440+0 三者都精确等于 14440.00。更强的一点：改用 settle_date 作日期基准会得到 8 条差异，其 abs 差额之和依然是 14440.00。该等式在正确答案与已知错误答案上同时成立，无法区分任何一次划分。A 的结论我认同，但其首要不变量是空的。",
+      "reverse_evidence": "若能给出一个闭合关系在 13920/520 或 14440/0 下不成立的算例，则闭合具备判别力、我的批评失效。"
+    },
+    {
+      "against": "ANON-C｜count：amount_diff_total=14440.00、excluded=[]",
+      "reason": "C 把 T011 的 120.00 当作普通金额差，忽略它两侧各自算对（45000=1000×45.00、45120=1000×45.12），差额来自 note 已披露的记账基准选择，而非任一方的算错或漏记。契约把差异拆成『计入/不计入』两桶并要求给排除类别命名，正是为了让已披露的口径差与未解释的漏记分开。C 的做法令 excluded 三字段恒为 0/[]，ADJ-001 退化为常量；同时它一边承认 T014（股数 0 对 30）、T016（仅日期）是非金额性差异，一边宣称没有任何类别被排除在金额之外——这个划分下排除桶再无任何可容纳条目。",
+      "reverse_evidence": "若裁决认定 amount_diff_total 就是原始差额总和、排除桶仅用于零金额条目，则 C 成立、我错。"
+    },
+    {
+      "against": "ANON-B｜日期基准的推导方向",
+      "reason": "B 以『若取 settle_date 则差异数会冲到 8、超出 4-7 选项空间』作为口径依据，是从答案空间反推数据口径，方向反了：正确的推理应是数据先定基准、再看差异数落在哪。6 的真正依据是 T009/T010 的 note=正常 且 ledger.date 恰等于 trade_date（8 条里仅 T016 落在 settle_date）。结论仍取 6，但这条论据不应被写入聚合。",
+      "reverse_evidence": "若查出该夹具的日期口径本就由选项空间反向锁定，则此批评撤回。"
+    }
+  ],
+  "confidence": "medium",
+  "needs_more_data": [
+    "裁决口径：排除桶是否专指口径差（决定 120.00 归哪个桶）",
+    "T011 的委托单/成交回报，用以区分『披露的记账基准』与『录入错误』",
+    "股息行 amount 是否具备成交金额语义（决定 520.00 归哪个桶）"
+  ],
+  "stance": [
+    {
+      "axis": "ADJ-001",
+      "choice": "exclude"
+    },
+    {
+      "axis": "DIFFSET",
+      "choice": "6"
+    }
+  ],
+  "summary": {
+    "ledger_rows": 5,
+    "bill_rows": 8,
+    "ledger_total": 114800.0,
+    "bill_total": 129240.0,
+    "raw_total_gap": 14440.0,
+    "dedup_removed_txn_count": 0,
+    "dedup_amount": 0.0,
+    "diff_count": 6,
+    "amount_diff_total": 14320.0,
+    "excluded_amount_total": 120.0,
+    "excluded_categories": [
+      "成交价计量基准差"
+    ]
+  },
+  "diffs": [
+    {
+      "id": "T011",
+      "category": "成交价计量基准差"
+    },
+    {
+      "id": "T012",
+      "category": "自记账漏记（新股中签买入）"
+    },
+    {
+      "id": "T013",
+      "category": "自记账漏记（现金分红）"
+    },
+    {
+      "id": "T014",
+      "category": "权益变动股数未更新"
+    },
+    {
+      "id": "T015",
+      "category": "自记账漏记（现金分红）"
+    },
+    {
+      "id": "T016",
+      "category": "入账日期口径差"
+    }
+  ],
+  "categories": {
+    "成交价计量基准差": [
+      "T011"
+    ],
+    "自记账漏记（新股中签买入）": [
+      "T012"
+    ],
+    "自记账漏记（现金分红）": [
+      "T013",
+      "T015"
+    ],
+    "权益变动股数未更新": [
+      "T014"
+    ],
+    "入账日期口径差": [
+      "T016"
+    ]
+  },
+  "usage": {
+    "tokens": 26000,
+    "minutes": 14,
+    "source": "self_report"
+  },
+  "disclosure": "① 自相矛盾如实交代：我在 round6（同类任务）主张排除 120.00 并计入股息 520.00，在 round7 却对同构行采用相反划分（计入 120.00、排除 520.00）。本轮我据 protocol/07 §4.1 的排除桶不变式改回『排除口径差、计入漏记股息』，并认定 round7 那次是错误漂移，非立场修正。② 全员在 dedup=0 与 diff_count=6 上一致，我复算后仍持 6，但一致本身不构成验证。③ 读取声明：除 reads[] 所列文件外，我仅对 runs/round5-9 目录做了 ls 列表（未打开 round5 内的任何文件），未读取 fixtures/truth.json、fixtures/spec/、config/、judges/、adjudication-record*、runs/round9/presentation/ 下任何文件。④ 本轮未向磁盘写入任何文件。"
+}

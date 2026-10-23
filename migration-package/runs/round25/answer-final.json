@@ -1,0 +1,112 @@
+{
+ "task_id": "T-05",
+ "round": 25,
+ "aggregated_by": "PM-01",
+ "summary": {
+  "ledger_rows": 7,
+  "bill_rows": 8,
+  "ledger_total": 181800.0,
+  "bill_total": 182180.0,
+  "raw_total_gap": 380.0,
+  "dedup_removed_txn_count": 0,
+  "dedup_amount": 0.0,
+  "diff_count": 6,
+  "amount_diff_total": 380.0,
+  "excluded_amount_total": 0.0,
+  "fee_diff_total": 26.55,
+  "excluded_categories": [
+   "费用差异",
+   "股数差异",
+   "日期口径差异"
+  ]
+ },
+ "diffs": [
+  {
+   "id": "T035",
+   "category": "成交价差异"
+  },
+  {
+   "id": "T036",
+   "category": "费用差异"
+  },
+  {
+   "id": "T037",
+   "category": "费用差异"
+  },
+  {
+   "id": "T038",
+   "category": "股数差异"
+  },
+  {
+   "id": "T039",
+   "category": "单侧缺失"
+  },
+  {
+   "id": "T040",
+   "category": "日期口径差异"
+  }
+ ],
+ "categories": {
+  "成交价差异": [
+   "T035"
+  ],
+  "费用差异": [
+   "T036",
+   "T037"
+  ],
+  "股数差异": [
+   "T038"
+  ],
+  "单侧缺失": [
+   "T039"
+  ],
+  "日期口径差异": [
+   "T040"
+  ]
+ },
+ "falsification": "以下任一成立，本聚合结论即错：(1) 日期列须对 settle_date 对齐 —— 清单变 7 条（T033/T034 转为差异、T040 转为无差异），diff_count=6 与分类归属全部作废；(2) 裁决认定 T035 的 120.00 属「同一成交两种计价基准」不得计入金额差异 —— 则 amount_diff_total 应为 260.00、excluded_amount_total 120.00（两数之和仍为 380.00，故该错误无法由 gap 闭环检出）；(3) 任一单号在两侧出现多次（按单号计重复）—— 则 dedup 不再为 0/0.00，且重复项须退出金额合计；(4) 两侧 amount 列并非成交金额或存在未经声明的含费换算 —— 则 181800.00/182180.00 与 380.00 的算术前提失效。另：单号并集仅 8，diff_count>8 在算术上不可能。",
+ "diff_preserved": [
+  {
+   "side": "多数",
+   "conclusion": "ADJ-001 轴取 count：T035 的 120.00 计入金额差异，amount_diff_total=380.00、excluded_amount_total=0.00（EX-01、EX-03 两席，PM-01 采用）。",
+   "falsification": "若 TASK.md 或人类裁决明写「按委托价记账」属计价口径差、不得计入金额差异，或 spec 的 exclude 选项经人类签字采纳，则本条撤销。"
+  },
+  {
+   "side": "少数",
+   "conclusion": "ADJ-001 轴取 exclude：T035 是同一笔 45.12 被按 45.00 委托价入账，属计价口径差，故 amount_diff_total=260.00、excluded_amount_total=120.00，excluded_categories 增列「计价口径差异」（EX-02 一席）。",
+   "falsification": "若口径差仅指含费/净额换算，或能证明 T035 是两笔独立成交，或契约明写四列差异一律计入，则本条撤销。"
+  },
+  {
+   "side": "少数",
+   "conclusion": "excluded_categories 应为 []：该字段在本数据上不改变任何金额（三类差额恒 0.00），非空清单会被下游读成「这些类别不计入」的跳过名单，导致 26.55 元费用与 +30 股被静默跳过（EX-03 一席）。",
+   "falsification": "若下游只把该字段当报告标签、从不作跳过条件，则本条无增益，采纳非空清单不产生风险。"
+  },
+  {
+   "side": "多数",
+   "conclusion": "excluded_categories 取非空三元素（费用差异／股数差异／日期口径差异）：三类均已进入 diffs 但不贡献金额，excluded_amount_total 仍为 0.00（EX-01 一席，PM-01 采用；与 count 选项的金额取值不冲突）。",
+   "falsification": "若判分要求 excluded_categories 与「差额非零的排除类」严格一一对应，则非空登记会被判为多余标签，应退回 []。"
+  },
+  {
+   "side": "多数",
+   "conclusion": "三席就 diff_count=6 完全一致，且均取 ledger.date 对 bill.trade_date 对齐；差异清单为 T035–T040 共 6 条。",
+   "falsification": "若日期须按 settle_date 对齐，则应为 7 条（T033–T039），6 为错；此一致性有共用输入导致的相关的风险，不构成独立验证。"
+  }
+ ],
+ "aggregation_inputs": [
+  {
+   "seat": "EX-01",
+   "sha256": "986a91972ded4b0aa19e10d54eb7e10d88e4800edc1cb94568e3f7049546a8fe",
+   "seat_check_status": "valid"
+  },
+  {
+   "seat": "EX-02",
+   "sha256": "b7d4d465a5587a2ee6869f1adad2f8601f9a438c5b76b0452bcac45e318b8ed4",
+   "seat_check_status": "valid"
+  },
+  {
+   "seat": "EX-03",
+   "sha256": "c8be27b84cf70198e5127e412121e37894e5420e6832f725d0bc45112bc4af7c",
+   "seat_check_status": "valid"
+  }
+ ]
+}

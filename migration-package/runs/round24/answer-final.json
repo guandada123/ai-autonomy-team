@@ -1,0 +1,98 @@
+{
+ "task_id": "TASK-BROKER-004",
+ "fixture_task": "T-04",
+ "round": 24,
+ "round_role": "revision_round",
+ "aggregated_by": "PM-01",
+ "summary": {
+  "ledger_rows": 5,
+  "bill_rows": 8,
+  "ledger_total": 252800.0,
+  "bill_total": 279440.0,
+  "raw_total_gap": 26640.0,
+  "dedup_removed_txn_count": 0,
+  "dedup_amount": 0.0,
+  "diff_count": 6,
+  "amount_diff_total": 26640.0,
+  "excluded_amount_total": 0.0,
+  "fee_diff_total": 6.79,
+  "excluded_categories": [
+   "股数不一致（送转未更新）",
+   "日期口径差异（按交割日入账）"
+  ]
+ },
+ "diffs": [
+  {
+   "id": "T027",
+   "category": "成交价与费用不一致（按委托价记账）"
+  },
+  {
+   "id": "T028",
+   "category": "单侧存在-自记账缺（中签买入）"
+  },
+  {
+   "id": "T029",
+   "category": "单侧存在-自记账缺（现金分红）"
+  },
+  {
+   "id": "T030",
+   "category": "股数不一致（送转未更新）"
+  },
+  {
+   "id": "T031",
+   "category": "单侧存在-自记账缺（现金分红）"
+  },
+  {
+   "id": "T032",
+   "category": "日期口径差异（按交割日入账）"
+  }
+ ],
+ "categories": {
+  "成交价与费用不一致（按委托价记账）": [
+   "T027"
+  ],
+  "单侧存在-自记账缺（中签买入）": [
+   "T028"
+  ],
+  "单侧存在-自记账缺（现金分红）": [
+   "T029",
+   "T031"
+  ],
+  "股数不一致（送转未更新）": [
+   "T030"
+  ],
+  "日期口径差异（按交割日入账）": [
+   "T032"
+  ]
+ },
+ "falsification": "本结论在下列任一条件下即错：①契约或账套书面口径把「非成交资金流水」排除在成交金额口径之外（则 T029/T031 的 520.00 转入 excluded，amount_diff_total=26120.00、excluded_amount_total=520.00，diff_count 仍 6）；②自记账侧存在现金流水/应收股利科目，显示 520.00 已另行入账（则它不是口径问题而是重复入账/漏记，仍应计入 26640.00 但类别命名失效）；③账套说明确立自记账 date 对应 settle_date 而非 trade_date（则 T025/T026 转为差异、T032 转为非差异，diff_count 变 7，金额类字段仍为 26640.00/0.00）；④任一 txn_id 在同侧出现多次（则 dedup_removed_txn_count 与 dedup_amount 非 0，两个金额字段须整体重算）。另：26640.00+0.00 恰等于 raw_total_gap 只是加总闭合的恒等式，不构成分区正确的证据 —— 本结论的可裁决性依赖 §D 的字面口径，不依赖闭合。",
+ "diff_preserved": [
+  {
+   "side": "多数",
+   "conclusion": "ADJ-001=count：按 TASK.md §D 字面（差异单号=四列不完全相同；仅单侧存在者亦为差异单号，差额取该侧 amount），T029/T031 的两个 260.00 全额计入。sum(120.00, 26000.00, 260.00, 260.00)=26640.00，excluded_amount_total=0.00。持此结论：EX-01、EX-03（2/3 席，且分别以逐行 Decimal 复算与可执行脚本硬闸两条独立路径到达）。",
+   "falsification": "若契约或账套明确 amount_diff_total 只覆盖 side∈{买入,卖出} 的单号，或规定「非成交资金流水」不计入成交金额口径，则多数结论失效，应改用 26120.00/520.00。"
+  },
+  {
+   "side": "少数",
+   "conclusion": "ADJ-001=exclude：T029/T031 shares=0、佣金/印花税/过户费全为 0、fee_total=0，仅有 amount=260.00，不具成交要素；契约专设 excluded_amount_total 与 excluded_categories 两字段，其存在前提就是「有一类差异不属于成交金额」。故 amount_diff_total=26120.00、excluded_amount_total=520.00。持此结论：EX-02（1/3 席）。",
+   "falsification": "若契约把 amount_diff_total 定义为 amount 列全部非重复单侧差额之和，或 T029/T031 的 260.00 实为成交对价（如红股卖出）而非派现，则少数结论失效。"
+  }
+ ],
+ "aggregation_inputs": [
+  {
+   "seat": "EX-01",
+   "sha256": "7fd943a926d4363b1837a49a963f9247ca8685946a978f68ca81709a34d6008f",
+   "seat_check_status": "valid"
+  },
+  {
+   "seat": "EX-02",
+   "sha256": "48c51cf6d256d350b06648c90c9e4ec5455ce22f06c6d15c210e69324b9add7c",
+   "seat_check_status": "valid"
+  },
+  {
+   "seat": "EX-03",
+   "sha256": "2c439065d4bdda4dfecb2ee6160a415fb9100922e82d1a1ce2963ff838235245",
+   "seat_check_status": "valid"
+  }
+ ]
+}

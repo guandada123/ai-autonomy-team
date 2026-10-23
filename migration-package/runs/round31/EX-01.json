@@ -1,0 +1,74 @@
+{
+  "seat": "EX-01",
+  "round": 31,
+  "conclusion": "按契约 D 字面执行、日期列取 trade_date（TASK 明示按成交日列示）：差异 6 单 T083/T084/T085/T086/T087/T088；amount_diff_total 76640.00、excluded 0.00。金额全由 T084 76000.00、T083 120.00、T085/T087 各 260.00 构成，T086/T088 差额 0.00。",
+  "evidence": [
+    {"pointer": "fixtures/tasks/T-11/ledger.csv#amount 5 行", "what_it_shows": "合计 256800.00，行数 5"},
+    {"pointer": "fixtures/tasks/T-11/bill.csv#amount 8 行 + txn_id", "what_it_shows": "合计 333440.00，gap 76640.00；txn_id 无重复 → dedup 0 单/0.00"},
+    {"pointer": "fixtures/tasks/T-11/ledger.csv#T083{45000.00,11.70} 对 bill.csv#T083{45120.00,11.73}", "what_it_shows": "唯一双向非零差：金额 120.00，费用 0.03"},
+    {"pointer": "fixtures/tasks/T-11/bill.csv#T088{settle_date=09-18} 对 ledger.csv#T088.date=09-18", "what_it_shows": "入账日等于交割日、不等于成交日 09-17"}
+  ],
+  "falsification": "若规范把交割单「日期」列授权为 settle_date，我的 6 条应改为 7 条（T081/T082 入列、T088 出列）；若 T085 的 600519 被证实为他户串户而非本方漏记，其 260.00 应剔除；若「费用」口径被要求还原最低佣金 5 元或并入 amount 后再比对，T083 的 120.00 与 T088 的 5.14 均需重算。",
+  "reads": [
+    {"path": "runs/round31/prompts/EX-01.md", "purpose": "读取本席位职责、读取域与输出契约"},
+    {"path": "runs/round31/prompts/EX-02.md", "purpose": "确认对立面席位的输出字段要求（仅作格式对照，不作证据）"},
+    {"path": "runs/round31/prompts/EX-03.md", "purpose": "确认落地席位字段要求（仅作格式对照，不作证据）"},
+    {"path": "fixtures/tasks/T-11/TASK.md", "purpose": "提取字段定义 A–D、四列差异判定口径与输出 schema"},
+    {"path": "fixtures/tasks/T-11/ledger.csv", "purpose": "自记账 5 行的股数/金额/费用/日期逐行取值与合计"},
+    {"path": "fixtures/tasks/T-11/bill.csv", "purpose": "交割单 8 行的股数/金额/费用/日期逐行取值与合计"},
+    {"path": "protocol/02-辩论协议.md", "purpose": "确认每席必交反对意见与反证条件、证据制聚合规则"},
+    {"path": "protocol/06-写入域与判据分层.md", "purpose": "确认 diff_count/amount_diff_total 属判断层而非算术层，算术层仅白名单 7 项"}
+  ],
+  "dissent": [
+    {
+      "against": "ANON-A",
+      "reason": "若其主张「单侧缺失的 T084/T085/T087 属漏记、应另立一类并从差异清单剔除」，与契约 D 第二句「仅单侧存在的单号亦为差异单号」直接冲突；且剔除后 diff_count=3、金额差只剩 120.00，与 raw_total_gap 76640.00 的 99.8% 缺口无从解释，等于用分类掩盖最大金额项。",
+      "reverse_evidence": "若 spec 新增「漏记」独立字段并把仅单侧单号排除在 diffs 之外，则其立场成立、我的 6 条须改写。"
+    },
+    {
+      "against": "ANON-B",
+      "reason": "若其主张 diff_count=5（剔除 T088 日期差），理由是入账日等于交割日；但同一推理若一致适用，则 T081/T082 的入账日等于成交日、不等于交割日，应被视为无差异——其口径在 T081/T082 与 T088 上不一致，属选择性适用。",
+      "reverse_evidence": "若其能给出统一日期规则（例如一律以「记账基准日」比对并声明该基准），且该规则下 diff_count 可复现为 5，则我撤回此条。"
+    }
+  ],
+  "confidence": "high",
+  "needs_more_data": [
+    {"type": "缺规则", "item": "交割单「日期」列未定义取 trade_date 还是 settle_date；本例使 diff_count 在 6 与 7 之间摆动（金额恒为 76640.00）"},
+    {"type": "缺规则", "item": "「费用」是否等于 fee_total 原值，还是在 amount 之外另行还原最低佣金/过户费"},
+    {"type": "缺数据", "item": "T085 的 600519 在我方账上无任何持仓或成交记录，无法判断是漏记、串户还是他户分红"},
+    {"type": "缺数据", "item": "T086 送转基数：bill 记 30 股，而 10送3×1000 股应为 300 股，缺权益分派公告以定基准"}
+  ],
+  "stance": [
+    {"axis": "ADJ-001", "choice": "count"},
+    {"axis": "DIFFSET", "choice": "6"}
+  ],
+  "summary": {
+    "ledger_rows": 5,
+    "bill_rows": 8,
+    "ledger_total": 256800.00,
+    "bill_total": 333440.00,
+    "raw_total_gap": 76640.00,
+    "dedup_removed_txn_count": 0,
+    "dedup_amount": 0.00,
+    "diff_count": 6,
+    "amount_diff_total": 76640.00,
+    "excluded_amount_total": 0.00,
+    "excluded_categories": []
+  },
+  "diffs": [
+    {"id": "T083", "category": "成交价口径差（委托价记账）"},
+    {"id": "T084", "category": "单侧缺失·交易（中签买入）"},
+    {"id": "T085", "category": "单侧缺失·非交易（股息入账）"},
+    {"id": "T086", "category": "股数差（送转未更新）"},
+    {"id": "T087", "category": "单侧缺失·非交易（股息入账）"},
+    {"id": "T088", "category": "日期差（入账日≠成交日）"}
+  ],
+  "categories": {
+    "成交价口径差（委托价记账）": ["T083"],
+    "单侧缺失·交易（中签买入）": ["T084"],
+    "单侧缺失·非交易（股息入账）": ["T085", "T087"],
+    "股数差（送转未更新）": ["T086"],
+    "日期差（入账日≠成交日）": ["T088"]
+  },
+  "usage": {"tokens": 6200, "minutes": 4, "source": "self_report"}
+}

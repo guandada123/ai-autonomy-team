@@ -1,0 +1,224 @@
+{
+  "seat": "AD-01",
+  "round": 12,
+  "action": "HOLD",
+  "conclusion": "本轮 HOLD。时序锚定成立（verdict-layered.json 与 pending-adjudication.json 的 verdict=pending_adjudication、spec_layer、ts 均已抄录，pending=2）。结构层面三处硬伤：其一，官方三份机器校验产物（seat-check.json / read-domain-check.json / write-domain-check.json）在 runs/round12/ 中全部不存在，席位结构合格性改由 PM-01 以自造判据出具（answer-final.json#aggregation_inputs 只留 EX-01 单席并自标 seat_check_status=valid），验证者与产出者同侧；其二，PM-01 自述读取越界（judges/ 目录列举）且无授权留痕，第 9 查命中；其三，pending 非空且 ADJ-002 选项仅为数字、无语义映射，人类闸门无法唯一签署。分歧留存形式齐备（diff_preserved 5 条、alternatives_rejected 4 条、XJ-01 4 项分歧 + 4 项 overlooked_stances）但熵近零且无魔鬼代言人轮。本席不对 6 / 380.00 / 7 任何一方作对错判断。",
+  "audited_inputs": [
+    {
+      "path": "runs/round12/verdict-layered.json",
+      "verdict": "pending_adjudication",
+      "spec_layer": "all",
+      "ts": "2026-10-20T14:05:47+08:00"
+    },
+    {
+      "path": "runs/round12/pending-adjudication.json",
+      "verdict": "pending_adjudication",
+      "spec_layer": "all",
+      "pending_count": 2,
+      "ts": "2026-10-20T14:05:47+08:00"
+    }
+  ],
+  "checks": [
+    {
+      "no": 1,
+      "name": "谁在验证谁",
+      "verdict": "HOLD",
+      "reason": "官方非 LLM 结构校验产物 runs/round12/seat-check.json 本轮不存在（目录列举确认，仅有 EX-01/EX-02/EX-03/XJ-01/PM-01/answer-final/pending-adjudication/round-manifest/verdict-layered/wd-baseline 十个文件）。席位结构合格性改由 PM-01 自行出具：answer-final.json#aggregation_inputs 仅保留 EX-01 一项、seat_check_status 标为 valid，而 PM-01.json#board 对 EX-02/EX-03 判 fail（理由：顶层缺 diffs[]/categories[]）；PM-01.json#self_doubt④ 自认『这是我按 TASK.md 约束 4 做的自检判定，非官方 seat_check.py 结论』。PM-01 同时是 answer-final.json 的产出者，故结构层的验证者与产出者同侧，不产生独立性。跨家族 XJ-01 权重 0、JD-01（verify.py, non-LLM）只校验最终 answer 的数值与在场性、不校验席位结构，均不能替代该缺口。",
+      "evidence": "answer-final.json#aggregation_inputs + PM-01.json#board + PM-01.json#self_doubt④"
+    },
+    {
+      "no": 2,
+      "name": "外部钩子",
+      "verdict": "PASS",
+      "reason": "主结论侧均可回读到行级实体：本席按 T-05 两份 CSV 独立复算，ledger 7 行 181800.00、bill 8 行 182180.00、差 380.00，与 verdict-layered.json#checks 的算术断言逐项相符；6 个差异单号各有可定位的行级锚点（T035 price 45.12/45.00 与 fee 11.73/11.70；T036、T037 fee 19.76/6.50；T038 shares 30/0；T039 仅 bill 侧 amount=260.00；T040 ledger.date 09-15 对 trade_date 09-14）。未完全满足的部分：EX-01.json#falsification『settle_date 基准 diff_count 应为 8』与 EX-02.json#dissent 第三条『应为 11』这两个反事实数字，按两份 CSV 复算不可回读（settle_date 基准实算为 7 个单号 T033–T037、T038、T039；T040 因 09-15 等于 settle_date 退出），而 falsification 是 TASK.md 约束 5 的硬字段。因主结论侧锚点完整、缺口限于反事实子句，本条判 PASS 并记入 barely_passed。",
+      "evidence": "fixtures/tasks/T-05/{ledger.csv,bill.csv} 行级复算 + verdict-layered.json#checks + EX-01.json#falsification + EX-02.json#dissent"
+    },
+    {
+      "no": 3,
+      "name": "终止条件",
+      "verdict": "PASS",
+      "reason": "round-manifest.json#termination 显式声明 condition=pending_adjudication、declared_by=orchestrator，并注明『protocol/02 §4.2 四选一』；verdict-layered.json 以 verdict=pending_adjudication 落定并附 override_policy（要求 PM 改判须留痕署名，字段含风险评级/不可逆/理由/承担人）。pending[] 每一项均带 id、question、paths_affected 与 options，可被外部消费。终止状态不靠隐式约定。",
+      "evidence": "round-manifest.json#termination + verdict-layered.json#override_policy"
+    },
+    {
+      "no": 4,
+      "name": "分歧留存",
+      "verdict": "HOLD",
+      "reason": "形式要件满足：answer-final.json#diff_preserved 5 条（多数 2 / 少数 3）、PM-01.json#alternatives_rejected 4 条均带 why_not 与风险边界、XJ-01.json 登记 4 项 disagreements 与 4 项 overlooked_stances，少数派有记录、非只上交一份结论。但第三款『分歧熵低于下限却无魔鬼代言人轮』成立：三席 summary 11 字段数值完全相同（分歧熵近零，唯一分裂在 ADJ-001 标签），聚合输入收缩为 EX-01 单席单 sha 锚（answer-final.json#aggregation_inputs 长度=1），round12 无魔鬼代言人轮产出——AD-01 在 round-manifest.json 属 optional_seats 且聚合时刻缺席（PM-01.json#board 'T-05/AD-01' 记『阻塞』），PM-01.json#self_doubt⑥ 自认『AD-01 缺席，本轮没有真正的反方，我的拍板建立在三席自设 dissent 之上，对抗强度不足』。低熵 + 无 DA 轮 + 单席聚合同时出现，判据命中。",
+      "evidence": "answer-final.json#diff_preserved,#aggregation_inputs + PM-01.json#self_doubt⑥,#board + round-manifest.json#optional_seats"
+    },
+    {
+      "no": 5,
+      "name": "规格假设",
+      "verdict": "HOLD",
+      "reason": "自动判定项：pending-adjudication.json#summary.pending=2（ADJ-001 费用是否计入、ADJ-002 差异清单构成）非空 ⇒ HOLD。三项附加结构观察（不改变自动结论，供闸门参考）：① 决定 diff_count 取 6 还是 7 的『ledger.date 法定配对 trade_date / settle_date』未进入 pending 清单，仅存在于 PM-01.json#alternatives_rejected 的『风险边界』与各席 falsification 中，属未登记的关键假设；② ADJ-002 的四个选项写作纯数字 6/5/4/3，未标注每个数字对应 (a) equity 类 2 条、(b) settle_day 类 1 条 的哪一子集组合，人类签字时无法把选项唯一映射到语义；③ EX-03.json#needs_more_data 自述『我只能用「结果须落在 7/6/5/4」反推』日期配对，EX-02.json#dissent 亦以『stance 选项空间上界为 7，已排除 11』作排除依据——用答案空间反推口径，属规格层未声明假设的另一种形态。",
+      "evidence": "pending-adjudication.json#pending + PM-01.json#alternatives_rejected + EX-03.json#needs_more_data"
+    },
+    {
+      "no": 6,
+      "name": "失败归因",
+      "verdict": "PASS",
+      "reason": "未见『模型失败记为数据不足』或反向误记：EX-01.json#needs_more_data 两条（缺持仓流水无法校验 T038 的 +30 股、缺股息税率信息）确为输入侧数据缺口；EX-03.json#needs_more_data 三条（缺口径差定义、缺日期法定配对、股息是否属成交）被正确标为规格/契约缺口而非数据缺口；PM-01.json 把 8 与 11 两个反事实值定性为『论证瑕疵而非结论错误』，归因指向推理侧。三类失败的标签与实际缺失对象一致。",
+      "evidence": "EX-01.json#needs_more_data + EX-03.json#needs_more_data + PM-01.json#basis[6]"
+    },
+    {
+      "no": 7,
+      "name": "无裁判推进",
+      "verdict": "PASS",
+      "reason": "唯一的推进动作是写出 answer-final.json 的定值 summary 与 6 条 diffs，该动作已被裁判状态绑定：verdict-layered.json#evidence[0] 以 sha256=13d3af84… 锚定该文件，verdict=pending_adjudication，并附 override_policy（PM 改判须留痕承担人）；PM-01.json#board 对 EX-02/EX-03/ADJ-001/ADJ-02 相关项均标『待裁』，无未标注裁判状态的静默推进。附注（不构成 HOLD）：文件名 answer-final.json 在语义上先于人类闸门宣称终态，下游若按文件名而非 verdict 读取，会把 pending 误读为已签署。",
+      "evidence": "verdict-layered.json#evidence[0],#override_policy + PM-01.json#board"
+    },
+    {
+      "no": 8,
+      "name": "写入域",
+      "verdict": "PASS",
+      "reason": "未能核验（write-domain-check.json 本轮不存在，无机器判定）。可核验部分：round-manifest.json#write_domain.allow=[round12/]，本轮新增/改写的 answer-final.json 与 PM-01.json 均落在 runs/round12/ 内；PM-01.json#risk.rollback 声明 fixtures 只读未改；PM-01.json#reads 未申报任何对 fixtures/ outputs/ docs/ 的写动作。未发现『对共享/禁止目录写入且无授权留痕』的证据，故不据此 HOLD。按 AD-01 提示词原文，此结论是下界而非证明：本席无法看见未申报的写入。另记：EX-03.json#rollback 描述的 answer.json.bak 与 _trash/ 写入属该席的计划文本（execution_path/rollback 为方案描述），未见实际执行痕迹，不据此判 HOLD。",
+      "evidence": "round-manifest.json#write_domain + runs/round12/ 目录列举（无 write-domain-check.json）+ PM-01.json#risk"
+    },
+    {
+      "no": 9,
+      "name": "席位读取域",
+      "verdict": "HOLD",
+      "reason": "read-domain-check.json 本轮不存在（无机器 verdict）。但按判据本身（席位申报读取落在禁读清单且无 PM 授权留痕）可自行判定为命中：PM-01.json#reads 末条申报 path=『judges/（目录列举，误触，未读任何文件内容）』，judges/ 在席位禁读清单内；本轮无任何针对该目录的 PM 授权留痕——PM 自身即被授权方，自授权不构成留痕；PM-01.json#self_doubt⑤ 亦自认『该动作仍属触碰禁读目录，我如实登记于此，不掩盖』。形态最轻（仅目录列举、未开文件、未用于结论），但不改变判据命中。另：该条同时说明第 9 查的检测只覆盖『申报的读取』，未申报读取对脚本不可见，CLEAN 仅为下界。",
+      "evidence": "PM-01.json#reads[末条] + PM-01.json#self_doubt⑤ + runs/round12/ 目录列举（无 read-domain-check.json）"
+    }
+  ],
+  "assumptions_to_adjudicate": [
+    {
+      "assumption": "ledger.date 的法定配对列是 bill.trade_date（成交日）还是 bill.settle_date（交割日）。",
+      "why_undecidable": "TASK.md §D 只写『日期』一列有差异即为差异单号，未指明 ledger.date（入账日）对齐 bill 的哪一列；两种配对下 diff_count 分别为 6（T033–T038 中 6 条实为 T035–T040）与 7（T033–T037、T038、T039），主结论取值随该假设翻转。该假设未登记进 pending-adjudication.json 的两项之中，只能由 falsification 与 alternatives_rejected 的『风险边界』间接看到；三席与 XJ-01 共享同一选择，相关误差无法在本轮内部被发现。",
+      "what_would_make_it_decidable": "在 TASK.md §D 或判分口径中明文写出配对列；或提供持仓/成交流水作为第三方锚点；或将该假设升格为 ADJ-003 并给出 options=[trade_date, settle_date]。"
+    },
+    {
+      "assumption": "excluded_categories 是否允许登记『差额合计为 0.00』的类别（answer-final 取 FEE_ONLY_DIFF / SHARE_QTY_DIFF / BOOKING_DATE_DIFF 三类零金额，EX-03 取 []）。",
+      "why_undecidable": "TASK.md §C 只要求 excluded_categories 为『被排除在金额差异之外的类别名列表（若无则填 []）』，未规定『被排除但差额为 0』的类别应列还是应省；JD-01 的 present 断言只校验字段存在且非空，无法区分两种语义。故『非空三类 + excluded_amount_total=0.00』与『[] + 0.00』在机器侧不可区分，只能由语义规则裁定。",
+      "what_would_make_it_decidable": "契约补一句『零差额类别是否计入 excluded_categories』，或公开判分断言集（是否校验 categories 与 excluded_categories 的语义映射）。"
+    },
+    {
+      "assumption": "在官方 seat-check.json 缺失的情况下，PM-01 是否有权以自造判据将 EX-02/EX-03 判为结构不合格并移出 aggregation_inputs。",
+      "why_undecidable": "TASK.md 约束 4 要求 diffs 每条含 id 与 category、categories 与 diffs 自洽，且 diff_count 须等于 diffs 数组长度——EX-02/EX-03 顶层确无这两个数组（XJ-01.json#disagreements 第 3 项已独立指出），结构缺口客观存在；但『该缺口是否即判 invalid、由谁判』属判定权归属问题，本轮无机器产物可依，PM-01.json#self_doubt④ 自认该判定非官方结论。聚合来源集合因此从 3 席收缩为 1 席，属实质影响。",
+      "what_would_make_it_decidable": "运行官方 seat_check.py 生成 seat-check.json（本轮缺失）；或在契约中指定结构不合格的判定 owner 与判据清单，禁止聚合方自判。"
+    },
+    {
+      "assumption": "fee_total 差额 26.55（T036 13.26 + T037 13.26 + T035 0.03）是否负有显式披露义务，或是否应新增独立字段承载。",
+      "why_undecidable": "amount_diff_total 与 excluded_amount_total 均定义在 amount 列上，fee_total 差额在 summary 11 个字段中结构性无落点；TASK.md 未设费用差异字段，也未要求单列披露。故 26.55 只能以自由文本留痕（answer-final.json#diff_preserved 末条 + PM-01.json#board 'GAP-FEE'），披露粒度不可校验，也无法由 JD-01 抓到。",
+      "what_would_make_it_decidable": "契约新增 fee_diff_total 字段，或明确要求『费用差额须单列披露』并给出校验方式（断言或字段）。"
+    },
+    {
+      "assumption": "ADJ-002 的四个数值选项 6 / 5 / 4 / 3 分别对应 (a) equity 类 2 条、(b) settle_day 类 1 条 的哪一子集组合。",
+      "why_undecidable": "pending-adjudication.json#pending[1].question 把两个独立开关（equity 是否列入、settle_day 是否列入）压缩进一组纯数字选项，options 数组仅含字符串 '6'/'5'/'4'/'3'，未标注映射表。人类签字时无法从选项本身判断『5』是保留 equity 剔除 settle_day，还是反之；签署结果可能被反向解读成另一种组合。",
+      "what_would_make_it_decidable": "把 options 改为带语义标签的枚举（如 {'6':'equity+settle_day 均列入','5':'仅剔除 settle_day','4':'仅剔除 equity','3':'两者均剔除'}），或在 question 中给出显式映射表。"
+    }
+  ],
+  "cost_score": {
+    "feedback_delay": "中",
+    "error_cost": "高",
+    "irreversibility": "中",
+    "product": "中"
+  },
+  "barely_passed": "第 2 查（外部钩子）是勉强通过。判它 PASS 的依据只在『主结论的行级锚点完整』这一侧：380.00 / 181800.00 / 182180.00 与 6 个单号我都独立复算对上了。但同一轮的 falsification 字段（TASK.md 约束 5 的硬字段）里，EX-01 的『settle_date 基准应为 8』与 EX-02 的『应为 11』都无法从两份 CSV 复算出来（实算 7），也就是说两份产出的硬字段各有一条内容没有外部回读点。我把它降级为 barely_passed 而非 HOLD，理由只是『主结论侧锚点齐全』——这条界线是我自己划的，契约没有给出『反事实子句不达标是否算第 2 查不合格』的标准。",
+  "my_blind_spots": "① 三份机器产物（seat-check / read-domain-check / write-domain-check）在磁盘上不存在，第 8、9 查我只能靠目录列举与席位自述，无法排除其它路径下存在同名文件或事后才生成；② 我未读 protocol/ 任何正文，『四选一』与『count ⇔ excluded_amount_total==0』的反推规则我只能通过 round-manifest 与 PM 自述间接引用，无法核对其原文是否真的这样写；③ 我完全禁读 truth.json 与 spec/，所以 6 / 380.00 / 7 三者孰为真值我没有任何锚，只能审结构——这也意味着若真值恰在 6 与 7 之外，本轮所有席位的结构都能『通过』；④ 六个席位是否真为不同模型家族，我只能从 manifest 的 optional_seats 与 PM 自述推断，没有模型 ID 或调用记录证据，第 1 查的同族判定因此是弱证据；⑤ 我未读 runs/round11 与 runs/round12/inputs/，无法判断本轮是否复用了上一轮未解决的问题，也无法确认 inputs/ 为空是否本身即是缺陷；⑥ 我的复算只覆盖算术与日期配对两类可脚本化的事实，对『类别语义是否被正确使用』这类判分口径问题完全没有核验能力。",
+  "falsification": "本次审计判断在以下任一条件下为错：(1) 若 read_domains.json 实际允许 PM-01 列举 judges/，或存在一份我未看见的针对 judges/ 的 PM 授权留痕，则第 9 查的 HOLD 应撤销；(2) 若 seat-check.json / read-domain-check.json / write-domain-check.json 存在于其它路径（如 runs/round12/checks/）且其中 seat-check 判定 EX-02/EX-03 为 valid，则第 1、4 查中『聚合来源单席化源于非独立判定』的表述为错，第 8 查也应由『未能核验』改为机器结论；(3) 若 AD-01 在本轮聚合时刻之前已被发起（例如另一会话并行产出），则第 4 查『无魔鬼代言人轮』只能限定为『聚合快照时点之前无 DA 产出』，其 HOLD 强度下降；(4) 若 TASK.md §D 的『日期』被官方解释为唯一确定的配对列，则第 5 查第 ① 项『未登记的关键假设』不成立（pending 仍非空，第 5 查的 HOLD 本身不变）；(5) 若 falsification 子句按契约不属于第 2 查的检查范围，则 barely_passed 的表述应改为第 2 查完全通过，缺口另立条目。",
+  "forbidden": "不得输出对错判断；本产出只判结构可判定性，不判 6 / 380.00 / 7 何者为真。",
+  "evidence": [
+    {
+      "pointer": "runs/round12/verdict-layered.json",
+      "what_it_shows": "verdict=pending_adjudication、spec_layer=all、ts=2026-10-20T14:05:47+08:00；10 条 checks 全 ok、pending=2、adjudication_source=none、carries_undeclared_judgment=false；以 sha256 锚定 answer-final.json。构成时序锚定与第 3、7 查的证据指针。"
+    },
+    {
+      "pointer": "runs/round12/pending-adjudication.json",
+      "what_it_shows": "pending=2（ADJ-001 费用是否计入、ADJ-002 差异清单构成 6/5/4/3），verdict/spec_layer/ts 与 verdict 文件同值；ADJ-002 的 options 仅为数字、无语义映射。构成第 5 查自动 HOLD 的直接指针。"
+    },
+    {
+      "pointer": "runs/round12/answer-final.json#aggregation_inputs",
+      "what_it_shows": "数组长度=1，仅 EX-01 一项，seat_check_status='valid' 由 PM-01 自标；聚合来源集合由此收缩为单席，是本轮最实质的结构事件。"
+    },
+    {
+      "pointer": "runs/round12/PM-01.json#board + #self_doubt",
+      "what_it_shows": "board 对 EX-02/EX-03 判 fail（缺 diffs/categories）、对 AD-01 记『阻塞』、对 ADJ-001 记『待裁』；self_doubt④ 自认结构判定『非官方 seat_check.py 结论』，⑤ 自认曾列举 judges/ 属触碰禁读目录，⑥ 自认本轮无真正反方。构成第 1、4、9 查的直接指针。"
+    },
+    {
+      "pointer": "runs/round12/XJ-01.json#disagreements[2]",
+      "what_it_shows": "独立指出 EX-02 与 EX-03 顶层均无 diffs[]/categories[]，TASK.md 约束 4 与 diff_count==len(diffs) 对二者不可校验；与 PM 的自检结论在事实层一致，但判定权归属仍未解决。"
+    },
+    {
+      "pointer": "runs/round12/EX-02.json 与 EX-03.json 顶层字段清单（本席逐文件核对）",
+      "what_it_shows": "两文件顶层键分别为 conclusion/strongest_counter_arguments/what_would_change_my_mind/evidence/falsification/reads/dissent/confidence/needs_more_data/stance/summary/usage 与 conclusion/execution_path/cost/rollback/op_grade/cross_platform_risks/evidence/falsification/reads/dissent/confidence/needs_more_data/stance/summary/usage —— 均无 diffs 与 categories 键。EX-03 的 execution_path 第 6 步声称『diffs 6 条与 categories 双向自洽』，但对应数组在输出中不存在。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-05/{ledger.csv,bill.csv} + TASK.md §C/§D",
+      "what_it_shows": "本席独立复算：ledger 7 行合计 181800.00、bill 8 行合计 182180.00、差 380.00，与 verdict-layered 算术断言逐项相符；trade_date 基准差异单号 T035–T040 共 6 条，settle_date 基准为 T033–T037、T038、T039 共 7 条。§C 将两个金额字段定义在 amount 列、§D 未指明日期配对列，是第 5 查附加观察与 fee 缺口的契约依据。"
+    },
+    {
+      "pointer": "runs/round12/round-manifest.json#termination,#write_domain,#optional_seats",
+      "what_it_shows": "termination.condition=pending_adjudication 且注明四选一（第 3 查 PASS 依据）；write_domain.allow=[round12/]（第 8 查可核验部分）；AD-01 与 PM-01、XJ-01 同列 optional_seats（第 4 查『AD-01 缺席』的事实依据）。"
+    },
+    {
+      "pointer": "runs/round12/ 目录列举（ls）",
+      "what_it_shows": "实际文件集合为 EX-01/EX-02/EX-03/PM-01/XJ-01/answer-final/pending-adjudication/round-manifest/verdict-layered/wd-baseline 十项；seat-check.json、read-domain-check.json、write-domain-check.json 三者均不存在。这是第 1、8、9 查只能记『未能核验』或依赖自述的原因。"
+    }
+  ],
+  "reads": [
+    {
+      "path": "runs/round12/prompts/AD-01.md",
+      "purpose": "逐字核对本席读取域、九查清单、时序锚定要求、硬性字段与输出 schema"
+    },
+    {
+      "path": "runs/round12/verdict-layered.json",
+      "purpose": "抄录 verdict/spec_layer/ts 作为时序锚定，并核对 checks 与 pending 全量内容"
+    },
+    {
+      "path": "runs/round12/pending-adjudication.json",
+      "purpose": "抄录 verdict/spec_layer/ts 与 summary.pending 作为 pending_count，核对 ADJ-001/ADJ-002 的 options 结构"
+    },
+    {
+      "path": "runs/round12/PM-01.json",
+      "purpose": "读原始产出全文：核对 board 的席位判定、decision/basis、diff_preserved、self_doubt 的越界自述与 reads 申报"
+    },
+    {
+      "path": "runs/round12/XJ-01.json",
+      "purpose": "读原始产出全文：核对 4 项 disagreements 与 4 项 overlooked_stances，确认 diffs/categories 缺失与反事实 7 的独立线索"
+    },
+    {
+      "path": "runs/round12/EX-01.json",
+      "purpose": "读原始产出全文：核对 summary 11 字段、diffs/categories 双向自洽、stance 与数值的映射、falsification 反事实值"
+    },
+    {
+      "path": "runs/round12/EX-02.json",
+      "purpose": "读原始产出全文：核对顶层是否缺 diffs/categories、excluded_categories 非空与 count 标签的张力、反事实 11"
+    },
+    {
+      "path": "runs/round12/EX-03.json",
+      "purpose": "读原始产出全文：核对顶层字段缺口、excluded_categories=[]、以选项空间反推日期配对的表述"
+    },
+    {
+      "path": "runs/round12/answer-final.json",
+      "purpose": "核对聚合产物：summary/diffs/categories 自洽性、falsification 6 条分支、aggregation_inputs 仅单席与自标 seat_check_status"
+    },
+    {
+      "path": "runs/round12/round-manifest.json",
+      "purpose": "确认轮次类型、契约版本、expected/optional seats、termination 与 write_domain 允许域"
+    },
+    {
+      "path": "fixtures/tasks/T-05/TASK.md",
+      "purpose": "取得 summary 字段定义 A/B/C/D、四个易错点与约束 1–5，判断结构可校验性的唯一契约依据"
+    },
+    {
+      "path": "fixtures/tasks/T-05/ledger.csv",
+      "purpose": "独立复算 7 行合计并核对各单号的 date/shares/amount/fee_total 是否与席位指针一致"
+    },
+    {
+      "path": "fixtures/tasks/T-05/bill.csv",
+      "purpose": "独立复算 8 行合计、比对 trade_date 与 settle_date 两种基准下的差异单号集合，核验证据可回读性"
+    },
+    {
+      "path": "runs/round12/（目录列举 ls）",
+      "purpose": "确认本轮实际文件集合，确认 seat-check/read-domain-check/write-domain-check 三份机器产物缺失"
+    }
+  ],
+  "usage": {
+    "tokens": 42000,
+    "minutes": 12,
+    "source": "self_report"
+  }
+}

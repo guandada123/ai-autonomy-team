@@ -1,0 +1,88 @@
+{
+  "slug": "2026-10-22-bc3ddb",
+  "generated_at": "2026-10-23T08:02:00+08:00",
+  "angles": 8,
+  "criteria": [
+    "C1",
+    "C2",
+    "C3",
+    "C4",
+    "C5"
+  ],
+  "pass_total": 40,
+  "cells_total": 40,
+  "column_pass": {
+    "C1": 8,
+    "C2": 8,
+    "C3": 8,
+    "C4": 8,
+    "C5": 8
+  },
+  "solo_criteria": [],
+  "actions_total": 13,
+  "actions_unique": 10,
+  "actions_change_level": 7,
+  "actions_no_data": false,
+  "unique_items": [
+    {
+      "angle": 1,
+      "angle_name": "主推",
+      "text": "改状态前先取得对清单文件的修改批准（该动作改的是交付给目标机的清单）",
+      "level": "change"
+    },
+    {
+      "angle": 1,
+      "angle_name": "主推",
+      "text": "先统计清单里是否有其他项以第 8 项「已完成」为前置条件（材料 F 记为未统计）",
+      "level": "change"
+    },
+    {
+      "angle": 2,
+      "angle_name": "反对",
+      "text": "清单里两个判据字符串并列记录（Permission denied 与 Operation not permitted），不自行选边",
+      "level": "minor"
+    },
+    {
+      "angle": 2,
+      "angle_name": "反对",
+      "text": "实测第 9 查对未申报读取的拦截率（当前未实测），否则方案 A 的兜底是未验证的",
+      "level": "change"
+    },
+    {
+      "angle": 3,
+      "angle_name": "成本",
+      "text": "先确认清单接收方是否接受「架构限制（不适用）」这个状态值，否则返工发生在交付环节",
+      "level": "change"
+    },
+    {
+      "angle": 3,
+      "angle_name": "成本",
+      "text": "4 条 sandbox 实测绑定 Apple M4/macOS 26.5.2，平台变更需重付一次实测成本",
+      "level": "minor"
+    },
+    {
+      "angle": 5,
+      "angle_name": "受益方",
+      "text": "方案 A 把兜底责任转给第 9 查，需为该责任写明承担口径",
+      "level": "minor"
+    },
+    {
+      "angle": 7,
+      "angle_name": "风险与不可逆",
+      "text": "改状态前先确认清单是否纳入版本控制/有备份，否则「能否撤销」不可判",
+      "level": "change"
+    },
+    {
+      "angle": 7,
+      "angle_name": "风险与不可逆",
+      "text": "「⛔ 架构限制（不适用）」措辞须明示不是「已豁免/已完成」，防接收方误读",
+      "level": "change"
+    },
+    {
+      "angle": 8,
+      "angle_name": "度量与证伪",
+      "text": "为第 8 项的新状态定义可观测的验收口径，否则改动只留痕、不可验收",
+      "level": "change"
+    }
+  ]
+}

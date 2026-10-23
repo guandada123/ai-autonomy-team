@@ -1,0 +1,184 @@
+{
+  "seat": "PM-01",
+  "round": 7,
+  "role": "项目经理 / 唯一写入者（只拍板，不持立场，不填 stance）",
+  "board": [
+    {
+      "id": "T-03/EX-01",
+      "owner": "EX-01",
+      "state": "通过",
+      "next_action": "无需返工；其 exclude 口径数值 26120.00/520.00 已被我独立复算采纳",
+      "blocker": "无",
+      "evidence": "runs/round7/EX-01.json（sha256 d065e4946347998292eace16cc8375c3ed797e27587c408435b31631d0b4a060）",
+      "judge": "pass",
+      "deadline": "round7 收轮前"
+    },
+    {
+      "id": "T-03/EX-02",
+      "owner": "EX-02",
+      "state": "通过",
+      "next_action": "无需返工；与 EX-01 数值一致，类别命名差异已在聚合中统一为中文名",
+      "blocker": "无",
+      "evidence": "runs/round7/EX-02.json（sha256 efe13e0c241357a322c1c24c6e61851f38d2ad4dbe6c38e865e976fca8493051）",
+      "judge": "pass",
+      "deadline": "round7 收轮前"
+    },
+    {
+      "id": "T-03/EX-03",
+      "owner": "EX-03",
+      "state": "待裁",
+      "next_action": "要求其出具书面更正：stance=count 与 summary=26120.00/520.00 二择其一，并说明金额为何以 JSON 字符串承载",
+      "blocker": "无（可由硬裁判直接裁定口径，不依赖其自证）",
+      "evidence": "runs/round7/EX-03.json（sha256 e5485fb70f8d81fe69d02505ed1e10c944c9c5122ecbae1e21c8a793679e1429）",
+      "judge": "fail",
+      "deadline": "round7 收轮前"
+    },
+    {
+      "id": "T-03/XJ-01",
+      "owner": "XJ-01",
+      "state": "待裁",
+      "next_action": "其 evidence 指针指向 runs/round7/EX-*.json 但描述的是 v1 内容，须改指 rejected-fabricated/*.v1-fabricated.json 后方可复用",
+      "blocker": "无（线索权重 0，不阻断聚合）",
+      "evidence": "runs/round7/XJ-01.json（sha256 ea089660c8ed956a689518d42c62e6c0cea5b3ecee85ebc8cf7ee0b86e5a6fdb）；rejected-fabricated/EX-01.v1-fabricated.json、EX-02.v1-fabricated.json（114800/13800 仅存于此处）",
+      "judge": "无",
+      "deadline": "下一轮开轮前"
+    },
+    {
+      "id": "T-03/AD-01",
+      "owner": "AD-01",
+      "state": "阻塞",
+      "next_action": "如实登记未产出；若下游需要口径裁决，改由硬裁判（judges/ 内 JD-01）承接，不虚构 AD-01 结论",
+      "blocker": "AD-01 本轮未产出（时序原因，收轮时该席位文件不存在），聚合中不得以任何形式代填或推定其立场",
+      "evidence": "runs/round7/ 目录清单（仅 EX-01/EX-02/EX-03/XJ-01 四份席位文件）",
+      "judge": "无",
+      "deadline": "round7 已逾期，转入下一轮追认"
+    },
+    {
+      "id": "T-03/PM-01",
+      "owner": "PM-01",
+      "state": "通过",
+      "next_action": "已写入 answer-final.json（扁平结构）与 PM-01.json；等待硬裁判裁决 count/exclude 之争",
+      "blocker": "无",
+      "evidence": "runs/round7/answer-final.json、runs/round7/PM-01.json",
+      "judge": "待跑",
+      "deadline": "round7 收轮前"
+    }
+  ],
+  "decision": "采用多数口径 exclude：amount_diff_total=26120.00（T019 价差 120.00 + T020 中签单侧 26000.00）、excluded_amount_total=520.00（T021+T023 两笔股息）。全部 summary 数值经我用 Python Decimal 逐行复算两份 CSV 独立印证：ledger_rows=5、bill_rows=8、ledger_total=120820.00、bill_total=147460.00、raw_total_gap=26640.00、dedup=0/0.00、diff_count=6（T019–T024）、T022 与 T024 金额差额 0.00。采纳理由不依赖席位一致，而依赖勾稽闭合：120.00+26000.00+260.00+260.00=26640.00=raw_total_gap，exclude 口径下 26120.00+520.00 亦等于 26640.00，两条路径同时闭合。count 口径（26640.00/0.00）同样闭合、同样可复算，故作为少数意见完整留痕并附证伪条件，不抹平。EX-03 的 stance=count 与 summary=exclude 数值之矛盾原样记录，不予和解、不予代其改口径。XJ-01 的揭发对象是 v1 虚构存档，其指向 v2 的 evidence 指针已失效，如实登记为待裁而不撤销其揭发价值。",
+  "basis": [
+    "我本人的 Decimal 逐行复算：两份 CSV 无重复 txn_id，差异单号 6 个，差额 120.00/26000.00/260.00/0.00/260.00/0.00，合计 26640.00 与 raw_total_gap 精确相等（分位无误差）",
+    "exclude 口径双路径闭合：语义路径（120+26000=26120，股息 520 排除）与差额路径（26120+520=26640）同时成立，说明 520.00 的排除是分类结果而非凑数",
+    "聚合规则「硬裁判通过→采纳／有独立证据支持的少数→采纳并保留多数备查／无证据的多数→权重 0」：count 少数并非无证据，其依据是 TASK.md D 节字面，故以 diff_preserved 保留而非丢弃",
+    "TASK.md 明示「契约只定义每个字段的计算方法，不预设你对『该不该算差异』的判断」，因此 count/exclude 属允许的口径选择，判据只能是内部自洽与勾稽，而非席位票数",
+    "grep 实证：114800 与 13800 仅出现于 rejected-fabricated/EX-0{1,2}.v1-fabricated.json，当前 EX-0{1,2,3}.json 中不存在，据此判定 XJ-01 批评对象为 v1"
+  ],
+  "alternatives_rejected": [
+    {
+      "option": "采用 count 口径（amount_diff_total=26640.00、excluded_amount_total=0.00、excluded_categories=[]）",
+      "why_not": "仅 1 席（EX-03）声明该口径，且该席自己的 summary 数值是 exclude 结果，等于无人以自洽形式提交 count 版本；若我据此改写，等于替持异议者造数，违反「只有拍板权、没有改写权」。保留为少数意见并附证伪条件即可。"
+    },
+    {
+      "option": "按票数直接采信三席一致的 114800.00/141440.00",
+      "why_not": "该组数字与 CSV 原始值各差 6020.00（两侧同额，故 gap 碰巧正确），是「高置信度错误共识」样本；一致不等于正确，算术字段只认复算。已在 v2 中纠正为 120820.00/147460.00。"
+    },
+    {
+      "option": "将 EX-03 的 26120.00/520.00 直接并入多数票，把三席记作 3/3 一致",
+      "why_not": "会把 stance=count 与数值=exclude 的结构性矛盾洗成表面一致，而表面一致正是相关误差最好的伪装；本轮明文禁止抹平。"
+    },
+    {
+      "option": "以 XJ-01 的揭发为由，整体否决 v2 三席产出",
+      "why_not": "XJ-01 的批评可逐条对应到 v1 存档（114800、13800、股息对冲叙事、id 错位一档），v2 已修正合计与 id 映射；以失效指针否决有效产出，是用旧证据惩罚新结果。"
+    },
+    {
+      "option": "推定 AD-01 的审计立场并写入聚合",
+      "why_not": "AD-01 本轮无产出文件，任何代填都是虚构；按纪律登记为阻塞，交由硬裁判或下一轮承接。"
+    },
+    {
+      "option": "把 summary 嵌套在 answer 键下（round5 的写法）",
+      "why_not": "round5 因此被硬裁判整轮拒载；本轮按扁平结构落盘，顶层直接为 summary/diffs/categories/falsification。"
+    }
+  ],
+  "risk": {
+    "rating": "中",
+    "irreversible": "否",
+    "rollback": "answer-final.json 与 PM-01.json 均为本轮新建文件，可整文件覆盖重写；不触碰任何席位原始产出（EX-01/02/03、XJ-01 只读）。若硬裁判裁定 count 口径，仅需改 summary 的 amount_diff_total/excluded_amount_total/excluded_categories 三处并把 diff_preserved 主次对调，diffs/categories 与全部算术字段不受影响。"
+  },
+  "diff_preserved": [
+    {
+      "side": "多数",
+      "conclusion": "ADJ-001=exclude：两笔股息入账（bill T021/T023，各 260.00，合计 520.00）属非交易性现金流入，归入「不计入金额差异」；amount_diff_total=26120.00（T019 价差 120.00 + T020 中签单侧 26000.00），excluded_amount_total=520.00，excluded_categories 非空。持有席位：EX-01、EX-02（2/3）。勾稽：26120.00+520.00=26640.00=raw_total_gap。",
+      "falsification": "若 TASK.md D 节「仅单侧存在的单号亦为差异单号，差额取该侧 amount」被硬裁判解释为不得按业务性质（股息/非交易）排除任何单侧单号，则 520.00 必须计入，本结论被证伪。"
+    },
+    {
+      "side": "少数",
+      "conclusion": "ADJ-001=count：按 D 节字面全额计入，amount_diff_total=26640.00、excluded_amount_total=0.00、excluded_categories=[]。持有席位：EX-03（声明 stance=count，1/3）。",
+      "falsification": "若股息入账被会计政策或硬裁判确认为对账范围外的非交易现金流，则 520.00 应排除，本结论被证伪，26120.00/520.00 成立。"
+    },
+    {
+      "side": "少数",
+      "conclusion": "EX-03 声明与数值自相矛盾（stance=count 却报 26120.00/520.00 且 T020 计入、股息排除，只能是 exclude 的结果），且金额以 JSON 字符串承载，违反数值纪律。原样留痕，不予和解。",
+      "falsification": "若 EX-03 书面更正为 exclude（stance 笔误）或更正数值为 26640.00/0.00（summary 笔误），本条消解；在此之前其任一单值不可单独采信。"
+    },
+    {
+      "side": "少数",
+      "conclusion": "XJ-01 揭发（合计各差 6020.00、id↔类别错位、股息对冲叙事、13800/13920 不存在）文本成立但对象为 v1 存档；114800/13800 仅见于 rejected-fabricated/，v2 已复算为 120820.00/147460.00 且 id 映射正确，其 evidence 指针失效，权重 0，不进 aggregation_inputs。",
+      "falsification": "若在当前 runs/round7/EX-0{1,2,3}.json 中检出 114800.00、141440.00、13800 或 13920 任一数字，则本条被证伪，XJ-01 的批评应对 v2 生效。"
+    },
+    {
+      "side": "多数",
+      "conclusion": "全体一致且经独立复算证实：行数 5/8、合计 120820.00/147460.00、gap 26640.00、dedup 0/0.00、diff_count=6、差异集合 {T019,T020,T021,T022,T023,T024}、T022 与 T024 金额差额均 0.00。",
+      "falsification": "若 CSV 存在列错位、行遗漏或任一侧 txn_id 重复，或输入文件被替换，则上述一致性整体作废。"
+    }
+  ],
+  "self_doubt": "我最可能在「股息该不该被排除」这一刀上错：TASK.md D 节字面确实没给任何按业务性质豁免的授权，而 C 节又把「该不该算差异」的判断交还给执行者，两节张力之下我选了多数席位的 exclude，理由是双路径闭合——但闭合本身也可能是分类自洽的副产品，不能证明分类正确；若硬裁判采字面主义，正确值是 26640.00/0.00，我的 summary 三字段全错。第二，我给 T019 记 120.00 完全依赖 note 与 price 对比，若 T019 在业务上属「按委托价记账、按实际成交价清算」的时点差而非真实价差，其 120.00 的性质应为待查项而非确定差异，我未对此设独立留痕。第三，T022 的 30 股与 note「10送3」应有的股数不符（XJ-01 疑为笔误），我按原始值取 0 股 vs 30 股、金额差 0.00，若该行数据本身有误，diff 成员身份应重判。第四，我判定 XJ-01 指向 v1 依据的是 grep 命中位置，若存在 v2 之外的第三个版本被其审阅，我的归因错。第五，EX-03 我标 judge=fail，依据是 stance/数值矛盾与字符串金额，若席位检查脚本另有口径（例如只校验字段完整性），我的 fail 与其 valid 会冲突，此处我承担误判风险。",
+  "next": [
+    "把 count/exclude 之争提交硬裁判（JD-01），请其对 TASK.md D 节「仅单侧存在」是否允许按业务性质排除给出明文解释，并据此一次性定稿 summary 三字段",
+    "要求 EX-03 出具书面更正，消解 stance=count 与 summary=exclude 数值的矛盾，并改回 JSON 数字类型",
+    "要求 XJ-01 把 evidence 指针改指 rejected-fabricated/*.v1-fabricated.json，否则其揭发在下一轮不可复用",
+    "在下一轮补位 AD-01 的审计职责，或明文确认本轮无审计席、由硬裁判兼任",
+    "对 T022（送转 30 股 vs 10送3 应 300 股）与 T019（委托价 vs 成交价 120.00 的性质）各开一条数据核对项，交人工闸门确认是否为合成数据笔误"
+  ],
+  "reads": [
+    {
+      "path": "runs/round7/prompts/PM-01.md",
+      "purpose": "逐字核对本席位硬性字段（board/alternatives_rejected/risk/diff_preserved/self_doubt/reads/usage）与聚合规则、扁平结构要求"
+    },
+    {
+      "path": "fixtures/tasks/T-03/TASK.md",
+      "purpose": "字段定义、A/B/C/D 四节计算方法、四个易错点与差异判定口径"
+    },
+    {
+      "path": "fixtures/tasks/T-03/ledger.csv",
+      "purpose": "自记账 5 行原始值，逐行 Decimal 复算合计与逐单差额"
+    },
+    {
+      "path": "fixtures/tasks/T-03/bill.csv",
+      "purpose": "交割单 8 行原始值，逐行 Decimal 复算合计、单侧缺失与日期列比对"
+    },
+    {
+      "path": "runs/round7/EX-01.json",
+      "purpose": "聚合输入：exclude 口径数值与类别、falsification；sha256 绑定校验"
+    },
+    {
+      "path": "runs/round7/EX-02.json",
+      "purpose": "聚合输入：与 EX-01 交叉印证 26120.00/520.00 及 id 集合；sha256 绑定校验"
+    },
+    {
+      "path": "runs/round7/EX-03.json",
+      "purpose": "聚合输入：count 少数意见来源，并核出其 stance 与 summary 数值矛盾、金额为字符串"
+    },
+    {
+      "path": "runs/round7/XJ-01.json",
+      "purpose": "线索（权重 0）：核对揭发项与 evidence 指针是否仍指向当前 v2 文件"
+    },
+    {
+      "path": "runs/round7/rejected-fabricated/",
+      "purpose": "用 grep 核对 114800/13800 是否仅存于 v1 虚构存档，以判定 XJ-01 批评对象（仅列目录与命中文件名，未引用其结论）"
+    }
+  ],
+  "usage": {
+    "tokens": 30000,
+    "minutes": 22,
+    "source": "self_report"
+  }
+}

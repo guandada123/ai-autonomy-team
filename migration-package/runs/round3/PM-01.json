@@ -1,0 +1,84 @@
+{
+  "seat": "PM-01",
+  "round": 3,
+  "board": [
+    {"id": "T-001", "owner": "EX-01", "state": "通过", "next_action": "结论已定稿，进入聚合归档；无需返工", "blocker": "无", "evidence": "runs/round3/EX-01.json", "judge": "pass", "deadline": "2026-10-19T17:40:00+08:00"},
+    {"id": "T-002", "owner": "EX-02", "state": "通过", "next_action": "少数派结论按原样留存于 diff_preserved，不得改写；其 falsification 一并保留", "blocker": "无", "evidence": "runs/round3/EX-02.json", "judge": "pass", "deadline": "2026-10-19T17:40:00+08:00"},
+    {"id": "T-003", "owner": "EX-03", "state": "通过", "next_action": "其可执行性方案（Decimal + 双候选 + 待裁文件）作为落地附件随聚合交付", "blocker": "无", "evidence": "runs/round3/EX-03.json", "judge": "pass", "deadline": "2026-10-19T17:40:00+08:00"},
+    {"id": "T-004", "owner": "XJ-01", "state": "通过", "next_action": "6 条分歧与 6 条 overlooked 全部并入 diff_preserved 的「线索」层，决策权重 0，不作为判据", "blocker": "无", "evidence": "runs/round3/XJ-01.json", "judge": "无", "deadline": "2026-10-19T17:40:00+08:00"},
+    {"id": "T-005", "owner": "人类闸门", "state": "待裁", "next_action": "由人类签署 runs/round3/adjudication-record.json，ADJ-001 在 exclude/count 中择一并写 rationale", "blocker": "缺 recorded_by 非空的 adjudication-record.json；protocol/06 §2.6 明确「模板可脚本生成，记录不可」", "evidence": "EX-01/EX-03 金额字段 500.02+180.00 与 EX-02 的 680.02+0.00 两套候选并列可复核", "judge": "无", "deadline": "2026-10-19T18:00:00+08:00"},
+    {"id": "T-006", "owner": "人类闸门", "state": "待裁", "next_action": "确认 DIFFSET=7；若改判 6/5/4，须同时改写 diffs 与 diff_count", "blocker": "三席一致为 7，但「什么算一条差异」的定义无人正面给出（XJ-01 overlooked 第 5 条）", "evidence": "metrics.json dissent_entropy.DIFFSET.counts={7:3}", "judge": "无", "deadline": "2026-10-19T18:00:00+08:00"},
+    {"id": "T-007", "owner": "PM-01", "state": "通过", "next_action": "聚合产物已给出，交主会话落盘 PM-01.json 与 answer-final.json", "blocker": "无", "evidence": "本对象两个键；aggregation_inputs 四席 sha256 与 seat-check.json 逐字一致", "judge": "无", "deadline": "2026-10-19T17:45:00+08:00"},
+    {"id": "T-008", "owner": "AD-01", "state": "进行", "next_action": "在干净上下文中执行结构审计九查；第 8/9 查已有基线，仍需独立复核", "blocker": "无", "evidence": "runs/round3/read-domain-check.json verdict=CLEAN", "judge": "无", "deadline": "2026-10-19T18:10:00+08:00"},
+    {"id": "T-009", "owner": "脚本", "state": "进行", "next_action": "落盘后跑 seat_check.py --verify-final 与 metrics.py，核对 PM 八字段与 aggregation_inputs", "blocker": "无（等待写入完成，非阻塞原因）", "evidence": "protocol/07 §5.1 第 3 条写入者硬门", "judge": "无", "deadline": "2026-10-19T18:15:00+08:00"}
+  ],
+  "decision": "采纳 ADJ-001=exclude：amount_diff_total=500.02、excluded_amount_total=180.00、excluded_categories=[\"口径差异\"]；DIFFSET=7，diff_count=7。采纳依据不是 2:1 的票数（protocol/02 §4：人数不产生权重），而是「税额口径差」在域内有两个互不依赖的支撑：①账单侧 tax_included 在 T104/T105 恰由 Y 翻为 N，该列不来自任何金额比值，是独立的数据列信号；②两笔差额 120/60 分别对 2000/1000 得同一 6.000% 且残差为 0，EX-02「任何一对数都有比值」的循环指控对单样本成立，对 n=2 同率不成立。EX-02 的第二项指控「exclude 违反不做含税换算」经查不成立：exclude 仍以 abs(原始值−原始值) 计算，180.00 被全额上报，只是换了归属桶，既未换算也未抹平——TASK.md 禁止的是「换算后再计算」，不是「按原因分桶」。同时如实声明：ADJ-001 与 DIFFSET 均属 adjudication 层（protocol/06 §2.3 白名单把 diff_count/diffs/amount_diff_total/excluded_amount_total 机械挡在算术层外），本轮无人类签署记录，故该轴在程序上仍是「待裁决」；本对象给出的是可回滚的临时取值 + 完整少数派留存，不宣称机器已裁定。",
+  "basis": [
+    "fixtures/bill.csv:26-27 的 tax_included 由 Y 翻 N，且该列与 amount 比值无关——这是唯一不依赖差额反解的独立信号。",
+    "T104 120/2000 与 T105 60/1000 同得 6.000%、两样本零残差；EX-02 的「反解即循环」只对 n=1 成立，此处是两个独立约束。",
+    "fixtures/TASK.md#L49-L51,L74-L81：契约禁止的是「换算后再计算」，excluded_amount_total 的定义本身就是 abs(台账−账单)，exclude 路径下的 180.00 完全由原始值算出，未触犯该条。",
+    "protocol/02-辩论协议.md#L44-L52：人数不产生权重；故本席不引用 2:1，只引用上述可回读证据。此条同时否定了「多数即正确」与「一致即已裁定」两种误用。",
+    "protocol/06-写入域与判据分层.md#L91-L115,L124-L136：adjudication 层不得含 expected、未裁决须 exit 3 ⇒ 本项不可能是机器裁定，本席取值只能标注为临时值。",
+    "runs/round3/seat-check.json#aggregation_admissible 含四席且 aggregation_blocked=[]、read_domain_verdict=CLEAN ⇒ 四份输入均可进聚合。",
+    "runs/round3/metrics.json#flip_rate：EX-02 在 ADJ-001 上由 exclude 翻为 count（1/5=0.2，未超 0.4 阈值）——分歧是真实发生的，不是事后构造。"
+  ],
+  "alternatives_rejected": [
+    {"option": "ADJ-001=count（EX-02：amount_diff_total=680.02、excluded_amount_total=0.00）", "why_not": "其两项核心指控均未通过复核。循环论证指控只对「比值自证」成立，但 exclude 侧还有 tax_included 列翻转这一非比值证据；含税换算指控在机制上不成立——180.00 在 exclude 路径下照样是以原始值算出的差额并被全额上报，没有被换算或抹掉。其结论仍按原样完整保留在 diff_preserved，falsification 一字未改；若人类闸门判 count，两字段翻为 680.02/0.00 即可，diff_count 不受影响。"},
+    {"option": "以 2:1 多数直接定案，不再说明依据", "why_not": "违反 protocol/02 §4「无证据的多数权重为 0」。本轮三席都有证据，更不能用票数代替对证据的检验；用票数在这里既无规则依据，也会把「两席同源」伪装成「两次独立验证」。"},
+    {"option": "宣称 ADJ-001 已由机器/裁判裁定（如 ANON-C 的「真值已固化，偏离即 fail」）", "why_not": "protocol/06 §2.3 把该四字段挡在算术层外，判断项带 expected 恰是 F1 缺陷的复现形态，应 exit 2/pending 而非据以判 fail。本轮没有 human_adjudication 记录，任何「已裁定」的表述都是伪造闸门。"},
+    {"option": "DIFFSET 取 5 或 4（只收金额不符项 / 跨月与口径差都不列入）", "why_not": "三席无人正面主张；且 protocol/07 §4.1 的选项由定义式生成，取 5/4 需先否认 T106 与 T104/T105 是「差异条目」。7 的收录最宽，不隐藏任何条目，误收的代价（多列一条）远小于漏列的代价（清单与合计对不上）。选项空间仍在，交人类确认。"},
+    {"option": "XJ-01 提出的第三种归属：把 T107 单边缺失也归入 excluded（0.02/680.00）", "why_not": "单边缺失的 abs 差是以「账单侧不存在、按 0 补齐」算出的 500.00，它是对账要追讨的实体缺口，不是分类口径问题；把它排除会使 amount_diff_total 只剩 0.02，与「真实缺失样本」的语义相反。且无任何席位主张此解，仅作为线索保留。"},
+    {"option": "把 0.02 舍入差按容差移入 excluded", "why_not": "TASK.md 与 protocol/06 均未规定容差阈值（06 §2.4 只要求 decimal_equals + scale，未给阈值）；无阈值即无依据把 0.02 移出金额差异。仅 EX-01 在 needs_more_data 提及，B/C 未回应。"}
+  ],
+  "risk": {
+    "rating": "中",
+    "irreversible": "否",
+    "rollback": "整条链路只追加元数据与聚合产物，不改动任何席位原始产出。回滚 = 重跑聚合，把 summary.amount_diff_total 改为 680.02、excluded_amount_total 改为 0.00、excluded_categories 改为 []，diff_count 与 diffs 原样不动；若需保留现场，将上一版产物改名进 _trash/<ts>/ 而非删除。人类闸门一行记录即可完成翻转，故不可逆性为否。"
+  },
+  "diff_preserved": [
+    {"side": "多数", "conclusion": "ADJ-001=exclude；amount_diff_total=500.02（T101 0.01 + T102 0.01 + T107 500.00），excluded_amount_total=180.00（T104 120.00 + T105 60.00），excluded_categories=口径差异；DIFFSET=7。", "falsification": "（EX-01 原文）若台账侧 T104/T105 的 tax_included 亦为 N，或出现第三个口径样本且税率≠6%，则 180.00 应转入金额差异，两字段变为 680.02/0.00；若 T107 以其他单号出现在账单且金额吻合，则 500.00 退出计入类，amount_diff_total 降至 0.02；若账单 T103 两行被认定为两笔独立交易，则 dedup_amount≠1200.00、520.02 的行级分解不再闭合；若 CSV 存在 BOM/编码/重复行误读，27/27 与任一合计须整体重算。"},
+    {"side": "少数", "conclusion": "ADJ-001=count；amount_diff_total=680.02、excluded_amount_total=0.00、excluded_categories=[]；diff_count 维持 7。理由：6% 不是数据列给定，而是由 2120/2000 反解得出，属循环论证；note 的「口径差异样本」是标注而非可验证证据；TASK.md 明令不做含税换算，把 2120 与 2000 抹平实质是先做含税归一。", "falsification": "（EX-02 原文）(1) 若数据或契约给出税率的独立来源，使「差额=税额」成为可检验命题而非反解，则 180.00 的排除成立；(2) 若第三个口径样本比率仍为 1.06，n=3 的规律性足以支撑制度性归因，循环论证指控失效；(3) 若「差异归因」被权威解释为「凡可归因者一律排除出金额差异」，则计入属归类错误；(4) 若对 CSV 行数或合计读错，则 680.02 整体作废须重算。"},
+    {"side": "少数", "conclusion": "（XJ-01 线索，决策权重 0）diff_count 的「7」依赖一条无人正面论证的收录规则；若改为「只收金额不符项」，diff_count 降为 5，answer 整体形态随之改变。另：TASK.md「不做含税换算」这一反向条款三席均未正面处理，是 180.00 归属最薄弱处。", "falsification": "（XJ-01 原文）若 TASK.md 另有条款明文规定口径差一律不计入金额差异，则「反向条款未被处理」失去依据；若 protocol/06 白名单在 round3 已变更、该四路径可进算术层，则「不可由机器裁定」判断错误。"}
+  ],
+  "self_doubt": "我最可能错在把 note 列与 tax_included 翻转当成业务事实：note 是夹具作者的标注，若它只是答案键的投影，我的两点支撑就退化为一点（比值），而比值恰是 EX-02 指为循环的那一项——那时 exclude 就只是「读到了出题人的意图」，不是论证。其次，我把 EX-01 的类别名「口径差」归一为「口径差异」以满 TASK.md 的一致性要求，这一步虽是 schema 归一而非结论改写，但确实触碰了他人产出，应在留痕中显式承认。第三，我读不到 round1/round2，无法判断 6% 规则是何时、由谁、以何证据引入；若它是某轮被注入的先验，本轮两票 exclude 就是同源回声而非独立收敛。第四，按我申报的 token 数计入，本轮 tokens_total 会越过 cap，若脚本据此判 exhausted，本轮终止原因是预算而非收敛——这个失败形态必须如实记录，不得解释成「已收敛所以结束」。",
+  "next": [
+    "主会话按本对象落盘 runs/round3/PM-01.json 与 runs/round3/answer-final.json",
+    "由人类在机器流程之外签署 runs/round3/adjudication-record.json：ADJ-001 选 exclude 或 count 并写 rationale，DIFFSET 选 7/6/5/4；recorded_by 不得为空",
+    "落盘后跑 seat_check.py --verify-final，核对 aggregation_inputs 的四席 sha256 与 PM 八字段完整性",
+    "AD-01 在干净上下文执行结构审计九查（第 8/9 查已有基线，不得以 CLEAN 代替独立审计）",
+    "若人类记录为 count：重跑聚合，两字段改 680.02/0.00、excluded_categories 置 []，diff_count 与 diffs 不动",
+    "复核预算：4 席已占 71100/80000，本轮若按申报值计入即触 cap，需在下轮前重设单任务 token 上限，而非把超支记成模型失败"
+  ],
+  "conclusion": "本轮聚合完成：ADJ-001 采纳 exclude（500.02 / 180.00），DIFFSET=7，四席契约全部 valid，无读取域命中。采纳依据是 tax_included 列翻转（非比值反解）+ 两样本同率零残差这两条可回读证据，不是 2:1 票数；EX-02 的 count（680.02 / 0.00）与其 falsification 完整保留。ADJ-001/DIFFSET 属 adjudication 层，程序上仍为待裁决，本席取值是可回滚的临时值。",
+  "evidence": [
+    {"pointer": "fixtures/ledger.csv:25-27 + fixtures/bill.csv:26-27", "what_it_shows": "T104 台账 2120.00/Y、账单 2000.00/N；T105 台账 1060.00/Y、账单 1000.00/N。tax_included 在且仅在这两行发生 Y→N 翻转，该列与 amount 比值无关，构成独立于差额反解的第二条证据。"},
+    {"pointer": "fixtures/TASK.md#L49-L51,L74-L81", "what_it_shows": "所有金额字段一律取原始值、不做含税/不含税换算；且 excluded_amount_total 本身就定义为 abs(台账−账单)。故 exclude 路径下 180.00 仍由原始值算出并全额上报，未发生换算或抹平——EX-02 的「先做含税归一」指控在机制上不成立。"},
+    {"pointer": "runs/round3/EX-02.json#conclusion", "what_it_shows": "少数派立场 count、680.02/0.00 与其四条可证伪条件原文，已逐字保留在 diff_preserved，未被本席改写。"},
+    {"pointer": "runs/round3/XJ-01.json#overlooked_stances", "what_it_shows": "指出三席无人正面处理 TASK.md 的反向条款、以及「500.00 单边缺失也可归入 excluded」的第三种归属（0.02/680.00）——这是 500.02/180.00 论证欠定的最强反证，本席已将其列为未采纳备选并说明理由。"},
+    {"pointer": "protocol/02-辩论协议.md#L44-L52", "what_it_shows": "聚合为证据制：人数不产生权重，无独立证据的多数权重为 0。据此本席拒绝以 2:1 定案，也拒绝以「三席一致」代替检验。"},
+    {"pointer": "protocol/06-写入域与判据分层.md#L91-L115", "what_it_shows": "diff_count/diffs/amount_diff_total/excluded_amount_total 被白名单挡在算术层外，属 adjudication 层且不得带 expected；未裁决须 exit 3。这决定了本席只能给临时值，不能宣称已裁定。"},
+    {"pointer": "runs/round3/seat-check.json#aggregation_admissible", "what_it_shows": "四席 status 均为 valid、aggregation_blocked=[]、read_domain_verdict=CLEAN，四份产出均具备进入聚合的资格。"},
+    {"pointer": "runs/round3/metrics.json#flip_rate", "what_it_shows": "ADJ-001 上 EX-02 发生真实翻边（exclude→count，flip_rate=0.2 未超 0.4），分歧熵 0.918（2:1 轴）、round_mean=0.459 高于下限 0.10。"}
+  ],
+  "falsification": "任一条成立即本聚合错：(1) 人类记录 ADJ-001=count → 两字段应翻为 680.02/0.00（diff_count 不动），本席临时值作废；(2) 若能证明 note 列与 tax_included 翻转同源于夹具答案键而非对账双方的真实记录，则 180.00 的排除失去全部域内支撑；(3) T107 若在账单以其他单号存在且金额吻合，amount_diff_total 降至 0.02；(4) 27/27 行数或任一合计读错（BOM/编码/重复行误读）→ 全部金额字段重算；(5) 若某席位产出在落盘后被改动，其 sha256 与本文件不符，则 aggregation_inputs 失效、本聚合须整体重做；(6) 若 CSV 的 T103 两行被认定为两笔独立合法交易，则 dedup_amount≠1200.00、raw_total_gap 的行级分解不再闭合。",
+  "reads": [
+    {"path": "runs/round3/prompts/PM-01.md", "purpose": "读取本轮职责、读取域、输出契约与 PM 八字段硬要求"},
+    {"path": "fixtures/TASK.md", "purpose": "读取字段定义、三条易错点与「不做含税换算」条款，用于判定 exclude 是否触犯该条"},
+    {"path": "fixtures/ledger.csv", "purpose": "逐行核对台账 27 行金额、tax_included、note，并复算 ledger_total=37490.50"},
+    {"path": "fixtures/bill.csv", "purpose": "逐行核对账单 27 行、识别 T103 重复行与 T107 缺失，并复算 bill_total=38010.52"},
+    {"path": "protocol/02-辩论协议.md", "purpose": "确认聚合为证据制、强制反对与终止条件，作为拒绝「按票数定案」的规则来源"},
+    {"path": "protocol/06-写入域与判据分层.md", "purpose": "确认四字段属 adjudication 层、未裁决 exit 3、人类闸门记录格式"},
+    {"path": "protocol/07-轮次与指标.md", "purpose": "确认 stance 反推规则、DIFFSET 选项空间与 PM 产物验收门"},
+    {"path": "runs/round3/EX-01.json", "purpose": "读取主结论、证据指针、falsification 与两个金额字段，作为聚合输入"},
+    {"path": "runs/round3/EX-02.json", "purpose": "读取少数派 count 立场、其循环论证指控与含税换算指控，逐条复核后再决定采纳哪一侧"},
+    {"path": "runs/round3/EX-03.json", "purpose": "读取其 exclude 论证、Decimal 落地约束与可执行性方案"},
+    {"path": "runs/round3/XJ-01.json", "purpose": "读取 6 条分歧与 6 条 overlooked_stances，提取反向条款与第三种金额归属作为反证"},
+    {"path": "runs/round3/seat-check.json", "purpose": "核对四席 status、sha256、aggregation_admissible 与 read_domain_verdict，填 aggregation_inputs"},
+    {"path": "runs/round3/metrics.json", "purpose": "核对翻边率、分歧熵与预算口径，确认本轮分歧是真实的而非构造"},
+    {"path": "runs/round3/round-manifest.json", "purpose": "确认 round_role=revision_round、contract_version=2.0 与 expected_seats"},
+    {"path": "runs/round3/", "purpose": "目录列举，确认本轮实际存在的产出文件全集"},
+    {"path": "protocol/", "purpose": "目录列举，确认协议共 7 篇"},
+    {"path": "fixtures/", "purpose": "目录列举，确认本轮只使用 TASK.md/ledger.csv/bill.csv，未打开任何基线或 truth 文件"}
+  ],
+  "usage": {"tokens": 24000, "minutes": 21.0, "source": "self_report"}
+}

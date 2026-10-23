@@ -1,0 +1,412 @@
+{
+  "slug": "2026-10-22-bc3ddb",
+  "criteria_total": 5,
+  "results": [
+    {
+      "angle": 1,
+      "angle_name": "主推",
+      "criterion": "C1",
+      "criterion_name": "点名具体对象",
+      "status": "pass",
+      "evidence": "待改文件与条目：目标机-人工确认清单.md **第 8 项（读取域物理隔离）**，字段值由 ⬜ 待办 改为 ⛔ 架构限制（不适用）"
+    },
+    {
+      "angle": 1,
+      "angle_name": "主推",
+      "criterion": "C2",
+      "criterion_name": "数字可追溯",
+      "status": "pass",
+      "evidence": "清单条目序号：**8**"
+    },
+    {
+      "angle": 1,
+      "angle_name": "主推",
+      "criterion": "C3",
+      "criterion_name": "下游影响说清",
+      "status": "pass",
+      "evidence": "**目标机清单的执行者**：第 8 项由 ⬜ 待办 变为 ⛔ 架构限制（不适用） 后，该执行者不再执行「建低权限用户」「chmod 70…"
+    },
+    {
+      "angle": 1,
+      "angle_name": "主推",
+      "criterion": "C4",
+      "criterion_name": "可证伪条件",
+      "status": "pass",
+      "evidence": "观测到**目标机清单中存在至少一项以第 8 项「已完成」为前置条件**（当前「未统计」 ）→ 则「直接改为不适用」会断掉一条下游链，主推…"
+    },
+    {
+      "angle": 1,
+      "angle_name": "主推",
+      "criterion": "C5",
+      "criterion_name": "自身盲区",
+      "status": "pass",
+      "evidence": "**看不见「不做也是一种选项」的成本**：主推的产出形式是「一个动作 + 一个第一步」，天然把「维持 ⬜ 待办 不动、仅把分析链接挂在旁…"
+    },
+    {
+      "angle": 2,
+      "angle_name": "反对",
+      "criterion": "C1",
+      "criterion_name": "点名具体对象",
+      "status": "pass",
+      "evidence": "**被改的文件与条目**：目标机-人工确认清单.md 第 8 项「读取域物理隔离」；其判据原句为「以低权限用户执行 cat fixtur…"
+    },
+    {
+      "angle": 2,
+      "angle_name": "反对",
+      "criterion": "C2",
+      "criterion_name": "数字可追溯",
+      "status": "pass",
+      "evidence": "清单第 **8** 项、第 **9** 查 。"
+    },
+    {
+      "angle": 2,
+      "angle_name": "反对",
+      "criterion": "C3",
+      "criterion_name": "下游影响说清",
+      "status": "pass",
+      "evidence": "**交付给目标机的清单的收件方**：这是「修改交付给目标机的清单」 ，对方是否接受「架构限制（不适用）」这个状态 —— **未确认** …"
+    },
+    {
+      "angle": 2,
+      "angle_name": "反对",
+      "criterion": "C4",
+      "criterion_name": "可证伪条件",
+      "status": "pass",
+      "evidence": "在目标机上**以低权限用户执行 cat fixtures/truth.json，实测得到 Permission denied（或 Ope…"
+    },
+    {
+      "angle": 2,
+      "angle_name": "反对",
+      "criterion": "C5",
+      "criterion_name": "自身盲区",
+      "status": "pass",
+      "evidence": "**看不到「不改」的代价**：本角只评估改为 ⛔ 架构限制（不适用） 会错在哪，不评估维持 ⬜ 待办 会带来什么。清单长期挂着一条做不到…"
+    },
+    {
+      "angle": 3,
+      "angle_name": "成本",
+      "criterion": "C1",
+      "criterion_name": "点名具体对象",
+      "status": "pass",
+      "evidence": "动作本体：把 目标机-人工确认清单.md 第 8 项的状态字段由 ⬜ 待办 改写为 ⛔ 架构限制（不适用），并追加一条指向 docs/读…"
+    },
+    {
+      "angle": 3,
+      "angle_name": "成本",
+      "criterion": "C2",
+      "criterion_name": "数字可追溯",
+      "status": "pass",
+      "evidence": "sandbox 实测 **4** 条 [C]"
+    },
+    {
+      "angle": 3,
+      "angle_name": "成本",
+      "criterion": "C3",
+      "criterion_name": "下游影响说清",
+      "status": "pass",
+      "evidence": "明确受影响的下游（3 个脚本）：verify.py、seat_check.py、regress.py —— 若按 §8 原文执行改属主 …"
+    },
+    {
+      "angle": 3,
+      "angle_name": "成本",
+      "criterion": "C4",
+      "criterion_name": "可证伪条件",
+      "status": "pass",
+      "evidence": "若观察到 verify.py、seat_check.py、regress.py 中**任一**在方案 A 落地后仍报无法读取 spec/…"
+    },
+    {
+      "angle": 3,
+      "angle_name": "成本",
+      "criterion": "C5",
+      "criterion_name": "自身盲区",
+      "status": "pass",
+      "evidence": "**漏掉人时这一整块**：成本角只能数材料里已经标价的东西。本材料给出的全是计数（4 条实测、3 个脚本、3 个方案），而「本决定从提出…"
+    },
+    {
+      "angle": 4,
+      "angle_name": "前提",
+      "criterion": "C1",
+      "criterion_name": "点名具体对象",
+      "status": "pass",
+      "evidence": "待改状态的对象：目标机-人工确认清单.md 第 8 项（读取域物理隔离）的状态字段，动作是 ⬜ 待办 → ⛔ 架构限制（不适用），并「附…"
+    },
+    {
+      "angle": 4,
+      "angle_name": "前提",
+      "criterion": "C2",
+      "criterion_name": "数字可追溯",
+      "status": "pass",
+      "evidence": "清单项序号：**第 8 项** ；做法步数：**3 步（①②③）** 。"
+    },
+    {
+      "angle": 4,
+      "angle_name": "前提",
+      "criterion": "C3",
+      "criterion_name": "下游影响说清",
+      "status": "pass",
+      "evidence": "**交付给目标机的 目标机-人工确认清单.md 的接收方**：本动作是改「交付给目标机的清单」 ，必然有下游接收方；但该接收方是谁、是否…"
+    },
+    {
+      "angle": 4,
+      "angle_name": "前提",
+      "criterion": "C4",
+      "criterion_name": "可证伪条件",
+      "status": "pass",
+      "evidence": "若实测证明 LLM 子代理的 Read/Grep 调用**确实经由可被 sandbox-exec（或 chmod 700 + 低权限用户…"
+    },
+    {
+      "angle": 4,
+      "angle_name": "前提",
+      "criterion": "C5",
+      "criterion_name": "自身盲区",
+      "status": "pass",
+      "evidence": "**看不了「不做/改」的替代代价**：前提角只判断该不该做，不评估做这件事本身的写操作成本与等待成本 —— 本决定「从提出到人工确认的耗…"
+    },
+    {
+      "angle": 5,
+      "angle_name": "受益方",
+      "criterion": "C1",
+      "criterion_name": "点名具体对象",
+      "status": "pass",
+      "evidence": "fixtures/truth.json、fixtures/spec/、config/、judges/（原 §8 步骤②要求设为低权限用户…"
+    },
+    {
+      "angle": 5,
+      "angle_name": "受益方",
+      "criterion": "C2",
+      "criterion_name": "数字可追溯",
+      "status": "pass",
+      "evidence": "待改动的清单项编号：第 8 项 ；兜底的第 9 查 。"
+    },
+    {
+      "angle": 5,
+      "angle_name": "受益方",
+      "criterion": "C3",
+      "criterion_name": "下游影响说清",
+      "status": "pass",
+      "evidence": "**对 目标机-人工确认清单.md 的接收方**：本决定的直接接触面。材料写明「这份清单交付给谁、对方是否接受『架构限制（不适用）』这个…"
+    },
+    {
+      "angle": 5,
+      "angle_name": "受益方",
+      "criterion": "C4",
+      "criterion_name": "可证伪条件",
+      "status": "pass",
+      "evidence": "观察到目标机清单的收件方退回清单，或明确要求第 8 项必须回到「已完成/适用」状态 → 说明「改状态不损害交付」这一判断错（收件方才是真…"
+    },
+    {
+      "angle": 5,
+      "angle_name": "受益方",
+      "criterion": "C5",
+      "criterion_name": "自身盲区",
+      "status": "pass",
+      "evidence": "**只能看到被材料点名的对象，看不到买家侧。** 受益方视角的输入是「材料里出现了哪些名字」，因此材料明确未确认的那块——「这份清单交付…"
+    },
+    {
+      "angle": 6,
+      "angle_name": "依赖与外部性",
+      "criterion": "C1",
+      "criterion_name": "点名具体对象",
+      "status": "pass",
+      "evidence": "目标机-人工确认清单.md **第 8 项（读取域物理隔离）**，状态字段由 ⬜ 待办 改为 ⛔ 架构限制（不适用），并新增一个指向可行…"
+    },
+    {
+      "angle": 6,
+      "angle_name": "依赖与外部性",
+      "criterion": "C2",
+      "criterion_name": "数字可追溯",
+      "status": "pass",
+      "evidence": "「第 8 项」「第 9 查」两个编号 。"
+    },
+    {
+      "angle": 6,
+      "angle_name": "依赖与外部性",
+      "criterion": "C3",
+      "criterion_name": "下游影响说清",
+      "status": "pass",
+      "evidence": "**清单的接收方**（材料称「交付给目标机的清单」 ）。这是唯一被点名的外部接收方，状态值从「待办」变成「架构限制（不适用）」，对方读到…"
+    },
+    {
+      "angle": 6,
+      "angle_name": "依赖与外部性",
+      "criterion": "C4",
+      "criterion_name": "可证伪条件",
+      "status": "pass",
+      "evidence": "**若观测到：在目标机上用 sandbox-exec（或任何 OS 层隔离手段）包裹后，LLM 子代理的 Read / Grep 对 f…"
+    },
+    {
+      "angle": 6,
+      "angle_name": "依赖与外部性",
+      "criterion": "C5",
+      "criterion_name": "自身盲区",
+      "status": "pass",
+      "evidence": "**看不到不落在本地文件系统与本地进程上的依赖链。** 本角的推理工具是「谁读哪个文件、哪个脚本调哪个脚本」，而材料自己承认威胁面恰恰在…"
+    },
+    {
+      "angle": 7,
+      "angle_name": "风险与不可逆",
+      "criterion": "C1",
+      "criterion_name": "点名具体对象",
+      "status": "pass",
+      "evidence": "目标机-人工确认清单.md **第 8 项「读取域物理隔离」的状态字段**：由 ⬜ 待办 改为 ⛔ 架构限制（不适用），并附可行性分析链…"
+    },
+    {
+      "angle": 7,
+      "angle_name": "风险与不可逆",
+      "criterion": "C2",
+      "criterion_name": "数字可追溯",
+      "status": "pass",
+      "evidence": "| 数字 | 出处 ` ` |"
+    },
+    {
+      "angle": 7,
+      "angle_name": "风险与不可逆",
+      "criterion": "C3",
+      "criterion_name": "下游影响说清",
+      "status": "pass",
+      "evidence": "**verify.py / seat_check.py / regress.py（有下游，且是直接受损方）**：若按原清单 §8 执行 …"
+    },
+    {
+      "angle": 7,
+      "angle_name": "风险与不可逆",
+      "criterion": "C4",
+      "criterion_name": "可证伪条件",
+      "status": "pass",
+      "evidence": "**若在目标机上，用 sandbox-exec 包裹 Agent 工具发起的 LLM 子代理读取 fixtures/truth.json…"
+    },
+    {
+      "angle": 7,
+      "angle_name": "风险与不可逆",
+      "criterion": "C5",
+      "criterion_name": "自身盲区",
+      "status": "pass",
+      "evidence": "**漏掉「能不能回滚」本身的事实来源**：这一角的核心问法就是「坏了能不能回滚」，但材料里**没有** 目标机-人工确认清单.md 是否…"
+    },
+    {
+      "angle": 8,
+      "angle_name": "度量与证伪",
+      "criterion": "C1",
+      "criterion_name": "点名具体对象",
+      "status": "pass",
+      "evidence": "文件 目标机-人工确认清单.md 的**第 8 项「读取域物理隔离」**及其状态字段（现值 ⬜ 待办，拟改 ⛔ 架构限制（不适用））。"
+    },
+    {
+      "angle": 8,
+      "angle_name": "度量与证伪",
+      "criterion": "C2",
+      "criterion_name": "数字可追溯",
+      "status": "pass",
+      "evidence": "清单项序号 **8**（读取域物理隔离）；兜底机制为清单**第 9 查** 。"
+    },
+    {
+      "angle": 8,
+      "angle_name": "度量与证伪",
+      "criterion": "C3",
+      "criterion_name": "下游影响说清",
+      "status": "pass",
+      "evidence": "**目标机-人工确认清单.md 的接收方**：第 8 项状态文字改动直接进交付物。但\"这份清单交付给谁、对方是否接受「架构限制（不适用）…"
+    },
+    {
+      "angle": 8,
+      "angle_name": "度量与证伪",
+      "criterion": "C4",
+      "criterion_name": "可证伪条件",
+      "status": "pass",
+      "evidence": "若有人在目标机上**真的建出低权限用户并让席位子进程以该用户运行**，且 cat fixtures/truth.json 返回 Perm…"
+    },
+    {
+      "angle": 8,
+      "angle_name": "度量与证伪",
+      "criterion": "C5",
+      "criterion_name": "自身盲区",
+      "status": "pass",
+      "evidence": "**漏「该不该做」的价值判断**：度量与证伪只能回答\"能不能测、什么算测错\"，回答不了\"目标机接收方会不会把 ⛔ 架构限制（不适用） 读…"
+    }
+  ],
+  "actions": {
+    "1": [
+      {
+        "text": "改状态前先取得对清单文件的修改批准（该动作改的是交付给目标机的清单）",
+        "level": "change",
+        "dup": null
+      },
+      {
+        "text": "先统计清单里是否有其他项以第 8 项「已完成」为前置条件（材料 F 记为未统计）",
+        "level": "change",
+        "dup": null
+      }
+    ],
+    "2": [
+      {
+        "text": "清单里两个判据字符串并列记录（Permission denied 与 Operation not permitted），不自行选边",
+        "level": "minor",
+        "dup": null
+      },
+      {
+        "text": "实测第 9 查对未申报读取的拦截率（当前未实测），否则方案 A 的兜底是未验证的",
+        "level": "change",
+        "dup": null
+      }
+    ],
+    "3": [
+      {
+        "text": "先确认清单接收方是否接受「架构限制（不适用）」这个状态值，否则返工发生在交付环节",
+        "level": "change",
+        "dup": null
+      },
+      {
+        "text": "4 条 sandbox 实测绑定 Apple M4/macOS 26.5.2，平台变更需重付一次实测成本",
+        "level": "minor",
+        "dup": null
+      }
+    ],
+    "4": [
+      {
+        "text": "先确认清单接收方身份与接受度（材料 F 原文「未确认」）",
+        "level": "minor",
+        "dup": "3"
+      }
+    ],
+    "5": [
+      {
+        "text": "方案 A 把兜底责任转给第 9 查，需为该责任写明承担口径",
+        "level": "minor",
+        "dup": null
+      }
+    ],
+    "6": [
+      {
+        "text": "先确认清单中是否有项显式引用第 8 项「已完成」状态",
+        "level": "minor",
+        "dup": "1"
+      },
+      {
+        "text": "第 9 查拦截率未实测前就转移责任，净风险可能不是中性而是净增",
+        "level": "change",
+        "dup": "2"
+      }
+    ],
+    "7": [
+      {
+        "text": "改状态前先确认清单是否纳入版本控制/有备份，否则「能否撤销」不可判",
+        "level": "change",
+        "dup": null
+      },
+      {
+        "text": "「⛔ 架构限制（不适用）」措辞须明示不是「已豁免/已完成」，防接收方误读",
+        "level": "change",
+        "dup": null
+      }
+    ],
+    "8": [
+      {
+        "text": "为第 8 项的新状态定义可观测的验收口径，否则改动只留痕、不可验收",
+        "level": "change",
+        "dup": null
+      }
+    ]
+  },
+  "how_to_fill": "① results[]：每项 status 填 pass/fail（不留 not_run），evidence 填原文依据一句。没跑过就别填 pass —— 那会让汇总变成假绿灯。② actions{角号:[...]}：登记该角提出的可行动项，level 取 ['change', 'minor']，dup 填提出过同一项的其他角号（字符串，无重复填 null）。★ 判据矩阵只证明「这份产出合不合格」，覆盖增量看 actions。",
+  "updated_at": "2026-10-22T23:27:40+08:00",
+  "filled_by": "主会话（依据 outputs/ 原文逐格提取）"
+}

@@ -1,0 +1,103 @@
+{
+ "task_id": "T-10",
+ "round": 29,
+ "aggregated_by": "PM-01",
+ "summary": {
+  "ledger_rows": 5,
+  "bill_rows": 8,
+  "ledger_total": 271800.0,
+  "bill_total": 286240.0,
+  "raw_total_gap": 14440.0,
+  "dedup_removed_txn_count": 0,
+  "dedup_amount": 0.0,
+  "diff_count": 6,
+  "amount_diff_total": 14440.0,
+  "excluded_amount_total": 0.0,
+  "fee_diff_total": 5.17,
+  "excluded_categories": [
+   "日期差异-按交割日入账"
+  ]
+ },
+ "diffs": [
+  {
+   "id": "T075",
+   "category": "金额差异-按委托价记账"
+  },
+  {
+   "id": "T076",
+   "category": "单侧存在-券商独有"
+  },
+  {
+   "id": "T077",
+   "category": "单侧存在-券商独有"
+  },
+  {
+   "id": "T078",
+   "category": "股数差异-送转未更新"
+  },
+  {
+   "id": "T079",
+   "category": "单侧存在-券商独有"
+  },
+  {
+   "id": "T080",
+   "category": "日期差异-按交割日入账"
+  }
+ ],
+ "categories": {
+  "金额差异-按委托价记账": [
+   "T075"
+  ],
+  "单侧存在-券商独有": [
+   "T076",
+   "T077",
+   "T079"
+  ],
+  "股数差异-送转未更新": [
+   "T078"
+  ],
+  "日期差异-按交割日入账": [
+   "T080"
+  ]
+ },
+ "falsification": "本聚合在下列任一条件下即错：①若裁决认定 §D 的「日期」须对齐 settle_date，差异清单应变为 7 条（T073/T074 因日期差进入，T080 因四列全同退出），diff_count=6 翻为 7，分类前提重算；②若裁决认定 T075 的 120.00 属记账口径不计入金额差（ADJ-001=exclude），amount_diff_total 应降为 14320.00、excluded_amount_total 应为 120.00，本文件的金额字段即错；③若 §B 的重复判据被扩为「同一经济事项换号亦算重复」，T077 与 T079 的 520.00 需重算，dedup_removed_txn_count 与 dedup_amount 由 0 变为非零；④若 excluded_categories 被要求封闭枚举且「日期差异-按交割日入账」不得列为排除类别，则 excluded 字段为空、须重新给类；⑤若 T078 的送转股数（交割单 30 对 note「10送3」应 +300）被证为需按 300 修正，其金额差仍为 0.00，故不影响金额字段，但会改变该条分类措辞。以上五项任一成立，本聚合相应字段即作废，须按新裁决重算而非改标签蒙对。",
+ "diff_preserved": [
+  {
+   "side": "多数",
+   "conclusion": "ADJ-001=count、DIFFSET=6：T075 的 120.00 计入金额差，六条差异 T075/T076/T077/T078/T079/T080，amount_diff_total=14440.00、excluded_amount_total=0.00。EX-01 与 EX-03 同持此立场（2/3），且有 §D 字面文本「四列任一不同即为差异单号」与独立 Decimal 复算支撑。",
+   "falsification": "若 §D 的日期须取 settle_date（清单变 7 条）、或裁决明示「口径差」类不计入金额差、或证明 120.00 从未实际发生，则本多数结论作废。"
+  },
+  {
+   "side": "少数",
+   "conclusion": "ADJ-001=exclude：T075 差额 120.00 源自 ledger.note 自述「按委托价记账」，属记账价口径而非成交价差异，应剔出金额差 → amount_diff_total=14320.00、excluded_amount_total=120.00、excluded_categories=[记账口径差-按委托价记账]，清单仍 6 条。持此立场者：EX-02（1/3）。",
+   "falsification": "若成交回报或资金流水显示 120.00 已实际扣款（ledger.amount 只是按委托价填列）、或契约/裁决明示清单内单号一律计入金额差，则本少数结论作废。"
+  },
+  {
+   "side": "少数",
+   "conclusion": "被三席一致反驳的第三方数值主张：ANON-C 以「settle 口径得 8 条、越出选项空间」支撑成交日口径。三席与我本人的独立复算均为 7 条（settle 口径下 T073/T074 进入、T080 退出，净增 1），故「8 条」不可回读，作为论据不予采纳；其方向结论（取 trade_date）恰与多数一致，按证据而非人数处理。",
+   "falsification": "若能列出 settle 口径下 8 个差异单号并逐号给出触发列，则本条纠正撤回，7 条改为 8 条。"
+  },
+  {
+   "side": "少数",
+   "conclusion": "被一致驳回的证据形式主张：ANON-B 以「Σabs 差额 = raw_total_gap」作为分类正确性的支撑。本数据六条差额同号，该等式恒成立，属恒等式误用，零信息量；仅保留其作为对账闭合检查的用途，不作正确性证明。",
+   "falsification": "若能给出异号差额样本使该式可失败，则可升格为有效回归项，本条撤回。"
+  }
+ ],
+ "aggregation_inputs": [
+  {
+   "seat": "EX-01",
+   "sha256": "047b51320daf15905e548c9ada06ca97eebc7fb7cdc2b66e66e0db350981274c",
+   "seat_check_status": "valid"
+  },
+  {
+   "seat": "EX-02",
+   "sha256": "0be2a0d9b288b98cc1fa48e1a60b8734401d6541ee1429fb3917a89e905afb86",
+   "seat_check_status": "valid"
+  },
+  {
+   "seat": "EX-03",
+   "sha256": "e135f28871af34be020021baf8a0aca58aebe040e781262c0ad1344dede4c332",
+   "seat_check_status": "valid"
+  }
+ ]
+}

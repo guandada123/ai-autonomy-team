@@ -1,0 +1,155 @@
+{
+  "seat": "EX-03",
+  "round": 30,
+  "conclusion": "可执行方案：一条 Decimal + 全外连接的对账脚本，一次运行即可产出全部 11 个 summary 字段，🟢 低风险（只读输入、只写 answer.json）。落地口径取 diff_count=6、全部差异计入 26640.00、excluded 0.00——理由是它让「计入桶 + 排除桶 = raw_total_gap(26640.00)」成为可自动断言的回归条件，而排除口径靠人自觉。",
+  "execution_path": [
+    "1. 读入：pathlib 打开两个 CSV，encoding='utf-8'、newline=''，csv.DictReader；金额字段一律 Decimal(原串) 而非 float。",
+    "2. 建键：以 txn_id 为键做两侧 dict，每侧先 collections.Counter 计同键行数；行数 >1 即记入 dedup（按单号计），并按「多出行」汇总 dedup_amount。本夹具实测两侧均无重复键，故 dedup_removed_txn_count=0、dedup_amount=0.00。",
+    "3. 全外连接：键集合 = union(ledger, bill) = 8 个（T049..T056）。对每个键比对四列（shares / amount / fee_total / date↔trade_date），单侧存在直接判差异；命中即入 diffs。",
+    "4. 分桶：把 diffs 逐条打上 category，再按 category 是否属「计入金额差异」二分；amount_diff_total 取 abs 差额求和，excluded_amount_total 取差额求和（单侧项取该侧 amount）。",
+    "5. 断言与落盘：assert 计入 + 排除 == raw_total_gap（Decimal，scale=2）；assert diff_count == len(diffs)；assert categories 的并集 == diffs 的 id 集合。任一断言失败不写盘，退出码非零。"
+  ],
+  "cost": {
+    "token_estimate": "本席位自述 6200 tokens；同构一轮六席（三个辩论席 + 软裁判 + 结构审计 + 项目经理）估 6×6k≈36000，远低于 protocol/07 §6.1 的 per_task_token_hard_cap=160000；纯脚本复算部分 < 1k tokens，不随数据行数线性膨胀。",
+    "wall_clock": "单席取证约 8–10 分钟；脚本本身在 8 行×5 行规模下 < 0.1 秒，可忽略。整轮跨度受人工发起限制（14 步流程中第 4 步与第 9 步为人工）。",
+    "human_touchpoints": "≥3 次且不可自动化：①发起子代理（Agent 工具只能由主会话调用，脚本无法发起，protocol/07 §一）；②唯一写入者聚合写 answer-final.json；③在人类闸门签署裁决记录。归类口径之争无论选哪边都落在第 ③ 次人工上。"
+  },
+  "rollback": "本轮只新增 runs/round30/EX-0{1,2,3}.json 与最终 answer.json，均为可逆覆盖：覆盖前先把旧版复制为 answer.bak.json；若需完全回退，把新文件移动到 runs/round30/_trash/（不调用 unlink —— 本机沙箱对删除会拦截）。真正的回退点是口径：把 amount_diff_total/excluded_amount_total 回退到「全计入」基线 26640.00/0.00，因为该值不依赖任何归类判断，可作为无争议的兜底答案。",
+  "op_grade": "🟢",
+  "cross_platform_risks": [
+    {
+      "risk": "解释器名差异：Windows 侧习惯 python，macOS 目标机（Mac mini M4）只有 python3。",
+      "mitigation": "脚本不 shebang 硬编码解释器；文档与命令一律写 python3，必要时用 shutil.which 探测后回落。"
+    },
+    {
+      "risk": "路径分隔符：字符串拼接 'dir/xxx.csv' 在两侧虽可用，但一旦混入反斜杠即失效。",
+      "mitigation": "全部用 pathlib.Path / 运算符拼接；相对包根解析，不依赖 cwd。"
+    },
+    {
+      "risk": "换行：Windows 默认 CRLF 会让 CSV 末列多出 \\r，导致 note 列比较恒不等。",
+      "mitigation": "open(..., newline='') 读入；输出 JSON 固定 LF（newline='\\n'），不交给平台默认。"
+    },
+    {
+      "risk": "编码：Windows 默认 GBK，note 列含中文（五粮液/按委托价记账）会抛 UnicodeDecodeError 或静默乱码。",
+      "mitigation": "读写均显式 encoding='utf-8'；JSON 用 ensure_ascii=False 落盘。"
+    },
+    {
+      "risk": "金额用 float：实测 (2500.01-2500.00)+(3210.51-3210.50)=0.020000000000436557≠0.02（protocol/06 §2.4），本任务 120.00/26640.00 这类值在 float 累加下可能变成 26640.000000000004，与 Decimal 比对失败。",
+      "mitigation": "全程 Decimal(str)，最终 quantize(Decimal('0.01'))；比较用 decimal_equals（scale=2），禁用 numeric_equals。"
+    },
+    {
+      "risk": "删除操作：脚本若在重跑前清理旧产物会调用 unlink/pathlib.Path.unlink，本机沙箱会拦截并中断流程。",
+      "mitigation": "改为 shutil.move 到 _trash/ 子目录，保留证据（也符合「分歧守恒、不销毁证据」）。"
+    },
+    {
+      "risk": "中文路径归一化：macOS HFS+/APFS 返回 NFD，Windows 为 NFC，直接字符串匹配 protocol/文件名 会假失配。",
+      "mitigation": "用 unicodedata.normalize('NFC', p) 归一化后比较，或用 glob 匹配。"
+    }
+  ],
+  "evidence": [
+    {
+      "pointer": "fixtures/tasks/T-07/bill.csv#T051 的 shares/price/amount/commission/transfer_fee 列",
+      "what_it_shows": "1000×45.12=45120.00、11.28+0.45=11.73，组内自洽；对侧 45000.00/11.70 差 120.00 与 0.03。说明差额可由原始列复算，不需要任何外部数据——脚本可行性成立。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-07/ledger.csv#5行 × bill.csv#8行 的键集合差",
+      "what_it_shows": "并集 8 个键、交集 5 个键，全外连接只产生 3 个单侧项（T052/T053/T055），因此「单侧存在即差异」这一分支必须实现，不能用 inner join 近似。"
+    },
+    {
+      "pointer": "protocol/06-写入域与判据分层.md#2.4 金额检查的硬闸门",
+      "what_it_shows": "float 语义会产生 0.020000000000436557≠0.02 的实测反例，且金额路径必须 decimal_equals 并声明 scale，误用 numeric_equals 直接拒载（exit 2）。这是我选 Decimal 全链路的依据。"
+    },
+    {
+      "pointer": "protocol/07-轮次与指标.md#6.1 预算的计量定义式",
+      "what_it_shows": "tokens_total 为全部席位求和、minutes_span 取最大值、未申报记 missing 而非 0；per_task_token_hard_cap=160000。据此本轮成本估算有可比的阈值基准，而非凭感觉。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-07/TASK.md#四个易错点(第1、2、3条)",
+      "what_it_shows": "amount 与 fee_total 必须分开取、两个金额字段都是差额、重复项不参与两个金额字段；这三条恰好是脚本里最容易写成「全额相加」的位置，需各写一条断言固定。"
+    }
+  ],
+  "falsification": "方案不可行的条件：①出现同一 txn_id 在一侧多行（分批成交）——本夹具实测两侧均无重复键（8 行 8 个唯一 id、5 行 5 个唯一 id），故 dedup=0/0.00 成立；一旦有重复，单键 join 会丢行，必须改 groupby 求和，且 dedup_amount 需按「多出行」而非「全行」求和。②若要求对账结论具备会计效力（需持仓余额与资金流水三方勾稽），则单靠这两份 CSV 无法验证，方案从可行降为不可行。③若断言「计入+排除==raw_total_gap」被裁决口径打破（例如允许某类差额两边都不进），则我的落盘断言会误杀正确输出。",
+  "reads": [
+    {
+      "path": "runs/round30/prompts/EX-03.md",
+      "purpose": "读取落地席位职责、成本/回滚/操作分级要求与跨平台检查项"
+    },
+    {
+      "path": "runs/round30/prompts/EX-01.md",
+      "purpose": "确认同族席位的 stance 选项空间与字数预算，判断执行方案需满足的产出形态；不作证据"
+    },
+    {
+      "path": "runs/round30/prompts/EX-02.md",
+      "purpose": "确认对立面会攻击哪些数值口径，据此设计断言与回滚兜底；不作证据"
+    },
+    {
+      "path": "fixtures/tasks/T-07/TASK.md",
+      "purpose": "读取输出 schema、11 个 summary 字段与四个易错点，转化为脚本断言清单"
+    },
+    {
+      "path": "fixtures/tasks/T-07/ledger.csv",
+      "purpose": "复算 5 行/101820.00，检查是否存在同键多行（影响 dedup 分支实现）"
+    },
+    {
+      "path": "fixtures/tasks/T-07/bill.csv",
+      "purpose": "复算 8 行/128460.00，验证分项费用可加性（commission+stamp_tax+transfer_fee==fee_total）"
+    },
+    {
+      "path": "protocol/02-辩论协议.md",
+      "purpose": "确认终止条件须显式声明、聚合按证据计权，落地方案不得依赖人数多数"
+    },
+    {
+      "path": "protocol/06-写入域与判据分层.md",
+      "purpose": "确认写入域 allow/deny（fixtures 禁写）、金额 Decimal 硬闸门、以及读取域只能声明不能隔离——影响回滚与落盘设计"
+    },
+    {
+      "path": "protocol/07-轮次与指标.md",
+      "purpose": "确认 token/时长预算计量式与退出码语义，用于成本估算与失败分支设计"
+    }
+  ],
+  "dissent": [
+    {
+      "against": "ANON-B",
+      "reason": "把权益类 520.00 排除后（26120.00/520.00），虽然「计入+排除」仍等于 26640.00，但两个桶的金额都携带归类假设，任一方改动都要重算两个数；而全计入口径下 excluded 恒为 0.00、amount_diff_total 恒等于 raw_total_gap，只需一条断言即可守护。对一次要跑 20 个同构夹具的流水线来说，可断言性的价值高于会计美观——排除口径让每次回归都要人看一眼类别表。",
+      "reverse_evidence": "若人类裁决记录明确排除权益类，则断言应改为「计入+排除==raw_gap 且 excluded 只来自权益类」，此时我的全计入口径即为错，须按裁决重算为 26120.00/520.00。"
+    }
+  ],
+  "confidence": "high",
+  "needs_more_data": [
+    "缺数据：无持仓余额表与资金流水，无法验证 T054 送转 30 股的基准股数，也无法确认 T053（600519）属本账户；因此本方案只能保证「CSV 内部自洽」，不能保证会计上成立。",
+    "缺规则：契约未规定 excluded_categories 的类别名是否需跨任务统一词表，导致每个席位自拟一套名字，聚合时无法机器合并。",
+    "缺规则：DIFFSET 选项空间为 7/6/5/4，而本任务最大可能差异单号为 6（8 键 − 2 个四列全等键），选项 7 在本夹具上不可达——若脚本按选项空间做断言，会误报 E_STANCE_OUT_OF_SPACE 或反向误判。"
+  ],
+  "stance": [
+    {"axis": "ADJ-001", "choice": "count"},
+    {"axis": "DIFFSET", "choice": "6"}
+  ],
+  "summary": {
+    "ledger_rows": 5,
+    "bill_rows": 8,
+    "ledger_total": 101820.00,
+    "bill_total": 128460.00,
+    "raw_total_gap": 26640.00,
+    "dedup_removed_txn_count": 0,
+    "dedup_amount": 0.00,
+    "diff_count": 6,
+    "amount_diff_total": 26640.00,
+    "excluded_amount_total": 0.00,
+    "excluded_categories": []
+  },
+  "diffs": [
+    {"id": "T051", "category": "成交价口径差"},
+    {"id": "T052", "category": "自记账遗漏"},
+    {"id": "T053", "category": "自记账遗漏"},
+    {"id": "T054", "category": "股数未更新"},
+    {"id": "T055", "category": "自记账遗漏"},
+    {"id": "T056", "category": "入账日口径差"}
+  ],
+  "categories": {
+    "成交价口径差": ["T051"],
+    "自记账遗漏": ["T052", "T053", "T055"],
+    "股数未更新": ["T054"],
+    "入账日口径差": ["T056"]
+  },
+  "usage": {"tokens": 5900, "minutes": 8, "source": "self_report"}
+}

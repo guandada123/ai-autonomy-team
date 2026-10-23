@@ -1,0 +1,102 @@
+{
+ "task_id": "T-20",
+ "round": 23,
+ "aggregated_by": "PM-01",
+ "summary": {
+  "ledger_rows": 7,
+  "bill_rows": 8,
+  "ledger_total": 281800.0,
+  "bill_total": 282180.0,
+  "raw_total_gap": 380.0,
+  "dedup_removed_txn_count": 0,
+  "dedup_amount": 0.0,
+  "diff_count": 6,
+  "amount_diff_total": 380.0,
+  "excluded_amount_total": 0.0,
+  "fee_diff_total": 77.55,
+  "excluded_categories": [
+   "费用漏记",
+   "权益变动未入账",
+   "日期口径差"
+  ]
+ },
+ "diffs": [
+  {
+   "id": "T155",
+   "category": "金额口径差"
+  },
+  {
+   "id": "T156",
+   "category": "费用漏记"
+  },
+  {
+   "id": "T157",
+   "category": "费用漏记"
+  },
+  {
+   "id": "T158",
+   "category": "权益变动未入账"
+  },
+  {
+   "id": "T159",
+   "category": "单侧缺失_现金分红"
+  },
+  {
+   "id": "T160",
+   "category": "日期口径差"
+  }
+ ],
+ "categories": {
+  "金额口径差": [
+   "T155"
+  ],
+  "费用漏记": [
+   "T156",
+   "T157"
+  ],
+  "权益变动未入账": [
+   "T158"
+  ],
+  "单侧缺失_现金分红": [
+   "T159"
+  ],
+  "日期口径差": [
+   "T160"
+  ]
+ },
+ "falsification": "本结论在以下任一条件下被证伪：① 若契约把比对日期列明确为 bill.settle_date，则 T153、T154 构成日期差异、T160 不再构成差异，diff_count 应改为 7（不是三席反事实里写的 11——该数字在任何单一口径下都无法复现），6 条清单与 diff_count 断言同时失效；② 若 T155 的 120.00 被证实是实际资金缺口（券商实收 45120.00 而自记账仅记 45000.00，形成应付未付），则它仍应计入，但 excluded_categories 的构成需重排；③ 若裁决层把『count 口径』定义为 excluded_categories 必须为空数组，则本答案的金额三字段（380.00 / 0.00 / 0）仍成立而列表字段需回落为 []；④ 若某单号在任一侧出现两次以上，dedup_removed_txn_count 应为非零——本数据两侧单号均唯一，故该项为 0。",
+ "diff_preserved": [
+  {
+   "side": "多数",
+   "conclusion": "6 条差异（T155/T156/T157/T158/T159/T160），amount_diff_total=380.00、excluded_amount_total=0.00、dedup=0。依据：TASK.md 差异判定口径明文含『日期』列且未指定 compare 对象，取最字面的 bill.trade_date；四列全等比对下仅这 6 个单号不完全相同。EX-01、EX-03 同持此结论，PM-01 用 Decimal 独立复算（trace: trade_date 口径 6 条，T155 差 120.00 + T159 单侧 260.00 = 380.00，与 raw_total_gap 相等）逐项复现。",
+   "falsification": "若契约补明『日期一律取 settle_date』，则清单应为 T153、T154、T155、T156、T157、T158、T159 共 7 条，本结论条数与单号集合作废。"
+  },
+  {
+   "side": "少数",
+   "conclusion": "5 条差异（剔除 T160，因 ledger.date=2026-09-19 与 bill.settle_date 同日，仅 trade_date 差 1 天），且 T155 的 120.00 属估值基准差而非应收应付缺口，应从金额差异剔除 → amount_diff_total=260.00、excluded_amount_total=120.00、excluded_categories=[\"金额口径差\"]。EX-02 持此结论（confidence: medium），并自陈『380.00 恰等于 raw_total_gap 是换位复述，不是证据』——该批评在方法论上成立，PM-01 予以保留备查，但因契约未把口径差列为排除项，未采纳为最终值。",
+   "falsification": "若 120.00 在现金流中真实少付（券商实收 45120.00、自记账仅出账 45000.00），则该 120.00 是真实缺口，剔除即错；若对账 SLA 要求『任何列不一致必须留痕』，则 T160 应保留，5 条清单少列一条。"
+  },
+  {
+   "side": "少数",
+   "conclusion": "共享误差登记（非席位立场，而是三席在反事实分支上的一致错误）：EX-01、EX-02、EX-03 均称『改用 settle_date 则 diff_count 升至 11』。PM-01 独立复算：settle 口径为 7 条（T153/T154/T155/T156/T157/T158/T159），trade 口径为 6 条，11 = 6+5 是把两套口径的日期差叠加所得的重复计数，从未被任何席位实际计算过。三席在这一欠定义点上的证伪条件因此共享同一个未验证数字，削弱其可信度，但不改变主分支（trade 口径 6 条）的成立。",
+   "falsification": "若有人能给出使 diff_count=11 的单一口径定义（即存在某列选择使 11 个单号同时满足『四列不完全相同』），本条更正撤销；按现有两份 CSV 的 8 个单号，任一口径下不可能超过 8 条，故本条成立。"
+  }
+ ],
+ "aggregation_inputs": [
+  {
+   "seat": "EX-01",
+   "sha256": "d0ad3b9c471ac767c7ebe0bd8bb6cc7868b62202096482b6acb57a875a62f1db",
+   "seat_check_status": "valid"
+  },
+  {
+   "seat": "EX-02",
+   "sha256": "421e398d2ec61a831172b31b883db15d07be5b9d1a06b01a5b7c749dfa6d69d3",
+   "seat_check_status": "valid"
+  },
+  {
+   "seat": "EX-03",
+   "sha256": "b8d5ed7b7f5af5c3e85b154883276216dc8ad9e75c32719d9e47310d45973a38",
+   "seat_check_status": "valid"
+  }
+ ]
+}

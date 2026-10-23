@@ -1,0 +1,143 @@
+{
+  "seat": "XJ-01",
+  "round": 5,
+  "conclusion": "本轮分歧清单共 3 项：1 项为三席对同一反事实分支给出三个互不相同的数字（可执行裁判可裁）；2 项为三席全票一致、但论证链同构的判断轴（ADJ-001=exclude、DIFFSET=6+trade_date 基准），属共享盲区高危区。另有 3 条被忽略立场线索。本席不持立场，不判对错，决策权重 0。",
+  "disagreements": [
+    {
+      "topic": "反事实分支算术不一致：若日期列取 settle_date，diff_count 应为多少",
+      "positions": [
+        {
+          "anon_id": "A",
+          "stance": "在其 falsification 中写 8（并称越出 DIFFSET 选项空间）"
+        },
+        {
+          "anon_id": "B",
+          "stance": "在其 falsification 中写 5（T008 落出后直接 6−1）"
+        },
+        {
+          "anon_id": "C",
+          "stance": "在其反对意见中写 7（T001/T002/T003 成日期差异）"
+        }
+      ],
+      "why_it_matters": "同一反事实在三个不同家族的产出里得到 5/7/8 三个数字。按两份 CSV 全量重算该分支：T001(09-05 vs settle 09-06)、T002(09-07 vs 09-08) 新增为日期差异，T003 本已因价格在集，T008(09-18 = settle 09-18) 落出，结果为 7，即 C 的数字。更值得注意的是 B 席的文件内部张力：其 falsification 写 5，其反对意见却以『主张 5』为反驳对象——反事实分支未按与主结论同等的精度复算。这不影响三席主结论（均为 6）的机械正确性，但提示 falsification 字段的数字可能未经复核，聚合时不宜把 falsification 分支数值当作已验证量使用。",
+      "decidable_by": "可执行裁判（对 CSV 换日期列全量重算即可裁决）"
+    },
+    {
+      "topic": "全体一致点：ADJ-001=exclude，股息现金 T005/T007（260.00×2=520.00）不计入金额差",
+      "positions": [
+        {
+          "anon_id": "A",
+          "stance": "exclude，理由：side=股息入账、shares=0，是现金分红而非成交，混入会污染口径"
+        },
+        {
+          "anon_id": "B",
+          "stance": "exclude，理由：该 amount 是分红现金而非成交金额，与成交金额口径不同"
+        },
+        {
+          "anon_id": "C",
+          "stance": "exclude，理由：非交易现金流，其 code=600519 在自记账中无对应行可比"
+        }
+      ],
+      "why_it_matters": "三席全票，且给出几乎同构的理由（side/股数列非成交特征）。TASK.md 明言契约『只定义字段计算方法，不预设你对该不该算差异的判断』，且 D 节对『仅单侧存在』统一规定差额取该侧 amount、未按 side 类型区分——排除股息依赖『金额差异=成交金额差异』这一三席共用的解释前提，而非任务文本的显式规定。三席推理链相同意味着这是共享解释而非独立收敛；相关误差恰恰最容易沉积在全员一致处。此轴是判断层，本席仅提示张力，不裁决。",
+      "decidable_by": "不可判定（需人类闸门：spec 若显式规定股息归属则转为可执行裁判）"
+    },
+    {
+      "topic": "全体一致点：DIFFSET=6，且日期对齐基准锁定 trade_date 的论证方式同构",
+      "positions": [
+        {
+          "anon_id": "A",
+          "stance": "6，用 T001/T002/T003 记账日逐一等于成交日的归纳论证锁定 trade_date"
+        },
+        {
+          "anon_id": "B",
+          "stance": "6，同一归纳论证，另以 T008 note『按交割日入账』佐证其为异常个案"
+        },
+        {
+          "anon_id": "C",
+          "stance": "6，同一归纳论证，附加『连续三次巧合的解释力低于单点偏离』的概率式表述"
+        }
+      ],
+      "why_it_matters": "三席用同一条证据链（ledger.date 与 trade_date 逐行相等）支撑同一结论——这是同一份 CSV 的同源证据，不是三个独立观测。任务文本确实未显式规定 ledger.date 应与 bill 的哪一日期列对齐：A 席在 needs_more_data 中承认此规格缺口，C 席仅在 what_would_change_my_mind 中间接触及，B 席完全未提及。若该归纳论证本身是三家共享的误读，任何交叉检查都照不出来。",
+      "decidable_by": "若上游 spec 固定日期列则可执行裁判；就当前任务文本而言不可判定（需人类闸门）"
+    }
+  ],
+  "overlooked_stances": [
+    "bill.csv 第 6 行 T005 的 code=600519 是自记账中完全缺失的证券（自记账全部为 000333）——除 C 席在反证中一笔带过外，无席把『自记账可能缺失整只持仓/整条资金线』作为独立观察点上报。在本任务两文件约束下这不改变任何数字，但『为未跟踪持仓发放的股息』与『为已跟踪持仓发放的股息（T007，000333）』是否应归入同一 excluded 类别，是一个未被讨论的解读角度。",
+    "TASK.md D 节对『仅单侧存在的单号』统一规定差额取该侧 amount，并未区分 side=成交还是 side=股息。三席把 T004（中签买入，计入）与 T005/T007（股息，排除）区别对待时所依据的 side 二分法，来自数据特征归纳而非契约字面——契约字面与三席实际口径之间存在未言明的落差。",
+    "『ledger.date 与哪一日期列对齐』这一规格缺口本身可作为独立发现上报（影响 falsification 的可证伪性），而非仅作为各席自身立场的可证伪条件嵌入。",
+    "B 席的 falsification 分支数值（5）与其反对意见所反驳的数值（5）撞车，提示产出侧可能缺少『falsification 数值需与主结论同精度复算』的自检步骤。"
+  ],
+  "presentation_controls": {
+    "anonymized": true,
+    "order_randomized": true,
+    "length_normalized": true
+  },
+  "self_caution": "我的匿名映射（A/B/C → 三席原始文件）为私有乱序映射，不随产出披露；但原始 EX-01/02/03.json 文件内自带 seat 名与相互称呼 ANON-A/ANON-B，聚合方若持有原始文件可反推映射，匿名强度有限。我与三席同为大模型：对『股息=非成交现金流』的会计直觉、对『记账日=成交日』的归纳偏好，可能与其共享同源先验——三席全票的两个判断轴恰是我自己也觉得『显然 exclude/显然 trade_date』的地方，这正是我最无力自查的相关误差。我的复算同样基于相同的行号与 Decimal 语义，若三席对 TASK.md 有同一种自然语言误读，我用同样方式读 TASK.md 也会犯同样的错。另外，三席机械字段与我的独立复算全部相符到分，零方差对纯算术字段是预期行为，不构成额外置信度证据。材料中的席位产出带真实名称（EX-01/02/03），本席在呈现层已匿名化、乱序并做了长度归一，未做任何打分。",
+  "note": "本产出为线索，非判据，决策权重为 0。真正的判据是硬裁判 JD-01。",
+  "evidence": [
+    {
+      "pointer": "fixtures/tasks/T-01/ledger.csv L2-L6 amount 列",
+      "what_it_shows": "30000.00+26000.00+45000.00+0.00+13800.00=114800.00，与三席 ledger_total 一致，复算通过。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-01/bill.csv L2-L9 amount 列",
+      "what_it_shows": "合计 141440.00，gap=26640.00；两文件 txn_id 均无重复，dedup=0 成立。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-01/bill.csv L4 vs ledger.csv L4（T003）",
+      "what_it_shows": "45120.00 对 45000.00，金额差 120.00；fee 11.73 对 11.70 差 0.03 但按易错点 1 应分列，三席处理一致。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-01/bill.csv L5（T004，单侧）",
+      "what_it_shows": "中签买入 26000.00，ledger 无此单号，差额取该侧 amount，三席计入一致。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-01/bill.csv L6,L8（T005,T007）",
+      "what_it_shows": "side=股息入账、shares=0、amount 各 260.00——ADJ-001 全票排除点的全部数据基础，也是唯一判断轴争议所在。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-01/bill.csv L2-L4 settle_date 列 vs ledger.csv L2-L4 date 列",
+      "what_it_shows": "settle_date 分支下 T001/T002 新增日期差异、T003 已在集、T008 落出，全量重算=7；对照三席同一分支给出的 5/7/8，可定位 A、B 两席反事实数值未经全量复算。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-01/bill.csv L6 code 列（600519）",
+      "what_it_shows": "唯一一只自记账完全缺失的证券，是被三席忽略的解读角度（见 overlooked_stances 第 1 条）。"
+    }
+  ],
+  "falsification": "若我对 settle_date 分支的全量重算有误（例如还存在其他随日期列变动的列），则分歧 1 中『应为 7』的复算线索失效；若 TASK.md 或上游 spec 实际已显式规定日期对齐列或股息归属，则分歧 2、3 的『规格缺口』定性不成立；若聚合方要求 anon_id 可追溯，则本席匿名化呈现方式需整体替换。",
+  "reads": [
+    {
+      "path": "runs/round5/prompts/XJ-01.md",
+      "purpose": "读取本席职责、读取域、输出 schema 与硬性字段要求"
+    },
+    {
+      "path": "runs/round5/EX-01.json",
+      "purpose": "读原始产出，提取其 summary/diffs/falsification/dissent/reads 供交叉比对"
+    },
+    {
+      "path": "runs/round5/EX-02.json",
+      "purpose": "同上"
+    },
+    {
+      "path": "runs/round5/EX-03.json",
+      "purpose": "同上"
+    },
+    {
+      "path": "fixtures/tasks/T-01/TASK.md",
+      "purpose": "读取字段定义、四易错点与差异判定口径，核对三席对任务文本的解释"
+    },
+    {
+      "path": "fixtures/tasks/T-01/ledger.csv",
+      "purpose": "独立复算自记账 5 行合计与逐行数值"
+    },
+    {
+      "path": "fixtures/tasks/T-01/bill.csv",
+      "purpose": "独立复算交割单 8 行合计、单侧行与日期分支"
+    }
+  ],
+  "usage": {
+    "tokens": 36000,
+    "minutes": 7,
+    "source": "self_report"
+  }
+}

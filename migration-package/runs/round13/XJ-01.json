@@ -1,0 +1,87 @@
+{
+  "seat": "XJ-01",
+  "round": 13,
+  "conclusion": "本轮分歧清单共 4 项：(1) T047 单边股息 260.00 的金额切分（380/0 vs 120/260）；(2) EX-03（转述）stance=count 但 excluded_amount_total=0.00 与 excluded_categories 含「股息入账差异」的内部张力；(3) 费用差 0.55 在 summary 字段中无落点、EX-01 未系统披露而 EX-02 主张显式披露；(4) EX-02/EX-03 原始产物未落盘，全部立场仅有转述、不可核验。我独立 Decimal 复算确认：ledger 7 行 304800.00、bill 8 行 305180.00、raw_total_gap +380.00、两侧无重复单号、费用差 0.55（T043 0.03+T044 0.26+T045 0.26）。注意：380/0 与 120/260 两种切分在算术上均自洽（120+260=380），分歧不在算术而在 T047 的类别归属判断。",
+  "disagreements": [
+    {
+      "topic": "T047 单边股息 260.00 是否计入成交金额差异（amount_diff_total=380.00/excluded=0.00 vs 120.00/260.00）",
+      "positions": [
+        {"anon_id": "EX-01", "stance": "（原文在场，已读）T047 归入「单边缺失(股息入账)」并计入金额差异，amount_diff_total=380.00、excluded_amount_total=0.00；依据 TASK.md §D「仅单侧存在的单号亦为差异单号，差额取该单号在该侧的 amount」"},
+        {"anon_id": "EX-02", "stance": "（仅有转述，原文缺失未核验）T047 股息入账属权益类非成交项目，应排除出成交金额差异，amount_diff_total=120.00、excluded_amount_total=260.00，excluded_categories 追加股息类；并主张费用差 0.55 需单独披露"}
+      ],
+      "why_it_matters": "这是 amount_diff_total 与 excluded_amount_total 两个契约金额字段的 260.00 归属之争。两方数字都与 raw_total_gap=380.00 闭合，分歧纯在归类：TASK.md §C 把「计入/不计入」的类别定义权交给作答者，而 §D 又给出了单边单号差额计入的成文锚点——两者之间存在解释空间，正是需要裁决的位置。",
+      "decidable_by": "可执行裁判（TASK.md §D 提供成文锚点；但裁决者须先确认 §D 是否覆盖 §C 的类别自定义自由——若认定股息类不属成交金额则需人类闸门）"
+    },
+    {
+      "topic": "EX-03（转述）内部一致性：stance=count 与 excluded_amount_total=0.00 但 excluded_categories 含「股息入账差异」的张力",
+      "positions": [
+        {"anon_id": "EX-03", "stance": "（仅有转述，原文缺失未核验）数值与 EX-01 相同（380/0），但 excluded_categories=[\"股息入账差异\",\"送转股数差异\",\"日期口径差异\"]，且 stance=count"},
+        {"anon_id": "EX-01", "stance": "（原文在场）同样呈现 excluded_categories 非空 + excluded=0.00，但其三个类别（仅费用不符/股数不符/日期口径差）的 amount 差额确实全为 0.00，字段自洽"}
+      ],
+      "why_it_matters": "按 TASK.md §C，excluded_amount_total 是「归入不计入类别的非重复单号」的差额求和。T047 的 amount 差额是 260.00 而非 0：若「股息入账差异」真是 excluded 类别且 T047 属于它，excluded_amount_total 应为 260.00；若 T047 被计入，则该类别在 diffs/categories 中无成员，违反约束 4 的自洽要求。两种读法下该（转述的）输出都有一处不自洽。同类呈现在 EX-01 处自洽、在 EX-03 处不自洽，说明这个字段组合的正确性取决于类别成员归属，不能只看形状。",
+      "decidable_by": "可执行裁判——但前置条件是恢复 EX-03 原始产物；仅有转述时不可判定"
+    },
+    {
+      "topic": "费用差 0.55（T043 0.03 + T044 0.26 + T045 0.26）的呈报缺口：是否须显式披露、在哪里披露",
+      "positions": [
+        {"anon_id": "EX-02", "stance": "（转述）应显式披露费用差；summary 十一字段均按 amount 列取值且契约禁止与费用相加，0.55 无字段落点，只能进类别名/叙述——这是契约缺口而非已解释项"},
+        {"anon_id": "EX-01", "stance": "（原文在场）summary 与 falsification 均未系统披露 0.55 合计；仅 evidence 中零散提及 T043 fee 11.70 对 11.73（0.03），T044/T045 的 0.26+0.26 只体现在类别名「仅费用不符」里，合计数无处承载"}
+      ],
+      "why_it_matters": "我独立复算确认 0.55 真实存在且与两份 CSV 的 fee_total 列逐笔对应。若下游只读 summary 六个金额字段，会误以为两侧差异已由 380.00 全覆盖，而漏掉费用侧的 0.55。另外注意颗粒度：即便在 EX-01 的 diffs 里，T043 归「金额不符」后其 0.03 费用差也没有类别承载——费用差披露在任何一席的输出中都不完整。此点各方实质一致（都承认无落点），属「高置信度共识」，按共识不等于正确的原则，恰恰需要裁决者确认披露义务落在哪个字段。",
+      "decidable_by": "可执行裁判（核对各席输出是否系统披露 0.55；契约是否新增 fee_diff_total 字段属人类闸门）"
+    },
+    {
+      "topic": "EX-02/EX-03 原始产物未落盘：转述立场能否进入聚合与裁决",
+      "positions": [
+        {"anon_id": "EX-01", "stance": "（原文在场）唯一可核验的席位产出，PM-01 的 aggregation_inputs 亦仅含 EX-01（sha256 在案）"},
+        {"anon_id": "EX-02 与 EX-03", "stance": "（原文缺失）runs/round13/ 目录列举无此二文件；其全部立场仅存在于 team-lead/编排方转述中，转述可能不完整或失真，无法排除二席尚有其他未转述论点"}
+      ],
+      "why_it_matters": "上述分歧 1-3 中涉及 EX-02/EX-03 的部分全部建立在转述之上。若转述失真，分歧可能不存在或形态不同；若转述完整，这两席的立场也未经过独立核验链。这直接影响聚合的有效性与本轮 evidence_round 的证据完整性。",
+      "decidable_by": "不可判定（需人类闸门：由编排方恢复原始产物，或书面确认转述来源与完整性）"
+    }
+  ],
+  "overlooked_stances": [
+    "T043 的 120.00 除「计入 vs 排除」外还有第三条未被摆上台面的路：ledger note 自述「按委托价记账」，若裁决者认定这是口径选择而非错记，120.00 可移入 excluded 且同样闭合 380——EX-01 的 dissent 提及此点但三席正方均未采纳",
+    "费用差的颗粒度缺口：T043 的 0.03 因其被归入「金额不符」而无类别承载，即便采纳 EX-02 的披露主张，也需决定 0.03 是随 T043 走还是单列",
+    "T048 的日期对比列若改用 settle_date 则 8 单全部构成日期差异（diff_count 会变 8），该口径已因与数据冲突被排除，但裁决记录里应留痕以防复检时重开",
+    "「股息入账差异」类别若成立，T047 在 ledger 侧的对侧凭据（资金流水/银行流水）缺失，「漏记」与「跨期未入账」两种归因对下游整改动作完全不同，三席均未给出凭据要求"
+  ],
+  "presentation_controls": {"anonymized": true, "order_randomized": false, "length_normalized": false},
+  "self_caution": "三点自警：①EX-02/EX-03 原文从未落盘，我对这两席的全部描述基于 team-lead 转述而非原始产出——本应「回去读原文」但原文不存在，我选择如实标记不可核验而非假装读过；②我收到的材料按固定顺序呈现（EX-01 在先且唯一在场），存在先出现者偏好风险（实测先出现者胜率 63%），且我的独立复算恰好与 EX-01 一致——但这只证明 EX-01 的算术对，不证明 EX-02/EX-03 错，120/260 同样闭合 380；③作为跨家族评委我的误差与产出席位的误差仍可能相关（实测同准确率评委一致率可达 94%），我对「§D 锚点支持多数」的解读若与硬裁判共享同一误读，该相关误差任何交叉检查都照不出来。材料未做长度归一化（转述篇幅不等），未做顺序随机化。",
+  "note": "本产出为线索，非判据，决策权重为 0",
+  "evidence": [
+    {
+      "pointer": "fixtures/tasks/T-06/ledger.csv + fixtures/tasks/T-06/bill.csv（本人 Python Decimal 独立复算）",
+      "what_it_shows": "ledger 7 行合计 304800.00；bill 8 行合计 305180.00；raw_total_gap=+380.00；两侧均无同单号多行（dedup=0）；逐笔差异恰 6 条：T043 amount 45000.00 vs 45120.00（120.00）且 fee 11.70 vs 11.73（0.03）、T044 fee 6.50 vs 6.76（0.26）、T045 fee 6.50 vs 6.76（0.26）、T046 shares 0 vs 30、T047 仅在 bill 侧（260.00）、T048 ledger 2026-09-17 = bill settle_date 而 trade_date 2026-09-16；fee_total 列差额合计 0.55"
+    },
+    {
+      "pointer": "runs/round13/EX-01.json#summary,diffs,categories",
+      "what_it_shows": "EX-01 原文申报 380.00/0.00、diff_count=6、excluded_categories 为三个 amount 贡献确为 0 的类别；其 stance=[ADJ-001:exclude, DIFFSET:6] 与数字一致"
+    },
+    {
+      "pointer": "runs/round13/（目录列举，2026-10-20 14:16 后多次）",
+      "what_it_shows": "runs/round13/ 下仅有 EX-01.json、PM-01.json、answer-final.json、round-manifest.json、wd-baseline.json 及空 inputs/；EX-02.json 与 EX-03.json 不存在——涉及二席的分歧均为转述、未经原文核验"
+    },
+    {
+      "pointer": "runs/round13/answer-final.json#diff_preserved,aggregation_inputs,reads",
+      "what_it_shows": "PM-01 聚合侧独立确认仅 EX-01 落盘（sha256 2d31dc02…）、EX-02 仅有转述不进 aggregation_inputs、EX-03「原始产物缺失，未能核验」；PM-01 亦确认费用差 0.55 无字段落点并写入 falsification ⑦"
+    },
+    {
+      "pointer": "fixtures/tasks/T-06/TASK.md §C/§D/约束1",
+      "what_it_shows": "§D 明文「仅单侧存在的单号亦为差异单号，差额取该单号在该侧的 amount」为 380/0 提供成文锚点；§C 又把「计入/不计入」类别定义权交给作答者，且「股息是否属成交金额差异」契约未显式规定——这正是 120/260 立场的解释空间；约束1 禁止引入外部数据，故 T047 的对侧凭据在契约内不可获得"
+    }
+  ],
+  "falsification": "本线索产出在下列任一条件下为错：①恢复落盘的 EX-02/EX-03 原文与我上述转述立场不符（则分歧 1-3 的形态或存在性须重写）；②我的独立复算有误——若 ledger_total≠304800.00 或 bill_total≠305180.00 或 raw_total_gap≠380.00 或费用差合计≠0.55；③T047 在 ledger 侧存在同号或对侧凭据使 260.00 非单边缺失；④EX-03 原文的 excluded_categories 实际不含「股息入账差异」或其 excluded_amount_total 实为 260.00（则分歧 2 不成立）；⑤若确认转述与原文一致且硬裁判采纳与我所列不同的 §D 解释，本清单仅剩可核验性分歧一项仍然有效。",
+  "reads": [
+    {"path": "runs/round13/prompts/XJ-01.md", "purpose": "本席位职责、读取域、输出契约与三控要求"},
+    {"path": "fixtures/tasks/T-06/TASK.md", "purpose": "字段定义、§D 差异判定口径、四条易错点与约束（作为分歧可裁性的契约锚点）"},
+    {"path": "fixtures/tasks/T-06/ledger.csv", "purpose": "自记账 7 行原始值，独立 Decimal 复算 amount/fee_total/shares/date"},
+    {"path": "fixtures/tasks/T-06/bill.csv", "purpose": "交割单 8 行原始值，独立 Decimal 复算 amount/fee_total/shares/trade_date/settle_date"},
+    {"path": "runs/round13/EX-01.json", "purpose": "唯一在盘席位原始产出：核对其 summary/diffs/evidence/reads/usage 与我的独立复算是否一致"},
+    {"path": "runs/round13/round-manifest.json", "purpose": "确认 round13 轮次类型、契约版本 2.1、expected_seats 与写域"},
+    {"path": "runs/round13/answer-final.json", "purpose": "确认 EX-02/EX-03 落盘缺失事实与 PM-01 聚合侧对转述的处理方式（仅用于核验产物在场性，未以其替代任何席位原文）"},
+    {"path": "runs/round13/（目录列举，含 inputs/）", "purpose": "核实 EX-02.json/EX-03.json 是否落盘（结论：不存在，inputs/ 为空）"},
+    {"path": "team-lead 消息转述（非文件系统路径，不可 pointer）", "purpose": "EX-02（120/260 切分、费用差披露主张）与 EX-03（stance=count、excluded=0.00 但 excluded_categories 含股息类）的立场来源；已如实标注为转述、不可核验"}
+  ],
+  "usage": {"tokens": 52000, "minutes": 48, "source": "self_report"}
+}

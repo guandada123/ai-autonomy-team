@@ -1,0 +1,99 @@
+{
+  "seat": "EX-02",
+  "round": 19,
+  "conclusion": "算术层同多数（7/8 行、409420.00/409800.00/380.00、dedup 0、6 条），但金额轴主张 exclude：T111 的 260.00 是分红非成交，应入「非交易事项」，amount_diff_total=120.00、excluded=260.00。另：本任务无跨月样本，DIFFSET 的 7 只能由 settle_date 误读产生。",
+  "strongest_counter_arguments": [
+    {
+      "target": "ANON-A",
+      "argument": "「380.00 全部计入、无排除项」把两类处置动作完全不同的差异压进同一个数字：T107 的 120.00 要改成交价与金额（调账），T111 的 260.00 要补记分红（补分录）。混算后的 380.00 既不能直接用于调价，也不能直接用于补记——可执行信息被合成了一个不可执行的总数，而对账的下一步恰恰是分工动作。",
+      "reverse_evidence": "若下游只用该合计做总体重要性/阈值判断、不按性质分派处置动作，则混算无损，本条反对失效。"
+    },
+    {
+      "target": "ANON-B",
+      "argument": "「6 条是唯一解」掩盖了 §D「日期」列的未定义：bill 同时提供 trade_date 与 settle_date，契约只说「日期」。反事实真复算：改按 settle_date 比对，差异集变为 T105,T106,T107,T108,T109,T110,T111 共 7 条——而 T105/T106 四列中仅日期不等，金额 168000.00、费用 127.68/43.68 逐分相同、note 均为「正常」，等于把 2 条自认正常的记录判为异常；同时反过来放过 note 明写「按交割日入账」的 T112，自相矛盾。故 7 不可达，6 只是口径自洽解，不是契约唯一解。",
+      "reverse_evidence": "若存在「自记账一律按交割日入账」的书面政策（而非 T112 单条 note 的个例），settle 读法即成立，6 应改 7。"
+    },
+    {
+      "target": "ANON-A",
+      "argument": "过程性反论：protocol/07 §4.1 的 ADJ-001 反推式用固定金额档（500.02/180.00 判 exclude；680.02/0.00 判 count）。T-14 实算为 380.00/120.00/260.00，三档无一项命中 → 三席立场都会被反推为缺省或 null，flip_rate 在本轮不可计算。任何「脚本已从数字反推出立场」的说法，在本轮都不成立，据此宣称一致或翻边都是无源数据。",
+      "reverse_evidence": "若反推实现改为「excluded_amount_total 是否为 0」的布尔判定而非固定金额匹配，则该缺陷不存在，本条撤回。"
+    }
+  ],
+  "evidence": [
+    {
+      "pointer": "fixtures/tasks/T-14/bill.csv#T111:side=股息入账,shares=0,price=0.00,amount=260.00,note=现金分红，自记账无",
+      "what_it_shows": "该单无股数、无价格、费用三列全 0，只有 260.00 现金流入，是权益分派而非成交；与 T107 的「同一成交两种计价」性质不同，混入同一金额差异会掩盖处置差异。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-14/ledger.csv#T108,T109 对照 bill 同名两单：除 txn_id 与 date 外 7 列全同(100/138.00/13800.00/5.00/同 note)",
+      "what_it_shows": "按值去重会把这两行判成 1 个重复单号。反事实真复算：ledger_total 变 395620.00、raw_total_gap 变 14180.00，与 380.00 相差整整 13800.00，且此后所有差额字段全部错位。§B 明定「按单号计」，故 dedup=0/0.00 是唯一合规解——这是本轮最容易集体踩的坑。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-14/bill.csv#T105–T109:trade_date 均早于 settle_date 一天，且 ledger.date 与 trade_date 全等(5/5，全表 6/7)",
+      "what_it_shows": "入账日在这些单上严格跟随成交日而非交割日，是「日期=成交日」读法的主要内部证据；唯一违例者 T112 的 note 自陈「按交割日入账」，说明差异是个例记账错误，不是口径政策。"
+    },
+    {
+      "pointer": "protocol/07-轮次与指标.md#4.1 ADJ-001 反推表（amount_diff_total==500.02 且 excluded==180.00 → exclude；==680.02 且 ==0.00 → count）",
+      "what_it_shows": "立场反推依赖固定金额匹配，而 T-14 的对应量是 380.00/120.00/260.00，一档都不命中；该判据事实上绑定在另一套夹具的数值上，跨任务不可复用，本轮 stance 只能取席位自述。"
+    }
+  ],
+  "what_would_change_my_mind": "若裁决明确 amount_diff_total 必须与 raw_total_gap 恒等（禁止任何排除），或把「不计入」类别限定为跨月/汇率等口径差而不含非交易事项，我立刻改为 count/380.00；若相反，裁决承认非交易事项应单列，则我进一步主张 diff_count 也应把 T110/T111 从「成交差异」清单移出（6→4，见 falsification 的反事实）。",
+  "falsification": "①若「不计入」类别被裁决仅限跨月/汇率等口径差、不含非交易事项，或 amount_diff_total 被要求恒等于 raw_total_gap，则 exclude 立场错，应为 count/380.00；②若 T111 的 260.00 已作为应收股利在前期入账，它根本不该进差异清单，diff_count 应降为 5；③若把「差异」进一步限定为成交事项，则 T110/T111 一并出列、diff_count=4（T107,T108,T109,T112），此时我的 6 条也高估。",
+  "reads": [
+    {"path": "fixtures/tasks/T-14/TASK.md", "purpose": "核对 §C/§D 是否授权排除、§D 的日期列究竟指哪一列"},
+    {"path": "fixtures/tasks/T-14/ledger.csv", "purpose": "逐行取 7 行原始值；重点核对 T108/T109 是否真重复、T112 的入账日"},
+    {"path": "fixtures/tasks/T-14/bill.csv", "purpose": "逐行取 8 行原始值；核对 T111 事项性质、T105–T112 的 trade_date/settle_date 关系与费用三列分解"},
+    {"path": "protocol/02-辩论协议.md", "purpose": "确认对立席位的产出义务（最强反论、反证条件、不得软化）"},
+    {"path": "protocol/03-结构审计七查.md", "purpose": "确认第 5 查规格假设与 ADJ-001/ADJ-002 未决项会触发 HOLD"},
+    {"path": "protocol/07-轮次与指标.md", "purpose": "核对 stance 反推规则与本任务数值是否匹配、翻边率分母口径"},
+    {"path": "runs/round19/prompts/EX-02.md", "purpose": "本席提示词：读取域、KPI 反转说明、stance 选项空间"}
+  ],
+  "dissent": [
+    {
+      "against": "ANON-A",
+      "reason": "「无排除项 + 380.00 恒等」看着闭合，实际靠一个契约里没写的映射（date↔trade_date）支撑；闭合性来自算术，不来自规则。一旦映射被判为 settle_date，同一套算法给出 7 条差异且把 5 条「正常」记录判为异常。结论正确与否取决于未裁的口径，却被报成 high confidence，这是把规格假设伪装成数据事实。",
+      "reverse_evidence": "若 TASK 或裁决记录附有字段映射说明（ledger.date 对应 bill.trade_date），歧义不存在，本条反对撤回。"
+    }
+  ],
+  "confidence": "medium",
+  "needs_more_data": [
+    "缺规则：ADJ-001（金额口径）与 ADJ-002（清单范围）仍未裁决，本席只能给条件性结论。",
+    "缺规则：§C 的「不计入金额差异」类别无准入条件，exclude 与否是政策选择而非可计算事实。",
+    "缺规则：§D 的「日期」未指定 trade_date 或 settle_date。",
+    "缺数据：无科目余额表/应收股利明细，无法判断 260.00 是否已提前确认。",
+    "缺数据：无持仓快照，无法验证 T110 送转后股数应为 130。"
+  ],
+  "stance": [
+    {"axis": "ADJ-001", "choice": "exclude"},
+    {"axis": "DIFFSET", "choice": "6"}
+  ],
+  "summary": {
+    "ledger_rows": 7,
+    "bill_rows": 8,
+    "ledger_total": 409420.00,
+    "bill_total": 409800.00,
+    "raw_total_gap": 380.00,
+    "dedup_removed_txn_count": 0,
+    "dedup_amount": 0.00,
+    "diff_count": 6,
+    "amount_diff_total": 120.00,
+    "excluded_amount_total": 260.00,
+    "excluded_categories": ["非交易事项-股息入账"]
+  },
+  "diffs": [
+    {"id": "T107", "category": "金额差异-按委托价记账"},
+    {"id": "T108", "category": "费用差异-漏印花税与过户费"},
+    {"id": "T109", "category": "费用差异-漏印花税与过户费"},
+    {"id": "T110", "category": "非交易事项-送转未更新股数"},
+    {"id": "T111", "category": "非交易事项-股息入账"},
+    {"id": "T112", "category": "日期差异-按交割日入账"}
+  ],
+  "categories": {
+    "金额差异-按委托价记账": ["T107"],
+    "费用差异-漏印花税与过户费": ["T108", "T109"],
+    "非交易事项-送转未更新股数": ["T110"],
+    "非交易事项-股息入账": ["T111"],
+    "日期差异-按交割日入账": ["T112"]
+  },
+  "usage": {"tokens": 19800, "minutes": 9, "source": "self_report"}
+}

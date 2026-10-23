@@ -1,0 +1,120 @@
+{
+ "task_id": "T-15",
+ "round": 32,
+ "aggregated_by": "PM-01",
+ "summary": {
+  "ledger_rows": 7,
+  "bill_rows": 8,
+  "ledger_total": 299400.0,
+  "bill_total": 299780.0,
+  "raw_total_gap": 380.0,
+  "dedup_removed_txn_count": 0,
+  "dedup_amount": 0.0,
+  "diff_count": 6,
+  "amount_diff_total": 380.0,
+  "excluded_amount_total": 0.0,
+  "fee_diff_total": 14.11,
+  "excluded_categories": [
+   "费用口径差",
+   "股数口径差",
+   "日期口径差",
+   "单侧缺失·非交易权益项"
+  ]
+ },
+ "diffs": [
+  {
+   "id": "T115",
+   "category": "成交金额差异"
+  },
+  {
+   "id": "T116",
+   "category": "费用口径差"
+  },
+  {
+   "id": "T117",
+   "category": "费用口径差"
+  },
+  {
+   "id": "T118",
+   "category": "股数口径差"
+  },
+  {
+   "id": "T119",
+   "category": "单侧缺失·非交易权益项"
+  },
+  {
+   "id": "T120",
+   "category": "日期口径差"
+  }
+ ],
+ "categories": {
+  "成交金额差异": [
+   "T115"
+  ],
+  "费用口径差": [
+   "T116",
+   "T117"
+  ],
+  "股数口径差": [
+   "T118"
+  ],
+  "日期口径差": [
+   "T120"
+  ],
+  "单侧缺失·非交易权益项": [
+   "T119"
+  ]
+ },
+ "falsification": "本结论在以下任一条件成立时为错：(1) 若「日期」的比对基准应取 bill.settle_date 而非 trade_date，则 T113(09-03 vs 09-04)、T114(09-05 vs 09-06) 进入差异而 T120(09-16 vs 09-16) 退出，diff_count 应为 7（本席已用 Decimal 独立复算：settle 基准恰为 7 条）；(2) 若 T119 股息 260.00 被判定必须计入「成交金额差异」，则 amount_diff_total=380.00、excluded_amount_total=0.00、excluded_categories=[]，本答案的金额切分全错；(3) 若「重复」被允许按经济同质（T116/T117 特征近同）模糊判定而非按单号计数，则 dedup_removed_txn_count 与 dedup_amount 不再为 0，且 13800.00 会被误删；(4) 若金额比对允许并入 fee_total（违反 TASK.md 易错点 1），则 T116/T117 各 7.04 的费差将进入金额字段，amount_diff_total 变为 134.08。以上 (1)(2) 为契约未定义项导致的口径分岔，非数据缺口。",
+ "diff_preserved": [
+  {
+   "side": "多数",
+   "seats": [
+    "EX-02",
+    "EX-03"
+   ],
+   "conclusion": "T119 为 side=股息入账、shares=0、price=0 的非成交权益项，其 260.00 落入交割单 amount 列属口径差而非成交金额不一致，应归入「不计入金额差异」类别；故 amount_diff_total=120.00（仅 T115 的 abs(45000.00−45120.00)），excluded_amount_total=260.00，excluded_categories 非空四项；两者相加 120.00+260.00=380.00 与 raw_total_gap 对平。",
+   "falsification": "若 TASK.md D 段「仅单侧存在的单号亦为差异单号，差额取该单号在该侧的 amount」被解释为单侧单号的差额必须无条件计入 amount_diff_total，或硬裁判/spec 的期望值为 amount_diff_total=380.00 且 excluded_amount_total=0.00、excluded_categories=[]，则多数方向立即作废。"
+  },
+  {
+   "side": "少数",
+   "seats": [
+    "EX-01"
+   ],
+   "conclusion": "按 D 段字面执行：单侧单号亦为差异，差额取该侧 amount，故 T119 的 260.00 计入；amount_diff_total=380.00（=120.00+260.00），excluded_amount_total=0.00，excluded_categories=[]。其自证点是 380.00 恰等于可独立复算的 raw_total_gap，任何分类错误都会被该等式捕获。",
+   "falsification": "若 spec 中存在任一「不计入」类别使 excluded_amount_total≠0.00，或 excluded_categories 期望值非空，则本少数方向被证伪；同理，若要求 amount_diff_total 相对 raw_total_gap 具备独立判别力（不得恒等），则 380.00 只是把总差换个字段名，不构成归因。"
+  },
+  {
+   "side": "多数",
+   "seats": [
+    "EX-01",
+    "EX-02",
+    "EX-03"
+   ],
+   "conclusion": "三席一致取 diff_count=6（trade_date 基准）。但该一致性是数据归纳的产物而非规则演绎：ledger.date 有 6/7 行等于 bill.trade_date、仅 T120 等于 settle_date，契约 D 段只写「日期」未指定列，故 6 条与 7 条两解并存，属待裁项。",
+   "falsification": "若人签指定 date_basis=settle_date，则 diff_count=7（T113/T114 进、T120 退，本席 Decimal 复算已验证）；若契约补写「日期一律取 trade_date」，则本待裁项消解，6 条转为规则演绎。"
+  }
+ ],
+ "aggregation_inputs": [
+  {
+   "seat": "EX-01",
+   "sha256": "9665ef7556c0af03c3c3b1394076239d1e19d243a40090219d03b2625390c289",
+   "seat_check_status": "valid"
+  },
+  {
+   "seat": "EX-02",
+   "sha256": "4ed4e878caa937dec29593be5dd68d15c5321a8392a2098e489d1cf90c2f9c4d",
+   "seat_check_status": "valid"
+  },
+  {
+   "seat": "EX-03",
+   "sha256": "e3337a1e620374ff8b35300007387c373a0d6c5c9f399ac02303036dd644b1d2",
+   "seat_check_status": "valid"
+  }
+ ],
+ "redo": {
+  "triggered_by": "runs/round32/adjudication-record.json（ADJ-001 已签字，verdict=fail 11/13）",
+  "rule": "ADJ-001 implies（中性，两选项同为 380.00/0.00，D-0016）：amount_diff_total=380.00、excluded_amount_total=0.00",
+  "note": "机械改判：PM 的 exclude 暂定多数（120.00/260.00）被签字推翻，与 round14/22/27 同模式；380.00 = T115 的 120.00 + T119 单侧 260.00，与 raw_total_gap=380.00 对平；excluded_categories 依 round22/27 先例保留类别标签以暴露口径矛盾（ADJ-002 精神），仅金额归零"
+ }
+}

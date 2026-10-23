@@ -1,0 +1,107 @@
+{
+ "task_id": "T-08",
+ "round": 27,
+ "aggregated_by": "PM-01",
+ "summary": {
+  "ledger_rows": 5,
+  "bill_rows": 8,
+  "ledger_total": 258820.0,
+  "bill_total": 335460.0,
+  "raw_total_gap": 76640.0,
+  "dedup_removed_txn_count": 0,
+  "dedup_amount": 0.0,
+  "diff_count": 6,
+  "amount_diff_total": 76640.0,
+  "excluded_amount_total": 0.0,
+  "fee_diff_total": 19.79,
+  "excluded_categories": [
+   "股数差异-送转未更新",
+   "日期差异-按交割日入账"
+  ],
+  "_category_alignment_note": "契约 3.0 §类别子集：excluded_categories 为派生视图，须原样引用 diffs[].category 的值。本字段于 2026-10-20 对齐（原值与 diffs 措辞/体系不一致），仅改措辞不改语义，不影响 amount_diff_total / excluded_amount_total / diff_count 任何数值。"
+ },
+ "diffs": [
+  {
+   "id": "T059",
+   "category": "价格差异-按委托价记账"
+  },
+  {
+   "id": "T060",
+   "category": "单侧缺失-新股中签"
+  },
+  {
+   "id": "T061",
+   "category": "非交易现金流-现金分红"
+  },
+  {
+   "id": "T062",
+   "category": "股数差异-送转未更新"
+  },
+  {
+   "id": "T063",
+   "category": "非交易现金流-现金分红"
+  },
+  {
+   "id": "T064",
+   "category": "日期差异-按交割日入账"
+  }
+ ],
+ "categories": {
+  "价格差异-按委托价记账": [
+   "T059"
+  ],
+  "单侧缺失-新股中签": [
+   "T060"
+  ],
+  "非交易现金流-现金分红": [
+   "T061",
+   "T063"
+  ],
+  "股数差异-送转未更新": [
+   "T062"
+  ],
+  "日期差异-按交割日入账": [
+   "T064"
+  ]
+ },
+ "falsification": "若契约补入明文条款，规定「仅单侧存在的单号一律计入 amount_diff_total、excluded_* 仅作向后兼容保留」，则 76120.00/520.00 立即失效，应回到 76640.00/0.00（diffs 六条不变）；若 T061/T063 出现非零 shares 或非零 price（即该行承载成交而非现金分红），则「非交易现金流」分类失去事实基础，520.00 的排除失效；若差异判定被限定按 settle_date 对齐，则 diff_count 应为 7 而非 6（金额 76640.00 与分项不变）；若 T057/T058 之外还有未列入的差异单号，则清单不完整；若我复算的六个分项 120.00、76000.00、260.00、0.00、260.00、0.00 无法由两份 CSV 原值逐行重现，则全部数字作废。",
+ "diff_preserved": [
+  {
+   "side": "多数",
+   "conclusion": "ADJ-001=exclude：T061/T063 的 260.00×2 归入「非交易现金流-现金分红」，不计入金额差异；amount_diff_total=76120.00、excluded_amount_total=520.00、diff_count=6、excluded_categories=[\"非交易现金流-现金分红\"]。依据：§C 注1 将 amount 定义为「成交金额」并明令不与 fee 相加、不做净额换算，而 T061/T063 的 side=股息入账、shares=0、price=0.00，其 260.00 属现金流入而非成交金额；§C 同时把 excluded_amount_total / excluded_categories 设为一级字段，说明契约预留了「不计入」类别。",
+   "falsification": "契约写明所有单侧存在项一律计入、或 excluded_* 仅为兼容保留；或 T061/T063 出现非零 shares/price，使该行可被解释为成交。"
+  },
+  {
+   "side": "少数",
+   "conclusion": "ADJ-001=count（EX-02）：§D 末句「仅单侧存在的单号亦为差异单号，差额取该单号在该侧的 amount」对 T060（76000.00）与 T061/T063（260.00×2）同等适用，契约无一条授权排除；主张 amount_diff_total=76640.00、excluded_amount_total=0.00、excluded_categories=[]、diff_count=6，类别名用「单侧缺失-股息入账」。",
+   "falsification": "契约补入「现金分红等非成交现金流不计入 amount_diff_total」一句，或 ledger 出现可与 260.00 对减的现金/资金科目行——任一出现该立场即失效。"
+  },
+  {
+   "side": "多数",
+   "conclusion": "DIFFSET=6：日期列按 trade_date 与 ledger.date 对齐，差异单号为 T059–T064 共 6 条（三席一致）。",
+   "falsification": "改用 settle_date 口径则条数为 7（T057/T058 各增 1 天日期差、T064 退出，6−1+2=7）；改用「两侧任一日期命中即通过」则 5 条；4 在任何单一口径下不可达。"
+  }
+ ],
+ "aggregation_inputs": [
+  {
+   "seat": "EX-01",
+   "sha256": "0ebb3c1b6919a54282616f01999232da4d73b754c20150d62928d8f269181ce6",
+   "seat_check_status": "valid"
+  },
+  {
+   "seat": "EX-02",
+   "sha256": "f3b4774369d71e906b0cc60059239c207196ec88e0d1390497500caf1b02139d",
+   "seat_check_status": "valid"
+  },
+  {
+   "seat": "EX-03",
+   "sha256": "bd3bbda584759b873f5248d520f3b2506674df9a4c0c2e1196c8f0c457e1daf9",
+   "seat_check_status": "valid"
+  }
+ ],
+ "redo": {
+  "triggered_by": "runs/round27/adjudication-record.json（ADJ-001=count，verdict=fail）",
+  "rule": "count implies：76640.00/0.00（one_side 型，D-0016）",
+  "note": "机械改判：PM 的 exclude 暂定多数（76120/520）被 count 推翻"
+ }
+}

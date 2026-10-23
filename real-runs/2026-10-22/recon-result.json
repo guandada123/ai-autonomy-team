@@ -1,0 +1,261 @@
+{
+  "source": "/Volumes/ZHITAI/WorkBuddy/Claw/.workbuddy/data/user/portfolio.json",
+  "generated_from": "real_recon.py",
+  "shape": "holdings(list)",
+  "notes": [
+    "无 transactions：现金与持仓成本**不可由流水验证**，只做字段间恒等式（实盘为手工维护）"
+  ],
+  "coverage": {
+    "transactions": 0,
+    "first_tx": null,
+    "last_tx": null
+  },
+  "summary": {
+    "cash": "9687.98",
+    "positions": {
+      "600584": 300,
+      "588170": 10000,
+      "002185": 500
+    },
+    "total_asset": "41651.98",
+    "effective_capital": "0",
+    "return_pct": "—"
+  },
+  "checks": [
+    {
+      "id": "I4",
+      "name": "市值 600584",
+      "expect": "17169.00",
+      "actual": "17169.0",
+      "ok": true,
+      "note": "current_price × shares"
+    },
+    {
+      "id": "I5",
+      "name": "浮盈 600584",
+      "expect": "-8757.30",
+      "actual": "-8757.3",
+      "ok": true,
+      "note": "market_value − 成本（total_cost 或 avg_cost×shares）"
+    },
+    {
+      "id": "I10",
+      "name": "浮盈率 600584",
+      "expect": "-33.78",
+      "actual": "-33.78",
+      "ok": true,
+      "note": "(市值 − 成本) / 成本 × 100"
+    },
+    {
+      "id": "I6",
+      "name": "同义字段 600584（已收敛）",
+      "expect": "—",
+      "actual": "—",
+      "ok": true,
+      "note": "单一真源：pnl 已移除，只保留 floating_pnl"
+    },
+    {
+      "id": "I4",
+      "name": "市值 588170",
+      "expect": "7670.00",
+      "actual": "7670.0",
+      "ok": true,
+      "note": "current_price × shares"
+    },
+    {
+      "id": "I5",
+      "name": "浮盈 588170",
+      "expect": "-2330.00",
+      "actual": "-2330.0",
+      "ok": true,
+      "note": "market_value − 成本（total_cost 或 avg_cost×shares）"
+    },
+    {
+      "id": "I10",
+      "name": "浮盈率 588170",
+      "expect": "-23.30",
+      "actual": "-23.3",
+      "ok": true,
+      "note": "(市值 − 成本) / 成本 × 100"
+    },
+    {
+      "id": "I6",
+      "name": "同义字段 588170（已收敛）",
+      "expect": "—",
+      "actual": "—",
+      "ok": true,
+      "note": "单一真源：pnl 已移除，只保留 floating_pnl"
+    },
+    {
+      "id": "I4",
+      "name": "市值 002185",
+      "expect": "7125.00",
+      "actual": "7125.0",
+      "ok": true,
+      "note": "current_price × shares"
+    },
+    {
+      "id": "I5",
+      "name": "浮盈 002185",
+      "expect": "-4289.50",
+      "actual": "-4289.5",
+      "ok": true,
+      "note": "market_value − 成本（total_cost 或 avg_cost×shares）"
+    },
+    {
+      "id": "I10",
+      "name": "浮盈率 002185",
+      "expect": "-37.58",
+      "actual": "-37.58",
+      "ok": true,
+      "note": "(市值 − 成本) / 成本 × 100"
+    },
+    {
+      "id": "I6",
+      "name": "同义字段 002185（已收敛）",
+      "expect": "—",
+      "actual": "—",
+      "ok": true,
+      "note": "单一真源：pnl 已移除，只保留 floating_pnl"
+    },
+    {
+      "id": "I7",
+      "name": "汇总市值",
+      "expect": "31964.0",
+      "actual": "31964.0",
+      "ok": true,
+      "note": "Σ 逐持仓 market_value"
+    },
+    {
+      "id": "I8",
+      "name": "汇总浮盈",
+      "expect": "-15376.8",
+      "actual": "-15376.8",
+      "ok": true,
+      "note": "Σ 逐持仓 floating_pnl"
+    },
+    {
+      "id": "I9",
+      "name": "总资产",
+      "expect": "41651.98",
+      "actual": "41651.98",
+      "ok": true,
+      "note": "现金 + 市值"
+    },
+    {
+      "id": "I11",
+      "name": "仓位占比",
+      "expect": "76.74",
+      "actual": "76.7",
+      "ok": true,
+      "note": "市值 / 总资产 × 100（容差 0.1pp）"
+    },
+    {
+      "id": "I12",
+      "name": "已投成本合计",
+      "expect": "47340.80",
+      "actual": "47340.8",
+      "ok": true,
+      "note": "Σ 逐持仓成本（avg_cost×shares）"
+    },
+    {
+      "id": "I13",
+      "name": "已投收益率",
+      "expect": "-32.48",
+      "actual": "-32.48",
+      "ok": true,
+      "note": "Σ浮盈 / Σ成本 × 100"
+    },
+    {
+      "id": "I14",
+      "name": "当日盈亏",
+      "expect": "-166.00",
+      "actual": "-166.0",
+      "ok": true,
+      "note": "Σ 股数 ×（现价 − 昨收）"
+    },
+    {
+      "id": "B1",
+      "name": "可用资金",
+      "expect": "9687.98",
+      "actual": "9687.98",
+      "ok": true,
+      "note": "券商可用 vs 账本 cash_available"
+    },
+    {
+      "id": "B2",
+      "name": "总市值",
+      "expect": "31964.0",
+      "actual": "31964.0",
+      "ok": true,
+      "note": "券商总市值 vs 账本汇总市值"
+    },
+    {
+      "id": "B3",
+      "name": "总资产",
+      "expect": "41651.98",
+      "actual": "41651.98",
+      "ok": true,
+      "note": "券商总资产 vs 账本 total_assets"
+    },
+    {
+      "id": "B4",
+      "name": "持仓股数 002185",
+      "expect": "500",
+      "actual": "500",
+      "ok": true,
+      "note": "券商持仓 vs 账本股数"
+    },
+    {
+      "id": "B5",
+      "name": "持仓成本 002185",
+      "expect": "22.829",
+      "actual": "22.829",
+      "ok": true,
+      "note": "券商成本价 vs 账本 avg_cost（每股，容差 0.001）"
+    },
+    {
+      "id": "B4",
+      "name": "持仓股数 588170",
+      "expect": "10000",
+      "actual": "10000",
+      "ok": true,
+      "note": "券商持仓 vs 账本股数"
+    },
+    {
+      "id": "B5",
+      "name": "持仓成本 588170",
+      "expect": "1.0",
+      "actual": "1.0",
+      "ok": true,
+      "note": "券商成本价 vs 账本 avg_cost（每股，容差 0.001）"
+    },
+    {
+      "id": "B4",
+      "name": "持仓股数 600584",
+      "expect": "300",
+      "actual": "300",
+      "ok": true,
+      "note": "券商持仓 vs 账本股数"
+    },
+    {
+      "id": "B5",
+      "name": "持仓成本 600584",
+      "expect": "86.421",
+      "actual": "86.421",
+      "ok": true,
+      "note": "券商成本价 vs 账本 avg_cost（每股，容差 0.001）"
+    },
+    {
+      "id": "B6",
+      "name": "浮动盈亏残差",
+      "expect": "≈0（券商含费/股息口径）",
+      "actual": "-33.09（逐仓 [('002185', '-8.88'), ('588170', '-10.0'), ('600584', '-14.21')]）",
+      "ok": true,
+      "note": "已归类：股息入账 33.09（共 33.09，仅收益归因，不冲减浮动盈亏）"
+    }
+  ],
+  "diffs": [],
+  "verdict": "closed",
+  "falsification": "任一恒等式在给定 portfolio 文件下不成立，即本次结论错；全部数字可由 --portfolio 指向的文件逐笔重算。"
+}

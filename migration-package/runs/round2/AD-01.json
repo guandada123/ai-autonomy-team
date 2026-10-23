@@ -1,0 +1,37 @@
+{
+  "seat": "AD-01",
+  "round": 2,
+  "conclusion": "结构层面存在三处HOLD：判断层pending未决即被聚合（第7查）、第8查产出文件缺失、规格假设自动触发（第5查）。其余五查通过。",
+  "evidence": [
+    {"pointer": "runs/round2/verdict-layered.json", "what_it_shows": "判断层3项pending，exit_code=3，adjudication_source=none"},
+    {"pointer": "runs/round2/answer-final.json", "what_it_shows": "PM已固化exclude/7聚合结论，amount_diff_total=500.02"},
+    {"pointer": "runs/round2/metrics.json", "what_it_shows": "分歧熵0.0、独立证据true、actions=[none]"},
+    {"pointer": "runs/round2/seat-check.json", "what_it_shows": "4/4合规，EX-03 evidence含fixtures/truth.json指针"},
+    {"pointer": "runs/round2/PM-01.json", "what_it_shows": "self_doubt指出三条不同指针独立性判据偏弱"}
+  ],
+  "falsification": "若round2/write-domain-check.json实际存在于其他可回读路径，或ADJ-001/002/003已由人类在adjudication-record中签署，则本次HOLD可解除。",
+  "action": "HOLD",
+  "checks": [
+    {"no": 1, "name": "谁在验证谁", "verdict": "PASS", "reason": "JD-01为stdlib脚本，与LLM席位异源，独立性成立"},
+    {"no": 2, "name": "外部钩子", "verdict": "PASS", "reason": "各席位evidence pointer均可回读，truth.json虽越权但可回读"},
+    {"no": 3, "name": "终止条件", "verdict": "PASS", "reason": "actions=[none]显式，metrics exit 0，终止条件明确"},
+    {"no": 4, "name": "分歧留存", "verdict": "PASS", "reason": "PM-01.json diff_preserved记录少数派，独立证据豁免干预"},
+    {"no": 5, "name": "规格假设", "verdict": "HOLD", "reason": "verdict-layered.json 3项pending，自动判定规则触发"},
+    {"no": 6, "name": "失败归因", "verdict": "PASS", "reason": "flip_rate=null归因正确，EX-03 stance mismatch已标记"},
+    {"no": 7, "name": "无裁判推进", "verdict": "HOLD", "reason": "ADJ-001/002/003仍pending，answer-final.json已固化聚合结论"},
+    {"no": 8, "name": "写入域", "verdict": "HOLD", "reason": "runs/round2/write-domain-check.json缺失，第8查产出不可回读"}
+  ],
+  "assumptions_to_adjudicate": [
+    {"assumption": "EX-03引用fixtures/truth.json是否污染了聚合独立性", "why_undecidable": "AD-01无真值，无法判断truth.json内容是否被当作论证依据", "what_would_make_it_decidable": "由人类核实EX-03结论是否因truth.json而存在，或隔离truth.json读取域"},
+    {"assumption": "「独立证据」的指针不重合是否足以阻止魔鬼代言人轮", "why_undecidable": "AD-01只能查结构不能查内容，无法验证5/4/4条指针的实质独立性", "what_would_make_it_decidable": "对指针内容进行人工交叉审读，确认是否来自同一观测"},
+    {"assumption": "PM在ADJ-001 pending时固化exclude结论是否合理", "why_undecidable": "算术层10/10 pass，但ADJ-001属于判断层；AD-01不持立场", "what_would_make_it_decidable": "人类签署adjudication-record.json明确ADJ-001/002/003方向"}
+  ],
+  "cost_score": {
+    "feedback_delay": "中",
+    "error_cost": "中",
+    "irreversibility": "低",
+    "product": "低"
+  },
+  "barely_passed": "第4查（分歧留存）：分歧熵为0本身是高风险信号，仅靠「指针不重合」弱判据豁免干预，独立性实质未验证",
+  "my_blind_spots": "未读取truth.json内容（正确隔离），未检查JD-01代码是否读取truth.json，未逐条审读round1产出原始文本以核实0/4合规根因"
+}

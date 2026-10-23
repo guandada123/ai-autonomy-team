@@ -1,0 +1,173 @@
+{
+  "seat": "EX-03",
+  "round": 4,
+  "conclusion": "两侧共 7 个差异单号：T202/T204 为费用差异（自记账漏记过户费/印花税）、T205 为日期口径差异（按交割日 vs 成交日）、T206 为股数差异（送转 30 股未入账）、T209 为金额差异（委托价 45.00 vs 成交价 45.12）、T207/T210 为单侧缺失（新股中签 4100、分红 260 未自记账）。T208 为 bill 侧重复行，去重后与自记账一致。判定：仅 T209 计入金额差异 120.00；费用/日期/股数类差额为 0 且不计入；单侧缺失 4360.00 归入 excluded（属漏记事项而非金额不符）。回滚/复核成本低：脚本重算即可，无不可逆操作，🟢 级。",
+  "execution_path": [
+    "用 Python Decimal（忌 float）逐行读两份 CSV，按 txn_id 分组",
+    "对 bill 侧同 txn_id 多行（T208）先按单号去重合并，行数与金额计入 dedup 字段",
+    "对每个非重复单号比对 shares/amount/fee_total/date 四列，不相等即差异单号",
+    "仅单侧存在的单号按该侧 amount 计差额，归入单侧缺失类",
+    "按类别汇总 amount_diff_total 与 excluded_amount_total，输出 JSON 后可用第二脚本回读校验自洽性"
+  ],
+  "cost": {
+    "token_estimate": "本次独立取证约 12k tokens（读入 2 CSV + 推理 + 输出）；若按多智能体 15 倍系数复核全流程，约 180k tokens 量级",
+    "wall_clock": "单人脚本化复算 <10 分钟；多席位聚合另计",
+    "human_touchpoints": "0 次必要人工介入；建议 1 次人工抽验 T209 与 T207 两行"
+  },
+  "rollback": "纯只读取证，无写入共享产物；如分类口径需变更，仅需改类别映射表重跑脚本，原始 CSV 不动，天然可回滚。",
+  "op_grade": "🟢",
+  "cross_platform_risks": [
+    {
+      "risk": "复算脚本若在 Windows 上运行，csv 默认编码可能为 GBK",
+      "mitigation": "显式 encoding='utf-8'，open 加 newline=''，输出固定 LF"
+    },
+    {
+      "risk": "金额用 float 会引入二进制误差",
+      "mitigation": "全程用 decimal.Decimal，从 CSV 字符串直接构造"
+    },
+    {
+      "risk": "macOS 目标机用 python3 而非 python",
+      "mitigation": "脚本不加 shebang 硬编码解释器路径，用 pathlib 拼路径"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "fixtures/002/bill.csv",
+      "selector": "行 txn_id=T207（新股中签买入 500股@8.20，amount=4100.00，note=自记账无）",
+      "what_it_shows": "单侧缺失类证据：ledger 中无 T207，差额 4100.00"
+    },
+    {
+      "path": "fixtures/002/bill.csv",
+      "selector": "行 txn_id=T210（股息入账 amount=260.00，note=现金分红，自记账无）",
+      "what_it_shows": "第二笔单侧缺失，差额 260.00"
+    },
+    {
+      "path": "fixtures/002/bill.csv",
+      "selector": "行 txn_id=T208 两行（各 1000股@15.00，amount=15000.00×2）",
+      "what_it_shows": "bill 侧 T208 分两行共 30000.00，与 ledger 单行 30000.00 合并后一致，构成唯一重复单号"
+    },
+    {
+      "path": "fixtures/002/bill.csv",
+      "selector": "行 txn_id=T209（price=45.12，amount=45120.00）对照 ledger.csv 行 T209（price=45.00，amount=45000.00）",
+      "what_it_shows": "唯一计入的金额差异：abs(45000.00−45120.00)=120.00（委托价 vs 实际成交价）"
+    },
+    {
+      "path": "fixtures/002/ledger.csv",
+      "selector": "行 T202 fee_total=6.50 / T204 fee_total=0.00，对照 bill.csv 同单号 6.76 / 57.76",
+      "what_it_shows": "费用差异类：自记账漏记过户费与印花税，amount 列两侧相等，故不影响金额差异"
+    },
+    {
+      "path": "fixtures/002/ledger.csv",
+      "selector": "行 T206 shares=0 对照 bill.csv 行 T206 shares=30",
+      "what_it_shows": "股数差异类：10送3 未更新持仓股数，amount 均为 0"
+    },
+    {
+      "path": "fixtures/002/ledger.csv",
+      "selector": "行 T205 date=2026-09-30 对照 bill.csv T205 trade_date=2026-09-29",
+      "what_it_shows": "日期口径差异：按交割日 vs 成交日，amount 相等"
+    }
+  ],
+  "falsification": "若以下任一成立则本结论需修正：1) 判定「差异单号」时日期列以 settle_date 而非 trade_date 为基准，则 T205 两侧均为 09-30，不再构成差异，diff_count 降为 6；2) 若采纳「单侧缺失计入金额差异」的口径，则 amount_diff_total 应为 4480.00（120.00+4360.00）而 excluded 为空；3) 若重复项按行而非按单号计，dedup_removed_txn_count 应为 2；4) 若认为费用差异也应折算进金额口径，T202/T204 需重新归类。",
+  "reads": [
+    {
+      "path": "runs/round4/prompts/EX-03.md",
+      "purpose": "读取席位提示词，确认读取域、申报要求与输出 schema"
+    },
+    {
+      "path": "fixtures/002/TASK.md",
+      "purpose": "确认任务口径：字段定义、四列差异判定、重复项规则与禁止事项"
+    },
+    {
+      "path": "fixtures/002/ledger.csv",
+      "purpose": "自记账原始数据：7 行，逐行取 amount/fee/date/shares"
+    },
+    {
+      "path": "fixtures/002/bill.csv",
+      "purpose": "券商交割单原始数据：10 行，含 T208 重复行与 T207/T210 单侧行"
+    }
+  ],
+  "dissent": [],
+  "confidence": "high",
+  "needs_more_data": [],
+  "stance": [
+    {
+      "axis": "ADJ-001",
+      "choice": "exclude",
+      "reason": "单侧缺失（T207 中签、T210 分红）属漏记事项，缺的是整笔记录而非金额不符，计入 amount_diff_total 会把「漏账」混入「错账」，误导收益归因；故归入 excluded，由 excluded_amount_total=4360.00 单独表达"
+    },
+    {
+      "axis": "DIFFSET",
+      "choice": "7",
+      "reason": "T202/T204（费用）、T205（日期）、T206（股数）、T209（金额）、T207/T210（单侧缺失）共 7 个差异单号；T208 去重后四列全等，不计差异"
+    }
+  ],
+  "summary": {
+    "ledger_rows": 7,
+    "bill_rows": 10,
+    "ledger_total": 358800.0,
+    "bill_total": 363280.0,
+    "raw_total_gap": 4480.0,
+    "dedup_removed_txn_count": 1,
+    "dedup_amount": 30000.0,
+    "diff_count": 7,
+    "amount_diff_total": 120.0,
+    "excluded_amount_total": 4360.0,
+    "excluded_categories": [
+      "单侧缺失"
+    ]
+  },
+  "categories": {
+    "费用差异": [
+      "T202",
+      "T204"
+    ],
+    "日期口径差异": [
+      "T205"
+    ],
+    "股数差异": [
+      "T206"
+    ],
+    "单侧缺失": [
+      "T207",
+      "T210"
+    ],
+    "金额差异": [
+      "T209"
+    ]
+  },
+  "diffs": [
+    {
+      "id": "T202",
+      "category": "费用差异"
+    },
+    {
+      "id": "T204",
+      "category": "费用差异"
+    },
+    {
+      "id": "T205",
+      "category": "日期口径差异"
+    },
+    {
+      "id": "T206",
+      "category": "股数差异"
+    },
+    {
+      "id": "T207",
+      "category": "单侧缺失"
+    },
+    {
+      "id": "T209",
+      "category": "金额差异"
+    },
+    {
+      "id": "T210",
+      "category": "单侧缺失"
+    }
+  ],
+  "usage": {
+    "tokens": 14000,
+    "minutes": 9,
+    "source": "self_report"
+  }
+}

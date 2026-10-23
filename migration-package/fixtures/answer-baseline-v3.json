@@ -1,0 +1,32 @@
+{
+  "summary": {
+    "ledger_rows": 27,
+    "bill_rows": 27,
+    "ledger_total": 37490.50,
+    "bill_total": 38010.52,
+    "raw_total_gap": 520.02,
+    "dedup_removed_txn_count": 1,
+    "dedup_amount": 1200.00,
+    "diff_count": 7,
+    "amount_diff_total": 500.02,
+    "excluded_amount_total": 180.00,
+    "excluded_categories": ["口径差异", "跨月归属"]
+  },
+  "diffs": [
+    {"id": "T101", "category": "舍入差"},
+    {"id": "T102", "category": "舍入差"},
+    {"id": "T103", "category": "重复导入"},
+    {"id": "T104", "category": "口径差异"},
+    {"id": "T105", "category": "口径差异"},
+    {"id": "T106", "category": "跨月归属"},
+    {"id": "T107", "category": "真实缺失"}
+  ],
+  "categories": {
+    "舍入差": ["T101", "T102"],
+    "重复导入": ["T103"],
+    "口径差异": ["T104", "T105"],
+    "跨月归属": ["T106"],
+    "真实缺失": ["T107"]
+  },
+  "falsification": "本结论在以下任一条件下即为错误：(1) 「计入/不计入金额差异」的归类判断被推翻——本答案把「口径差异」(T104/T105) 与「跨月归属」(T106) 判为不计入金额差异、把「舍入差」(T101/T102) 与「真实缺失」(T107) 判为计入；若把口径差异改判为计入，则 amount_diff_total 应为 680.02 而 excluded_amount_total 应为 0.00，反之亦然。(2) T107 的处理被推翻——本答案把台账有、账单缺的 T107 按缺失账单金额计 0 处理，取 abs(500-0)=500 计入；若把「缺失」视为存在性差异而非金额差异(不计入且不按 0 补位)，则 amount_diff_total 应为 0.02。(3) 重复项口径被推翻——本答案按单号计 dedup_removed_txn_count=1、dedup_amount=1200.00(T103 在账单中多出的那一行)；若按「多出行数」或把两侧行数对齐后另计，则数值会变。(4) 若被要求按含税/不含税换算后再算差异(违反本任务「一律取原始值」的限制)，则 T104/T105 的 120 与 60 会变成 0，amount_diff_total / excluded_amount_total 均改变。"
+}

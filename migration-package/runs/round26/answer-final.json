@@ -1,0 +1,160 @@
+{
+ "task_id": "T-06",
+ "round": 26,
+ "aggregated_by": "PM-01",
+ "summary": {
+  "ledger_rows": 7,
+  "bill_rows": 8,
+  "ledger_total": 304800.0,
+  "bill_total": 305180.0,
+  "raw_total_gap": 380.0,
+  "dedup_removed_txn_count": 0,
+  "dedup_amount": 0.0,
+  "diff_count": 6,
+  "amount_diff_total": 380.0,
+  "excluded_amount_total": 0.0,
+  "fee_diff_total": 0.55,
+  "excluded_categories": [
+   "费用漏记（漏过户费）",
+   "股数不符（送转未更新持仓）",
+   "日期不符（按交割日入账）"
+  ]
+ },
+ "diffs": [
+  {
+   "id": "T043",
+   "category": "成交金额不符（按委托价记账）"
+  },
+  {
+   "id": "T044",
+   "category": "费用漏记（漏过户费）"
+  },
+  {
+   "id": "T045",
+   "category": "费用漏记（漏过户费）"
+  },
+  {
+   "id": "T046",
+   "category": "股数不符（送转未更新持仓）"
+  },
+  {
+   "id": "T047",
+   "category": "单侧缺失（股息入账）"
+  },
+  {
+   "id": "T048",
+   "category": "日期不符（按交割日入账）"
+  }
+ ],
+ "categories": {
+  "成交金额不符（按委托价记账）": [
+   "T043"
+  ],
+  "费用漏记（漏过户费）": [
+   "T044",
+   "T045"
+  ],
+  "股数不符（送转未更新持仓）": [
+   "T046"
+  ],
+  "单侧缺失（股息入账）": [
+   "T047"
+  ],
+  "日期不符（按交割日入账）": [
+   "T048"
+  ]
+ },
+ "falsification": "任一成立即本聚合结论错：① 人类签署 ADJ-001=exclude（把「按委托价记账」定为计价口径差而非错记），则 amount_diff_total 应为 260.00、excluded_amount_total 应为 120.00，T043 归类须改为「计价口径差」——PM-01 已按多数暂定 count，此项为唯一可翻转两字段的开关；② 契约把 ledger.date 的映射基准定为 settle_date，则 diff_count 应为 7（T041/T042 因日期不等新增，T048 退出），但 amount_diff_total 与 excluded_amount_total 不变（仍为 380.00/0.00），故金额结论对日期映射不敏感、条数结论敏感；③ 任一 txn_id 在一侧出现多行（PM-01 独立复算为 0，两侧各单号唯一），则 dedup_removed_txn_count>0 且该单号须从两个金额字段中剔除；④ 重算得行数≠7/8 或 ledger_total≠304800.00 或 bill_total≠305180.00 或 gap≠380.00；⑤ 若 excluded_categories 被判定必须与 excluded_amount_total>0 绑定（即零金额类别不得列入），则本 summary 的 excluded_categories 三项应改为 []，但金额字段不受影响。",
+ "diff_preserved": [
+  {
+   "side": "多数",
+   "seat": "EX-01",
+   "conclusion": "按 TASK.md 字面：四列任一不等即差异单，单侧存在亦计入并取该侧 amount；无条款授权剔除「按委托价记账」的 120.00。故 diff_count=6、amount_diff_total=380.00（120.00+260.00）、excluded_amount_total=0.00、excluded_categories=[]；口径差归属属判断项，留人类裁决。",
+   "falsification": "契约出现明文条款规定「按委托价记账属不计入金额差异的口径差」；或 T043/T047 的 amount 两侧相等；或出现重复单号。"
+  },
+  {
+   "side": "多数",
+   "seat": "EX-03",
+   "conclusion": "同 count 立场，可执行版：单条 Decimal 流水线一次跑完即得 7/8 行、304800.00/305180.00、gap 380.00、dedup 0、6 条差异、380.00 计入、0.00 排除；翻转 ADJ-001 只改两个字段（380.00/0.00 ↔ 260.00/120.00），回滚为改回一行常量。风险在读入侧（编码/换行/浮点/路径），不在算法。",
+   "falsification": "CSV 出现空值/千分位/GBK 导致 Decimal 构造失败；或差异须按 settle_date 映射才成立（届时需第二个口径开关）。"
+  },
+  {
+   "side": "少数",
+   "seat": "EX-02",
+   "conclusion": "380.00 的闭合是算术巧合而非证据。T043 两侧费用各由自身金额精确派生（45000×0.025%+0.45=11.70；45120×0.025%+0.45=11.73），说明自记账是按委托价整笔登记的口径选择而非录错，故应剔除 120.00，得 amount_diff_total=260.00、excluded_amount_total=120.00、excluded_categories=[\"计价口径差（按委托价记账）\"]；并主张契约同样未授权「必须计入」（TASK.md 明写不预设判断），把「无明文禁止」读成「明文要求」是举证责任倒置。另：日期映射改为 settle_date 时实测 7 条而非 6 条。",
+   "falsification": "T043 的委托单证伪「45.00 曾为委托价」；或契约明文把单侧非成交现金流入排除在金额差异外（则 260.00 也须移出，其切分反不如多数）；或重算 gap≠380.00。"
+  },
+  {
+   "side": "少数",
+   "seat": "EX-02",
+   "conclusion": "自述立场 ADJ-001=exclude 与所报数字（260.00/120.00）在 implies 精确比对下不匹配任何选项，seat_check 判 W_STANCE_MISMATCH、derived=abstain。PM-01 原样保留：其数字按 exclude 归属可读，其自述立场在该契约下不可机器对齐。",
+   "falsification": "若 ADJ-001 的 exclude 选项 implies 恰为 260.00/120.00（以单侧现金流入而非口径差为剔除对象），则 EX-02 自洽，此记录作废。"
+  },
+  {
+   "side": "分歧·未裁决（PM 决定留痕）",
+   "seat": "EX-01/EX-03 vs EX-02",
+   "conclusion": "DIFFSET：三席均报 6 条（一致），但 EX-02 反事实实测「ledger.date↔settle_date」得 7 条，PM-01 独立复算确认：settle_date 映射下 T041/T042 因日期不等新增、T048 退出，共 7 条，且 amount 差额合计仍为 380.00。即条数依赖未写明的日期映射，金额不依赖。按多数取 6，同时保留 7 条为可翻转备查。",
+   "falsification": "若契约明文规定 ledger.date 对应 settle_date，则 diff_count 应为 7。"
+  }
+ ],
+ "aggregation_inputs": [
+  {
+   "seat": "EX-01",
+   "sha256": "cab872f9846e3857c9a5291aa052e3164ea9bf49b524dcc81010e31a360e85f9",
+   "seat_check_status": "valid"
+  },
+  {
+   "seat": "EX-02",
+   "sha256": "f06911a124a6460c40454188388febf47c9cfa2bc31a5209b147ddaee6a075e3",
+   "seat_check_status": "valid"
+  },
+  {
+   "seat": "EX-03",
+   "sha256": "f83dad9d10aa0dd92f8811ede96be499d9d1eea355d36cd26ccd0e62a7dc3ad2",
+   "seat_check_status": "valid"
+  }
+ ],
+ "reads": [
+  {
+   "path": "runs/round26/prompts/PM-01.md",
+   "purpose": "本席提示词：读取域、硬字段（reads/usage/aggregation_inputs）、聚合规则与拍板纪律"
+  },
+  {
+   "path": "fixtures/tasks/T-06/TASK.md",
+   "purpose": "字段定义 A/B/C、差异判定口径 D、四个易错点，作为独立复算的规格"
+  },
+  {
+   "path": "fixtures/tasks/T-06/ledger.csv",
+   "purpose": "7 行原始值，独立 Decimal 复算 amount/date/shares/fee_total"
+  },
+  {
+   "path": "fixtures/tasks/T-06/bill.csv",
+   "purpose": "8 行原始值，独立复算并做 trade_date/settle_date 双映射反事实"
+  },
+  {
+   "path": "runs/round26/EX-01.json",
+   "purpose": "聚合输入：多数席结论、证据指针、stance、summary"
+  },
+  {
+   "path": "runs/round26/EX-02.json",
+   "purpose": "聚合输入：少数席结论与其反事实，作为 diff_preserved 少数侧原文"
+  },
+  {
+   "path": "runs/round26/EX-03.json",
+   "purpose": "聚合输入：可执行版结论、成本/回滚、跨平台风险"
+  },
+  {
+   "path": "runs/round26/seat-check.json",
+   "purpose": "取三席 seat_check_status、W_STANCE_MISMATCH 与 derived_stance，作为 aggregation_inputs 的准入依据"
+  },
+  {
+   "path": "runs/round26/round-manifest.json",
+   "purpose": "确认轮次角色 revision_round、expected_seats、写入域 allow=round26/"
+  }
+ ],
+ "usage": {
+  "tokens": 26000,
+  "minutes": 10,
+  "source": "self_report"
+ }
+}

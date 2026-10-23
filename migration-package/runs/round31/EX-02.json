@@ -1,0 +1,90 @@
+{
+  "seat": "EX-02",
+  "round": 31,
+  "conclusion": "6 单清单是契约漏洞的产物：日期列未定义使 diff_count 在 6（trade_date）与 7（settle_date）间不可判定，amount_diff_total 无论怎么取都恒等于 raw_total_gap 76640.00，对归因质量无信息量。本席取 5 单、剔 T088，股息 520.00 按非成交口径排除，金额 76120.00。",
+  "strongest_counter_arguments": [
+    {
+      "target": "ANON-A",
+      "argument": "「6 条」建立在一个未声明的选择上。若日期列取 settle_date，则 T081（入账 09-05 / 交割 09-06）、T082（09-07 / 09-08）、T083 入列，T088（入账 09-18 = 交割 09-18）出列，得 7 条；取 trade_date 得 6 条。条数对日期列的选择非单调——换列不是整体加减 1，而是进出互换。因此「6」不是被数据决定的，是被一个没写进契约的取值决定的；把它当结论，是把规则歧义伪装成数据事实。",
+      "reverse_evidence": "若 spec 明文把「日期」锁定为 trade_date 且要求逐字执行契约 D，则 6 条成立，我方撤回此条。"
+    },
+    {
+      "target": "ANON-A",
+      "argument": "amount_diff_total=76640.00 是恒等式，不是发现。两表无重复单号，6 条差异的差额同号（bill>ledger）且覆盖全部单侧与双向差，故逐项差额求和必然等于 bill_total−ledger_total。这意味着该字段无论归因对错都会等于 raw_total_gap：「通过校验」不携带任何关于归因质量的信息。真正有信息量的只有分类与排除项，而这两项契约明确交给了判断。",
+      "reverse_evidence": "若存在重复单号或多空/双向差额，使逐项求和不再恒等于总差，则此论据失效。"
+    },
+    {
+      "target": "ANON-C",
+      "argument": "四列口径对 T082 完全失明：100 股 × 1680.00 元/股、金额 168000.00、费用按万分之2.5 精确算出 42.00——内部完全自洽，但 1680 元/股的格力电器在经济上不可能。四列全等 ⇒ 不入差异清单。这说明「差异单号」定义只保证表内一致，不保证表外正确；用它当对账终点，会把最像数据污染的一行判为最干净的一行。",
+      "reverse_evidence": "若把 price 纳入比对、或引入独立行情基准作为第二判据，则此攻击失效。"
+    }
+  ],
+  "what_would_change_my_mind": "spec 同时锁定三件事：①日期列取 trade_date；②金额一律 fee_total 原值、不并入 amount；③「差异」定义纳入价格合理性检查。三者齐备后 6 条即为可裁决结论，我方 5 条应撤回。",
+  "evidence": [
+    {"pointer": "fixtures/tasks/T-11/bill.csv#T088{settle_date=09-18}", "what_it_shows": "ledger 入账 09-18、成交 09-17：换列即条数 6↔7"},
+    {"pointer": "fixtures/tasks/T-11/bill.csv#T081,T082.settle_date", "what_it_shows": "09-06/09-08 与 ledger 09-05/09-07 不等 → 换列后二者反而入列"},
+    {"pointer": "fixtures/tasks/T-11/ledger.csv#amount / bill.csv#amount", "what_it_shows": "256800.00 与 333440.00；逐项差额之和亦 76640.00 → 该字段恒等"},
+    {"pointer": "fixtures/tasks/T-11/bill.csv#T085{code=600519,260.00}", "what_it_shows": "我方 code 列全为 000651，出现未持有标的的分红，疑串户"}
+  ],
+  "falsification": "若 spec 锁定日期列=trade_date 并逐字执行契约 D，我的 5 条即错、应回到 6；若 6 与 7 两种取法给出的金额不同（本例同为 76640.00），则我「指标无信息量」的核心论断减弱；若 T085 的 600519 被证实确属本方其他账户的持仓，则它应从「串户」改判「本方漏记」并计入金额差异。",
+  "reads": [
+    {"path": "runs/round31/prompts/EX-02.md", "purpose": "读取对立面席位的 KPI、steelman 要求与字段约束"},
+    {"path": "runs/round31/prompts/EX-01.md", "purpose": "确认另一席的字段与术语（仅作对照，不作证据）"},
+    {"path": "runs/round31/prompts/EX-03.md", "purpose": "确认落地席的字段要求（仅作对照，不作证据）"},
+    {"path": "fixtures/tasks/T-11/TASK.md", "purpose": "逐字核对差异判定口径 D 的措辞，确认「日期」未指定列"},
+    {"path": "fixtures/tasks/T-11/ledger.csv", "purpose": "取 5 行的股数/金额/费用/日期，并核对 code 列是否含 600519"},
+    {"path": "fixtures/tasks/T-11/bill.csv", "purpose": "取 8 行的 trade_date/settle_date 双日期，用于构造日期列歧义的反证"},
+    {"path": "protocol/02-辩论协议.md", "purpose": "确认对立面席位的失职标准与证据制聚合规则"},
+    {"path": "protocol/06-写入域与判据分层.md", "purpose": "确认 diff_count/amount_diff_total 属判断层、不设 expected，故我的 5 条与 6 条之争必须在人类闸门解决"}
+  ],
+  "dissent": [
+    {
+      "against": "ANON-A",
+      "reason": "其 6 条把 T088 计入、却把 T081/T082 排除，理由是「入账日」与「成交日」比对；但若以交割日为准，T081/T082 才是差异、T088 不是。同一份数据能同时支持 6 与 7，说明其清单是在两个未声明的取值里挑了一个，且没有披露该选择——这正是契约 D 未定义日期列的直接后果。",
+      "reverse_evidence": "若其能在 answer 中显式声明日期列并给出该列下的完整复算（含被排除项的差额为 0.00 的证明），则此反对降级为口径分歧，不再是我方主张。"
+    },
+    {
+      "against": "ANON-C",
+      "reason": "若其把落地结论表述为「金额 76640.00，故归因正确」，则该结论不可裁决：76640.00 是恒等式，任何分类都会得到同一数字。以该数字作为验收标准，等于把恒真命题当判据，硬裁判在此只能复述。",
+      "reverse_evidence": "若其验收标准改为「分类 + 排除项 + 清单条数」三项联合，且声明日期列，则我撤回此条。"
+    }
+  ],
+  "confidence": "medium",
+  "needs_more_data": [
+    {"type": "缺规则", "item": "「日期」列取 trade_date 还是 settle_date —— 直接决定 diff_count 是 6 还是 7"},
+    {"type": "缺规则", "item": "非成交类权益变动（股息、送转）的 amount 是否属「成交金额差异」的可比口径"},
+    {"type": "缺数据", "item": "600519 是否为本方任一账户持仓（T085 的 260.00 归属）"},
+    {"type": "缺数据", "item": "T086 送转的股权登记日与基数，用于判定 30 股 / 300 股孰对"}
+  ],
+  "stance": [
+    {"axis": "ADJ-001", "choice": "exclude"},
+    {"axis": "DIFFSET", "choice": "5"}
+  ],
+  "summary": {
+    "ledger_rows": 5,
+    "bill_rows": 8,
+    "ledger_total": 256800.00,
+    "bill_total": 333440.00,
+    "raw_total_gap": 76640.00,
+    "dedup_removed_txn_count": 0,
+    "dedup_amount": 0.00,
+    "diff_count": 5,
+    "amount_diff_total": 76120.00,
+    "excluded_amount_total": 520.00,
+    "excluded_categories": ["非成交口径（股息入账）", "股数差（送转未更新）"]
+  },
+  "diffs": [
+    {"id": "T083", "category": "成交价口径差（委托价记账）"},
+    {"id": "T084", "category": "单侧缺失·交易（中签买入）"},
+    {"id": "T085", "category": "非成交口径（股息入账）"},
+    {"id": "T086", "category": "股数差（送转未更新）"},
+    {"id": "T087", "category": "非成交口径（股息入账）"}
+  ],
+  "categories": {
+    "成交价口径差（委托价记账）": ["T083"],
+    "单侧缺失·交易（中签买入）": ["T084"],
+    "非成交口径（股息入账）": ["T085", "T087"],
+    "股数差（送转未更新）": ["T086"]
+  },
+  "usage": {"tokens": 7400, "minutes": 5, "source": "self_report"}
+}

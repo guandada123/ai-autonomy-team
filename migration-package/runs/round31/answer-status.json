@@ -1,0 +1,29 @@
+{
+  "task_id": "TASK-BROKER-011",
+  "spec_layer": "all",
+  "adjudication_state": "adjudicated",
+  "adjudication_state_definition": "fail := 任一物化判据 not ok；pending := 无 --record 且 spec 含 ≥1 判断项；adjudicated := 有 --record 且 lint_record 通过且物化判据全部 ok；not_applicable := spec 不含判断项（verdict=pass）",
+  "pending_items": [],
+  "pending_count": 0,
+  "answered_items": [
+    "ADJ-001",
+    "ADJ-002"
+  ],
+  "verdict": "adjudicated",
+  "answer": {
+    "path": "runs/round31/answer-final.json",
+    "sha256": "12d82d3f9ee2e9c8cbfcbfbc1616af5d42c32299979e4d7c40c4e83692d62744"
+  },
+  "spec": {
+    "path": "fixtures/tasks/T-11/spec/adjudication.json",
+    "sha256": "347efbe442416d2130683dde4ddb683e09322c5eca60200de092564f673adc5e"
+  },
+  "record": {
+    "path": "runs/round31/adjudication-record.json",
+    "sha256": "539b7465f780fc6bed192c602bfa4ab89af7e0e286667cd71578149817dce0c9"
+  },
+  "source_verdict": null,
+  "generated_by": "judges/verify.py",
+  "provenance": "native",
+  "ts": "2026-10-20T21:35:08+08:00"
+}

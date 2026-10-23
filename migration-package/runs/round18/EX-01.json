@@ -1,0 +1,66 @@
+{
+  "seat": "EX-01",
+  "round": 18,
+  "conclusion": "逐行复算：ledger 5 行 118800.00，bill 8 行 133240.00，gap=14440.00；dedup 0/0.00；四列比对得 6 条差异（T099、T100、T101、T102、T103、T104）。amount=13920.00（120.00+13800.00+0+0），excluded=520.00（股息），和 14440.00 等于 gap，残差 0。",
+  "evidence": [
+    {
+      "pointer": "fixtures/tasks/T-13/{ledger.csv#amount(5 行), bill.csv#amount(8 行)}",
+      "what_it_shows": "118800.00 与 133240.00，差 14440.00"
+    },
+    {
+      "pointer": "fixtures/tasks/T-13/bill.csv#T104 ↔ ledger.csv#T104 全列",
+      "what_it_shows": "仅 date 09-17↔trade 09-16 不同，金额差 0.00"
+    },
+    {
+      "pointer": "fixtures/tasks/T-13/bill.csv#T101,T103{shares=0, amount=260.00}",
+      "what_it_shows": "0×0≠260.00，非成交金额，合 520.00 归排除"
+    },
+    {
+      "pointer": "fixtures/tasks/T-13/ledger.csv#date[T097,T098,T099,T102]↔bill.csv#trade_date",
+      "what_it_shows": "四行逐字相等，故日期基准取 trade_date"
+    }
+  ],
+  "falsification": "下列任一成立本结论即错，均可按上述行级指针重跑核验：(1) 「日期」基准被判为 settle_date，则 T097/T098/T099 成为日期差、T104 不再差异，diff_count 由 6 变 7（金额不变，日期差金额 0.00）；(2) 股息入账的 260.00×2 被认定计入成交金额差，则 amount_diff_total=14440.00、excluded=0.00；(3) T100（中签买入 13800.00）被判为非交易项，则 amount_diff_total=120.00、excluded=14320.00。",
+  "reads": [
+    {"path": "runs/round18/prompts/EX-01.md", "purpose": "取得本席模板、读取域、stance 选项空间与硬性字段"},
+    {"path": "runs/round18/prompts/EX-02.md", "purpose": "确认对立席位格式，避免越界表述与字段错位"},
+    {"path": "runs/round18/prompts/EX-03.md", "purpose": "确认落地席位字段要求，核对三席 summary 口径"},
+    {"path": "fixtures/tasks/T-13/TASK.md", "purpose": "逐条提取 §A–§D 字段定义、四个易错点与差异判定口径"},
+    {"path": "fixtures/tasks/T-13/ledger.csv", "purpose": "自记账原始行，取 date/amount/fee_total 逐行复算"},
+    {"path": "fixtures/tasks/T-13/bill.csv", "purpose": "交割单原始行，取 trade_date/settle_date/amount/fee_total 逐行复算"},
+    {"path": "protocol/02-辩论协议.md", "purpose": "确认证据制聚合与「缺 falsification 视为不可裁决」的硬约束"},
+    {"path": "protocol/06-写入域与判据分层.md", "purpose": "确认 diff_count/amount_diff_total 属 adjudication 层，不在算术白名单内"}
+  ],
+  "dissent": [
+    {
+      "against": "ANON-A",
+      "reason": "ANON-A 主张 amount_diff_total 直接等于 raw_total_gap（14440.00）、不做任何排除。此说使 §C 的 excluded_amount_total 与 excluded_categories 两字段成为死文本；且 T101/T103 的 amount=260.00 与 shares=0、price=0.00 不相容，硬当作成交金额会与契约「amount 列是成交金额」的前提自相冲突。",
+      "reverse_evidence": "若 T101/T103 的 amount 能被证明是某笔成交或其费用的对价（shares>0 或 fee_total>0），或人类裁决明确「现金分红计入成交金额差异」，则本反对撤回，14440.00 成立。"
+    }
+  ],
+  "confidence": "high",
+  "needs_more_data": [
+    "【缺规则】TASK.md §D 只说「日期」，而 bill.csv 同时给出 trade_date 与 settle_date，未指定取哪列；本席取 trade_date，依据是 T104 的 note 对照与四行日期相等，属解释而非明文。",
+    "【缺规则】§C 只定义「归入某类别」，未给归类准则，excluded_categories 的边界无判据，故 13920.00/520.00 的切分与备选（14440.00/0.00、120.00/14320.00）都能自洽。",
+    "【缺规则】§B 的「同一 txn_id 出现多次」未说明是否需叠加日期/价格条件，本席按字面只看单号，故 dedup=0。",
+    "【缺数据】无。两份 CSV 无空值无缺列，§约束1 禁止引入外部数据，不构成 data_insufficient。"
+  ],
+  "stance": [
+    {"axis": "ADJ-001", "choice": "count"},
+    {"axis": "DIFFSET", "choice": "6"}
+  ],
+  "summary": {
+    "ledger_rows": 5,
+    "bill_rows": 8,
+    "ledger_total": 118800.00,
+    "bill_total": 133240.00,
+    "raw_total_gap": 14440.00,
+    "dedup_removed_txn_count": 0,
+    "dedup_amount": 0.00,
+    "diff_count": 6,
+    "amount_diff_total": 13920.00,
+    "excluded_amount_total": 520.00,
+    "excluded_categories": ["股息入账（非交易性现金流）"]
+  },
+  "usage": {"tokens": 14000, "minutes": 11, "source": "self_report"}
+}

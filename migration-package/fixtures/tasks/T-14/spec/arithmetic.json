@@ -1,0 +1,69 @@
+{
+  "task_id": "TASK-BROKER-014",
+  "layer": "arithmetic",
+  "layer_note": "纯算术锚点。expected 全部可由输入数据唯一算出。",
+  "checks": [
+    {
+      "name": "自记账行数",
+      "type": "numeric_equals",
+      "path": "summary.ledger_rows",
+      "expected": 7
+    },
+    {
+      "name": "交割单原始行数",
+      "type": "numeric_equals",
+      "path": "summary.bill_rows",
+      "expected": 8
+    },
+    {
+      "name": "去重笔数",
+      "type": "numeric_equals",
+      "path": "summary.dedup_removed_txn_count",
+      "expected": 0
+    },
+    {
+      "name": "去重金额",
+      "type": "decimal_equals",
+      "scale": 2,
+      "path": "summary.dedup_amount",
+      "expected": 0.0
+    },
+    {
+      "name": "自记账合计",
+      "type": "decimal_equals",
+      "scale": 2,
+      "path": "summary.ledger_total",
+      "expected": 409420.0
+    },
+    {
+      "name": "交割单合计",
+      "type": "decimal_equals",
+      "scale": 2,
+      "path": "summary.bill_total",
+      "expected": 409800.0
+    },
+    {
+      "name": "总额差",
+      "type": "decimal_equals",
+      "scale": 2,
+      "path": "summary.raw_total_gap",
+      "expected": 380.0
+    },
+    {
+      "name": "必须声明排除类别或说明为何为空",
+      "type": "present_or_note",
+      "path": "summary.excluded_categories",
+      "note_path": "summary.excluded_categories_note"
+    },
+    {
+      "name": "必须给出类别归属",
+      "type": "present",
+      "path": "categories"
+    },
+    {
+      "name": "必须给出证伪条件",
+      "type": "present",
+      "path": "falsification"
+    }
+  ]
+}

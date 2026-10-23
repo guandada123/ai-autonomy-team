@@ -1,0 +1,73 @@
+{
+  "seat": "EX-02",
+  "round": 14,
+  "conclusion": "最强反论：契约无任何条款授权把单侧差异排出金额合计。§D 明文「仅单侧存在的单号亦为差异单号，差额取该单号在该侧的 amount」，T061/T063 的 260.00 正是该句指定要取的数；排除它们须外加一条输入中不存在的量纲规则。全数计入得 76640.00，与 raw_total_gap 分毫不差——零残差就是核对成立本身。我方主张 count、6 条。",
+  "strongest_counter_arguments": [
+    {"target": "ANON-A", "argument": "把 520.00 移入 excluded 是对 §D 的选择性执行：同一句话既用来承认 T061/T063 是差异单号，又被用来否认其差额进入 amount_diff_total。若量纲不同，它们本就不该是差异单号；既然是差异单号，§C 的「计入」就是默认，契约从未给 exclude 一个默认值。且 76120.00+520.00 仍等于 76640.00，说明两条路在勾稽上等价——既等价，则排除方多引入了一条规则，举证责任在排除方。", "reverse_evidence": "若 TASK.md 出现「现金分红不计入成交金额差异」，或 adjudication 层的选项定义把股息类明确归入 excluded_categories 示例，则此反论失效。"},
+    {"target": "ANON-A", "argument": "T064 这个条目的存在性完全由一个未定义的列选择决定：ledger.date 09-15 对 trade_date 09-14 则差一天，对 settle_date 09-15 则完全一致。也就是说 diff_count 可在 6 与 5 之间翻转而金额结论一字不变。把 diff_count 当立场坐标，等于把「未定义的列口径」当成「已裁决的判断」，这比金额争议更隐蔽。", "reverse_evidence": "若 TASK.md 明确「日期」即 trade_date（背景句「交割单按成交日列示」可作此解），则 T064 确定性入清单，此反论失效。"},
+    {"target": "ANON-B", "argument": "反向风险同样成立：若把所有单侧项一律当口径差排除，T060 中签买入 76000.00 也会被顺手归入「非交易」——它同样是「自记账无」。区分 T060 与 T061 只能靠业务性质（有股数有成交价 vs 股数 0 价格 0），而这条判据也不在契约里。排除派一旦开了「按业务性质分类」的口子，就没有停在 520.00 的天然边界。", "reverse_evidence": "若分类规则被写成可执行判据（如 shares>0 且 price>0 才算成交），则边界客观存在，此反论失效。"}
+  ],
+  "what_would_change_my_mind": "一条写在 TASK.md 正文内（而非席位自定义类别）的排除规则，或自记账中存在可与 260.00 对减的资金/现金科目行。二者任一出现，我即放弃 count。",
+  "summary": {
+    "ledger_rows": 5,
+    "bill_rows": 8,
+    "ledger_total": 258820.00,
+    "bill_total": 335460.00,
+    "raw_total_gap": 76640.00,
+    "dedup_removed_txn_count": 0,
+    "dedup_amount": 0.00,
+    "diff_count": 6,
+    "amount_diff_total": 76640.00,
+    "excluded_amount_total": 0.00,
+    "excluded_categories": []
+  },
+  "diffs": [
+    {"id": "T059", "category": "价格差异-按委托价记账"},
+    {"id": "T060", "category": "单侧缺失-新股中签"},
+    {"id": "T061", "category": "单侧缺失-股息入账"},
+    {"id": "T062", "category": "股数差异-送转未更新"},
+    {"id": "T063", "category": "单侧缺失-股息入账"},
+    {"id": "T064", "category": "日期差异-入账日与成交日不一致"}
+  ],
+  "categories": {
+    "价格差异-按委托价记账": ["T059"],
+    "单侧缺失-新股中签": ["T060"],
+    "单侧缺失-股息入账": ["T061", "T063"],
+    "股数差异-送转未更新": ["T062"],
+    "日期差异-入账日与成交日不一致": ["T064"]
+  },
+  "evidence": [
+    {"pointer": "fixtures/tasks/T-08/bill.csv#T064:trade_date,settle_date", "what_it_shows": "trade 09-14／settle 09-15；ledger.date 09-15——换列即换结论"},
+    {"pointer": "fixtures/tasks/T-08/TASK.md#D 末句", "what_it_shows": "单侧差额明文指定取该侧 amount，260.00 可直接取值，无需额外约定"},
+    {"pointer": "fixtures/tasks/T-08/bill.csv#T060,T061,T063:amount", "what_it_shows": "76000+260+260=76520，加 T059 120 得 76640，与原始总差残差 0.00"},
+    {"pointer": "protocol/07-轮次与指标.md#4.1", "what_it_shows": "两轴靠数字反推；金额轴与清单轴可各自自洽而互相矛盾"}
+  ],
+  "falsification": "若契约补入一条「现金分红属非成交金额、不计入 amount_diff_total」的规则，我方 count 主张立即失效；若「日期」被定义为按 settle_date 对齐，则 diff_count 应为 5，我方清单数字失效。此外若 76640.00 无法由 6 条差异累加复现（我复算为 120.00+76000.00+260.00+0.00+260.00+0.00），则我方全部数字作废。",
+  "reads": [
+    {"path": "runs/round14/prompts/EX-02.md", "purpose": "读取对立面席位职责与输出契约"},
+    {"path": "fixtures/tasks/T-08/TASK.md", "purpose": "逐条寻找契约张力与未定义项"},
+    {"path": "fixtures/tasks/T-08/ledger.csv", "purpose": "核对单号全集与逐行金额"},
+    {"path": "fixtures/tasks/T-08/bill.csv", "purpose": "核对双日期列与单侧项金额"},
+    {"path": "protocol/02-辩论协议.md", "purpose": "确认强制反对与反证条件要求"},
+    {"path": "protocol/03-结构审计七查.md", "purpose": "确认第 5 查规格假设的判定方式"},
+    {"path": "protocol/05-工作协议.md", "purpose": "确认金额 Decimal 与判据分层纪律"},
+    {"path": "protocol/06-写入域与判据分层.md", "purpose": "确认判断项不得含 expected、无机器真值"},
+    {"path": "protocol/07-轮次与指标.md", "purpose": "确认两轴反推规则与语义冲突判据"},
+    {"path": "runs/round14/", "purpose": "目录列举以确认产出位置，未进入 presentation/"}
+  ],
+  "dissent": [
+    {"against": "ANON-A", "reason": "以「amount 列是成交金额」推出股息不可比，是把 §C 的注 1（防止把费用加进金额）扩展成了一条量纲判据；注 1 的语境是 fee_total 与 amount 分离，不是排除非交易现金流。用一条语境不同的注释去覆盖 §D 的明文，属于规则层级误用。", "reverse_evidence": "若 TASK.md 另有一句直接说明非成交类单号的处理，则此反对不成立。"},
+    {"against": "ANON-B", "reason": "以「76640.00 与原始总差相等」反推「全部计入正确」是循环论证：原始总差本身由同一组 amount 相减得到，任何把全部差异计入的清单都必然等于它，该等式对分类正确性零信息。真正需要检验的是分类规则是否可外部复现。", "reverse_evidence": "若存在独立于 raw_total_gap 的第二证据（如券商对账单余额），则该等式具备检验力，此反对不成立。"}
+  ],
+  "confidence": "medium",
+  "needs_more_data": [
+    "【缺规则】日期列对齐口径未定义（trade_date 还是 settle_date 对 ledger.date），决定 diff_count 为 6 或 5。",
+    "【缺规则】「计入/不计入」的判定标准未定义，导致金额轴本质是人类裁决项，机器侧不得有 expected。",
+    "【缺数据】无。两文件自足；但缺少能独立校验分类的第三方证据（如资金账户余额），故本题的分类争议无法靠补数据消解，只能靠补规则。"
+  ],
+  "stance": [
+    {"axis": "ADJ-001", "choice": "count"},
+    {"axis": "DIFFSET", "choice": "6"}
+  ],
+  "usage": {"tokens": 12600, "minutes": 27, "source": "self_report"}
+}

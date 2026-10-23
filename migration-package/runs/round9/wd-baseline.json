@@ -1,0 +1,1559 @@
+{
+  "generated_at": "2026-10-20T11:52:01+08:00",
+  "kind": "write_domain_baseline",
+  "root": ".",
+  "deny_prefixes": [
+    "fixtures/",
+    "outputs/",
+    "docs/",
+    "protocol/",
+    "prompts/",
+    "config/",
+    "judges/"
+  ],
+  "note": "轮次前的共享目录快照。轮次后用 --write-domain <cfg> --check <本文件> 比对。",
+  "files": [
+    {
+      "path": "config/automations.json",
+      "size": 2400,
+      "sha256": "224bbc669262dde9beef1a6e9f04db370a314544cf6e074512d581e2f1f89bd6",
+      "newline": "LF"
+    },
+    {
+      "path": "config/models.json.example",
+      "size": 1760,
+      "sha256": "627eb0db0c17c7cd6551f0cf839d1f0d9bd8beec18c2be3cb6d311dc1658c9cd",
+      "newline": "LF"
+    },
+    {
+      "path": "config/params.json",
+      "size": 17687,
+      "sha256": "96d0f9da01c33d3bfc97b04ffb39b549dd2037f8658345906eee1615da596dff",
+      "newline": "LF"
+    },
+    {
+      "path": "config/read_domains.json",
+      "size": 9281,
+      "sha256": "f4a456c8b7b8759d26fc3c5f24caa3996599145080209afaac73176fc41d30a9",
+      "newline": "LF"
+    },
+    {
+      "path": "config/write_domains.json",
+      "size": 1275,
+      "sha256": "8d95ce5e9887dc58b4d2ffc17e6b6a797f62797e813e75622d3ddceb380338c8",
+      "newline": "LF"
+    },
+    {
+      "path": "docs/修复报告-F1F2F3.md",
+      "size": 7859,
+      "sha256": "e608aa5d638daf1fe066a1c06c96498c17894c02dadf697f493d4057e025662d",
+      "newline": "LF"
+    },
+    {
+      "path": "docs/目标机-人工确认清单.md",
+      "size": 8077,
+      "sha256": "397fbf8f9a5f6d838e169e70b753df6d41ad8b2552ebaaf17637dbf8737560d2",
+      "newline": "LF"
+    },
+    {
+      "path": "docs/验证报告.md",
+      "size": 12286,
+      "sha256": "b18ca04c84941ed4ba77d04c05d5f0eb78e164d5b3b4c49d95f38d8e9a72fa99",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/002/TASK.md",
+      "size": 4428,
+      "sha256": "fb8612ab1ed1d505ebab59b3e75b4b1b82032a0ed80437247c2f807e60e7110f",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/002/bill.csv",
+      "size": 1104,
+      "sha256": "0614bfb433bdd522babe4e305d283afa77ae6fd908b9c5091db79c2d870a8006",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/002/ledger.csv",
+      "size": 687,
+      "sha256": "f0aa3533b303d7f1b30b5f5b51b40f6e7296186a4a85a5bc851f76214ac76377",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/002/spec/adjudication.json",
+      "size": 5068,
+      "sha256": "5027ac958dff333938d8fbf7d3bf17d3c6034f1d7b855582b2ffbe9452984263",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/002/spec/arithmetic.json",
+      "size": 1888,
+      "sha256": "29dd55c0f2424ae4bea8a703be05367be2479e3264301ca9f921cf1fed44d7f7",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/002/spec/fact-schema.json",
+      "size": 1553,
+      "sha256": "f8c3d7753162a23b322b24b3b9ff23377697167b394bf741a0c2d5aff5f96e9a",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/002/spec/interpretations.json",
+      "size": 3834,
+      "sha256": "8ac003aa5a600922ee5a9f45f405bad7b1d0bfc53e776ade41b27e108ab19cc6",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/002/truth.json",
+      "size": 1643,
+      "sha256": "360a1fd7fc288288a4c490bc4aeec11e282e8db15eff9c44459ff6721d408494",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/TASK.md",
+      "size": 3407,
+      "sha256": "9be9ac8c99f6df5b4bc5cb8203645a90f1093b2e2c8dd23af80cff58302f39ee",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/answer-baseline-v2.json",
+      "size": 1595,
+      "sha256": "95e212ecae1c1bb821813de5ed1656a1f2e70137fb39be7a3dd622294a9398ba",
+      "newline": "CRLF"
+    },
+    {
+      "path": "fixtures/answer-baseline-v3.json",
+      "size": 2031,
+      "sha256": "48dfe0218d96cc6674f3f976461815a350bf347d8e85f16f7784a8fb52cfef82",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/answer-baseline.json",
+      "size": 2201,
+      "sha256": "373e58f39bbf4d8bab7d974f047e8f1bbcdee49abf450c4282f79c9a92f923e7",
+      "newline": "CRLF"
+    },
+    {
+      "path": "fixtures/bill.csv",
+      "size": 1370,
+      "sha256": "246e0ca593ca1ab490541fe4c1ae0f8488a657e2388fab94c0814b9714f1f2ca",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/ledger.csv",
+      "size": 1355,
+      "sha256": "e46ba9946292c4c858ede6da0624cf969bb6597d019ed0116ec92394dd478e98",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/bad-gate1-judgment.json",
+      "size": 477,
+      "sha256": "cd6d301998d6e9a0cb58b2e8ab03d05ae828360aa5b4524b849e9bf609df93dc",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/bad-gate2-money.json",
+      "size": 385,
+      "sha256": "31e82c1158103d76c40d9e5c5b6a69439bbdd8835516755004ba904123a6a658",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/final-bad/answer-final.json",
+      "size": 296,
+      "sha256": "2aa4af7212ff423b3aa5891cb48675d118b257c80caa5dbb41931df464221d85",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/params-threshold0.json",
+      "size": 15084,
+      "sha256": "8674caecee32b2ed4e2c14f02e18d15ec94b0a0a43a3ce169aeb73b2eebf6279",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/round-readA/EX-01.json",
+      "size": 750,
+      "sha256": "bac628d2d0ff553d6ef98464fd03c78bfa46ea6daaf28efff97dd7b2d7616e8a",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/round-readA/EX-02.json",
+      "size": 748,
+      "sha256": "bca633f0b48597ff752d97f23145cb0a1b9907c78f5f746de5a0e18c16865fb7",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/round-readA/EX-03.json",
+      "size": 742,
+      "sha256": "c87634611a7204a7e77d2bba8d1fc1488a0374d9b9d06881740ba9989f710857",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/round-readA/round-manifest.json",
+      "size": 230,
+      "sha256": "ff1f4ba39c4c2f5cbc5b085f140fc255a8c6119cca592102f2d14dbbe93648cc",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/round8/AD-01.json",
+      "size": 616,
+      "sha256": "181387b460cd4469d06e8eca3de396802310c9469fc17a56cedb1c896f49f9b4",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/round8/PM-01.json",
+      "size": 621,
+      "sha256": "084baa8ba0c9d5edb4e7990cf19c620df36eb2ffa2ccb6876c647102680d0d7a",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/round8/round-manifest.json",
+      "size": 213,
+      "sha256": "c5f99982a3eeab27f4d0a14dd32298d59ef7aae829328733b624ecf217dd6d1a",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/round9/AD-01.json",
+      "size": 285,
+      "sha256": "0854daeadb2fb8f91bcf85fa6620b02f69dd50890300740202d6787d4e235112",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/round9/PM-01.json",
+      "size": 621,
+      "sha256": "084baa8ba0c9d5edb4e7990cf19c620df36eb2ffa2ccb6876c647102680d0d7a",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/round9/round-manifest.json",
+      "size": 213,
+      "sha256": "ef9165d2cb5a7cd938ed372563afaa92381499508a38d8a524192634dd690350",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/roundA/EX-01.json",
+      "size": 578,
+      "sha256": "020a82a1545c1935e971f7420663edfb525d85ecf12658a49edabb5353291618",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/roundA/EX-02.json",
+      "size": 576,
+      "sha256": "9718b7916742e0540d7336d09c8595f263c1f902f128aa7440ed7af8e5bb9307",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/roundA/EX-03.json",
+      "size": 501,
+      "sha256": "b38a0d4c34d2737f014d9b8e919eacb2f2f1f816306968bffbc8c2d126820db3",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/roundA/round-manifest.json",
+      "size": 225,
+      "sha256": "fbd97716998c5665e1263d8afb735a6fec57af5ecc406595362518e61d987267",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/roundB/EX-01.json",
+      "size": 578,
+      "sha256": "020a82a1545c1935e971f7420663edfb525d85ecf12658a49edabb5353291618",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/roundB/EX-02.json",
+      "size": 570,
+      "sha256": "0fc16f4358f95ab628d04a39cb639aa0b223112c72cc64cbf00f2bbbd18ae7cc",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/roundB/EX-03.json",
+      "size": 504,
+      "sha256": "313cb173bbc70583f99fffcf5b7cbb885bf598569160733f7ee949f74f6b3c84",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/roundB/round-manifest.json",
+      "size": 226,
+      "sha256": "0c823ecfea34c9435ab22be3049e54b41d46a66b4109bc78755291ba0c82ec5b",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/roundC/EX-01.json",
+      "size": 580,
+      "sha256": "714a79b23d3009fc1c7f6aa07a1b0ae1dd2287188ba36ecd17da09bbb5a2b412",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/roundC/EX-02.json",
+      "size": 580,
+      "sha256": "e4ca639041692419dd6a191f552799805ef519ff5bb7a8d9a7321844f1c05c6d",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/roundC/EX-03.json",
+      "size": 580,
+      "sha256": "68377e7f39ceaee3ffcc1a184a2863ac476268f5b9c65d48ae8e4d6ef2ffd6d8",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/roundC/round-manifest.json",
+      "size": 225,
+      "sha256": "f4cc7cf519bd394dbd57a3a2ea07dc00efbe6a55637368a2b9b587f974e93c55",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/roundD1/EX-01.json",
+      "size": 578,
+      "sha256": "020a82a1545c1935e971f7420663edfb525d85ecf12658a49edabb5353291618",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/roundD1/EX-02.json",
+      "size": 576,
+      "sha256": "9718b7916742e0540d7336d09c8595f263c1f902f128aa7440ed7af8e5bb9307",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/roundD1/EX-03.json",
+      "size": 501,
+      "sha256": "b38a0d4c34d2737f014d9b8e919eacb2f2f1f816306968bffbc8c2d126820db3",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/roundD1/round-manifest.json",
+      "size": 226,
+      "sha256": "5778e75f991809be37b869894408a3a0cd922d232b2552cf78ecb942743883e1",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/roundD2/EX-01.json",
+      "size": 578,
+      "sha256": "020a82a1545c1935e971f7420663edfb525d85ecf12658a49edabb5353291618",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/roundD2/EX-02.json",
+      "size": 576,
+      "sha256": "9718b7916742e0540d7336d09c8595f263c1f902f128aa7440ed7af8e5bb9307",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/roundD2/EX-03.json",
+      "size": 501,
+      "sha256": "b38a0d4c34d2737f014d9b8e919eacb2f2f1f816306968bffbc8c2d126820db3",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/roundD2/round-manifest.json",
+      "size": 226,
+      "sha256": "be2eb323dd23118aa1f8f84747b879a2b26c35b50293409ea06852f4acfbdb9b",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/roundE/EX-01.json",
+      "size": 583,
+      "sha256": "86e575cce35dbbbe3aec921fb1446ae1ef09beeb16031ff03fd6bec2e0c99818",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/roundE/EX-02.json",
+      "size": 579,
+      "sha256": "3ee9b6b627f389ded541449f6e4bc8fd8c4d203f01910e86bbc9bf5e5e4c61ab",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/roundE/EX-03.json",
+      "size": 573,
+      "sha256": "d13fd2ef22740ca40ac6e98270b94d514f43d6ab78af26eb5f0e58beb98bb386",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/roundE/round-manifest.json",
+      "size": 225,
+      "sha256": "8dccaee5156dedf85dde91b354ded658785a078574c6ed5e2754a2c2d783c3bc",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/roundF/EX-01.json",
+      "size": 578,
+      "sha256": "020a82a1545c1935e971f7420663edfb525d85ecf12658a49edabb5353291618",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/roundF/EX-02.json",
+      "size": 576,
+      "sha256": "9718b7916742e0540d7336d09c8595f263c1f902f128aa7440ed7af8e5bb9307",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/roundF/EX-03.json",
+      "size": 570,
+      "sha256": "d56cf8f7c5b022b87fa15cbef102b02027918e852d608992610a094bbcd2a5a8",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/roundF/round-manifest.json",
+      "size": 225,
+      "sha256": "169ed853e05065f410844956fe2d977cd9ed1baf585e629f1ca83ee71861c5c4",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/seat-bad/EX-01.json",
+      "size": 533,
+      "sha256": "4324bcabc05e6724cc0c3220583e417bd7e0e855f075287951a6c3f4965b8250",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/seat-bad/EX-02.json",
+      "size": 462,
+      "sha256": "b4478b75cd26909f2aa8b67b8bb1a35f00c5072d6ee258f7484a54295ac33cdc",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/seat-bad/EX-03.json",
+      "size": 509,
+      "sha256": "589c0fa8cc5c429e231c2d6c49c0e3b8565ddefe8f3bf858b12afe27188c8337",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/seat-bad/round-manifest.json",
+      "size": 228,
+      "sha256": "48f2fa9818e303c38c02ba9e880da317b187a5db9928ed64ae847e92b20269b9",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/seat-readbad/EX-01.json",
+      "size": 674,
+      "sha256": "b9b0b87e9303335ff942b2f067d46c11c1f3b1685ab5ee67e7cb0a4d411ab2d3",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/seat-readbad/EX-02.json",
+      "size": 748,
+      "sha256": "bca633f0b48597ff752d97f23145cb0a1b9907c78f5f746de5a0e18c16865fb7",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/seat-readbad/EX-03.json",
+      "size": 673,
+      "sha256": "156caa92ea1f27a2341362bbdfaa93f6fe14cfefa54d0ec9ab9b65fe575f6153",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/regress/seat-readbad/round-manifest.json",
+      "size": 231,
+      "sha256": "744dfdbf2fbe350c3b7b35ab00f8fd49492e2aa23696da577960e24ae8be191a",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/spec/adjudication.json",
+      "size": 5849,
+      "sha256": "e2ee19583d1220b43f2549cd26ae6249f61d243d71c836ff994c8903ec764393",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/spec/arithmetic.json",
+      "size": 1846,
+      "sha256": "b4d60bd31b42b41ea936b2044e15cea8dc7df2258c336babd8a096189fcb3500",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/spec/interpretations.json",
+      "size": 3461,
+      "sha256": "ec8b31b7236dc029a08197d797f8a76554ec526c989efc429a48ac50e53ebfa7",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-01/TASK.md",
+      "size": 4063,
+      "sha256": "d836c2eda2805da5a9bcebf42d34bcc357f7ff5b3d373aba0f1b32d41e625e22",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-01/bill.csv",
+      "size": 917,
+      "sha256": "42c034053fcf23d45e740278dd3275db313222e6230c235eab5642c85cfbf6ab",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-01/ledger.csv",
+      "size": 478,
+      "sha256": "d283ecd49015dd4bcd7e8a3054d3f3f15e5c9d15ebc9ce39769302f9fdd2a85b",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-01/spec/adjudication.json",
+      "size": 2391,
+      "sha256": "afdd36ab5911b7666590821e72e331f1da8e270cd7358a8933558639b5ebaed4",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-01/spec/arithmetic.json",
+      "size": 1551,
+      "sha256": "5e97d28533d4ed3485bf0e2f2a42cbb0253340b13982859e66ccf9e21c666e83",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-01/spec/fact-schema.json",
+      "size": 972,
+      "sha256": "e957d95bd7a9d3755889acdf27349cf5f680c8c75ab11b86df343effb79aa18e",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-01/spec/interpretations.json",
+      "size": 2025,
+      "sha256": "9235d5f3b0c13f1383875c09afd9a2873f37264a7bc6418ba5c14c8b4ad43b3c",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-01/truth.json",
+      "size": 1075,
+      "sha256": "bd866688a1f2f1f51ac0bf9853539bab7e793709d2a4c4ef097a1622b7526b7f",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-02/TASK.md",
+      "size": 4063,
+      "sha256": "b9c7cb3f5075cb362e23b7f7265e20a280c09101be3bc4e5e24ba81754a57215",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-02/bill.csv",
+      "size": 918,
+      "sha256": "0c8ca4ef76d56604e772153dcb666702995cb4eb95ccf9f6bf2a0cedd289a0a9",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-02/ledger.csv",
+      "size": 478,
+      "sha256": "1122d5caf5fc9c08a71062d30cab1980c2123fc2935adabdda867f2d9c0c0715",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-02/spec/adjudication.json",
+      "size": 2391,
+      "sha256": "104c40c2a34fad3ef5c672fb2c787b11a0fa04df2923a5ba092b7527d5df246b",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-02/spec/arithmetic.json",
+      "size": 1551,
+      "sha256": "e9746eb6a9ea8ae457d2c8807282530b006934db4586986c0bc387f43bfdc44f",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-02/spec/fact-schema.json",
+      "size": 972,
+      "sha256": "e957d95bd7a9d3755889acdf27349cf5f680c8c75ab11b86df343effb79aa18e",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-02/spec/interpretations.json",
+      "size": 2025,
+      "sha256": "be0f859eef80d3e95c7e84475fba06684c92ebb4543a7254990b467e2402f3a1",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-02/truth.json",
+      "size": 1075,
+      "sha256": "4a68e5763a7b2164a0a8b3064af8950192cffcde809e2b85f5fc749282b202e8",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-03/TASK.md",
+      "size": 4063,
+      "sha256": "0308192422336ad14ec03e84c33b123b4f8a9a1f5ef6c0597c077d98c0cca01e",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-03/bill.csv",
+      "size": 917,
+      "sha256": "a8b46e4bcf64168339572547005594a6846c45f568a5c1fc6be0c8252cc6efba",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-03/ledger.csv",
+      "size": 476,
+      "sha256": "1c58348ae51af7dff0d22770f7e1e38d8353cc23e6dd7567b15957fca516bd59",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-03/spec/adjudication.json",
+      "size": 2391,
+      "sha256": "1c476ea4a9b06c8a894465536948b97b552446d7a394ad4c5e519fdb00817d5e",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-03/spec/arithmetic.json",
+      "size": 1551,
+      "sha256": "819b5a9e71879b0a46590468befcb6eb168a81e9e837838503dd941de1f79d63",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-03/spec/fact-schema.json",
+      "size": 972,
+      "sha256": "e957d95bd7a9d3755889acdf27349cf5f680c8c75ab11b86df343effb79aa18e",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-03/spec/interpretations.json",
+      "size": 2025,
+      "sha256": "b44fcf755f86558923e88b340edee4656c8a81324fc375fcf4c5899b741423d0",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-03/truth.json",
+      "size": 1075,
+      "sha256": "1a48ee709116c06e441de333f8009978b049df10aef77b0eb663ff8c34ad8bce",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-04/TASK.md",
+      "size": 4063,
+      "sha256": "12c841fb03a9362b87d66d140ec21d68b48115b315a8dff9ee2acc13cf0c5d6c",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-04/bill.csv",
+      "size": 919,
+      "sha256": "23fcc37347f0bf68e31eed1139bd2ae0393e951f19e6b3fb3935f51ad1ad3c48",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-04/ledger.csv",
+      "size": 480,
+      "sha256": "152194fab969695e4dbfa8fba7eedbbb8fcf91461b01a98b858400e52425268d",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-04/spec/adjudication.json",
+      "size": 2391,
+      "sha256": "64fb1f97925605c94d665b4374575088e0559e39d9757948909097a4777bf214",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-04/spec/arithmetic.json",
+      "size": 1551,
+      "sha256": "4a4269d6c082c6eaf03fc28c76326ece0123a2ce9509ceca92dc3dbb41fc7bbf",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-04/spec/fact-schema.json",
+      "size": 972,
+      "sha256": "e957d95bd7a9d3755889acdf27349cf5f680c8c75ab11b86df343effb79aa18e",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-04/spec/interpretations.json",
+      "size": 2025,
+      "sha256": "c0a5f91438851d96aac679c32bd6b49fc636d4398d21614ec4d0750772b51d8b",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-04/truth.json",
+      "size": 1075,
+      "sha256": "e5e19a7a2335aa544a95d7af105026228d13e8ce728f2b0ceb806b471fb63c2d",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-05/TASK.md",
+      "size": 4063,
+      "sha256": "ce4c06dba24a631f67de83c0a094cbe708544296653604cd309a57373f5e9667",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-05/bill.csv",
+      "size": 891,
+      "sha256": "a8537d95085d4722c391b0bd4d0d678416b321817c590dc1b77a49fb47daa534",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-05/ledger.csv",
+      "size": 674,
+      "sha256": "d6c80e54a306908395a86dceb271057037a06bfade9ec35f6d4b234380a58898",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-05/spec/adjudication.json",
+      "size": 2375,
+      "sha256": "d40354dac96c5df7e6266a636d60a1c4f5885ad3b18067683651346da1065b0c",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-05/spec/arithmetic.json",
+      "size": 1549,
+      "sha256": "6768a87b621b61a627b19408ed80710a43aff22c77daef8a2554b83819d200d1",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-05/spec/fact-schema.json",
+      "size": 972,
+      "sha256": "e957d95bd7a9d3755889acdf27349cf5f680c8c75ab11b86df343effb79aa18e",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-05/spec/interpretations.json",
+      "size": 2025,
+      "sha256": "073c759bae9f4e06cf0ce8a69f6464abbd5f25a57d9cd877fd2bd21cdbf54c79",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-05/truth.json",
+      "size": 1072,
+      "sha256": "25de020feede65b8401e015aab5e115b898f4ff84c673cc299c8743bdd152933",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-06/TASK.md",
+      "size": 4063,
+      "sha256": "4d2699afc611181f42c3115018de9687cc93acb78aa0360cd02260fe7af6be00",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-06/bill.csv",
+      "size": 888,
+      "sha256": "10cb118c3d3a343e9dddd61aa127afb61f73d4b384c62b5c035a447c27667e0b",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-06/ledger.csv",
+      "size": 676,
+      "sha256": "d9749a670b5db292491550d683e34373911fff67bc8b8a0d2b2a76ad81abe0c5",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-06/spec/adjudication.json",
+      "size": 2374,
+      "sha256": "6523e41555ed3a2a6513d8ff41e12166985dadefa84c7d513cd55c50ec894558",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-06/spec/arithmetic.json",
+      "size": 1549,
+      "sha256": "8d7ac712252115e35e3908e53affb2bffacf03e787706abc71aff3ab9ef59ac9",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-06/spec/fact-schema.json",
+      "size": 972,
+      "sha256": "e957d95bd7a9d3755889acdf27349cf5f680c8c75ab11b86df343effb79aa18e",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-06/spec/interpretations.json",
+      "size": 2025,
+      "sha256": "f52c8470de5861b15203725eb243e9a14129f614a30c543a41831fa4e0ce7e17",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-06/truth.json",
+      "size": 1071,
+      "sha256": "2748d2d08e3cbeeb61604e41503ed770de9b80572587b4178764cff00e238d1d",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-07/TASK.md",
+      "size": 4063,
+      "sha256": "f9d753732dd3c2b5e6055d204c7ba47c49661e8c9cf9693453b4a8cd40f4b8e7",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-07/bill.csv",
+      "size": 913,
+      "sha256": "70a3d935117611c4d666a0c740bc02e184790466c90f83e75a028144c9214afe",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-07/ledger.csv",
+      "size": 459,
+      "sha256": "1e925fd1cb09861ad827fd96ca02ed9fa81b56f754761958564c110860e42245",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-07/spec/adjudication.json",
+      "size": 2391,
+      "sha256": "dad2508e638aaf32415f28cd09283a7fe232bc79139bf3274100e77eee8bfcfe",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-07/spec/arithmetic.json",
+      "size": 1551,
+      "sha256": "252acc57d5b512d448e9913b83b17adc635607f1ecc4950d6a0fd864c7641ab6",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-07/spec/fact-schema.json",
+      "size": 972,
+      "sha256": "e957d95bd7a9d3755889acdf27349cf5f680c8c75ab11b86df343effb79aa18e",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-07/spec/interpretations.json",
+      "size": 2025,
+      "sha256": "bd557ad884909d7565d27838f4682d0a12015a4ba621ddce170e810fb282e1d4",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-07/truth.json",
+      "size": 1075,
+      "sha256": "cc948cecd656f9f786f780d28a3573d7ea932dcd4d2fc4cf38b376908ce42256",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-08/TASK.md",
+      "size": 4063,
+      "sha256": "d1456b6bff28f9b1903e904a0f3756a7f6d6971053438ff67a8163572c0484e1",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-08/bill.csv",
+      "size": 923,
+      "sha256": "45391e629fe539608680e13bf19b267be1d576899b8bfafd13ae3c3ade058204",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-08/ledger.csv",
+      "size": 479,
+      "sha256": "1068469e11f326a64fff5dbfce78bac94b781471d7540484844e6330c11c8c64",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-08/spec/adjudication.json",
+      "size": 2391,
+      "sha256": "a3e9964083acddf2a58ebc930d481714afc3befd552624b18922062b75f6cccf",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-08/spec/arithmetic.json",
+      "size": 1551,
+      "sha256": "f1bbf2d486a13bdc69a14ed5435d745d51bcdf30d71002661402075d1bfa2422",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-08/spec/fact-schema.json",
+      "size": 972,
+      "sha256": "e957d95bd7a9d3755889acdf27349cf5f680c8c75ab11b86df343effb79aa18e",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-08/spec/interpretations.json",
+      "size": 2025,
+      "sha256": "dffa8aaa1ed12678ca551d11708bced659b14dc4d22b8e9134ff64b51fd9947b",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-08/truth.json",
+      "size": 1076,
+      "sha256": "c9de55bbd48a40d48fdc1dbea734e7171de7786eede63ebd28f79ef173f80089",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-09/TASK.md",
+      "size": 4063,
+      "sha256": "ac8ab7f9a76a912adeb21c10b24dda6c8e15130da787dd1752af13e49485df0d",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-09/bill.csv",
+      "size": 892,
+      "sha256": "6d3fc11f0ca8ce571ee03ef4bb01a1836ffa2be913effceda513008713d5844b",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-09/ledger.csv",
+      "size": 678,
+      "sha256": "03046c0ec2fc1397e78faee3ab05a0cec3b2532833dfd4ec76f5fb4e4a83185c",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-09/spec/adjudication.json",
+      "size": 2374,
+      "sha256": "c7db0bec2b4868786336344af49533c7130cc125076be69255de2e8380ba8637",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-09/spec/arithmetic.json",
+      "size": 1549,
+      "sha256": "8bc0af500f53771803fc8add4bf8dc25a946b9d35cc3e9aa92f0569801ebe9fc",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-09/spec/fact-schema.json",
+      "size": 972,
+      "sha256": "e957d95bd7a9d3755889acdf27349cf5f680c8c75ab11b86df343effb79aa18e",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-09/spec/interpretations.json",
+      "size": 2025,
+      "sha256": "ddbebd66b5884d35e5cea421a076e8ad62f3c022ddb369a216328827da9320f2",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-09/truth.json",
+      "size": 1071,
+      "sha256": "dc7efc9d54bf734abfeaa7ca9f99ead9dec4fc2789c5340820f515438e3dc086",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-10/TASK.md",
+      "size": 4063,
+      "sha256": "7a44c3cdbc2b498e84b4616888bdee37b3260135c2aad09fe6c29f59c41a6338",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-10/bill.csv",
+      "size": 924,
+      "sha256": "53c4bc9d4bbfb9c883d147a70e38d54b14e68f5f0b7bdbcb494698ef689c2410",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-10/ledger.csv",
+      "size": 482,
+      "sha256": "5f4218df8e545285dd2336d14b7a85ca24ff1391f0bc9cd4ac547c9a5242c219",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-10/spec/adjudication.json",
+      "size": 2391,
+      "sha256": "a791d96a96ae916b2def9d6878d8d8609e00822f7a836045ebe7350590be1f5d",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-10/spec/arithmetic.json",
+      "size": 1551,
+      "sha256": "2fd3062a89e33b1b7a591d8771bafe12adda582f980e329ffeb30f5f19b21890",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-10/spec/fact-schema.json",
+      "size": 972,
+      "sha256": "e957d95bd7a9d3755889acdf27349cf5f680c8c75ab11b86df343effb79aa18e",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-10/spec/interpretations.json",
+      "size": 2025,
+      "sha256": "9ec1a75e0fbf83109cc794c00c9b0baf589998ba3cb66458956a3211e7786aa8",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-10/truth.json",
+      "size": 1075,
+      "sha256": "3de1417324b61b4758def71421f99c68410971917b46548e15e4b61920364fbd",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-11/TASK.md",
+      "size": 4063,
+      "sha256": "b53b508c5ea9965fc360ae3ba35888a9243ca298aa0d66394d48817709ba5bc4",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-11/bill.csv",
+      "size": 927,
+      "sha256": "90e09426e66744443b2142f0280cb7f3a1bfb3d01381e0911cfb3b5a346c06c0",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-11/ledger.csv",
+      "size": 483,
+      "sha256": "66b7f164fd4f59bfaa6dbe552fdfc93a8f3a89d1c9ac59d0d2e82a9845903af4",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-11/spec/adjudication.json",
+      "size": 2391,
+      "sha256": "347efbe442416d2130683dde4ddb683e09322c5eca60200de092564f673adc5e",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-11/spec/arithmetic.json",
+      "size": 1551,
+      "sha256": "693345795b4f9c3e40229e423ce2601cc35d8f6c09abc069443aa9bd23f78d81",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-11/spec/fact-schema.json",
+      "size": 972,
+      "sha256": "e957d95bd7a9d3755889acdf27349cf5f680c8c75ab11b86df343effb79aa18e",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-11/spec/interpretations.json",
+      "size": 2025,
+      "sha256": "8fb7f1574d4ea61ab652925cf9915073d4ef313c3762f293401ca551fa99f6cc",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-11/truth.json",
+      "size": 1076,
+      "sha256": "40f94ffe77e84eebf7a8c7adbdcd823b549115a1922f1d80069c68722e6249a8",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-12/TASK.md",
+      "size": 4063,
+      "sha256": "64e4affb77b1f856e2e4ba9d89a2b802c496e0c70a937e18f458a6808fc41614",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-12/bill.csv",
+      "size": 886,
+      "sha256": "46f42eb64e63d4ba3ffe77e3adee6c60e784b8817b6b416c330ed8197938b8c2",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-12/ledger.csv",
+      "size": 672,
+      "sha256": "4a24645cf5771a4d42f4b8783622413450ef9ce8cc74fbab6397a8a880de8bc1",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-12/spec/adjudication.json",
+      "size": 2375,
+      "sha256": "0f11c92c5edb254b95383447318bdef853709ed94d3e9eeab9a0f6f30fabe7c3",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-12/spec/arithmetic.json",
+      "size": 1549,
+      "sha256": "6ae754945c1f0d4433197d290789439effab873a5ab327af3da0844eee35918e",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-12/spec/fact-schema.json",
+      "size": 972,
+      "sha256": "e957d95bd7a9d3755889acdf27349cf5f680c8c75ab11b86df343effb79aa18e",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-12/spec/interpretations.json",
+      "size": 2025,
+      "sha256": "0583c54fb9e9983529c50c457d8e5329633a12130497f654d2dd32da743b0ac5",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-12/truth.json",
+      "size": 1072,
+      "sha256": "72e8db454dd8a8812eca1c0bc98a176794258819b17d3b67505207eb8ffa3971",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-13/TASK.md",
+      "size": 4063,
+      "sha256": "9ea1e57288af5ca9a994a40c4f3afda597a9fbbe8d88b889d3f92595568eba47",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-13/bill.csv",
+      "size": 917,
+      "sha256": "23e1127f913fef26f6bc71187efed6c8418edf5c064ea119d6d21c087d12123d",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-13/ledger.csv",
+      "size": 478,
+      "sha256": "cec37adf913904eca278cb5f43a54b6d7d01738117397ec68f3a74c3a7810fb5",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-13/spec/adjudication.json",
+      "size": 2391,
+      "sha256": "ca43a9c926c71db83175e9900ac803f7431099ecde3c07124ebeb20a34ff0161",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-13/spec/arithmetic.json",
+      "size": 1551,
+      "sha256": "b4e1fefe2a5b4821b58ebbf9bdc8d811c9d37f9aa705b44accd9d5669099649e",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-13/spec/fact-schema.json",
+      "size": 972,
+      "sha256": "e957d95bd7a9d3755889acdf27349cf5f680c8c75ab11b86df343effb79aa18e",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-13/spec/interpretations.json",
+      "size": 2025,
+      "sha256": "bf70fa1149e92d13f7fde08066db24a0d6971c390f1ac8b9388d666e70bd0610",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-13/truth.json",
+      "size": 1075,
+      "sha256": "c7f8dbc4894a6f670462ca3f68153048407f6e047cbbdffab30f5b7cc6eaca55",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-14/TASK.md",
+      "size": 4063,
+      "sha256": "651bd23034b23b7f9708a040d5ed53aab396f9ff1c9c267bc3a6c6225441373d",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-14/bill.csv",
+      "size": 895,
+      "sha256": "5f03379b9ace5519d7358f6a16afbfaa3316edb14a3f2c03d8a01a315ab0e50f",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-14/ledger.csv",
+      "size": 679,
+      "sha256": "ec57563ffb354b35b0a9a12179261e6e3ec9f527b2b420844c2fd039b54f4f7e",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-14/spec/adjudication.json",
+      "size": 2375,
+      "sha256": "4b076ec36933de179e3928eab5b0f5ca5b6ee8d68efaa6a29e3fda1560b41102",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-14/spec/arithmetic.json",
+      "size": 1549,
+      "sha256": "e57f0a83771371d7df10c36d9b2719db4564248c97a35254ccd2e5d407f51c1e",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-14/spec/fact-schema.json",
+      "size": 972,
+      "sha256": "e957d95bd7a9d3755889acdf27349cf5f680c8c75ab11b86df343effb79aa18e",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-14/spec/interpretations.json",
+      "size": 2025,
+      "sha256": "648b1926f817903e39e9bc323fb5803ed64804b912c31f5a92aa477b44afe316",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-14/truth.json",
+      "size": 1072,
+      "sha256": "bbcb2b1342c5c5298ebb93290d39fc5f2a0ca999fc5e15d9427e922c7b376e8b",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-15/TASK.md",
+      "size": 4063,
+      "sha256": "96896e88bb05c104abb3729d90b6095ba773854e33d0c4d4628bf65be5556699",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-15/bill.csv",
+      "size": 898,
+      "sha256": "701f370e092c8bc24432f77b649c5c006d5d9895da6a5d13e44ad8dfa047f108",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-15/ledger.csv",
+      "size": 681,
+      "sha256": "f98959538b3c3e2fa8465a6ecef56c7c7a3d185ab13fb14f56c171d7c80b4ec0",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-15/spec/adjudication.json",
+      "size": 2375,
+      "sha256": "8b96c22c11a2ebaf03de086f3bad7e3d255c3ac554bfdafdc249691aece8b3c4",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-15/spec/arithmetic.json",
+      "size": 1549,
+      "sha256": "8e61d0636210c0d12e7d1ad743f312462f9253b6561d7cb16c2278957e3b8063",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-15/spec/fact-schema.json",
+      "size": 972,
+      "sha256": "e957d95bd7a9d3755889acdf27349cf5f680c8c75ab11b86df343effb79aa18e",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-15/spec/interpretations.json",
+      "size": 2025,
+      "sha256": "80ca942b93de6ad0bf4072e847e5d469c49ae2bc413e5baf100de9406fdc3856",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-15/truth.json",
+      "size": 1072,
+      "sha256": "2b1d67dd8bd60d17e620a74fdf789273b4f8abd47ac52d1140820dec64658bf7",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-16/TASK.md",
+      "size": 4063,
+      "sha256": "d15ed4aca54b8e64690fde8fa6c824e70eb9f039c7ebf4c14604acfb9b0f438e",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-16/bill.csv",
+      "size": 894,
+      "sha256": "c565ee7e2b6e14aa53fc4ace501b88e65a12d6ff3b446bed7bdd2148780119da",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-16/ledger.csv",
+      "size": 676,
+      "sha256": "e7b938776c96105fac9f6cf9f3f81f6c55c6c5a1dd53ebd84cfaa5d298b59e7c",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-16/spec/adjudication.json",
+      "size": 2375,
+      "sha256": "ae9a5d0bba1a020b0c78c70ea385ce5e27fe6ca68b5df54259c15b12616f73d1",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-16/spec/arithmetic.json",
+      "size": 1549,
+      "sha256": "8bacd58835893b7a6d566d52bc3342abd94c63cb469c951008dd1e1d088ae5d3",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-16/spec/fact-schema.json",
+      "size": 972,
+      "sha256": "e957d95bd7a9d3755889acdf27349cf5f680c8c75ab11b86df343effb79aa18e",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-16/spec/interpretations.json",
+      "size": 2025,
+      "sha256": "0fe4046db1fa377e9f3db75589ec88da59e79099942030664d4e735d10cb97ff",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-16/truth.json",
+      "size": 1072,
+      "sha256": "36259fcc3f657287b062ca417b77d3c2dffaffbd594b2224e7c2ca017625c73f",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-17/TASK.md",
+      "size": 4063,
+      "sha256": "dec8600b0f380403129f229c69cacb07385263ead4641731a89fdd0949809f2c",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-17/bill.csv",
+      "size": 919,
+      "sha256": "2cebf1e154ed811533ed49626e5383568b8b909a3aca5ab1b2e4543ed1beb89d",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-17/ledger.csv",
+      "size": 478,
+      "sha256": "2542aca056e6e70fd43b9b5baf9226d806a63e5a02a65e4773a7d260f01fec47",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-17/spec/adjudication.json",
+      "size": 2391,
+      "sha256": "9d7ad48df0008ef84489c019b58fb0fc2f140f64cea8ff16c941f74fa65188d2",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-17/spec/arithmetic.json",
+      "size": 1551,
+      "sha256": "405e07a06044bd4b594759714707c65d8c19899e5269f286bb1b8fa4c8cdfc82",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-17/spec/fact-schema.json",
+      "size": 972,
+      "sha256": "e957d95bd7a9d3755889acdf27349cf5f680c8c75ab11b86df343effb79aa18e",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-17/spec/interpretations.json",
+      "size": 2025,
+      "sha256": "b67578e45f39d7e0aaf4fb0ca64b1f822b40034c8e2f1ea7aa2c924581563180",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-17/truth.json",
+      "size": 1075,
+      "sha256": "29d31a158fd9384f7728e45fd492ef61b34e00ff00a8c4c65d8c4775b16e22f6",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-18/TASK.md",
+      "size": 4063,
+      "sha256": "537bb71dc2e0de75a9eb6817d72f5b037c83c44cd5ff0b6a16413fc8908b7e2a",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-18/bill.csv",
+      "size": 923,
+      "sha256": "e58d2e20839980169087e9af7d3888600605f5edbcc066e8ccba99e0b7e19e58",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-18/ledger.csv",
+      "size": 482,
+      "sha256": "9636f8f27c8c40b9047d66bcec075a91ff630d58c6c39f6c9a817b1a095cc831",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-18/spec/adjudication.json",
+      "size": 2391,
+      "sha256": "926aab1066051df0299729d16c72b2f0e36ca5fa35b455fdb16fa360c3039045",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-18/spec/arithmetic.json",
+      "size": 1551,
+      "sha256": "a3b14c3e696e1fcc61d3846b3698d7f572d8c125648bdc415a136126ff72db16",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-18/spec/fact-schema.json",
+      "size": 972,
+      "sha256": "e957d95bd7a9d3755889acdf27349cf5f680c8c75ab11b86df343effb79aa18e",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-18/spec/interpretations.json",
+      "size": 2025,
+      "sha256": "ee0d8a1fe36fdf9b4b3893340b2ca5cb15e73bce8b258e2660914d3905b44eeb",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-18/truth.json",
+      "size": 1075,
+      "sha256": "dcdbde01b7dce1ed93c950e648c44eb2770d2b77d9d66c0f8a063677d713bc31",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-19/TASK.md",
+      "size": 4063,
+      "sha256": "449c4540643259448c10d78e82914a7d3f9ffa6903149680b376a052f6c1c886",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-19/bill.csv",
+      "size": 888,
+      "sha256": "bb4cc24f137920b405470ecbd9865203913bf62f18570446717bf7b940fc45e6",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-19/ledger.csv",
+      "size": 673,
+      "sha256": "7ba0d8db2d3bfaefc08c8b5c9083215680f7512ad46249e006aa3f39f4cf30de",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-19/spec/adjudication.json",
+      "size": 2375,
+      "sha256": "e148d3076d5f397fc5ed0c0cd6c9b026e8d8975e2a40051acb40765d22f68374",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-19/spec/arithmetic.json",
+      "size": 1549,
+      "sha256": "a2f9ec5f441deff7c79ed7ad2616f3d9e096d6be30b6981b3c2d82e655cda937",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-19/spec/fact-schema.json",
+      "size": 972,
+      "sha256": "e957d95bd7a9d3755889acdf27349cf5f680c8c75ab11b86df343effb79aa18e",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-19/spec/interpretations.json",
+      "size": 2025,
+      "sha256": "a456fa0323a404bd52c0c5afd24b6d70540910832c56e982b61f06b61b2c1688",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-19/truth.json",
+      "size": 1072,
+      "sha256": "33595125ec14dc9ae0cd124f253d0f9faf7708a6dfd1b2ca2523a57c9cb1fb77",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-20/TASK.md",
+      "size": 4063,
+      "sha256": "deca04014bed8054f3bad4d70f128c82eb29bedfd535c673022808e9af5b4653",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-20/bill.csv",
+      "size": 897,
+      "sha256": "ad845b04dd93eb495b7b60038ae17405b323ff0fc16b803bc3590c8a06f09875",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-20/ledger.csv",
+      "size": 679,
+      "sha256": "0171198aea9258725bc4bb716669a60d2b1e6cc2bdd08fca91153b7565cbfc3a",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-20/spec/adjudication.json",
+      "size": 2375,
+      "sha256": "1a4e53f36e36d8592975e015cf947be79c117ac67df187714cac88a7d84554e9",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-20/spec/arithmetic.json",
+      "size": 1549,
+      "sha256": "57beff0cc9457d9538e8ad7fd208801868cd592efab5883c3a648a156d017229",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-20/spec/fact-schema.json",
+      "size": 972,
+      "sha256": "e957d95bd7a9d3755889acdf27349cf5f680c8c75ab11b86df343effb79aa18e",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-20/spec/interpretations.json",
+      "size": 2025,
+      "sha256": "005c82e53c0cd31c21668ec124dcaf9b6d7296fe7a75f0f900108737e0aefd09",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/T-20/truth.json",
+      "size": 1072,
+      "sha256": "d5ac515735fc00ff5dfe53a3a017ea823dd2cb9fe7a26b51d24ed3176f95621f",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/tasks/tasks-manifest.json",
+      "size": 495,
+      "sha256": "2a2f4685dccdc0d1feeca666520e0a7cff67d748d4acc18b5263e7083155879a",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/truth.json",
+      "size": 3874,
+      "sha256": "03b41c4927991adb011e65e99a2f22ad0b8fa3ca9b0a05b65c5335b1f0d33fe4",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/verdict-baseline-v3.json",
+      "size": 4272,
+      "sha256": "5284d904f9f54e7a63c98bae293d0edf32ef9d75a4fa7ce92abd368ecdbc0d24",
+      "newline": "LF"
+    },
+    {
+      "path": "fixtures/verdict-baseline.json",
+      "size": 3641,
+      "sha256": "9de99309db9344c03d94d29cd274c8196091c34a811b532c00d36024a89420f8",
+      "newline": "LF"
+    },
+    {
+      "path": "judges/README.md",
+      "size": 3919,
+      "sha256": "73e1a4524d724402bf5f0340f6fc5fcf16856d6661f4ec1748c5a0ea106b7370",
+      "newline": "LF"
+    },
+    {
+      "path": "judges/run.cmd",
+      "size": 586,
+      "sha256": "6530865f30c62e77c31e6f339efae6a1bf5ee2bd0da8603ea71978e8ba7fa46f",
+      "newline": "LF"
+    },
+    {
+      "path": "judges/run.sh",
+      "size": 901,
+      "sha256": "4d33e84178a2c54946a43690e3f5a2d97582c7e32defc820b31ec3fbfb3ffbd5",
+      "newline": "LF"
+    },
+    {
+      "path": "judges/seat_check.py",
+      "size": 112542,
+      "sha256": "62d4a53c75d38c2a76803e9b41fb34bda85ee5998b52622a3653a7deae472bf5",
+      "newline": "LF"
+    },
+    {
+      "path": "judges/verify.py",
+      "size": 41599,
+      "sha256": "03027b277b0e42c7f1c25c5ad02d7dcc813f2ceaddbdad71c89aefffb49c3956",
+      "newline": "LF"
+    },
+    {
+      "path": "prompts/ad-01.md",
+      "size": 7682,
+      "sha256": "fc99245630141ac9059720c055b9f90e044513085210cd855185c51a73b86a29",
+      "newline": "LF"
+    },
+    {
+      "path": "prompts/ex-01.md",
+      "size": 4781,
+      "sha256": "72e8500cfa6fcedd8d6857059b1cc618c9308c803c1ae2779805168e93b33325",
+      "newline": "LF"
+    },
+    {
+      "path": "prompts/ex-02.md",
+      "size": 3940,
+      "sha256": "cc2f339c650f37c91b81c9bd33c3991400c900248b2c708ba71ee1268d41fb01",
+      "newline": "LF"
+    },
+    {
+      "path": "prompts/ex-03.md",
+      "size": 3866,
+      "sha256": "2acb5e45f96732f23484bc7ce16bac0981143c0aac326455eac46a557375d013",
+      "newline": "LF"
+    },
+    {
+      "path": "prompts/pm-01.md",
+      "size": 5531,
+      "sha256": "ec1a48edfe53e44277c17ea3c881669c4d5757bd64dc204319cea880a4fd8803",
+      "newline": "LF"
+    },
+    {
+      "path": "prompts/xj-01.md",
+      "size": 3791,
+      "sha256": "3607ee1859b558c763e36f4b57332d8de467c96d869582746822255215c29a85",
+      "newline": "LF"
+    },
+    {
+      "path": "protocol/01-架构.md",
+      "size": 5613,
+      "sha256": "dce409a542fe35608195486c86bbed3d8037817a90cac348d45275f93e268e1c",
+      "newline": "LF"
+    },
+    {
+      "path": "protocol/02-辩论协议.md",
+      "size": 5486,
+      "sha256": "16300778d5c427a2a266e178c1d0ff37dc745827453cd29cf049f888a4027c1f",
+      "newline": "LF"
+    },
+    {
+      "path": "protocol/03-结构审计七查.md",
+      "size": 6408,
+      "sha256": "1f23a0c9501cca2ace1ef8bb80e4ed9bdd9f7e450f77c6d840d3d9cfc7e35151",
+      "newline": "LF"
+    },
+    {
+      "path": "protocol/04-双裁判规范.md",
+      "size": 6864,
+      "sha256": "61b2a40f3de4415eddd8f367f455fc3f9612f7ed89686787cc1c4535b25bb401",
+      "newline": "LF"
+    },
+    {
+      "path": "protocol/05-工作协议.md",
+      "size": 5181,
+      "sha256": "f93b990d7724e64f39b6e035025501342ba4e4e406c0935d37bd16069fb3e5c8",
+      "newline": "LF"
+    },
+    {
+      "path": "protocol/06-写入域与判据分层.md",
+      "size": 16383,
+      "sha256": "202c87a2ff999f4c52612dd4a6d6a2a7a15378be0f5fe1ad48de9684f0b5de90",
+      "newline": "LF"
+    },
+    {
+      "path": "protocol/07-轮次与指标.md",
+      "size": 22271,
+      "sha256": "72e4b5ea28aa5ba3de3bb8c9e0a595318682ba8e02e1608edd4c40c6f0966e19",
+      "newline": "LF"
+    }
+  ]
+}

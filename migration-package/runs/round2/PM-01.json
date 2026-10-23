@@ -1,0 +1,89 @@
+{
+  "round": 2,
+  "board": [
+    {
+      "id": "R2-EX-01",
+      "owner": "EX-01",
+      "state": "通过",
+      "next_action": "-",
+      "blocker": "无",
+      "evidence": "runs/round2/EX-01.json（5 条指针）",
+      "judge": "pass",
+      "deadline": "-"
+    },
+    {
+      "id": "R2-EX-02",
+      "owner": "EX-02",
+      "state": "通过",
+      "next_action": "-",
+      "blocker": "无",
+      "evidence": "runs/round2/EX-02.json（4 条指针）",
+      "judge": "pass",
+      "deadline": "-"
+    },
+    {
+      "id": "R2-EX-03",
+      "owner": "EX-03",
+      "state": "待裁",
+      "next_action": "核实自述 exclude 与反推 abstain 的背离",
+      "blocker": "无",
+      "evidence": "runs/round2/EX-03.json",
+      "judge": "pass（含 W_STANCE_MISMATCH）",
+      "deadline": "-"
+    },
+    {
+      "id": "R2-XJ-01",
+      "owner": "XJ-01",
+      "state": "通过",
+      "next_action": "-",
+      "blocker": "无",
+      "evidence": "runs/round2/XJ-01.json（3 条指针）",
+      "judge": "pass（权重 0，不参与裁决）",
+      "deadline": "-"
+    }
+  ],
+  "decision": "采纳 exclude / diff_count=7，与 EX-01、EX-02 的独立结论一致；EX-03 未给出可反推的金额数字，不构成第三种立场。",
+  "basis": [
+    "seat-check.json：4/4 合规，aggregation_blocked 为空",
+    "metrics.json：分歧熵 round_mean=0.0（两轴全一致）；翻边率 null（无契约合规的上轮基线）",
+    "JD-01 裁决（见 verdict-*.json）"
+  ],
+  "alternatives_rejected": [
+    {
+      "option": "采纳 count（口径差计入，680.02/0.00）",
+      "why_not": "EX-02 本轮主动撤销了它为「甲」构造的 steelman，理由是 ledger.csv 的 note 列明文标注「口径差异样本」，使 6% 成为数据内声明常量而非 n=2 归纳——甲的论证前提被数据证伪"
+    },
+    {
+      "option": "采纳 abstain（因 EX-03 未表态而降级）",
+      "why_not": "2 席有证据支持的独立结论 > 1 席弃权；聚合规则为证据制而非投票制"
+    }
+  ],
+  "risk": {
+    "rating": "低",
+    "irreversible": "否",
+    "rollback": "整轮目录改名进 _trash/"
+  },
+  "diff_preserved": [
+    {
+      "side": "多数",
+      "conclusion": "口径差不计入金额差异（exclude），差异清单 7 条",
+      "falsification": "若 note 标注系干扰项，或出现第三个比率≠1.06 的口径样本"
+    },
+    {
+      "side": "少数",
+      "conclusion": "EX-03 自述 exclude 但未给出可反推数字；其产出同时指出「truth.json 已预先把归类判断固化为 expected，使这场辩论对评分无杠杆」",
+      "falsification": "若 truth.json 的 expected 不含 500.02/180.0，或裁决层 status 不是 unresolved"
+    },
+    {
+      "side": "少数",
+      "conclusion": "XJ-01 判定两条分歧均「不可判定，需人类闸门」，并指出 ANON-C 与 ANON-A/B 存在任务维度错位",
+      "falsification": "若 TASK.md 明确为单轨任务，则 ANON-C 属跑题而非并行维度"
+    }
+  ],
+  "self_doubt": "我可能在两处错了：(1) 把 EX-03 的反推 abstain 当作「未表态」，但它自述 exclude——真正的背离原因未查清；(2) 分歧熵为 0 却未触发魔鬼代言人轮，理由是三席各有独立指针，但「三条不同指针」可能只是同一文件的三行，独立性的判据偏弱。",
+  "next": [
+    "由人签署 runs/round2/adjudication-record.json（三项判断轴）",
+    "核实 EX-03 的立场背离与 truth.json 可见性污染问题",
+    "将 ruff：第 3 轮（若进行）须先解决 round1 无合规基线导致翻边率不可算的问题"
+  ]
+}

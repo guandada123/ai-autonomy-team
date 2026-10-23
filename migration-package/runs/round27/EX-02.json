@@ -1,0 +1,109 @@
+{
+  "seat": "EX-02",
+  "round": 27,
+  "conclusion": "坚持全数计入：amount_diff_total=76640.00、excluded=0.00、excluded_categories=[]、diff_count=6。排除派执行的实为「自记账无此单号」，该规则同样命中 T060 的 76000.00 却被计入——排除是按金额重要性而非量纲做的取舍。契约无一条授权排除，§D 末句反而明文取该侧 amount。",
+  "strongest_counter_arguments": [
+    {
+      "target": "ANON-B",
+      "argument": "其证伪条款称「日期改按 settle_date 则 diff_count 降为 5」，实算为 7：settle 口径下 T057（账 09-02 对 09-03）、T058（09-04 对 09-05）、T059（09-06 对 09-07）各增 1 天日期差，T064 退出，6−1+3=7。也就是说 5 在任何单一口径下都不可达，只能靠「两侧任一日期命中即通过」这条无文本依据的宽松规则凑出。把自己的降级路径写成一个算不出来的值，说明 diff_count=6 从未被反事实检验，只是列选择的默认结果。",
+      "reverse_evidence": "若能给出使 T057/T058/T059 在 settle 口径下不产生日期差、同时仍排除 T064 的可执行规则（例如仅对单一单号生效的例外），此反论失效。"
+    },
+    {
+      "target": "ANON-C",
+      "argument": "落地默认 exclude 并保留开关，但被翻转的不是两个字段，而是「差异归因」的语义：76640.00 把 76000.00 的成交未入账与 520.00 的现金流水压进一个数，报告读者无法从合计判断错在成交侧还是现金侧。而它主张的排障能力其实由 categories 承担——T061/T063 在两种金额口径下都留在清单里，逐笔可回溯，与金额轴选哪个无关。故「保持可排障」不构成排除的理由，只是把归因责任推给下游。",
+      "reverse_evidence": "若下游契约明确只消费单一 amount_diff_total 且不读 categories，则该反对不成立。"
+    },
+    {
+      "target": "ANON-A",
+      "argument": "立场与我一致，但首要论据不可用：「全数计入得 76640.00，与 raw_total_gap 分毫不差」是构造恒等式——把全部单侧项按 §D 计入后，Σ 差额恒等于两表 amount 合计之差，这是同一组数值的两种写法，对分类正确性零检验力。以它作结，等于用一个必然为真的等式去证明一个并非必然为真的判断。",
+      "reverse_evidence": "若存在独立于 raw_total_gap 的外部锚（券商资金余额、对账单期初期末），使该等式可外部复核，则此反对不成立。"
+    }
+  ],
+  "what_would_change_my_mind": "契约正文写死一句「现金分红等非成交现金流不计入 amount_diff_total」，或 ledger 出现可与 260.00 对减的现金/资金科目行。任一出现我即放弃 count，因为那时排除不再需要席位自行发明规则。",
+  "evidence": [
+    {
+      "pointer": "fixtures/tasks/T-08/ledger.csv#date + bill.csv#trade_date,settle_date",
+      "what_it_shows": "反事实：trade 6 条、settle 7 条（T057/T058/T059 各 +1，T064 −1）、任一命中 5 条、4 不可达"
+    },
+    {
+      "pointer": "fixtures/tasks/T-08/bill.csv#T060,T061,T063:side,amount",
+      "what_it_shows": "同为「自记账无」：76000.00 计入、260.00×2 排除，同一属性两种处置"
+    },
+    {
+      "pointer": "fixtures/tasks/T-08/ledger.csv#amount + bill.csv#amount",
+      "what_it_shows": "258820.00/335460.00，分项加总 76640.00 可完整复现总差"
+    },
+    {
+      "pointer": "fixtures/tasks/T-08/TASK.md#D 末句",
+      "what_it_shows": "单侧差额明文取该侧 amount，260.00 无需外加约定"
+    }
+  ],
+  "falsification": "若契约补入「现金分红不计入 amount_diff_total」，我方 76640.00/0.00 立即失效；若差异判定被限定按 settle_date 对齐，则 diff_count 应为 7（金额仍 76640.00），我方条数失效；若 120.00 与 76000.00 之外还有未被我列出的差异单号（我对 8 个单号逐一比对，T057/T058 四列全同），则清单不完整。",
+  "reads": [
+    {"path": "fixtures/tasks/T-08/TASK.md", "purpose": "逐条寻找授权排除的条款，确认其不存在"},
+    {"path": "fixtures/tasks/T-08/ledger.csv", "purpose": "逐行取数并复算合计、单号唯一性与持仓轨迹"},
+    {"path": "fixtures/tasks/T-08/bill.csv", "purpose": "逐行比对四列，并复算日期列反事实条数"},
+    {"path": "runs/round27/prompts/EX-02.md", "purpose": "读取对立面职责、驳回指标与输出契约"},
+    {"path": "runs/round27/inputs/pack-ANON-A.json", "purpose": "核对同向同伴的论据是否可复用，找出其循环论证"},
+    {"path": "runs/round27/inputs/pack-ANON-B.json", "purpose": "检验其证伪条款的反事实条数是否正确"},
+    {"path": "runs/round27/inputs/pack-ANON-C.json", "purpose": "检验其落地默认值是否把判断伪装成配置"},
+    {"path": "protocol/06-写入域与判据分层.md", "purpose": "确认金额轴属判断层，不能以算术结论自居"},
+    {"path": "protocol/07-轮次与指标.md", "purpose": "确认 stance 反推与语义冲突判据的成立条件"}
+  ],
+  "dissent": [
+    {
+      "against": "ANON-B",
+      "reason": "反事实条数算错：settle 口径的后果是 7 而不是 5。T057/T058/T059 三行在账侧与交割侧的日期都只有 settle 差 1 天，换成 settle 对齐后它们从「无差异」变为「日期差异」，T064 则由差异转无差异，净 +2。一个席位把自己的降级路径写成不可达的值，意味着它没有做过口径敏感性检验，其 6 条只是列选择的副产品。",
+      "reverse_evidence": "若数据中存在某条规则使 settle 口径只影响 T064 而不影响 T057/T058/T059，则此反对不成立。"
+    },
+    {
+      "against": "ANON-C",
+      "reason": "把 exclude 设为脚本默认值，等于让一个尚未裁决的判断以配置形式落地：默认值会被下游当作既有事实消费，人类闸门此时只剩「确认机器」的余地——选项空间覆盖了真实判断，但默认值把它提前填掉了。可执行性不该以预填判断为代价。",
+      "reverse_evidence": "若脚本在未提供裁决记录时拒绝写盘（exit 非零），而不是以默认值产出，则此反对不成立。"
+    },
+    {
+      "against": "ANON-A",
+      "reason": "以恒等式当证据：Σ全部单侧项差额 ≡ raw_total_gap 恒成立，任何「全部计入」的清单都满足，故它无法区分「分类正确」与「分类错误但算术无漏」。结论我认同，论据必须替换为「§D 末句是唯一给出取值的条款」。",
+      "reverse_evidence": "若引入独立于两表 amount 的外部余额锚，则该等式具备检验力，此反对不成立。"
+    }
+  ],
+  "confidence": "medium",
+  "needs_more_data": [
+    "【缺规则】日期列对齐口径未定义。实算：trade 口径 6 条、settle 口径 7 条、两侧任一命中 5 条、4 不可达。这是规则缺口，不是数据缺口——同一份 CSV 因口径不同可得出三个都合法的条数。",
+    "【缺规则】「计入/不计入」无判据，只有字段位置。契约定义了 excluded_amount_total 却未定义什么该被排除，等于把裁决权交给了类别命名者。",
+    "【缺数据】无新增：两份 CSV 自足且约束 1 禁止外部数据。不把「无法外部对账」记为数据不足，因为它不可通过补数据解决，只能通过补规则或补外部锚。"
+  ],
+  "stance": [
+    {"axis": "ADJ-001", "choice": "count"},
+    {"axis": "DIFFSET", "choice": "6"}
+  ],
+  "summary": {
+    "ledger_rows": 5,
+    "bill_rows": 8,
+    "ledger_total": 258820.00,
+    "bill_total": 335460.00,
+    "raw_total_gap": 76640.00,
+    "dedup_removed_txn_count": 0,
+    "dedup_amount": 0.00,
+    "diff_count": 6,
+    "amount_diff_total": 76640.00,
+    "excluded_amount_total": 0.00,
+    "excluded_categories": []
+  },
+  "diffs": [
+    {"id": "T059", "category": "价格差异-按委托价记账"},
+    {"id": "T060", "category": "单侧缺失-新股中签"},
+    {"id": "T061", "category": "单侧缺失-股息入账"},
+    {"id": "T062", "category": "股数差异-送转未更新"},
+    {"id": "T063", "category": "单侧缺失-股息入账"},
+    {"id": "T064", "category": "日期差异-按交割日入账"}
+  ],
+  "categories": {
+    "价格差异-按委托价记账": ["T059"],
+    "单侧缺失-新股中签": ["T060"],
+    "单侧缺失-股息入账": ["T061", "T063"],
+    "股数差异-送转未更新": ["T062"],
+    "日期差异-按交割日入账": ["T064"]
+  },
+  "usage": {"tokens": 12800, "minutes": 26, "source": "self_report"}
+}

@@ -1,0 +1,162 @@
+{
+  "task_id": "SYNTH-RECON-001",
+  "layer": "adjudication",
+  "layer_note": "判断项。**不含 expected** —— 机器侧不存在可被误当『真值』的量。本层判据不参与自动 pass/fail；未裁决时 verdict=pending_adjudication（退出码 3）。裁决必须由人类填写 adjudication-record.json 后经 --record 传入。",
+  "items": [
+    {
+      "id": "ADJ-001",
+      "question": "「口径差」（台账含税、账单不含税，且差额恰等于税额）是否计入金额差异？",
+      "context_evidence": {
+        "T104": "台账 2120.00(含税) vs 账单 2000.00(不含税)，差 120.00",
+        "T105": "台账 1060.00(含税) vs 账单 1000.00(不含税)，差 60.00",
+        "ratio": "2120/2000 = 1060/1000 = 1.06（n=2，均为 6% 税率）"
+      },
+      "paths_affected": [
+        "summary.amount_diff_total",
+        "summary.excluded_amount_total"
+      ],
+      "affected_ids": [
+        "T104",
+        "T105"
+      ],
+      "why_it_matters": "这是两条真实存在的金额落差（合计 180.00）。计入，则对账报告会报出 180.00 的「应收缺口」；不计入，则这 180.00 只作为「已解释的口径差异」留在附注里。",
+      "risk_asymmetry": "多报差异的代价是一次人工复核；少报差异的代价是它永久从账上消失、再无人回看。",
+      "options": [
+        {
+          "id": "count",
+          "label": "计入金额差异（视为应收缺口 180.00）",
+          "implies": {
+            "summary.amount_diff_total": 680.02,
+            "summary.excluded_amount_total": 0.0
+          }
+        },
+        {
+          "id": "exclude",
+          "label": "不计入（视为同一经济价值的两种口径表述）",
+          "implies": {
+            "summary.amount_diff_total": 500.02,
+            "summary.excluded_amount_total": 180.0
+          }
+        }
+      ],
+      "status": "unresolved"
+    },
+    {
+      "id": "ADJ-002",
+      "question": "差异清单（`summary.diff_count` 与 `diffs`）应包含哪些条目？请就两件事分别表态、由一个选项同时决定：(a)「跨月归属」T106（同一 txn_id、金额一致、日期跨月）是否列入；(b)「口径差」T104/T105（台账含税、账单不含税、差额恰为税额）是否列入。",
+      "context_evidence": {
+        "T106": "台账 2026-09-30 vs 账单 2026-10-01，金额均 4800.00（跨月，金额一致）",
+        "T104": "台账 2120.00(含税) vs 账单 2000.00(不含税)，差 120.00",
+        "T105": "台账 1060.00(含税) vs 账单 1000.00(不含税)，差 60.00",
+        "invariant": "T101/T102（舍入差）、T103（重复计）、T107（真实缺失）在任何选项下都列入"
+      },
+      "paths_affected": [
+        "summary.diff_count",
+        "diffs"
+      ],
+      "affected_ids": [
+        "T104",
+        "T105",
+        "T106"
+      ],
+      "why_it_matters": "清单长度决定了「需要跟进的条数」。把已能完全解释的项也列进去，会稀释真正需要追查的项；把它们剔除，则一旦解释不成立，它们再也不会被复查。",
+      "risk_asymmetry": "列进去的代价是每条多一次复核；剔除掉的代价是它从清单里消失。★ 注意：本项的四个选项是【并列】的，没有一个「更正确」的默认值。",
+      "options": [
+        {
+          "id": "7",
+          "label": "两项都列入：跨月 T106 + 口径差 T104/T105 都算差异",
+          "decides": {
+            "cross_month": true,
+            "caliber": true
+          },
+          "implies": {
+            "summary.diff_count": 7,
+            "diffs": [
+              "T101",
+              "T102",
+              "T103",
+              "T104",
+              "T105",
+              "T106",
+              "T107"
+            ]
+          }
+        },
+        {
+          "id": "6",
+          "label": "只列入口径差：跨月 T106 不算差异",
+          "decides": {
+            "cross_month": false,
+            "caliber": true
+          },
+          "implies": {
+            "summary.diff_count": 6,
+            "diffs": [
+              "T101",
+              "T102",
+              "T103",
+              "T104",
+              "T105",
+              "T107"
+            ]
+          }
+        },
+        {
+          "id": "5",
+          "label": "只列入跨月：口径差 T104/T105 不算差异",
+          "decides": {
+            "cross_month": true,
+            "caliber": false
+          },
+          "implies": {
+            "summary.diff_count": 5,
+            "diffs": [
+              "T101",
+              "T102",
+              "T103",
+              "T106",
+              "T107"
+            ]
+          }
+        },
+        {
+          "id": "4",
+          "label": "两项都不列入：跨月与口径差都不算差异",
+          "decides": {
+            "cross_month": false,
+            "caliber": false
+          },
+          "implies": {
+            "summary.diff_count": 4,
+            "diffs": [
+              "T101",
+              "T102",
+              "T103",
+              "T107"
+            ]
+          }
+        }
+      ],
+      "status": "unresolved"
+    }
+  ],
+  "adjudication_required": true,
+  "record_format": {
+    "source": "human_adjudication",
+    "recorded_by": "<人类署名，不得为空；机器不得代填>",
+    "recorded_at": "<ISO8601>",
+    "decisions": [
+      {
+        "id": "ADJ-001",
+        "chosen": "<count 或 exclude>",
+        "rationale": "<理由>"
+      },
+      {
+        "id": "ADJ-002",
+        "chosen": "<7 / 6 / 5 / 4>",
+        "rationale": "<理由>"
+      }
+    ],
+    "must_cover": "decisions 必须恰好覆盖 spec.items 的全部 id（当前为 ADJ-001、ADJ-002）。缺项或出现 spec 之外的 id（如已退役的 ADJ-003）都会被拒载，退出码 2。"
+  }
+}

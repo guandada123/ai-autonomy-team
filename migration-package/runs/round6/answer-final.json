@@ -1,0 +1,104 @@
+{
+ "task_id": "T-02",
+ "round": 6,
+ "aggregated_by": "PM-01",
+ "summary": {
+  "ledger_rows": 5,
+  "bill_rows": 8,
+  "ledger_total": 114800.0,
+  "bill_total": 129240.0,
+  "raw_total_gap": 14440.0,
+  "dedup_removed_txn_count": 0,
+  "dedup_amount": 0.0,
+  "diff_count": 6,
+  "amount_diff_total": 14440.0,
+  "excluded_amount_total": 0.0,
+  "fee_diff_total": 5.17,
+  "excluded_categories": [
+   "权益变动股数未更新",
+   "入账日期基准差"
+  ]
+ },
+ "diffs": [
+  {
+   "id": "T011",
+   "category": "成交价计量基准差"
+  },
+  {
+   "id": "T012",
+   "category": "自记账漏记"
+  },
+  {
+   "id": "T013",
+   "category": "自记账漏记"
+  },
+  {
+   "id": "T014",
+   "category": "权益变动股数未更新"
+  },
+  {
+   "id": "T015",
+   "category": "自记账漏记"
+  },
+  {
+   "id": "T016",
+   "category": "入账日期基准差"
+  }
+ ],
+ "categories": {
+  "成交价计量基准差": [
+   "T011"
+  ],
+  "自记账漏记": [
+   "T012",
+   "T013",
+   "T015"
+  ],
+  "权益变动股数未更新": [
+   "T014"
+  ],
+  "入账日期基准差": [
+   "T016"
+  ]
+ },
+ "falsification": "以下任一成立，本聚合即错：(1) 若 T-02 裁决口径明确把「非交易现金流（股息入账）」列为不计入金额差异的类别，则 amount_diff_total 应为 13920.00、excluded_amount_total 应为 520.00、excluded_categories 应为 [\"非交易现金流（股息入账）\"]，我采纳的 14320.00/120.00 被推翻；(2) 若契约默认「一切差额均计入」且 excluded 三字段允许恒为 0，则 14440.00/0.00/[] 才对，T011 的 120.00 不应排除；(3) 若同一 txn_id 在任一侧出现两行以上（分批成交），则 dedup_removed_txn_count 与 dedup_amount 均非零，且须先把重复单号整体移出两个金额汇总，本表 0/0.00 与 14320.00 同时失效；(4) 若自记账「入账日」被裁定必须对齐 settle_date 而非 trade_date，则 T016 差异消失、T009/T010/T011 反而成为日期差，diff_count 由 6 变为 5（对齐 settle_date 后仅余金额差）或 8（两套基准都要求一致），diffs 与 categories 需整体重排；(5) 若逐单 abs 差额之和不等于 raw_total_gap 14440.00（120+13800+260+0+260+0），则清单漏项或重复计项，本表不闭合；(6) 若 T014「10送3」对应的股数基数被夹具作者确认为 10 股或 100 股子仓位（从而 +30 合理），则 XJ-01 指出的夹具内部矛盾不成立，但 T014 金额贡献仍为 0.00，不影响金额三字段。",
+ "diff_preserved": [
+  {
+   "side": "多数",
+   "conclusion": "ADJ-001 = exclude（轴级 2:1：EX-02、EX-03 均主张至少排除一类；EX-01 的 count 在 seat-check 反推下为 abstain，不构成一个主动的排除准则主张）。排除构成在 2 席内为 1:1 分裂，由 PM-01 追加裁定取 EX-02 的构成：仅 T011（委托价 45.00 vs 成交价 45.12，note 双向文档化『按委托价记账』/『实际成交价』，且两侧费用各自与本侧 amount 严格自洽：11.70=11.25+0.45、11.73=11.28+0.45）作为「成交价计量基准差」排除，得 amount_diff_total=14320.00、excluded_amount_total=120.00、excluded_categories=[\"成交价计量基准差\"]。裁定理由：三种口径下算术全部闭合，只能按「哪种排除隐藏的真实差错最少」比较——排除 520.00 会把两笔只在交割单侧存在、自记账完全未记的现金分红（真实漏记）藏进 excluded，是三种口径中信息损失最大的一种；排除 120.00 损失的是一项双侧各按本侧口径记对、且成因已由 note 与费率双重复核的计量基准差，信息损失最小。diff_count=6、dedup 0/0.00 两席无争，直接采纳。",
+   "falsification": "若裁决口径把「非交易现金流（股息入账）」写成唯一合法的排除类，或明文规定「成交价 vs 委托价的差异必须计入金额差异」，则 14320.00/120.00 被推翻，正确值转向 13920.00/520.00 或 14440.00/0.00。另若 T011 被证明是我方录入错误（45.00 是错录而非委托价），则它属漏记/错记而非基准差，仍应计入，本口径同样被推翻。"
+  },
+  {
+   "side": "少数",
+   "conclusion": "EX-01：ADJ-001 = count，amount_diff_total=14440.00、excluded_amount_total=0.00、excluded_categories=[]，diff_count=6，dedup 0/0.00。理由：对账目的是账实相符，六条差异（T011 120.00、T012 13800.00、T013 260.00、T014 0.00、T015 260.00、T016 0.00）无一不是真实存在的账面偏差，逐单 abs 之和恰等于 raw_total_gap=14440.00。其数字与算术完全正确，仅与采用口径在「该不该排除」这一策略轴上不同。需留痕的弱点：seat-check 对其 ADJ-001 自述 count 反推为 abstain（W_STANCE_MISMATCH）——当 excluded_* 恒为 0 且类别为空时，产出无法被区分于「未执行排除判断」，故它是算术正确但准则空转的一支。",
+   "falsification": "若契约要求 excluded_categories 必须反映一次实质性的分类判断（即不允许以空列表规避该字段），或裁决口径确认口径差/非交易现金流中至少一类应排除，则该支退为算术备查值；反之若裁决确认「排除准则无契约依据、任何排除都是擅自缩表」，则该支反超成为正确值。"
+  },
+  {
+   "side": "少数",
+   "conclusion": "EX-03：ADJ-001 = exclude-非交易现金流，amount_diff_total=13920.00、excluded_amount_total=520.00、excluded_categories=[\"非交易现金流（股息入账）\"]，diff_count=6，dedup 0/0.00。理由：T013/T015 是 side=股息入账、shares=0 的非成交现金流，不属「成交金额」差异；T011 的 120.00 则计入。三数相加 13920.00+520.00+0.00=14440.00，同样精确闭合。需留痕的弱点（XJ-01 提出、我复核认可）：该排除理由与 EX-02 的排除理由在准则上交叉（同一单 T011，B 排除、C 计入），且 C 的 520.00 全部来自股息而非口径差，若裁决端按「excluded 非零部分只应来自口径差」的语义一致性判据机械检查，该支可能被判 W_STANCE_SEMANTIC_CONFLICT；另外 C 自己在 needs_more_data 里承认台账「按入账日记账」与 T009/T010 落成交日存在矛盾，却在 cost 里称日期基准可由 note 自证，内部略有低估。",
+   "falsification": "若裁决口径明确将股息入账纳入成交金额差异（即「差异单号只要在四列上不同就按 amount 计差，不区分交易/非交易」），则该支被推翻、其 excluded 应为 0.00；若反过来裁决确认「非交易现金流一律不计入金额差异」并接受 excluded 可全部由非口径差构成，则该支应升为正确值，我采纳的 14320.00/120.00 退为备查。"
+  }
+ ],
+ "aggregation_inputs": [
+  {
+   "seat": "EX-01",
+   "sha256": "1fdb212ecac0c42206ca8735eb10330ea4c4c70e42e322a51976daa208d77456",
+   "seat_check_status": "valid"
+  },
+  {
+   "seat": "EX-02",
+   "sha256": "12f7dd4383500f2531ac7f15298c0503bfb4775832a44954c490664f6f64a4c3",
+   "seat_check_status": "valid"
+  },
+  {
+   "seat": "EX-03",
+   "sha256": "10e08f650730244e2a91f72a5fceb121e2672038d352a47dd4ff4f5fd2832b13",
+   "seat_check_status": "valid"
+  }
+ ],
+ "redo": {
+  "triggered_by": "runs/round6/adjudication-record.json（ADJ-001=count，verdict=fail 于 adjudicated.json）",
+  "rule": "ADJ-001=count implies：amount_diff_total=14440.0、excluded=0.00（原 exclude 口径 14320.0/120.0 的 120.0 移回计入侧）",
+  "note": "机械改判：数值由裁决记录 × spec implies 唯一确定，verify 复核；零金额类别显式声明以满足 present 检查"
+ }
+}

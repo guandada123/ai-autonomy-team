@@ -1,0 +1,139 @@
+{
+  "task_id": "SYNTH-RECON-001",
+  "verdict": "pass",
+  "judge": "JD-01",
+  "judge_impl": "scripts/judge/verify.py (non-LLM, stdlib-only)",
+  "summary": {
+    "total": 14,
+    "passed": 14,
+    "failed": 0
+  },
+  "checks": [
+    {
+      "name": "台账行数",
+      "type": "numeric_equals",
+      "ok": true,
+      "expected": "27",
+      "actual": "实际 27.0 vs 期望 27",
+      "weight": 1
+    },
+    {
+      "name": "账单原始行数",
+      "type": "numeric_equals",
+      "ok": true,
+      "expected": "27",
+      "actual": "实际 27.0 vs 期望 27",
+      "weight": 1
+    },
+    {
+      "name": "去重笔数",
+      "type": "numeric_equals",
+      "ok": true,
+      "expected": "1",
+      "actual": "实际 1.0 vs 期望 1",
+      "weight": 1
+    },
+    {
+      "name": "去重金额",
+      "type": "numeric_equals",
+      "ok": true,
+      "expected": "1200.0",
+      "actual": "实际 1200.0 vs 期望 1200.0 (tol=0.01)",
+      "weight": 1
+    },
+    {
+      "name": "差异总条数",
+      "type": "numeric_equals",
+      "ok": true,
+      "expected": "7",
+      "actual": "实际 7.0 vs 期望 7",
+      "weight": 1
+    },
+    {
+      "name": "差异清单命中（txn 无序集合，与类别命名无关）",
+      "type": "set_equals",
+      "ok": true,
+      "expected": "[\"T101\", \"T102\", \"T103\", \"T104\", \"T105\", \"T106\", \"T107\"]",
+      "actual": "集合一致（7 项）",
+      "weight": 1
+    },
+    {
+      "name": "金额差异合计（仅计应计入的类别）",
+      "type": "numeric_equals",
+      "ok": true,
+      "expected": "500.02",
+      "actual": "实际 500.02 vs 期望 500.02 (tol=0.01)",
+      "weight": 1
+    },
+    {
+      "name": "被排除项的差额合计",
+      "type": "numeric_equals",
+      "ok": true,
+      "expected": "180.0",
+      "actual": "实际 180.0 vs 期望 180.0 (tol=0.01)",
+      "weight": 1
+    },
+    {
+      "name": "台账总额（纯算术锚点）",
+      "type": "numeric_equals",
+      "ok": true,
+      "expected": "37490.5",
+      "actual": "实际 37490.5 vs 期望 37490.5 (tol=0.01)",
+      "weight": 1
+    },
+    {
+      "name": "账单总额（纯算术锚点）",
+      "type": "numeric_equals",
+      "ok": true,
+      "expected": "38010.52",
+      "actual": "实际 38010.52 vs 期望 38010.52 (tol=0.01)",
+      "weight": 1
+    },
+    {
+      "name": "总额差（纯算术锚点）",
+      "type": "numeric_equals",
+      "ok": true,
+      "expected": "520.02",
+      "actual": "实际 520.02 vs 期望 520.02 (tol=0.01)",
+      "weight": 1
+    },
+    {
+      "name": "必须声明哪些类别被排除在金额差异之外",
+      "type": "present",
+      "ok": true,
+      "expected": "",
+      "actual": "存在且非空: [\"口径差异\", \"跨月归属\"]",
+      "weight": 1
+    },
+    {
+      "name": "必须给出类别归属",
+      "type": "present",
+      "ok": true,
+      "expected": "",
+      "actual": "存在且非空: {\"舍入差\": [\"T101\", \"T102\"], \"重复导入\": [\"T103\"], \"口径差异\": [\"T104\", \"T105\"], \"跨月归属\": [\"T106\"], \"真实缺失\": [\"T107\"]}",
+      "weight": 1
+    },
+    {
+      "name": "必须给出证伪条件（不可裁决的结论一律不合格）",
+      "type": "present",
+      "ok": true,
+      "expected": "",
+      "actual": "存在且非空: 本结论在以下任一条件下即为错误：(1) 「计入/不计入金额差异」的归类判断被推翻——本答案把「口径差异」(T104/T105) 与「跨月归属」(T106) 判为不计入金额差异、把「舍入差」(T101/T102) 与「真实缺失」(T107) …",
+      "weight": 1
+    }
+  ],
+  "evidence": [
+    {
+      "label": "spec",
+      "path": "migration-package/fixtures/truth.json",
+      "sha256": "03b41c4927991adb011e65e99a2f22ad0b8fa3ca9b0a05b65c5335b1f0d33fe4"
+    },
+    {
+      "label": "answer",
+      "path": "migration-package/fixtures/answer-baseline-v3.json",
+      "sha256": "48dfe0218d96cc6674f3f976461815a350bf347d8e85f16f7784a8fb52cfef82"
+    }
+  ],
+  "ts": "2026-10-16T15:53:10+08:00",
+  "override_policy": "本裁决不可被静默覆盖。PM 若要推进 fail 的动作，必须留痕：「覆盖 JD-01 的 fail 判定。风险评级：__。不可逆：__。理由：__。承担人：PM-01。」"
+}

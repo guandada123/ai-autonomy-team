@@ -1,0 +1,90 @@
+{
+  "seat": "EX-03",
+  "round": 17,
+  "conclusion": "可执行版本：用单脚本 Decimal 全量复算，A/B 两款先落 7/8 行、146820.00/147200.00、gap 380.00、dedup 0/0.00；D 款按 txn_id 全外连接逐列比出 6 个差异单号（T091/T092/T093/T094/T095/T096），并以『amount_diff_total + excluded_amount_total == raw_total_gap』作为落盘前硬断言。我方口径取 380.00 / excluded 0.00（断言通过），但该断言只保证加总自洽、不保证分类正确，故必须保留 basis_flag 列与 2 个必过人工确认点。操作分级 🟡：输出覆盖 answer.json，须先备份再写。",
+  "execution_path": [
+    "1. 建 tools/recon_t12.py：用 pathlib.Path 定位 fixtures/tasks/T-12/{ledger,bill}.csv，open(encoding='utf-8', newline='') 读取，列名先 strip() 并 unicodedata.normalize('NFC')。",
+    "2. A 款：Decimal 累加 amount 列，得 ledger_rows=7、bill_rows=8、146820.00、147200.00、raw_total_gap=380.00；全程禁用 float。",
+    "3. B 款：Counter(txn_id) 判重；两侧计数均为 1，assert dedup_removed_txn_count==0 and dedup_amount==0.00（本任务 B 款退化，断言防止把 T090/T091 误当分批成交）。",
+    "4. D 款：按 txn_id 做全外连接，逐单号比 shares/amount/fee_total/(ledger.date vs bill.trade_date)，输出中间表 diffs.csv，含 id、category、basis_flag(口径|权益|单侧|费用)、amt_delta、fee_delta。",
+    "5. C 款：amount_diff_total 仅对 category 白名单∈计入 的单号取 abs(Δt)，excluded 走另一张白名单；落盘前 assert 两者之和 == 380.00，不等则 abort 且不写 answer.json。",
+    "6. 写 output：json.dump(..., ensure_ascii=False, indent=2, sort_keys=False)，先写 answer.json.tmp 再 os.replace 原子替换；换行固定 '\\n'。",
+    "7. 人工确认 2 处：T095（股息 260.00 计入还是排除）、T096（日期基准取 trade_date 还是 settle_date）；确认结果回填白名单常量，不改脚本逻辑。"
+  ],
+  "cost": {
+    "token_estimate": "单席取证 ≈1.3 万 tokens；三席并行 ≈3.9 万；含审计与裁判 ≈6–7 万，等于单轮对话的 15 倍量级（protocol/02-辩论协议.md §2 已注明该系数）。脚本侧 0 token、0 API 调用。",
+    "wall_clock": "脚本执行 <1s（16 行 CSV）；模型侧三席取证 6–10 min；人工确认 2 次，每次约 1 min。",
+    "human_touchpoints": "2 次，且都集中在分类白名单（T095 权益归属、T096 日期基准）；若不做第 5 步断言，人工点会升到 4 次以上（需要人手核 380 的构成）。"
+  },
+  "rollback": "输出为 answer.json 单文件：写前把既有文件移到 _trash/answer.json.<utc-ts>（移动而非 unlink，本机沙箱拦截删除），用 os.replace 原子替换；断言失败即 abort，原文件不受影响。输入两份 CSV 全程只读、不落任何中间态到 fixtures/。回滚粒度：单文件级，可逆。",
+  "op_grade": "🟡",
+  "cross_platform_risks": [
+    {"risk": "解释器路径写死（/usr/bin/python3 在 macOS 与 Windows 均不可移植）", "mitigation": "shebang 用 env python3，脚本内一律 sys.executable，文档标注 macOS 用 python3"},
+    {"risk": "路径字符串拼接导致 Windows 反斜杠与中文路径出错", "mitigation": "全量 pathlib.Path / '/' 运算符，不出现 os.sep 拼接"},
+    {"risk": "CRLF 混入（Windows 侧 open 默认转换）使行数/字段尾随 \\r", "mitigation": "读取 newline=''，输出显式 '\\n'，写后校验文件不以 \\r 结尾"},
+    {"risk": "Windows 默认 GBK 导致中文 note 列乱码", "mitigation": "读写均 encoding='utf-8'，失败即抛错不静默降级"},
+    {"risk": "float 累加 146820.00000000003 类误差影响 380.00 断言", "mitigation": "Decimal(str(x)) 全程，quantize('0.01') 后再比较"},
+    {"risk": "中文列名全角/半角或 NFC/NFD 差异（本机 Windows→目标 macOS 卷）", "mitigation": "header 归一化后建立显式列名映射，缺列即报错"},
+    {"risk": "删除旧输出被本机沙箱拦截", "mitigation": "改为移入 _trash/，不调用 unlink"}
+  ],
+  "evidence": [
+    {
+      "pointer": "fixtures/tasks/T-12/ledger.csv + bill.csv（用 Decimal 逐行复算，见 execution_path 步骤 2）",
+      "what_it_shows": "7 行 / 146820.00 与 8 行 / 147200.00，差 380.00；16 行数据、单文件 <1KB，脚本可在 1 秒内完成，故本任务的成本瓶颈不在计算而在分类。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-12/bill.csv#T091（amount=45120.00）+ #T095（amount=260.00）",
+      "what_it_shows": "380.00 的全部构成只有这两项（120.00 + 260.00，其余 4 个差异单号 amount 差为 0.00），因此第 5 步断言实际只有 2 个自由度，人工只需确认 2 处即可复现，不必逐行复核。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-12/ledger.csv#fee_total 与 bill.csv#fee_total 逐单号相减",
+      "what_it_shows": "费用差合计 15.33（0.03+7.65+7.65）在 summary 的 11 个字段中无承载位置；若不在 diffs.csv 另存 fee_delta，这 15.33 会在交付物中丢失，需额外 1 次人工解释成本。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-12/bill.csv#T096.trade_date=2026-09-15 / settle_date=2026-09-16",
+      "what_it_shows": "日期基准一旦改为 settle_date，T089–T093 五笔会同时变成日期差（差异单号由 6 变 7），故基准必须作为脚本常量显式声明并落进白名单，不能由执行者临场选。"
+    }
+  ],
+  "falsification": "若第 5 步断言在引入任意 excluded 类别后不再恒成立（即 amount_diff_total + excluded_amount_total ≠ raw_total_gap），则本方案的『先断言后落盘』流程会误杀合法输出，方案不可行；另若输入行数涨到 1e5 量级或出现同一 txn_id 多行分批成交，现有全外连接与 B 款断言需重写，本方案的单脚本假设失效。",
+  "reads": [
+    {"path": "runs/round17/prompts/EX-03.md", "purpose": "确认落地席位必填的 cost/rollback/op_grade/cross_platform_risks 字段"},
+    {"path": "runs/round17/prompts/EX-01.md", "purpose": "确认 stance 选项与字数预算，避免与之重复取证"},
+    {"path": "runs/round17/prompts/EX-02.md", "purpose": "确认对立面席位的攻击面，预置可复现脚本以回应"},
+    {"path": "fixtures/tasks/T-12/TASK.md", "purpose": "提取 A/B/C/D 四款为脚本实现规格，标注四个易错点对应的断言"},
+    {"path": "fixtures/tasks/T-12/ledger.csv", "purpose": "复算行数/合计/费用差，作为脚本期望值"},
+    {"path": "fixtures/tasks/T-12/bill.csv", "purpose": "复算合计、单侧存在项与日期基准分支"},
+    {"path": "protocol/02-辩论协议.md", "purpose": "取 15 倍 token 系数与终止条件，用于成本估算"},
+    {"path": "protocol/03-结构审计七查.md", "purpose": "取第 8/9 查写入域与读取域约束，确认 _trash 移动策略与只读边界"}
+  ],
+  "dissent": [
+    {
+      "against": "ANON-A",
+      "reason": "以 excluded_categories=[] 交付，等于把分类判断留在文本里而不是代码里：脚本没有白名单可复现，下一个同构任务（TASK.md 自述与 RECON-002 同构）必须重新人工判一次类别，每轮固定多 1 次人工介入；同时 15.33 的费用差无字段承载，交付物无法回答『费用为什么对不上』。",
+      "reverse_evidence": "若 TASK.md 或裁决层给出 categories 白名单（含费用差处理），则无需自建分类，本反对不成立。"
+    }
+  ],
+  "confidence": "high",
+  "needs_more_data": [
+    "缺规则：excluded_amount_total 是否取绝对值（T095 可写 −260.00 或 260.00），脚本必须二选一才能写死。",
+    "缺规则：费用差 15.33 的承载字段未定义，脚本目前只能写进中间表 diffs.csv 而不进 answer.json。",
+    "缺数据：无券商现金流水/红利税明细，260.00 的税前税后不可判定，脚本无法自动校验该值。"
+  ],
+  "stance": [
+    {"axis": "ADJ-001", "choice": "count"},
+    {"axis": "DIFFSET", "choice": "6"}
+  ],
+  "summary": {
+    "ledger_rows": 7,
+    "bill_rows": 8,
+    "ledger_total": 146820.00,
+    "bill_total": 147200.00,
+    "raw_total_gap": 380.00,
+    "dedup_removed_txn_count": 0,
+    "dedup_amount": 0.00,
+    "diff_count": 6,
+    "amount_diff_total": 380.00,
+    "excluded_amount_total": 0.00,
+    "excluded_categories": []
+  },
+  "usage": {"tokens": 11900, "minutes": 7, "source": "self_report"}
+}

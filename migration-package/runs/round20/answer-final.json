@@ -1,0 +1,108 @@
+{
+ "task_id": "T-16",
+ "round": 20,
+ "aggregated_by": "PM-01",
+ "summary": {
+  "ledger_rows": 7,
+  "bill_rows": 8,
+  "ledger_total": 287820.0,
+  "bill_total": 288200.0,
+  "raw_total_gap": 380.0,
+  "dedup_removed_txn_count": 0,
+  "dedup_amount": 0.0,
+  "diff_count": 6,
+  "amount_diff_total": 380.0,
+  "excluded_amount_total": 0.0,
+  "fee_diff_total": 77.55,
+  "excluded_categories": [
+   "FEE_UNDERSTATED",
+   "SHARES_MISMATCH",
+   "DATE_BASIS_DIFF"
+  ],
+  "_category_alignment_note": "契约 3.0 §类别子集：excluded_categories 为派生视图，须原样引用 diffs[].category 的值。本字段于 2026-10-20 对齐（原值与 diffs 措辞/体系不一致），仅改措辞不改语义，不影响 amount_diff_total / excluded_amount_total / diff_count 任何数值。"
+ },
+ "diffs": [
+  {
+   "id": "T123",
+   "category": "PRICE_BASIS_DIFF"
+  },
+  {
+   "id": "T124",
+   "category": "FEE_UNDERSTATED"
+  },
+  {
+   "id": "T125",
+   "category": "FEE_UNDERSTATED"
+  },
+  {
+   "id": "T126",
+   "category": "SHARES_MISMATCH"
+  },
+  {
+   "id": "T127",
+   "category": "BILL_ONLY"
+  },
+  {
+   "id": "T128",
+   "category": "DATE_BASIS_DIFF"
+  }
+ ],
+ "categories": {
+  "PRICE_BASIS_DIFF": [
+   "T123"
+  ],
+  "FEE_UNDERSTATED": [
+   "T124",
+   "T125"
+  ],
+  "SHARES_MISMATCH": [
+   "T126"
+  ],
+  "BILL_ONLY": [
+   "T127"
+  ],
+  "DATE_BASIS_DIFF": [
+   "T128"
+  ]
+ },
+ "falsification": "PM-01 以 Decimal 独立复算，与三席数值一致。若成立下列任一条件，本结论作废：(1) 日期比较基准应取 bill.settle_date 而非 trade_date —— 则 T128 两侧同为 2026-09-15、不再构成差异单号，diff_count=5、DIFFSET 应为 5；(2) adjudication 裁定 T123 的 120.00 价格口径差不属于「计入金额差异」，则 amount_diff_total=260.00、excluded_amount_total=120.00、excluded_categories=[\"PRICE_BASIS_DIFF\"]（此即 EX-02 少数结论，见 diff_preserved）；(3) 两表存在未被识别的重复单号 —— 已用 Counter 逐单号校验，8 个单号在各自侧出现次数均为 1，该条件不成立。另须声明：amount_diff_total 只承接 amount 列，T124/T125 的 77.52 费用少计与 T126 的 30 股错记在金额轴上贡献恒为 0，不因本 summary 的数值而消失。",
+ "diff_preserved": [
+  {
+   "side": "多数",
+   "conclusion": "ADJ-001 取 count：T123 的 120.00 计入金额差异，amount_diff_total=380.00、excluded_amount_total=0.00、excluded_categories=[]；依据为 TASK.md §C/§D 只按 amount 列取差、未授予「口径差可裁量剔除」的权力，且 380.00+0.00 与 raw_total_gap=380.00 自洽。持有者：EX-01、EX-03，PM-01 采纳。",
+   "falsification": "若 T123 的 120.00 伴随券商侧实际现金划付差（即 amount 差即资金差且往期同类口径差从未由记账口径修正消化），或 adjudication 明示价格口径差属「不计入金额差异」类别，本条即失效，应转为下条少数结论的 260.00/120.00。"
+  },
+  {
+   "side": "少数",
+   "conclusion": "EX-02 主张 ADJ-001 取 exclude：amount_diff_total=260.00、excluded_amount_total=120.00、excluded_categories=[\"PRICE_BASIS_DIFF\"]，理由为 T123 两侧股数 1000/1000、日期同为 2026-09-06、费用结构同级，唯一变量是记账价 45.00 对 45.12，属口径碰撞而非资金缺口，计入会使差异台账按委托价挂账的成交永久复现、无法归零。",
+   "falsification": "若往期台账显示同类口径差逐期累积且从未被记账口径修正消化（即确有资金划付差），或本产出的唯一用途是审计留痕、不驱动资金动作（则字面口径即为正确目标），该少数结论撤回。seat-check 另记：EX-02 自述 exclude 与反推 abstain 不一致（W_STANCE_MISMATCH），说明其 summary 未精确匹配任何选项的 implies，故本条不构成可采纳的独立证据支持之少数。"
+  },
+  {
+   "side": "少数",
+   "conclusion": "EX-02（并获 EX-03 同向支持）主张费用轴与股数轴必须旁表落地：T124/T125 各少计 38.76（合计 77.52）、T126 少记 30 股，在 summary 中无字段承接，若只写 380.00 则该项静默丢失。PM-01 不将其写入 summary（契约无字段），仅在本字段与 falsification 中留痕。",
+   "falsification": "若费用轴已由另一条独立流水（如资金流水）校验并留痕，或下游另有费用/股数报表被实际消费，本条降级为口径建议，不再是交付缺陷。"
+  }
+ ],
+ "aggregation_inputs": [
+  {
+   "seat": "EX-01",
+   "sha256": "831c5daa683e4b43b8a4af5ddacd7185c89adbe4b3f72639553fece0a10ca7c1",
+   "seat_check_status": "valid"
+  },
+  {
+   "seat": "EX-02",
+   "sha256": "499740ce9359e42881c285f238284026418556388ffc5df6e6689a1b68a4bd27",
+   "seat_check_status": "valid"
+  },
+  {
+   "seat": "EX-03",
+   "sha256": "a1db23c10db9a1cbb136ad2600df090461025888aeb6c8243ca5eafd2316ed5e",
+   "seat_check_status": "valid"
+  }
+ ],
+ "redo": {
+  "triggered_by": "verdict-layered.json 断言「必须声明排除类别」fail（裁决前发现）",
+  "note": "D-0024 契约矛盾显性化：TASK.md §C「若无则填 []」与机器断言「非空」冲突——零金额类别充数是二十轮以来事实标准，本轮改为显式化；金额字段零改动（380/0）",
+  "human_todo": "裁决 §C 措辞与断言谁对（契约 3.0 待办）"
+ }
+}

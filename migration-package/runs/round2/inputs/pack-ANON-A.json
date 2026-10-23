@@ -1,0 +1,89 @@
+{
+  "answer": {
+    "summary": {
+      "ledger_rows": 27,
+      "bill_rows": 27,
+      "ledger_total": 37490.5,
+      "bill_total": 38010.52,
+      "raw_total_gap": 520.02,
+      "dedup_removed_txn_count": 1,
+      "dedup_amount": 1200.0,
+      "diff_count": 7,
+      "amount_diff_total": 500.02,
+      "excluded_amount_total": 180.0,
+      "excluded_categories": [
+        "口径差异_含税标识不一致",
+        "跨月归属"
+      ]
+    },
+    "diffs": [
+      {
+        "id": "T101",
+        "category": "舍入差"
+      },
+      {
+        "id": "T102",
+        "category": "舍入差"
+      },
+      {
+        "id": "T103",
+        "category": "重复导入"
+      },
+      {
+        "id": "T104",
+        "category": "口径差异_含税标识不一致"
+      },
+      {
+        "id": "T105",
+        "category": "口径差异_含税标识不一致"
+      },
+      {
+        "id": "T106",
+        "category": "跨月归属"
+      },
+      {
+        "id": "T107",
+        "category": "账单缺失"
+      }
+    ],
+    "categories": {
+      "舍入差": [
+        "T101",
+        "T102"
+      ],
+      "重复导入": [
+        "T103"
+      ],
+      "口径差异_含税标识不一致": [
+        "T104",
+        "T105"
+      ],
+      "跨月归属": [
+        "T106"
+      ],
+      "账单缺失": [
+        "T107"
+      ]
+    },
+    "falsification": "以下任一条件成立，本结论即错：(1) 若 bill.csv 中 T104/T105 的 tax_included=N 属录入错误（而非制度性口径），则 180.00 应从 excluded_amount_total 移入 amount_diff_total，两字段变为 500.02→680.02、180.00→0；(2) 若 ledger.csv 内亦存在 T103 的第二行（或存在重复行判定口径不同），则 dedup_removed_txn_count 与 dedup_amount 不再等于 1 / 1200.00；(3) 若存在第三份权威表证明 T107 在另一期间已被账单覆盖，则 500.00 应从 amount_diff_total 移出，变为 0.02。"
+  },
+  "dissent": [
+    {
+      "against": "",
+      "reason": "反对「舍入差（T101/T102，各 0.01）属可容忍噪声、应不计入金额差异」这一判断。证据：ledger.csv 第22–23行为 2500.00 / 3210.50，bill.csv 第22–23行为 2500.01 / 3210.51，差额各为 0.01；该差额无法被任何字段解释——两行 date 相同（2026-09-22 / 2026-09-23）、tax_included 同为 Y、party 相同，不存在口径或期间因子，是裸数值不等。与之对照，T104/T105 的差额可被 tax_included 完全解释（2120.00÷2000.00=1.06，1060.00÷1000.00=1.06，恰为 6% 税率），故二者不应同列。据此我把它计入 amount_diff_total，得 500.00+0.01+0.01=500.02。",
+      "reverse_evidence": "若能证明双方存在成文的舍入容差规则（如合同/结算约定「≤0.01 视为一致」），或能证明 2500.01 与 3210.51 系由同一 6% 口径回算再四舍五入产生，则应改判为不计入，amount_diff_total 变为 500.00，excluded_amount_total 变为 180.02。"
+    },
+    {
+      "against": "",
+      "reason": "反对「本任务无分歧」这一判断。本任务字段定义只固定了算法、明确不预设「该不该算差异」的判断，而 T104/T105 的归类正是判断而非算法：我选择不计入，是因为 2120.00/2000.00=1.06 与 1060.00/1000.00=1.06 精确成立，差额可被 tax_included=N/Y 完全解释；但同一份 TASK.md 又规定「一律取原始值，不做含税/不含税换算」，一条同样自洽的解法是把 180.00 直接计入 amount_diff_total。两种解法都符合契约文字，分歧真实存在，不能宣称无分歧。",
+      "reverse_evidence": "若 TASK.md 补充说明「口径差异一律计入」或「excluded_categories 仅允许期间/重复类」，我的归类即被推翻，excluded_amount_total 应为 0（或仅剩 T106 的 0.00），amount_diff_total 应为 680.02。"
+    }
+  ],
+  "falsification": "若 (1) T104/T105 的 tax_included=N 被证实是录入错误而非口径差异，或 (2) ledger.csv 与 bill.csv 并非同一期间/同一口径基线（例如 bill.csv 的 27 行中含跨期补录），或 (3) 台账侧也存在 T103 重复行，或 (4) T107 的缺失在另一期账单中被覆盖，则我的五个类别归属及 500.02 / 180.00 两个金额字段均需重算。",
+  "confidence": "medium",
+  "needs_more_data": [
+    "双方是否约定舍入容差阈值（决定 T101/T102 的 0.02 是否计入）",
+    "T104/T105 的 tax_included=N 是制度性口径还是录入错误（决定 180.00 的归属）",
+    "T107 是否在其它期间账单中被覆盖（决定 500.00 是否属期间切分）"
+  ]
+}

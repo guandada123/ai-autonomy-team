@@ -1,0 +1,12 @@
+{
+  "round": "round8",
+  "role": "revision_round",
+  "contract_version": "2.0",
+  "expected_seats": [
+    "AD-01",
+    "PM-01"
+  ],
+  "seed": "cccc5555",
+  "prev_round": null,
+  "introduces_new_evidence": false
+}

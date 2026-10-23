@@ -1,0 +1,143 @@
+{
+  "seat": "EX-01",
+  "round": 13,
+  "conclusion": "逐行复算：ledger 7行/304800.00，bill 8行/305180.00，raw_total_gap +380.00，两侧无同单号多行（重复0）。差异6条：T043金额与费用、T044/T045仅费用、T046股数、T047单边股息、T048日期口径差。金额差异380.00=120.00+260.00，与总差精确闭合；费用/股数/日期三类金额贡献均0，故excluded=0.00。",
+  "evidence": [
+    {
+      "pointer": "fixtures/tasks/T-06/ledger.csv#rows:T041,T042,T043,T044,T045,T046,T048,column:amount",
+      "what_it_shows": "7行逐行26000+168000+45000+26000+26000+0+13800=304800.00"
+    },
+    {
+      "pointer": "fixtures/tasks/T-06/bill.csv#rows:T041..T048,column:amount",
+      "what_it_shows": "8行逐行26000+168000+45120+26000+26000+0+260+13800=305180.00；与ledger差+380.00"
+    },
+    {
+      "pointer": "fixtures/tasks/T-06/ledger.csv#L4(T043).price,amount vs bill.csv#L4(T043).price,amount",
+      "what_it_shows": "45.00→45000.00 对 45.12→45120.00，差120.00；fee 11.70 对 11.73（差0.03）"
+    },
+    {
+      "pointer": "fixtures/tasks/T-06/bill.csv#L9(T047)",
+      "what_it_shows": "股息入账260.00，ledger无T047，单边差额取该侧amount=260.00"
+    },
+    {
+      "pointer": "fixtures/tasks/T-06/bill.csv#L2-L8 columns:trade_date,settle_date vs ledger.csv#L2-L8 column:date",
+      "what_it_shows": "T048 ledger 09-17=bill settle_date而trade_date 09-16；T044/T045 fee 6.50对6.76；T046 shares 0对30"
+    }
+  ],
+  "falsification": "若重算后 raw_total_gap ≠ amount_diff_total + excluded_amount_total（此处 380.00 ≠ 380.00+0.00 即我错）；或 T043/T047 的 amount 在两侧实际相等、我把非差额当差额；或某 txn_id 在一侧出现多行而 dedup_removed_txn_count 应>0 —— 结论即错。",
+  "reads": [
+    {
+      "path": "runs/round13/prompts/EX-01.md",
+      "purpose": "席位提示词、读取域与输出契约"
+    },
+    {
+      "path": "fixtures/tasks/T-06/TASK.md",
+      "purpose": "字段定义、四列差异口径、重复项与金额差异算法"
+    },
+    {
+      "path": "fixtures/tasks/T-06/ledger.csv",
+      "purpose": "自记账原始7行，逐行取 amount/fee_total/date/shares"
+    },
+    {
+      "path": "fixtures/tasks/T-06/bill.csv",
+      "purpose": "交割单原始8行，逐行取 amount/fee_total/trade_date/settle_date/shares"
+    },
+    {
+      "path": "protocol/06-写入域与判据分层.md",
+      "purpose": "确认 diff_count/amount_diff_total 属裁决层的口径来源与 ADJ 轴语义"
+    }
+  ],
+  "dissent": [
+    {
+      "against": "ANON-A",
+      "reason": "若主张把 T047 股息入账 260.00 归为权益变动、排除出金额差异，则 amount_diff_total 只剩 120.00，与 raw_total_gap 380.00 出现 260.00 无法解释的残差；TASK.md 第84行明确「仅单侧存在的单号亦为差异单号，差额取该单号在该侧的 amount」。",
+      "reverse_evidence": "若 ledger.csv 中能找到任何一笔 260.00 的股息/红利入账（跨期入账），使总差在剔除 T047 后仍闭合，则我可撤回该计入。"
+    },
+    {
+      "against": "ANON-B",
+      "reason": "若主张把 T043 的 120.00 视作委托价与成交价的「口径差」而排除，则 gap 380.00 里 120.00 无着落；且契约规定 amount 为成交金额、不得做净额或口径换算，ledger 备注「按委托价记账」是把错误价格登记进成交金额，属错记而非口径差。",
+      "reverse_evidence": "若契约将 amount 定义为委托金额（而非成交金额），或交割单另有该笔的委托价字段可对齐，则 120.00 应移入 excluded。"
+    }
+  ],
+  "confidence": "high",
+  "needs_more_data": [
+    "T047 股息 260.00 在自记账侧的对侧凭据（银行/资金流水）缺失，无法区分「漏记」与「跨期未入账」",
+    "T043 的委托单原件缺失，无法判断「按委托价记账」是刻意口径选择还是录入错误"
+  ],
+  "stance": [
+    {
+      "axis": "ADJ-001",
+      "choice": "exclude"
+    },
+    {
+      "axis": "DIFFSET",
+      "choice": "6"
+    }
+  ],
+  "summary": {
+    "ledger_rows": 7,
+    "bill_rows": 8,
+    "ledger_total": 304800.0,
+    "bill_total": 305180.0,
+    "raw_total_gap": 380.0,
+    "dedup_removed_txn_count": 0,
+    "dedup_amount": 0.0,
+    "diff_count": 6,
+    "amount_diff_total": 380.0,
+    "excluded_amount_total": 0.0,
+    "excluded_categories": [
+      "仅费用不符",
+      "股数不符(送转未登记)",
+      "日期口径差"
+    ]
+  },
+  "diffs": [
+    {
+      "id": "T043",
+      "category": "金额不符"
+    },
+    {
+      "id": "T044",
+      "category": "仅费用不符"
+    },
+    {
+      "id": "T045",
+      "category": "仅费用不符"
+    },
+    {
+      "id": "T046",
+      "category": "股数不符(送转未登记)"
+    },
+    {
+      "id": "T047",
+      "category": "单边缺失(股息入账)"
+    },
+    {
+      "id": "T048",
+      "category": "日期口径差"
+    }
+  ],
+  "categories": {
+    "金额不符": [
+      "T043"
+    ],
+    "仅费用不符": [
+      "T044",
+      "T045"
+    ],
+    "股数不符(送转未登记)": [
+      "T046"
+    ],
+    "单边缺失(股息入账)": [
+      "T047"
+    ],
+    "日期口径差": [
+      "T048"
+    ]
+  },
+  "usage": {
+    "tokens": 28000,
+    "minutes": 12,
+    "source": "self_report"
+  }
+}

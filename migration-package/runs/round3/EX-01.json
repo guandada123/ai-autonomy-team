@@ -1,0 +1,82 @@
+{
+  "seat": "EX-01",
+  "round": 3,
+  "conclusion": "本轮无新证据，我坚持既有立场不变：口径差按 exclude 处理，DIFFSET=7。七条清单不变；金额侧为 500.02（T101/T102 舍入差 0.02 + T107 单边缺失 500.00），另有 excluded 180.00（T104/T105 口径差）；T106 跨月且金额差为 0，仅列入清单不计入金额。反对 ANON-C：其结论虽与我同，但证据取自禁读域且指针已打码，不可回读，结论实际上不可裁决。",
+  "evidence": [
+    {
+      "pointer": "fixtures/ledger.csv#T101-T107 + fixtures/bill.csv#T101-T106（逐单号比对 27 行 vs 27 行）",
+      "what_it_shows": "T101 2500.00/2500.01、T102 3210.50/3210.51，各差 0.01；账单 T103 出现两行（多出 1200.00）；T104 2120.00/2000.00、T105 1060.00/1000.00，且 tax_included 由 Y 变 N；T106 两侧同为 4800.00，仅日期 09-30 变 10-01；T107 仅出现在台账，金额 500.00。"
+    },
+    {
+      "pointer": "fixtures/TASK.md#L69-L81",
+      "what_it_shows": "任务书明确三条易错点：金额差取差额而非交易全额；重复项不参与 amount_diff_total 与 excluded_amount_total，只由 dedup_amount 表达；使用原始值，不做含税/不含税换算。"
+    },
+    {
+      "pointer": "fixtures/ledger.csv + fixtures/bill.csv 的全表合计（用于闭合检查）",
+      "what_it_shows": "ledger_total=37490.50、bill_total=38010.52、raw_total_gap=520.02，等于 1200.00（去重）−500.00（T107）−180.00（口径）＋0.02（舍入）；行级分解无残差。"
+    },
+    {
+      "pointer": "runs/round3/inputs/pack-ANON-C.json#evidence[0..3]",
+      "what_it_shows": "四条指针全部指向禁读域，且路径已被打码，无法回读；其 summary 仅给 diff_count=7，未给两个金额字段。"
+    }
+  ],
+  "falsification": "以下任一条成立，我这个结论就错：(1) 若台账侧 T104/T105 的 tax_included 亦为 N，或出现第三个口径样本且税率≠6%，则 180.00 应转入金额差异，两字段变为 680.02/0.00；(2) 若 T107 以其他单号出现在账单且金额吻合，则 500.00 退出计入类，amount_diff_total 降至 0.02；(3) 若账单 T103 两行被认定为两笔独立交易，则 dedup_amount≠1200.00，raw_total_gap 的行级分解不再闭合；(4) 若 CSV 存在 BOM、编码或重复行误读，27/27 与任一合计须整体重算。",
+  "reads": [
+    {"path": "runs/round3/prompts/EX-01.md", "purpose": "读取本轮（revision_round）职责、读取域与输出契约"},
+    {"path": "fixtures/TASK.md", "purpose": "读取字段定义与三条易错点，确定计算口径"},
+    {"path": "fixtures/ledger.csv", "purpose": "取台账 27 行原始金额、日期、税标与备注"},
+    {"path": "fixtures/bill.csv", "purpose": "取账单 27 行原始金额、日期、税标与备注"},
+    {"path": "protocol/02-辩论协议.md", "purpose": "确认每轮必须提交反对与反证条件，以及证据制聚合"},
+    {"path": "protocol/07-轮次与指标.md", "purpose": "确认 stance 由数字反推的规则与 revision_round 豁免"},
+    {"path": "protocol/03-结构审计七查.md", "purpose": "确认第 2 查外部钩子、第 9 查读取域的判据"},
+    {"path": "protocol/", "purpose": "目录列举，确认协议文件全集共 7 篇"},
+    {"path": "runs/round3/inputs/", "purpose": "目录列举，确认本轮仅三个匿名包"},
+    {"path": "runs/round3/inputs/pack-ANON-A.json", "purpose": "读取匿名同伴结论、证据与立场，作为质询对象"},
+    {"path": "runs/round3/inputs/pack-ANON-B.json", "purpose": "读取匿名同伴结论、证据与立场，作为质询对象"},
+    {"path": "runs/round3/inputs/pack-ANON-C.json", "purpose": "读取匿名同伴结论、证据与立场，作为质询对象"}
+  ],
+  "dissent": [
+    {
+      "against": "ANON-C",
+      "reason": "其结论与我一致，但四条证据全部指向禁读域且指针被打码，唯一支撑是「真值文件已固化 exclude」。以不可回读的路径背书，违反第 2 查外部钩子：结论即使正确也只是巧合，无法与他席证据分层比较，也无法被独立复算。其所称「三包数字同为 500.02/180/7」亦不实——其自身 summary 仅给 diff_count=7，未给两个金额字段。",
+      "reverse_evidence": "若其改以 fixtures/ledger.csv、fixtures/bill.csv 或 fixtures/TASK.md 的可回读指针重新推导出 500.02/180.00/7，则本反对撤回。"
+    },
+    {
+      "against": "ANON-A",
+      "reason": "其 evidence[4] 以打码路径加文件字节数（33781B）充当外部钩子。字节数随重新打包即变，且与两份 CSV 的任何字段无关，不满足稳定可回读，也不支撑任何金额结论；据此反驳他席「包内为空」，是把基础设施取证混入对账结论。",
+      "reverse_evidence": "若该路径可读、字节数在两次独立打包中稳定，且能映射到对账字段，则本反对撤回。"
+    },
+    {
+      "against": "ANON-B",
+      "reason": "其 strongest_counter_arguments[1] 的 target 写作 ANON-B（即自身），所指「needs_more_data② 把 T104/T105 制度性口径悬置」在该包中并不存在，而同一表述出现在 ANON-A 包的 needs_more_data 中。该反对边指向错误对象，不可裁决。",
+      "reverse_evidence": "若 ANON-B 包确实包含该 needs_more_data 条目，或其引用的裁决记录为真人签署（非 SELFTEST 占位），则本反对撤回。"
+    }
+  ],
+  "confidence": "high",
+  "needs_more_data": [
+    "T104/T105 的 tax_included=N 是制度性口径还是录入错误（决定 180.00 归属；本轮无新数据可闭合，属 data_insufficient 而非模型失败）",
+    "是否存在成文的舍入容差阈值（决定 T101/T102 的 0.02 计入或转入 excluded）"
+  ],
+  "stance": [
+    {"axis": "ADJ-001", "choice": "exclude"},
+    {"axis": "DIFFSET", "choice": "7"}
+  ],
+  "summary": {
+    "ledger_rows": 27,
+    "bill_rows": 27,
+    "ledger_total": 37490.50,
+    "bill_total": 38010.52,
+    "raw_total_gap": 520.02,
+    "dedup_removed_txn_count": 1,
+    "dedup_amount": 1200.00,
+    "diff_count": 7,
+    "amount_diff_total": 500.02,
+    "excluded_amount_total": 180.00,
+    "excluded_categories": ["口径差"]
+  },
+  "usage": {
+    "tokens": 9800,
+    "minutes": 9.5,
+    "source": "self_report"
+  }
+}

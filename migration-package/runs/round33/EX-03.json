@@ -1,0 +1,110 @@
+{
+  "seat": "EX-03",
+  "round": 33,
+  "conclusion": "落地版取 6 条：它是唯一能由确定性脚本零裁决复现的取值——四列比对取 trade_date、重复按键 txn_id、费用差不入 amount，三条均可写死，跑两遍必得同一份 answer.json。7 条需一条日期基准裁决，属人工闸门。summary 见下：gap 380.00、diff 6、amount_diff 380.00。",
+  "execution_path": [
+    "① 只读载入两份 CSV：DictReader + open(encoding='utf-8', newline='')，路径用 pathlib.Path",
+    "② 金额全程 Decimal(str) + quantize('0.01')，按 §A 算行数、两总额、raw_total_gap",
+    "③ dedup：Counter(txn_id) 按侧计数，>1 即重复；本夹具为 0 个、0.00",
+    "④ 四列比对 shares/amount/fee_total/date-vs-trade_date，任一不等或单侧缺失 → 差异单号（6 条）",
+    "⑤ 分类：金额不符{T147}、费用口径差{T148,T149}、股数不符{T150}、单侧缺失{T151}、入账日跨期{T152}",
+    "⑥ amount_diff_total 只加「计入」类：120.00+260.00+0.00=380.00；excluded 类金额差 0.00",
+    "⑦ 断言：gap==380.00、len(diffs)==diff_count、categories 与 diffs 双向一致；失败 exit 1 不落盘",
+    "⑧ json.dump(ensure_ascii=False) + newline='\\n' 写 UTF-8 LF，落盘后重读校验可解析"
+  ],
+  "cost": {
+    "token_estimate": "单席约 1.6 万 token；六席全流程按 15 倍系数约 5.6 万，占 per_task_token_hard_cap 160000 的 35%，仍够再跑一轮 6/7 复核",
+    "wall_clock": "脚本 < 1 秒（15 行 × 2 文件）；人工两次读契约加一次裁决约 6–8 分钟",
+    "human_touchpoints": "1 次（仅日期基准裁决）；接受字面解则降为 0 次"
+  },
+  "rollback": "本方案只新增本席产出文件与一个只读复算脚本，不触碰 fixtures/。回滚＝把 answer.json 与脚本移入 _trash/（不调用 unlink，沙箱拦截），再回退到上一份 answer；输入只读、无外部副作用，回滚成本为一次文件移动，无不可逆动作。",
+  "op_grade": "🟢",
+  "cross_platform_risks": [
+    {"risk": "解释器：目标机 macOS 用 python3，本机常见 python/py 别名，shebang 写死会失效", "mitigation": "统一以 python3 显式调用，脚本不依赖 shebang"},
+    {"risk": "编码：Windows 默认 GBK，side/note 含中文必抛 UnicodeDecodeError", "mitigation": "open() 显式 encoding='utf-8'，输出 ensure_ascii=False 后仍以 utf-8 写"},
+    {"risk": "换行：读未用 newline='' 会多出空行，写默认转 CRLF", "mitigation": "读 newline=''，写 newline='\\n'，落盘断言无 CR"},
+    {"risk": "路径：字符串拼 '/' 会产生混合分隔符，证据指针须相对包根正斜杠", "mitigation": "Path 拼接，申报时 .as_posix()"},
+    {"risk": "删除：unlink 被沙箱拦截，回滚中途失败留半成品", "mitigation": "改 shutil.move 到 _trash/，目录不存在先建"},
+    {"risk": "浮点：float 累加金额出现 1e-10 误差，断言偶发失败", "mitigation": "Decimal 全程，比较用 == 不用 eps"}
+  ],
+  "evidence": [
+    {
+      "pointer": "fixtures/tasks/T-19/TASK.md#约束 2「所有数字必须由数据算出」",
+      "what_it_shows": "把可执行门槛定在脚本可复现，故只能采纳无需人工裁决的取值；6 条的每一步都能写成断言。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-19/ledger.csv#T152 + fixtures/tasks/T-19/bill.csv#T152",
+      "what_it_shows": "7 条方案依赖的 settle_date 基准，唯一支撑是该行 note 自陈；单行文本无法作为规则输入，故不可脚本化。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-19/ledger.csv#T147,T151 + fixtures/tasks/T-19/bill.csv#T147,T151",
+      "what_it_shows": "120.00 与 260.00 构成 amount_diff_total 全部，之和恰等于 gap 380.00，给脚本一条无需真值的自检恒等式。"
+    },
+    {
+      "pointer": "protocol/07-轮次与指标.md#6.1 预算计量定义式",
+      "what_it_shows": "tokens 求和、minutes 取最大值、未申报记 missing 不记 0 → 本席按单席口径如实申报，不以 0 顶替。"
+    }
+  ],
+  "falsification": "任一成立则本方案不可执行：① 若契约要求必须按 settle_date 比对，则 6 条为错，第 ④ 步须改列并退化为需人工确认的单行特例；② 若消费方要求 excluded_amount_total 非零才承认口径差被排除（本夹具恒为 0.00），则第 ⑤ 步分类在金额上不可验证；③ 若运行环境无法固定 UTF-8，第 ① 步即崩，全流程不可复现。",
+  "reads": [
+    {"path": "runs/round33/prompts/EX-03.md", "purpose": "取落地席位的操作分级、跨平台必查项与成本申报要求"},
+    {"path": "fixtures/tasks/T-19/TASK.md", "purpose": "取字段定义与约束，区分可机械化步骤与需裁决步骤"},
+    {"path": "fixtures/tasks/T-19/ledger.csv", "purpose": "取 7 行原始值做行数与金额合计核算"},
+    {"path": "fixtures/tasks/T-19/bill.csv", "purpose": "取 8 行原始值，核对双日期列与单侧单号对脚本的影响"},
+    {"path": "protocol/02-辩论协议.md", "purpose": "核对聚合规则与终止条件，确认 6/7 需保留双结论"},
+    {"path": "protocol/03-结构审计七查.md", "purpose": "确认写入域/读取域检查对只读取证的影响"},
+    {"path": "protocol/07-轮次与指标.md", "purpose": "取预算定义式与 stance 反推规则，据此申报 usage 与 stance"},
+    {"path": "protocol/", "purpose": "目录列举，确认协议文件清单（未读其余五份正文）"}
+  ],
+  "dissent": [
+    {
+      "against": "ANON-B",
+      "reason": "settle_date 基准的运维后果被低估：一旦按交割日比对，T145–T149 五行全部产生 1 日差，清单从「一条异常」变成「普遍偏移」，而普遍偏移不可定位——值班人拿到 7 条里 5 条同因，仍要回到同一行 note 才知哪条是真异常。落地判据应是清单能否直接驱动处置：6 条每类对应一种动作，7 条不满足。",
+      "reverse_evidence": "若 ledger.csv 增列成交日字段使偏移可单独归类批量处置，则普遍偏移不再降低可定位性，本条失效。"
+    },
+    {
+      "against": "ANON-A",
+      "reason": "把 ADJ-001 当已表态会污染下一轮翻边率分母：本夹具两选项产出同一组 summary 数值，反推只能得 abstain，自述却写 exclude，必然触发立场不匹配告警，该 (席位×轴) 对既进不了可比对集合又留噪声。建议本轮该轴记 abstain 并写明原因。",
+      "reverse_evidence": "若 spec 的 ADJ-001 选项在本夹具能产生不同数值（口径差可落进 amount 列），则该轴可辨识，硬填合法。"
+    }
+  ],
+  "confidence": "high",
+  "needs_more_data": [
+    "缺规则：日期比对基准（trade_date / settle_date）未定，既决定 6 还是 7，也决定第 ④ 步能否全自动。",
+    "缺规则：口径差金额恒为 0 时 ADJ-001 如何记立场无规定（缺不可辨识轴处理规则）。",
+    "缺数据：无 T148/T149 第二标识（委托号/成交序号），无法把同笔双记纳入自动去重。"
+  ],
+  "stance": [
+    {"axis": "ADJ-001", "choice": "exclude"},
+    {"axis": "DIFFSET", "choice": "6"}
+  ],
+  "summary": {
+    "ledger_rows": 7,
+    "bill_rows": 8,
+    "ledger_total": 166800.00,
+    "bill_total": 167180.00,
+    "raw_total_gap": 380.00,
+    "dedup_removed_txn_count": 0,
+    "dedup_amount": 0.00,
+    "diff_count": 6,
+    "amount_diff_total": 380.00,
+    "excluded_amount_total": 0.00,
+    "excluded_categories": ["费用口径差"]
+  },
+  "diffs": [
+    {"id": "T147", "category": "金额不符"},
+    {"id": "T148", "category": "费用口径差"},
+    {"id": "T149", "category": "费用口径差"},
+    {"id": "T150", "category": "股数不符（送转未入账）"},
+    {"id": "T151", "category": "单侧缺失（股息入账）"},
+    {"id": "T152", "category": "入账日跨期"}
+  ],
+  "categories": {
+    "金额不符": ["T147"],
+    "费用口径差": ["T148", "T149"],
+    "股数不符（送转未入账）": ["T150"],
+    "单侧缺失（股息入账）": ["T151"],
+    "入账日跨期": ["T152"]
+  },
+  "usage": {"tokens": 16000, "minutes": 6, "source": "self_report"}
+}

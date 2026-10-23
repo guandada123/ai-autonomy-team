@@ -1,0 +1,97 @@
+{
+  "seat": "EX-03",
+  "round": 28,
+  "conclusion": "单脚本：pathlib + newline='' + utf-8 + Decimal 0.01，日期列做成显式 --date-col；默认 trade_date 得 6 条、380.00/0.00，并把口径选择写入裁决记录。15 行复算 <1s，三包自报 75200 tokens（上限 160000，余 53%）。操作级 🟡。",
+  "summary": {
+    "ledger_rows": 7,
+    "bill_rows": 8,
+    "ledger_total": 163800.00,
+    "bill_total": 164180.00,
+    "raw_total_gap": 380.00,
+    "dedup_removed_txn_count": 0,
+    "dedup_amount": 0.00,
+    "diff_count": 6,
+    "amount_diff_total": 380.00,
+    "excluded_amount_total": 0.00,
+    "excluded_categories": [
+      "费用差-漏过户费",
+      "数量差-送转未更新",
+      "日期口径差-按交割日入账"
+    ]
+  },
+  "execution_path": [
+    "1) 取数：Path(dir)/'ledger.csv'、'bill.csv'，open(encoding='utf-8', newline='') + csv.DictReader；金额一律 Decimal，量化 0.01，禁 float 与 numeric_equals",
+    "2) 先出算术层 7 字段：rows 7/8、total 163800.00/164180.00、gap 380.00、dedup 0/0.00（先按 txn_id 计数去重，同号多行则先聚合，多出行金额进 dedup_amount；本夹具无）",
+    "3) 四列比对：shares 按 int、amount 与 fee_total 按 Decimal、date 对 --date-col 指定的列；仅单侧存在取该侧 amount 作差额",
+    "4) 归类：T067 价差与 T071 单侧缺失 → 计入金额差异；费用差/数量差/日期口径差 → 排除（三类 amount 差额均 0.00）",
+    "5) 断言：amount_diff_total + excluded_amount_total == raw_total_gap，本夹具 380.00+0.00=380.00，不等则非零退出（这条是唯一能自动发现归类漏项的自检）",
+    "6) 落盘：json.dumps(ensure_ascii=False, indent=2)+'\\n'，encoding='utf-8'，换行固定 LF；写前写后各取 sha256 存比对",
+    "7) 口径留痕：把 --date-col 实取值与人类签署的 DIFFSET 写进同目录裁决记录，不得只留在命令行历史里（否则默认值即答案）"
+  ],
+  "cost": {
+    "token_estimate": "按 07#L308-L314 求和口径：三个匿名包自报 24800+27300+23100=75200，对 per_task_token_hard_cap 160000 用 47.0%，余 84800；本轮三份席位产出另一种计法 26500+28200+24600=79300，仍余 80700。两种计法均在限内，脚本本身 <2k",
+    "wall_clock": "复算实测 <1 秒（本机 Darwin arm64 / Python 3.13.12，7+8 行）；含口径裁决与复核 6–8 分钟。minutes_span 按 max 取 = 16（13/16/16），不是求和",
+    "human_touchpoints": "1 次：对 DIFFSET 与 --date-col 默认值签署裁决记录（含 chosen 与 rationale），不得由脚本预填"
+  },
+  "rollback": "① 写前对目标文件取 sha256 快照，写后复算比对，不一致直接放弃本次写入；② 脚本幂等（同输入同参同输出同 sha），异常重跑即回滚，无中间态；③ 两份 CSV 只读打开，不在回滚面内；④ 若第 8 查 HIT，按 wd-baseline.json 的 path+sha256 差集定位，人工移入 _trash/（沙箱拦 unlink，不做删除）；⑤ 严禁回写 ledger.csv 修账——不可逆且销毁原始证据。",
+  "op_grade": "🟡",
+  "op_grade_rationale": "单次写 runs/round28/EX-03.json 属 🟢（新增、可逆、仅本项目）；但该产出入聚合、可被下游用于调账或跨模块引用，且第 8 查会就其比对，故整体记 🟡，须先备份。若拿 380.00 结论回写自记账台账则升 🔴，须先出「方案/影响范围/回滚」三件套并过人类闸门。",
+  "cross_platform_risks": [
+    {"risk": "模板称「本机是 Windows」，本机实测为 Darwin 25.5.0 arm64，前提与实测不符", "mitigation": "以 uname -srm / python3 -VV 实测为准，跨平台检查项保留不放宽"},
+    {"risk": "解释器名：Windows 侧常为 python 或 py -3", "mitigation": "shebang #!/usr/bin/env python3，文档统一 python3，不做别名假设"},
+    {"risk": "路径分隔：字符串拼接在 macOS/Windows 间失效", "mitigation": "全部 pathlib.Path 与 / 运算"},
+    {"risk": "换行：CRLF 会让 date 列尾带 \\r，日期比对假阳性并多出 1 条差异", "mitigation": "读用 newline=''，写固定 LF；本夹具实测 LF，未触发"},
+    {"risk": "编码：非 UTF-8 环境读中文 name/note 抛错并静默丢行", "mitigation": "所有 open/write 显式 encoding='utf-8'"},
+    {"risk": "浮点：0.01 级金额差被判不等（06 §2.4 实测 0.020000000000436557）", "mitigation": "全程 Decimal + quantize 0.01，金额比对禁用 numeric_equals"},
+    {"risk": "删除：unlink 被沙箱拦截，脚本半途中断留下不一致状态", "mitigation": "删除不进自动化路径，改为移动到 _trash/"}
+  ],
+  "evidence": [
+    {"pointer": "本机实测 uname -srm / python3 -VV", "what_it_shows": "Darwin 25.5.0 arm64、Python 3.13.12 → 模板「本机 Windows」前提不成立"},
+    {"pointer": "runs/round28/inputs/pack-ANON-{A,B,C}.json#usage", "what_it_shows": "24800+27300+23100=75200；minutes 13/16/16 → span=max=16"},
+    {"pointer": "protocol/07-轮次与指标.md#L306-L319", "what_it_shows": "tokens 求和、minutes 取 max；cap 160000 → 余 84800"},
+    {"pointer": "fixtures/tasks/T-09 CSV 对（Decimal 复算）", "what_it_shows": "15 行；两分支 6/7 条、同 380.00；恒等式可作脚本断言"}
+  ],
+  "falsification": "若 (a) 出现同号多行且差额须按行配对而非按单号聚合；(b) CSV 非 UTF-8 或 CRLF 未被 csv 模块吸收；(c) 金额需比 0.01 更细的 scale；(d) 允许回写自记账台账——四条任一成立，本方案须重做，(d) 另使操作级别升 🔴。",
+  "reads": [
+    {"path": "runs/round28/prompts/EX-03.md", "purpose": "本席位成本/回滚/分级/跨平台四项强制要求"},
+    {"path": "runs/round28/prompts/EX-01.md", "purpose": "确认字面主义席位的字段口径，作为方案输入契约"},
+    {"path": "runs/round28/prompts/EX-02.md", "purpose": "确认对立面反对格式，作为 dissent 靶子"},
+    {"path": "fixtures/tasks/T-09/TASK.md", "purpose": "取 §A-§D 计算法，确定脚本要产出的 11 个 summary 字段"},
+    {"path": "fixtures/tasks/T-09/ledger.csv", "purpose": "逐行取数核对金额与费用，验证脚本输出"},
+    {"path": "fixtures/tasks/T-09/bill.csv", "purpose": "逐行取数核对三项费用之和=fee_total，并测两套日期列条数"},
+    {"path": "runs/round28/inputs/pack-ANON-A.json", "purpose": "读默认 6 条方案的字段与 usage 自报"},
+    {"path": "runs/round28/inputs/pack-ANON-B.json", "purpose": "读 7 条主张，评估若改默认值对复跑与翻边率的影响"},
+    {"path": "runs/round28/inputs/pack-ANON-C.json", "purpose": "读同类落地席方案，核对成本口径与证据指针可回读性"},
+    {"path": "protocol/02-辩论协议.md", "purpose": "确认每席必交 1 条反对及反证条件"},
+    {"path": "protocol/06-写入域与判据分层.md", "purpose": "取 allow/deny 前缀、decimal_equals 硬闸门与人类闸门往返流程"},
+    {"path": "protocol/07-轮次与指标.md", "purpose": "取预算定义式、退出码与选项空间规则，估算本轮成本"}
+  ],
+  "dissent": [
+    {
+      "against": "ANON-B：主张 6 与 7 不可裁决、反对设任何默认值，实质是把结论停在人类闸门",
+      "reason": "「停在闸门」不是零成本选项：它把一次性口径裁决变成每轮固定开销，而闸门本身不提供判据，下轮同样的歧义会原样再来，且没有任何机制阻止人凭直觉选。我不同意它的处方，但同意它的诊断：可行做法是把歧义显式化为参数（--date-col）并让默认值写进裁决记录，被看见、被追责。同样地，我也反对「默认值即答案」——默认值不入 answer 留痕，翻边率就会把参数漂移记成立场翻边。",
+      "reverse_evidence": "若 answer 契约已存在承载日期口径的字段、且 metrics 能区分参数变更与立场变更，则参数化的多余成本大于收益，本反对撤回。"
+    },
+    {
+      "against": "ANON-C：以两次复跑同 sha 与「端到端 <1 秒」支撑幂等与可执行性",
+      "reason": "复跑同 sha 只覆盖确定性，不覆盖正确性；且该证据落在包外临时路径，本轮无法重放核对。成本论证里还混了一处口径错位：tokens 求和、minutes 取 max（07#L306-L314），把 minutes 求和会把同一时间轴重复计入——若按求和算，16 分钟会被记成 45 分钟。金额自洽断言（380.00+0.00=380.00）是本方案唯一能自动抓归类漏项的检查，这一条必须显式写进脚本，而不是靠人复核。",
+      "reverse_evidence": "若复跑脚本与输出已固化进包内可被审计重算，且成本表已按「求和/取 max」分列，则本反对不成立。"
+    }
+  ],
+  "confidence": "medium",
+  "needs_more_data": [
+    "缺规则：--date-col 默认取 trade_date 还是 settle_date 契约未定，直接决定 diff_count 是 6 还是 7，金额不受影响（两分支均 380.00/0.00）",
+    "缺规则：口径裁决应落在 answer 的哪个字段，现契约无承载位（06 §2.6.1 的状态文件只记 pending/adjudicated，不记选了哪一列），故参数选择无法随产出被审计",
+    "缺规则：本席位提示词的 DIFFSET 空间为 {7,6,5,4}，而 07#L95-L98 称 T-09 类任务另给（如 [6,5,4,3]）；空间不一致会让同一份 summary 在不同轮被判成不同立场，须先由审计钉死本任务空间",
+    "缺数据：无券商交收流水与分红入账凭证，T071 的 260.00 是否已入他账无法外部核实；若已入他账，amount_diff_total 不再是 380.00"
+  ],
+  "stance": [
+    {"axis": "ADJ-001", "choice": "exclude"},
+    {"axis": "DIFFSET", "choice": "6"}
+  ],
+  "usage": {
+    "tokens": 24600,
+    "minutes": 13,
+    "source": "self_report"
+  }
+}

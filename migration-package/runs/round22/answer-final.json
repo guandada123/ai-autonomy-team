@@ -1,0 +1,112 @@
+{
+ "task_id": "T-18",
+ "round": 22,
+ "aggregated_by": "PM-01",
+ "summary": {
+  "ledger_rows": 5,
+  "bill_rows": 8,
+  "ledger_total": 256800.0,
+  "bill_total": 271240.0,
+  "raw_total_gap": 14440.0,
+  "dedup_removed_txn_count": 0,
+  "dedup_amount": 0.0,
+  "diff_count": 6,
+  "amount_diff_total": 14440.0,
+  "excluded_amount_total": 0.0,
+  "fee_diff_total": 5.17,
+  "excluded_categories": [
+   "现金分红口径差",
+   "股数差异",
+   "日期口径差"
+  ]
+ },
+ "diffs": [
+  {
+   "id": "T139",
+   "category": "价格差异"
+  },
+  {
+   "id": "T140",
+   "category": "整笔缺失"
+  },
+  {
+   "id": "T141",
+   "category": "现金分红口径差"
+  },
+  {
+   "id": "T142",
+   "category": "股数差异"
+  },
+  {
+   "id": "T143",
+   "category": "现金分红口径差"
+  },
+  {
+   "id": "T144",
+   "category": "日期口径差"
+  }
+ ],
+ "categories": {
+  "价格差异": [
+   "T139"
+  ],
+  "整笔缺失": [
+   "T140"
+  ],
+  "现金分红口径差": [
+   "T141",
+   "T143"
+  ],
+  "股数差异": [
+   "T142"
+  ],
+  "日期口径差": [
+   "T144"
+  ]
+ },
+ "falsification": "本结论在下列任一条件成立时即为错：(1) 若 TASK.md 或对账口径把「成交金额差异」的范围明文扩展至含股息等非成交现金流，则 T141/T143 的 520.00 应计入，amount_diff_total 回退为 14440.00、excluded_amount_total 为 0.00（此为多数席 EX-01/EX-03 的立场，已留痕）；(2) 若券商侧能给出 T140 与 T144 的成交编号/资金流水号证明二者为两笔独立缴款（而非同一笔中签缴款被两个单号列示），则 dedup 仍为 0、结论不变；反之若证明为同一笔，则 T140 应转为重复项，diff_count 降为 5、amount_diff_total 降为 120.00；(3) 若 §D 的「日期」列被明确要求对齐 settle_date 而非 trade_date，则 T144 不再构成差异，diff_count 降为 5、excluded_amount_total 不变（T144 差额为 0.00）；(4) 若 T140 的 13800.00 被判定为自记账域的合法账外事项而不应计入成交金额差异，则 amount_diff_total 降为 120.00、excluded 升为 14060.00。上述任一情形均不改变本轮的留痕方式：分歧原样保留在 diff_preserved 中，不做合并。",
+ "diff_preserved": [
+  {
+   "side": "多数",
+   "conclusion": "【EX-01 / EX-03，2 席】amount_diff_total=14440.00、excluded_amount_total=0.00、excluded_categories=[]。理由：§D 只规定「四列不完全相同或仅单侧存在即为差异单号」，6 条差额相加 120.00+13800.00+260.00+0.00+260.00+0.00=14440.00 恰等于 raw_total_gap，无残差，故一律计入。",
+   "falsification": "该立场唯一论据是「差额之和 == raw_total_gap」这一恒等式，而该恒等式对分类方式零信息量（任一分法都成立）；因此它可被证伪的条件是：若能指认契约中「成交金额差异仅限成交、不含非成交现金流」的条款（TASK.md §C 与易错点 1 已如此指认），则该「无残差即全额计入」的推理被推翻，520.00 应移出 amount_diff_total。"
+  },
+  {
+   "side": "少数",
+   "conclusion": "【EX-02，1 席】amount_diff_total=13920.00、excluded_amount_total=520.00、excluded_categories=[现金分红口径差]。理由：自记账只记成交，T141/T143 的股息各 260.00 是账外现金事件，不是成交金额口径的差异，计入会混淆两类风险。★ PM-01 采纳此立场。",
+   "falsification": "若契约明文把对账范围定义为「全部资金变动（含股息、红利）」，或能证明 600519 在两侧文件之外存在真实且未入账的持仓、使该股息属应入账的成交域事项，则本条结论错误，正确值应为 14440.00 / 0.00。（另需注意：采纳本条并不等于采纳 EX-02 关于 T140/T144 同笔的推测，该推测单独留痕于下条。）"
+  },
+  {
+   "side": "少数",
+   "conclusion": "【EX-02 的附论，未被采纳】T140（trade 09-09 / settle 09-10，中签买入 100 股 @138.00）与 T144（trade 09-15 / settle 09-16，买入 100 股 @138.00）shares/price/amount/commission/stamp_tax/transfer_fee/fee_total 七列全等，13800.00 疑为同一笔缴款的两个单号。",
+   "falsification": "契约 B 段把「重复」定义为同一 txn_id 在一侧出现多次；T140 与 T144 单号不同、日期不同、side 不同（中签买入 vs 买入），故按定义不构成重复，本轮 dedup_removed_txn_count 取 0。若券商能提供两者的成交编号或资金流水号证明为同一笔，则 diff_count 应为 5、amount_diff_total 应为 120.00（exclude 口径）或 640.00（count 口径），本条即被证实。"
+  },
+  {
+   "side": "少数",
+   "conclusion": "【EX-01 / EX-02 / EX-03 共同提出的口径缺口】§D 未指明「日期」列对齐 trade_date 还是 settle_date；实测 T137/T138/T139/T142 的 ledger.date 等于 trade_date，而 T144 的 ledger.date（2026-09-16）等于 settle_date。本轮按 trade_date 对齐，故 T144 判为日期口径差（差额 0.00）。",
+   "falsification": "若口径改为对齐 settle_date，则 T144 不再是差异单号，diff_count 由 6 降为 5；但因 T144 的 amount 差额为 0.00，amount_diff_total 与 excluded_amount_total 均不变。"
+  }
+ ],
+ "aggregation_inputs": [
+  {
+   "seat": "EX-01",
+   "sha256": "fbc05bd08c608da56ec776539b3439c9b60df08d393eece147636e2c87cbe1f4",
+   "seat_check_status": "valid"
+  },
+  {
+   "seat": "EX-02",
+   "sha256": "1dd8333ad575088e47ff99e194891221898e01d3fe9d7698609c1222c983de49",
+   "seat_check_status": "valid"
+  },
+  {
+   "seat": "EX-03",
+   "sha256": "a62ecc9189ed08852027fefc202ce9c45a3de308077b0d530173de0a7f4e10d4",
+   "seat_check_status": "valid"
+  }
+ ],
+ "redo": {
+  "triggered_by": "runs/round22/adjudication-record.json（ADJ-001=count，verdict=fail）",
+  "rule": "count implies：amount_diff_total=14440.00、excluded=0.00（D-0016 中性 implies）",
+  "note": "机械改判：PM 的 exclude 口径（13920/520）被 count 签字推翻，与 round14 同模式"
+ }
+}

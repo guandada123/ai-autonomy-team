@@ -1,0 +1,92 @@
+{
+ "task_id": "TASK-BROKER-009",
+ "round": 15,
+ "aggregated_by": "PM-01",
+ "summary": {
+  "ledger_rows": 7,
+  "bill_rows": 8,
+  "ledger_total": 163800.0,
+  "bill_total": 164180.0,
+  "raw_total_gap": 380.0,
+  "dedup_removed_txn_count": 0,
+  "dedup_amount": 0.0,
+  "diff_count": 6,
+  "amount_diff_total": 380.0,
+  "excluded_amount_total": 0.0,
+  "fee_diff_total": 0.33,
+  "excluded_categories": [
+   "费用差-漏过户费",
+   "数量差-送转未更新",
+   "日期口径差-按交割日入账"
+  ]
+ },
+ "diffs": [
+  {
+   "id": "T067",
+   "category": "金额差-成交价不符"
+  },
+  {
+   "id": "T068",
+   "category": "费用差-漏过户费"
+  },
+  {
+   "id": "T069",
+   "category": "费用差-漏过户费"
+  },
+  {
+   "id": "T070",
+   "category": "数量差-送转未更新"
+  },
+  {
+   "id": "T071",
+   "category": "单侧缺失-现金分红"
+  },
+  {
+   "id": "T072",
+   "category": "日期口径差-按交割日入账"
+  }
+ ],
+ "categories": {
+  "金额差-成交价不符": [
+   "T067"
+  ],
+  "费用差-漏过户费": [
+   "T068",
+   "T069"
+  ],
+  "数量差-送转未更新": [
+   "T070"
+  ],
+  "单侧缺失-现金分红": [
+   "T071"
+  ],
+  "日期口径差-按交割日入账": [
+   "T072"
+  ]
+ },
+ "falsification": "本结论在以下任一条件下即为错：(a) TASK.md §D 的「日期」应映射账单侧 settle_date 而非 trade_date —— 则 T065/T066 亦成差异单号、diff_count 变 7，而 amount_diff_total 与 excluded_amount_total 两值不变（380.00 / 0.00），即金额轴无法证伪口径轴；(b) 两侧存在同一 txn_id 多行（分批成交）而需先聚合再比对 —— 本夹具两单侧各 7/8 个唯一单号、无重复，若输入换批则 dedup 字段与差额口径须重算；(c) 「计入/不计入金额差异」的归类边界改变（如把费用差改用 fee_total 差额计入）—— 则 excluded_amount_total 不再为 0.00，且 amount_diff_total + excluded_amount_total 不再等于 raw_total_gap 380.00；(d) T071 的 260.00 已被证明记入自记账其他科目 —— 则它应退出差异清单，diff_count 变 5。另需如实登记两处契约缺口：其一，本任务属费用型差异，fee_total 差额（T067 0.03、T068/T069 各 0.15）在 11 个 summary 字段中无任何落点，费用差只能以类别存在、金额恒为 0.00；其二，DIFFSET 选项空间 [6,5,4,3] 以另一套夹具的单号（T104/T105/T106）为锚，与本夹具单号不对应，选项语义存在漂移风险，本次仅按「条数在空间内」使用该约束。",
+ "diff_preserved": [
+  {
+   "side": "多数",
+   "conclusion": "账单侧日期取 trade_date，差异 6 条：T067（金额与费用）、T068/T069（费用）、T070（股数）、T071（单侧缺失 260.00）、T072（日期口径）；amount_diff_total 380.00、excluded_amount_total 0.00、gap 380.00。",
+   "falsification": "若 §D 的「日期」实指交割日（settle_date），或 T065/T066 的 note「正常」被证明不覆盖日期列，则 6 条作废。"
+  },
+  {
+   "side": "少数",
+   "conclusion": "EX-02 主张 7 条：以 settle_date 为账单侧日期基准，T065/T066 的入账日与交割日错位亦计入，清单为 T065–T071；其金额三值与 6 派完全相同（380/380/0）。该席位产出已被官方 seat_check 判 invalid（E_STANCE_OUT_OF_SPACE：DIFFSET=7 不在本任务选项空间 [6,5,4,3]），原结论按原文留痕但不计入聚合、sha256 不进 aggregation_inputs。",
+   "falsification": "若 TASK.md 明示「日期」即成交日，或账单侧本不存在两个日期候选列，则 7 条失去依据；反之若交割日语义被确立，则本轮 6 条判决须推翻重做。"
+  }
+ ],
+ "aggregation_inputs": [
+  {
+   "seat": "EX-01",
+   "sha256": "67db6344b16e58afccdf2b8e2dc9e7c55bffc4551dd62ed012b5e5abe95ac927",
+   "seat_check_status": "valid"
+  },
+  {
+   "seat": "EX-03",
+   "sha256": "faa9c7e700b9231d9237cea3191b7ca30396f4a2ae11329d90f487918d114faf",
+   "seat_check_status": "valid"
+  }
+ ]
+}

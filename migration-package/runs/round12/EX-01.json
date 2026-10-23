@@ -1,0 +1,155 @@
+{
+  "seat": "EX-01",
+  "round": 12,
+  "conclusion": "逐行复算 T-05：ledger 7 行 181800.00、bill 8 行 182180.00，原始差额 380.00 完全由 T035 价差 120.00 与 T039 单侧股息 260.00 解释，无重复单号；共 6 个差异单号（T035/T036/T037/T038/T039/T040），amount_diff_total=380.00、excluded_amount_total=0.00。",
+  "evidence": [
+    {
+      "pointer": "fixtures/tasks/T-05/ledger.csv#col=amount,7 数据行逐行累加",
+      "what_it_shows": "26000.00+45000.00+45000.00+26000.00+26000.00+0.00+13800.00=181800.00；行数 7"
+    },
+    {
+      "pointer": "fixtures/tasks/T-05/bill.csv#col=amount,8 数据行逐行累加",
+      "what_it_shows": "26000.00+45000.00+45120.00+26000.00+26000.00+0.00+260.00+13800.00=182180.00；行数 8；差额 380.00"
+    },
+    {
+      "pointer": "fixtures/tasks/T-05/bill.csv#row=T035,col=(price,amount,fee_total)=(45.12,45120.00,11.73) 与 ledger.csv#row=T035 col=(45.00,45000.00,11.70)",
+      "what_it_shows": "T035 金额差 abs(45000.00-45120.00)=120.00，费用差 0.03；ledger note=按委托价记账"
+    },
+    {
+      "pointer": "fixtures/tasks/T-05/bill.csv#row=T039（ledger.csv 无 T039 任何行）",
+      "what_it_shows": "单侧存在单号，side=股息入账，amount=260.00，差额取该侧 amount=260.00"
+    },
+    {
+      "pointer": "fixtures/tasks/T-05/ledger.csv#row=(T036,T037),col=fee_total=6.50 对 bill.csv#row=(T036,T037) fee_total=19.76",
+      "what_it_shows": "两侧 amount 均为 26000.00 完全相同，仅费用差 13.26/笔，属费用漏记而非成交金额差异"
+    },
+    {
+      "pointer": "fixtures/tasks/T-05/ledger.csv#row=T038,col=(side,shares,amount)=(送转,0,0.00) 对 bill.csv#row=T038 shares=30",
+      "what_it_shows": "股数列不等（0 vs 30），amount 两侧均 0.00，构成股数型差异但金额差为 0"
+    },
+    {
+      "pointer": "fixtures/tasks/T-05/bill.csv#row=T040,col=(trade_date,settle_date)=(2026-09-14,2026-09-15) 对 ledger.csv#row=T040 date=2026-09-15",
+      "what_it_shows": "ledger 按交割日入账、bill 按成交日列示，日期列不等但 shares/amount/fee_total 全部一致，金额差 0.00"
+    },
+    {
+      "pointer": "fixtures/tasks/T-05/{ledger.csv,bill.csv}#group_by(txn_id) 计数",
+      "what_it_shows": "两侧每单号均只出现 1 次，无分批成交重复，故 dedup_removed_txn_count=0、dedup_amount=0.00"
+    }
+  ],
+  "falsification": "若「日期」比较基准应为 bill.settle_date 而非 trade_date，则 T033(09-02 vs 09-03)、T034(09-04 vs 09-05) 也成差异，diff_count 应为 8；若送转 T038 视为持仓调整不纳入差异清单，diff_count 应为 5；若股息 T039 被判为非成交流水而排除，amount_diff_total 应为 120.00 且 raw_total_gap=380.00 将出现 260.00 无法解释的缺口。以上任一成立，我的 diff_count=6 / amount_diff_total=380.00 即为错。",
+  "reads": [
+    {
+      "path": "runs/round12/prompts/EX-01.md",
+      "purpose": "读取席位身份、读取域、输出契约与 stance 定义"
+    },
+    {
+      "path": "fixtures/tasks/T-05/TASK.md",
+      "purpose": "取得字段定义 A/B/C/D、四列差异口径与四个易错点"
+    },
+    {
+      "path": "fixtures/tasks/T-05/ledger.csv",
+      "purpose": "逐行取 7 条自记账记录并累加 amount 列"
+    },
+    {
+      "path": "fixtures/tasks/T-05/bill.csv",
+      "purpose": "逐行取 8 条交割单记录并累加 amount 列、比对四列"
+    },
+    {
+      "path": "protocol/02-辩论协议.md",
+      "purpose": "确认输出契约、强制反对与 reads/evidence 语义区分"
+    }
+  ],
+  "dissent": [
+    {
+      "against": "ANON-A 主张日期列应以 settle_date 为比较基准（据此把 T033/T034 也列为差异）",
+      "reason": "TASK.md 明确定义 ledger.date=入账日、bill 按成交日列示（bill.note: 按成交日列示），故正确基准是 trade_date；用 settle_date 会使全部 8 个单号的日期列都不相等，差异清单退化为全表，丧失归因意义。",
+      "reverse_evidence": "若裁判认定比较基准为 settle_date，或 bill 的 trade_date 不可信，则我对 T033/T034 判为「无差异」即错，diff_count 应为 8。"
+    },
+    {
+      "against": "ANON-B 主张 T039 股息入账属非交易现金流，不应计入 diff 与 amount_diff_total",
+      "reason": "TASK.md 判定口径 D 规定「仅单侧存在的单号亦为差异单号，差额取该单号在该侧的 amount」，未对 side 类型设例外；且剔除后 amount_diff_total=120.00 与 raw_total_gap=380.00 相差 260.00，账实差额将失去解释。",
+      "reverse_evidence": "若契约把股息/送转等权益变动排除在 amount 列核对范围之外，则 T039 应移出清单，diff_count=5、amount_diff_total=120.00、excluded_amount_total=260.00。"
+    }
+  ],
+  "confidence": "high",
+  "needs_more_data": [
+    "缺持仓流水/持仓表：无法独立校验 T038「10送3」对应 +30 股是否与 1000 股基准自洽，仅能按 CSV 原值判股数不等",
+    "缺 T039 股息的公司公告或税率信息：260.00 为税前还是税后无法判定，不影响本次按原始值取数"
+  ],
+  "stance": [
+    {
+      "axis": "ADJ-001",
+      "choice": "exclude"
+    },
+    {
+      "axis": "DIFFSET",
+      "choice": "6"
+    }
+  ],
+  "summary": {
+    "ledger_rows": 7,
+    "bill_rows": 8,
+    "ledger_total": 181800.0,
+    "bill_total": 182180.0,
+    "raw_total_gap": 380.0,
+    "dedup_removed_txn_count": 0,
+    "dedup_amount": 0.0,
+    "diff_count": 6,
+    "amount_diff_total": 380.0,
+    "excluded_amount_total": 0.0,
+    "excluded_categories": [
+      "FEE_ONLY_DIFF",
+      "SHARE_QTY_DIFF",
+      "BOOKING_DATE_DIFF"
+    ]
+  },
+  "diffs": [
+    {
+      "id": "T035",
+      "category": "AMOUNT_PRICE_DIFF"
+    },
+    {
+      "id": "T036",
+      "category": "FEE_ONLY_DIFF"
+    },
+    {
+      "id": "T037",
+      "category": "FEE_ONLY_DIFF"
+    },
+    {
+      "id": "T038",
+      "category": "SHARE_QTY_DIFF"
+    },
+    {
+      "id": "T039",
+      "category": "ONE_SIDED_MISSING"
+    },
+    {
+      "id": "T040",
+      "category": "BOOKING_DATE_DIFF"
+    }
+  ],
+  "categories": {
+    "AMOUNT_PRICE_DIFF": [
+      "T035"
+    ],
+    "FEE_ONLY_DIFF": [
+      "T036",
+      "T037"
+    ],
+    "SHARE_QTY_DIFF": [
+      "T038"
+    ],
+    "ONE_SIDED_MISSING": [
+      "T039"
+    ],
+    "BOOKING_DATE_DIFF": [
+      "T040"
+    ]
+  },
+  "usage": {
+    "tokens": 12000,
+    "minutes": 9,
+    "source": "self_report"
+  }
+}

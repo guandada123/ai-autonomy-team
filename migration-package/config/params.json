@@ -1,0 +1,480 @@
+{
+  "_note": "辩论协议参数。来源：docs/protocol/02-辩论协议.md。本文件是唯一参数源，各席位模板不得覆盖。",
+  "version": "1.0",
+  "updated": "2026-10-20",
+  "debate": {
+    "max_rounds": 3,
+    "statements_per_seat_per_round": 1,
+    "cross_exam_per_seat_per_round": 1,
+    "_presentation_moved": "呈现三控（匿名/乱序/长度预算）已提升为顶层 presentation 节，含操作化定义与诚实边界",
+    "mandatory_dissent_per_seat_per_round": 1,
+    "termination_conditions": [
+      "hard_judge_pass",
+      "rounds_exhausted",
+      "zero_marginal_information_gain",
+      "budget_exhausted"
+    ]
+  },
+  "anti_sycophancy": {
+    "flip_rate_alert_threshold": 0.4,
+    "flip_rate_action": "restart_round",
+    "flip_rate_denominator": "comparable_seat_axis_pairs",
+    "_flip_rate_note": [
+      "分母取「可比对的 (席位 × 轴) 对」，不是席位数、也不是轴数。",
+      "取席位数 → 全程弃权的席位会被算成「稳定」或「翻边」，两种都是假的；",
+      "取轴数   → 一席改变即整轴翻边，随席位数增加饱和到 1；",
+      "取 pair   → 唯一同时满足「弃权不惩罚」「多轴不等权」的取法。",
+      "D（可比对对数）= 0 时 flip_rate 记 null，绝不当 0。D < 2 时标 low_confidence。"
+    ],
+    "dissent_entropy_floor": {
+      "value": 0.1,
+      "trigger": "unanimous_conclusion_without_independent_evidence",
+      "action": "force_devils_advocate_round",
+      "independent_evidence_required": true,
+      "_limitation": [
+        "★ 必须如实标注的局限（F15 合并轴之后已改写，旧文『当前所有轴都是 2 选项』已成假话）：",
+        "ADJ-001 是 2 选项轴，DIFFSET 是 4 选项轴 —— 两轴不同构。",
+        "S=3 时「1 票异议 + 2 票多数」的 H_norm：K=2 上 = 0.918，K=4 上 = 0.459。",
+        "故下限取 0.10 时，两个轴上的任何非全一致都不会触发；下限在 3 席规模下的实际含义",
+        "仍是「一致性探测器」。若要让它具备分辨力，下限不得低于 0.459（K=4 轴上 2:1:0:0）。",
+        "取 0.10 的唯一理由是留给更大席位数（S≥5）与更细分歧的余量，不是因为 0.10 有区分度。",
+        "不得让这个下限看起来比它实际更精细。"
+      ],
+      "_independent_evidence_boundary": [
+        "★ F6 修复后的定义式（脚本实现，见 metrics.py）：",
+        "  文件集合 f(s) = 席位 s 全部证据指针归一化到【文件级】后的集合",
+        "  引用计数 c(f) = |{ s ∈ 合规辩论席位 : f ∈ f(s) }|",
+        "  席位 s 独立 := ∃f ∈ f(s), c(f) == 1；本轮有独立证据 := ∃s : s 独立",
+        "为什么把粒度从「指针整串」提到「文件级」：旧实现用 sha256(整串) 去重，",
+        "  实测 round2 三席都指向 fixtures/ledger.csv 却因写法不同（#T104,T105 vs :26-27）",
+        "  被判为互不共享，shared_pointer_count=0、三席全评「独立」—— 判据退化成「字符串是否相同」。",
+        "★ 诚实边界（不可删）：本判据是独立性的【下界】。文件级相同即视为共享，",
+        "  即使两席引用的是同一文件的不同部分。不做记录级聚类 —— 会制造假精度。",
+        "  脚本仍无法验证证据的实质内容是否真的独立。",
+        "★ 两类错误代价不对称（取粗粒度的理由）：多触发魔鬼代言人轮 = 多花一轮 token（干预）；",
+        "  漏触发 = 共享盲区被当成已验证的真相放行（污染）。故宁可粗。"
+      ]
+    },
+    "idle_detection": {
+      "consecutive_rounds_without_new_evidence": 2,
+      "action": "terminate_branch",
+      "_scope": "★ 仅对 round_role=evidence_round 生效。revision_round 与 devils_advocate_round 按定义就是零新证据，套用会自证终止。"
+    }
+  },
+  "round_roles": {
+    "evidence_round": {
+      "introduces_new_evidence": true,
+      "idle_detection_applies": true,
+      "zero_marginal_gain_applies": true,
+      "success_criteria": "新证据指针数 > 0"
+    },
+    "revision_round": {
+      "introduces_new_evidence": false,
+      "idle_detection_applies": false,
+      "zero_marginal_gain_applies": false,
+      "success_criteria": "立场变动（翻边/守恒）+ 新反对边",
+      "_new_information_unit": "反对边三元组 (axis_id, target_stance, direction)，未见于此前者计一条；喂 dissent_entropy，不喂证据计数器"
+    },
+    "devils_advocate_round": {
+      "introduces_new_evidence": false,
+      "idle_detection_applies": false,
+      "zero_marginal_gain_applies": false,
+      "success_criteria": "少数立场被物化为完整产出",
+      "_note": "不计入 debate.max_rounds —— 它是干预，不是辩论轮"
+    }
+  },
+  "seat_contract": {
+    "contract_version": "3.0",
+    "_contract_version_note": [
+      "★ 契约版本【随轮次】，不随工具。seat_check 读该轮 round-manifest.json 的",
+      "  contract_version 来决定 reads[] 与读取域越界是硬字段还是软字段。",
+      "  v2.0：reads[] 为硬字段；读取域 deny 命中 → E_READ_DOMAIN_VIOLATION（挡在聚合外）。",
+      "  v1.0 或缺 manifest：reads[] 仅告警；deny 命中 → W_READ_DOMAIN_VIOLATION（不阻塞）。",
+      "  v2.1（P10）：AD-01 必须产出 audited_inputs[]；answer-status.json 必须存在且自洽。",
+      "    → 缺失 E_AUDIT_INPUT_MISSING / E_ANSWER_STATUS_MISSING；不符 E_AUDIT_INPUT_STALE / E_ANSWER_STATUS_STALE。",
+      "  v3.0（2026-10-20，见 docs/契约3.0-口径裁定记录.md）：",
+      "    ① summary.fee_diff_total 新增，费用差独立承载（此前塞在 excluded_amount_total，违反 D-0016）；",
+      "    ② excluded/fee_diff/dedup 三量必须非负 → E_MONEY_NEGATIVE（无条件 fail）；",
+      "    ③ 金额字段必须是 JSON number → W_MONEY_STRING（--strict-money-type 下转 fail）；",
+      "    ④ excluded_categories 为 6 类封闭枚举 + other:<说明> → W_CATEGORY_NOT_ENUM；",
+      "       为空时须由 excluded_categories_note 说明 → present_or_note（空且无说明即 fail）；",
+      "    ⑤ 日期比对基准写死 trade_date（ledger.date 存成交日；按 settle_date 比对会引入伪差异）；",
+      "    ⑥ 判据总数 10（算术）+ 4（判断物化）= 14，较 v2.1 的 13 多一条 fee_diff_total。",
+      "为什么必须按轮次：若用全局版本，重跑 runs/round2 会把它的 4/4 合规打成 0/4",
+      "（该轮产出早于契约），从而摧毁「round2 可作第 3 轮合规基线、D>0」这一 F7 核心结论。",
+      "★ v2.1 的两条新要求【不追溯】round2/round3：它们缺 status 文件只记 WARN；",
+      "  但 status 文件【存在时就必须自洽】—— 一个撒谎的状态文件比没有更危险。",
+      "★ v3.0 的 ①–⑥ 对历史 33 轮【不回溯】：已签字的 verdict 保持 13/13（v2.1 基线）；",
+      "  用 v3.0 spec 重跑历史 answer 得 14/14，属口径升级而非改判。"
+    ],
+    "required_fields": [
+      "seat",
+      "round",
+      "conclusion",
+      "evidence",
+      "falsification"
+    ],
+    "_required_note": [
+      "这三项为硬闸门，缺失即判席位产出不合格、不得进入聚合：",
+      "  conclusion —— 一句话结论（非空字符串）",
+      "  evidence   —— ≥1 项，每项含 pointer 与非空 what_it_shows（外部钩子，结构审计第 2 查）",
+      "  falsification —— 非空字符串（02-辩论协议已规定「缺 falsification 视为不可裁决」）",
+      "★ 契约 v2.0 追加：reads —— ≥1 项（席位实际读过的文件全集，见 reads 节）"
+    ],
+    "reads": {
+      "schema": "[{path, purpose}] 或 [\"path\"]",
+      "required_from_version": "2.0",
+      "semantics": "我【实际读过】的文件全集 —— 与 evidence 的区别是语义性的：reads = 读过什么，evidence = 用什么支撑结论。只查 evidence 会漏掉「读了真值但没写成证据」这一最需要抓的形态。",
+      "why_not_derivable": "「读过什么」是不可观测的私有状态；脚本只能校验【申报】，无法阻止未申报的读取。见 config/read_domains.json 的 _boundary。"
+    },
+    "stages": {
+      "A": {
+        "seats": [
+          "EX-01",
+          "EX-02",
+          "EX-03",
+          "XJ-01"
+        ],
+        "when": "席位产出后",
+        "gate": "aggregation_blocked → metrics 短路（exit 5）"
+      },
+      "B": {
+        "seats": [
+          "AD-01",
+          "PM-01"
+        ],
+        "when": "PM 聚合与 AD-01 审计产出后",
+        "gate": "阶段 B verdict + --verify-final（产物验收门）"
+      },
+      "_why_two_stages": "★ F10：原实现只跑一次校验，跑在 AD-01/PM-01 产出之前 → 这两个席位从未被契约校验过。这不是配置疏漏，是时序缺陷。",
+      "_why_not_aggregation_blocked": "AD-01/PM-01 不得进入 aggregation_blocked —— 它是「聚合【输入】门」，metrics 消费它并短路（exit 5）；而这两席的产出晚于 metrics，放进去会误触发短路（域不对）。"
+    },
+    "pm_required_fields": [
+      "round",
+      "board",
+      "decision",
+      "alternatives_rejected",
+      "risk",
+      "diff_preserved",
+      "self_doubt",
+      "next"
+    ],
+    "_pm_required_note": [
+      "★ PM-01 用【自有字段】校验，不套 base 契约：实测 runs/round2/PM-01.json 没有",
+      "  seat 字段（它的产物就是聚合本身，不是聚合的输入），套 base 契约必然误判。",
+      "★ 闸门位置：PM 的 schema 门落在 --verify-final（【产物】验收门），不落在",
+      "  aggregation_blocked（【输入】门）。同一份校验换个落点，就从死锁变成控制：",
+      "  不合格 = 本轮不验收 = PM（主会话）重做聚合，是返工不是死锁。",
+      "★ 严重度同样按 contract_version 门控（v>=2.0 硬 / v<2.0 仅告警）。"
+    ],
+    "warning_fields": [
+      "confidence",
+      "dissent",
+      "needs_more_data",
+      "stance"
+    ],
+    "_warning_note": "dissent 只作 warning，不阻塞 —— 若设硬闸门会让 round1 三个席位全灭；改由 AD-01 第 4 查据此 HOLD。",
+    "stance_exempt_seats": [
+      "AD-01",
+      "PM-01",
+      "XJ-01"
+    ],
+    "_stance_exempt_note": "审计不得持立场；PM 只拍板不改写；评委决策权重为 0 不得表态。",
+    "stance": {
+      "axes_source": "fixtures/spec/adjudication.json",
+      "abstain_allowed": true,
+      "primary_axes": [
+        "ADJ-001"
+      ],
+      "joint_axes": {
+        "DIFFSET": [
+          "ADJ-002"
+        ]
+      },
+      "_joint_note": "★ F15 修复后 DIFFSET 已不是「两轴被迫合并」的联合坐标，而是【一个裁决项（ADJ-002）、两个判断点（跨月 T106 / 口径差 T104/T105）、四个组合（7/6/5/4）】。ADJ-003 已退役。保留 joint_axes 这个单元素映射，纯粹是为了不让轴名从 DIFFSET 漂走 —— metrics/templates/夹具全部按 DIFFSET 取值。选项 id 由定义式生成（见 make_fixtures.emit_layered_specs 的 _diffs），不得手写。",
+      "declared_vs_derived_mismatch": "warning（W_STANCE_MISMATCH），不是 error —— 它本身是最有价值的信号"
+    },
+    "families": {
+      "_note": "seat → family → model → fallback。家族数 <3 时强制降级为单 agent 多采样。",
+      "verified": false,
+      "verified_at": "",
+      "verified_by": "inspect_agent_routing.py",
+      "known": [
+        {
+          "family": "hunyuan",
+          "model": "Hy4 preview",
+          "cost_mult": 0.29,
+          "note": "夜间免费"
+        },
+        {
+          "family": "hunyuan",
+          "model": "Hy3",
+          "cost_mult": 0.0,
+          "note": "限时免费，当前选中"
+        },
+        {
+          "family": "stepfun",
+          "model": "Step-5-Preview",
+          "cost_mult": 0.0,
+          "note": "独家限免"
+        },
+        {
+          "family": "space",
+          "model": "Space-Bunny",
+          "cost_mult": 0.08,
+          "note": ""
+        },
+        {
+          "family": "deepseek",
+          "model": "Deepseek-V4.1",
+          "cost_mult": 0.11,
+          "note": "夜间折扣"
+        },
+        {
+          "family": "deepseek",
+          "model": "Deepseek-V4-Pro",
+          "cost_mult": 0.51,
+          "note": "夜间折扣"
+        },
+        {
+          "family": "zhipu",
+          "model": "GLM-5.3",
+          "cost_mult": 0.69,
+          "note": "订阅优先"
+        },
+        {
+          "family": "zhipu",
+          "model": "GLM-5.3-Flash",
+          "cost_mult": 0.08,
+          "note": ""
+        },
+        {
+          "family": "zhipu",
+          "model": "GLM-5.3-FlashX",
+          "cost_mult": 0.19,
+          "note": ""
+        },
+        {
+          "family": "zhipu",
+          "model": "GLM-5.2",
+          "cost_mult": 0.79,
+          "note": "夜间折扣"
+        },
+        {
+          "family": "zhipu",
+          "model": "GLM-5.1",
+          "cost_mult": 0.79,
+          "note": ""
+        },
+        {
+          "family": "zhipu",
+          "model": "GLM-5v-Turbo",
+          "cost_mult": 0.71,
+          "note": ""
+        },
+        {
+          "family": "minimax",
+          "model": "MiniMax-M3.1-Flash",
+          "cost_mult": 0.08,
+          "note": ""
+        },
+        {
+          "family": "minimax",
+          "model": "MiniMax-M3",
+          "cost_mult": 0.25,
+          "note": ""
+        },
+        {
+          "family": "moonshot",
+          "model": "Kimi-K3",
+          "cost_mult": 1.62,
+          "note": "订阅优先"
+        },
+        {
+          "family": "moonshot",
+          "model": "Kimi-K2.8-Preview",
+          "cost_mult": 0.77,
+          "note": "订阅优先"
+        },
+        {
+          "family": "moonshot",
+          "model": "Kimi-K2.7-Code",
+          "cost_mult": 0.57,
+          "note": ""
+        },
+        {
+          "family": "moonshot",
+          "model": "Kimi-K2.6",
+          "cost_mult": 0.52,
+          "note": "当前选中"
+        },
+        {
+          "family": "xiaomi",
+          "model": "Xiaomi MiMo-V2.6-Pro",
+          "cost_mult": 0.13,
+          "note": ""
+        }
+      ],
+      "assignment": {
+        "PM-01": "glm",
+        "EX-01": "deepseek",
+        "EX-02": "hy4",
+        "EX-03": "glm",
+        "AD-01": "deepseek",
+        "JD-01": "non-llm"
+      },
+      "fallback_chain": [
+        "glm",
+        "deepseek",
+        "hy4"
+      ],
+      "min_families": 1,
+      "degrade_below_min": "multi_sample_vote",
+      "env_constraint": {
+        "single_model_default": true,
+        "source": "用户 2026-10-22 15:17：「workbuddy 除非人为切换否则只有一个模型」",
+        "consequence": "跨家族独立性不可得；多席位只能是『同模型的多视角』，不能作为独立证据"
+      },
+      "_degrade_note": "原设计 min_families=3，2026-10-22 改为 1：环境本身只有一个模型，要求 3 个等于要求一件不存在的东西。降级策略=self_consistency 多采样多数票，与 arXiv:2508.17536 的结论一致——多数票已能复现大部分『辩论收益』。",
+      "multi_model_capable": true,
+      "pending_verification": true,
+      "_capability_note": "D-0036：官方文档支持 subagents.agents.<name>.model 与 variantModels，优先级里 Agent 的 model 入参可覆盖主模型。能力存在但本机未配置、未实测，故 min_families 暂维持 1；实测通过后升回 3。",
+      "_inventory_note": "2026-10-22 15:37 用户截图实测：可选 19 个模型，覆盖 8 个厂家。成本倍率 0.00x–1.62x。能力存在，但子代理是否按配置路由仍未实测。"
+    }
+  },
+  "read_domain": {
+    "config": "config/read_domains.json",
+    "check_output": "<round-dir>/read-domain-check.json",
+    "verdicts": [
+      "CLEAN",
+      "HIT",
+      "NO_DECLARATION"
+    ],
+    "action": "verdict == HIT ⇒ 结构审计第 9 查 HOLD",
+    "_severity_by_version": "v>=2.0 → deny 命中为 E_READ_DOMAIN_VIOLATION（error）；v<2.0 → W_READ_DOMAIN_VIOLATION（warning，仅告警）。无论严重度如何，越界事实都进 read-domain-check.json，第 9 查照样记 HIT。",
+    "_boundary": "★ 与写入域的检测强度天然不对称：写入改变文件（快照比对抓得住），读取不改变任何东西（唯一抓手是席位【申报了什么】与【把什么当成了证据】）。故 CLEAN 是下界，不是证明。物理隔离只能在目标机用文件权限实现（见 06 文档第三节）；Windows 开发机做不到。"
+  },
+  "presentation": {
+    "anonymized": true,
+    "order_randomized": true,
+    "length_normalized": true,
+    "_length_normalized_definition": [
+      "★ 本场景的「长度归一化」不是「等长化」，而是两件事：",
+      "  ① 提交时字段长度预算（见 max_chars_per_field），超限 → W_OVER_LENGTH",
+      "  ② 轮后诊断 length_spread {min,max,stdev}",
+      "真·等长化在本场景不可实现且不该实现：纯标准库做不了同义压缩；",
+      "截断到最短席位长度会按篇幅惩罚论证更充分的席位（奖励写得少的人），是反向偏置。"
+    ],
+    "_anonymization_boundary": "脚本能删身份标签，删不掉文风指纹。匿名化降低的是「显式身份驱动」谄媚，不是「文风驱动」谄媚。",
+    "max_chars_per_field": {
+      "conclusion": 200,
+      "evidence": 400,
+      "dissent": 800
+    },
+    "random_seed": null
+  },
+  "aggregation": {
+    "rule": "hard_judge_pass > evidence_backed_minority > evidence_less_majority",
+    "majority_weight_without_evidence": 0,
+    "note": "证据制，不是投票制。人数不产生权重，证据才产生权重。"
+  },
+  "dissent_conservation": {
+    "must_preserve_both_conclusions_on_round_exhaustion": true,
+    "each_conclusion_must_carry_falsification": true,
+    "forbidden": "为收尾好看而抹平分歧"
+  },
+  "audit": {
+    "ad01_can_reject_conclusions": false,
+    "ad01_has_veto": false,
+    "ad01_actions": [
+      "PASS",
+      "HOLD",
+      "ESCALATE"
+    ],
+    "cost_score_formula": "失效代价 ≈ 反馈延迟 × 判错成本 × 不可逆性",
+    "ad01_reject_scope": "argument_only",
+    "_reject_scope_note": "只驳「结论与证据不匹配 / 样本量不足 / 口径漂移」，不判「结论对错」。与 ad01_can_reject_conclusions=false 并存：前者是范围，后者是否决权。2026-10-22 审计 P0-2。"
+  },
+  "independence_discount": {
+    "cross_family_judge_available": true,
+    "discount_note": "2026-10-19 于 Mac mini M4 实测 PASS：inspect_agent_routing.py（包根，--project-dir 指定会话缓存）检出 glm-5.3-flash（智谱 GLM）与 hy4-preview（腾讯混元）2 个家族，以运行时 providerData.requestModelId 为证，未采信子代理自述。soft_judge_weight=0 为 protocol/04 设计值（软裁判仅提供线索，决策权重恒 0），非降级态。若日后判定 FAIL，则权重全部转移至 JD-01。",
+    "soft_judge_weight": 0,
+    "weight_transferred_to": "JD-01",
+    "verified_on": "2026-10-19",
+    "verified_result": "跨家族路由可用（M4 实测：glm-5.3-flash + hy4-preview，2 家族；历史会话另见 deepseek-v4.1-flash，共 3 家族可用）"
+  },
+  "cost_budget": {
+    "per_task_token_hard_cap": 160000,
+    "per_task_wall_clock_hard_cap": 30,
+    "wall_clock_unit": "minutes",
+    "tokens_unit": "tokens",
+    "action": "terminate_branch",
+    "_semantic": {
+      "per_task_token_hard_cap": "【定义式】tokens_total = Σ int(usage.tokens) over 本轮【全部席位】；与 per_task_token_hard_cap 比较。不是单席位上限，也不是单个子任务。历史命名 per_task 中『任务』= 一轮完整的六席流程。多任务并行时按轮次分别计量，不得跨轮相加。未申报的席位记入 missing，不记 0（未核验 ≠ 零消耗）。",
+      "per_task_wall_clock_hard_cap": "【定义式】minutes_span = max(各席位 usage.minutes)。不求和：PM-01 的 minutes 按定义就是【本轮整体跨度】，与各辩论席的时间是同一条时间轴上的重叠区间，求和会把同一段时间重复计入。",
+      "numerator_definition": "tokens_total = Σ int(usage.tokens)，仅计成功解析的申报项。",
+      "denominator_note": "本字段是【硬上限】，不是预算池；不存在『余额』概念。",
+      "_why_named_per_task": "改名 per_round_* 会打穿 REQUIRED_PARAM_PATHS、--self-test 字面量与 D-0007 引用，且改名本身不产生任何新信息。故保留原名，用本节把语义写成可执行的定义式（L-0005：阈值必须与定义式同时落盘）。"
+    },
+    "usage": {
+      "field": "usage",
+      "schema": {
+        "tokens": "int >= 0",
+        "minutes": "number >= 0",
+        "source": "self_report | metered（缺省 self_report）"
+      },
+      "required_for_new_rounds": true,
+      "_semantics": "tokens = 本席位自身消耗；minutes = 本席位自身用时。PM-01 的 minutes 定义为【本轮 wall-clock 跨度】，故 max(全部 minutes) 即本轮跨度，而不是求和。",
+      "_boundary": "★ 全部数值为【申报值】，脚本无法验证（与 reads[] 同类）。本机制只让预算成为『可追溯的声明 + 可执行的闸门』，不能证明数字为真。不申报 = 未核验 ≠ 未超支。"
+    },
+    "_basis": "来源：round3 六席 self_report 实测（runs/round3/*.json 的 usage 字段），tokens 合计 126100 —— EX-01 9800 / EX-02 21000 / EX-03 23500 / XJ-01 16800 / AD-01 31000 / PM-01 24000；wall-clock max=21.0（PM-01）。结构占比：四辩论席 71100（56.4%）+ 审计席 31000（24.6%）+ PM 24000（19.0%）。★ 成本【并非近似相等】：AD-01 单席是 EX-01 的 3.16 倍 —— 旧 _basis 的『3 EX + XJ-01 + AD-01 + PM ≈ 45–60k』正是错在这个假设上（实测 126100，高出 2.1–2.8 倍）。估算方法：取一轮完整六席申报之和为基数（不做单席外推），cap = ceil_to_10000(126100 × 1.2) = ceil_to_10000(151320) = 160000。★ 相对实测余量 33900（26.9%）—— 如实写 26.9%，不写『约 20%』：为了让数字好看而粉饰，正是上一版 _basis 失真的同一动作。wall-clock 30 分钟覆盖实测 21.0，保留原值。",
+    "_note": "★ 160000 = 实测 126100 + 26.9% 余量后的取整值，不是为了让条款能跑而填的估值（与旧 80000 的区别）。★ 截至 round3 仍无真实 token 计量：usage 全部为席位自述，故六席未全部申报时 status=unverifiable 是常态，不等于超支；只有全部申报且求和超限才是 exhausted。★ 本值只影响【未来轮次】：runs/round3/metrics.json 记录的是 cap=80000 下的历史结论（exit 4），不得据此重算或改写 —— 那是当时的真实观测。"
+  },
+  "hard_judge": {
+    "implementation": "judges/verify.py",
+    "is_llm": false,
+    "has_veto": true,
+    "override_requires_trace": true,
+    "override_format": "覆盖 JD-01 的 fail 判定。风险评级：__。不可逆：__。理由：__。承担人：PM-01。",
+    "numeric_checks_must_declare_tolerance": true,
+    "tolerance_note": "★实测证据：float 累加会偏离两位小数（(2500.01-2500.00)+(3210.51-3210.50)=0.020000000000436557 ≠ 0.02）。安全性当前被 tol=0.01 掩盖。目标机应改用 Decimal 或分单位整数，或把「金额检查必须带 tol」做成 spec 硬闸门。"
+  },
+  "authority": {
+    "_note": "D-0030：判据默认终审 + 人保留最终裁决权。日常默认通过 + 24h 事后否决；仅不可逆动作事前批。",
+    "default_judge": "auto",
+    "final_authority": "human",
+    "veto_window_hours": 24,
+    "irreversible_requires_approval": true,
+    "veto_record_field": "human_veto"
+  },
+  "metrics": {
+    "_note": "三轨全部保留并纳入展示；无数据源的轨道必须显示 no_data，不得推算。",
+    "tracks": [
+      {
+        "id": "error_decisions",
+        "name": "错误决策数",
+        "unit": "次/月",
+        "business": "决策事后被推翻或返工的次数——直接反映判断质量，随手可数",
+        "source": "decisions/ 与 round 记录里 status 含 撤回/作废/被推翻，或 human_veto 命中",
+        "baseline_required": true
+      },
+      {
+        "id": "rework_hours",
+        "name": "返工工时",
+        "unit": "小时/月",
+        "business": "因判断错误而重复投入的时间——比次数更贴近成本",
+        "source": "轮次记录的人工填报字段 rework_hours；缺失即以 no_data 展示",
+        "baseline_required": true
+      },
+      {
+        "id": "amount_deviation",
+        "name": "金额偏差",
+        "unit": "元",
+        "business": "对账/估值差多少——最硬的结果指标，只在有金额场景成立",
+        "source": "real-runs/*/recon-result.json 的残差合计",
+        "baseline_required": true
+      }
+    ],
+    "display": "scripts/team_metrics.py 输出 markdown + json；缺数据即 no_data"
+  }
+}

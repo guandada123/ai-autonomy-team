@@ -1,0 +1,93 @@
+{
+  "seat": "EX-01",
+  "round": 4,
+  "conclusion": "两表合计差 4480.00 元，全部由「金额记账差」T209（120.00）与「单侧独有」T207（4100.00）、T210（260.00）构成；「费用漏记」T202/T204/T208 合计 58.06 元、「入账日期口径差」T205 与「股数差异」T206 金额均为 0，不计入金额差异。T208 交割单重复两行，按单号去重 1 笔、金额 30000.00。我算得 diff_count=8，不在 DIFFSET 选项 7/6/5/4 内，故 stance 填 abstain 并说明。",
+  "evidence": [
+    {
+      "pointer": "fixtures/002/bill.csv#行8-9 txn_id=T208",
+      "path": "fixtures/002/bill.csv",
+      "selector": "行8-9 txn_id=T208",
+      "what_it_shows": "T208 在交割单出现两行，各 1000 股 / 15000.00 元，合计 30000.00 与自记账一行（2000 股 30000.00）一致，构成重复单号 1 笔、dedup_amount=30000.00；两行 transfer_fee 各 0.02，费用合计 7.54，自记账 7.50，费用差 0.04。"
+    },
+    {
+      "pointer": "fixtures/002/bill.csv#行10-11 txn_id=T207,T210",
+      "path": "fixtures/002/bill.csv",
+      "selector": "行10-11 txn_id=T207,T210",
+      "what_it_shows": "T207（中签买入 4100.00）与 T210（股息入账 260.00）仅交割单存在，为单侧独有差异，合计 4360.00。"
+    },
+    {
+      "pointer": "fixtures/002/ledger.csv#行9 txn_id=T209 vs fixtures/002/bill.csv#行10 txn_id=T209",
+      "path": "fixtures/002/ledger.csv",
+      "selector": "行9 T209 与 bill.csv 行10 T209",
+      "what_it_shows": "自记账按委托价 45.00 记 45000.00，交割单实际成交价 45.12 记 45120.00，金额差 abs(45000.00−45120.00)=120.00；费用差 11.33−11.25=0.08 归费用类。"
+    },
+    {
+      "pointer": "fixtures/002/ledger.csv#行3-4,6,8 fee_total 列 vs fixtures/002/bill.csv#fee_total 列",
+      "path": "fixtures/002/ledger.csv",
+      "selector": "T202/T204/T208 的 fee_total 列",
+      "what_it_shows": "T202 6.50 vs 6.76（差 0.26，过户费未记）、T204 0.00 vs 57.76（差 57.76，费用未入账）、T208 7.50 vs 7.54（差 0.04），合计 58.06，均属费用漏记，amount 列两侧一致。"
+    }
+  ],
+  "falsification": "若日期列应以 ledger.date 对 bill.settle_date 比对，则 T201/T202/T204/T208/T209 也将构成日期差异，diff_count 与分类需重算；若认定 T205（按交割日入账为既定口径）或 T206（送转权益变动、金额两侧均为 0）不构成差异单号，diff_count 将降为 7 或 6；若 T208 两行不应按单号去重而视为独立成交，dedup 字段与 T208 费用差归集亦改变。以上任一成立时，本结论的 diff_count=8 与分类归集即被证伪。",
+  "reads": [
+    {
+      "path": "runs/round4/prompts/EX-01.md",
+      "purpose": "读取席位提示词，确认读取域、输出 schema、stance 语义与字数预算"
+    },
+    {
+      "path": "fixtures/002/TASK.md",
+      "purpose": "确认字段定义、差异判定口径（四列比对+单侧）与四个易错点"
+    },
+    {
+      "path": "fixtures/002/ledger.csv",
+      "purpose": "取自记账 7 行原始数据，核算 ledger_total 与各单号股数/金额/费用/日期"
+    },
+    {
+      "path": "fixtures/002/bill.csv",
+      "purpose": "取交割单 10 行原始数据，核算 bill_total、识别重复单号 T208 与单侧独有 T207/T210"
+    }
+  ],
+  "dissent": [
+    {
+      "against": "ANON-A：若其主张 diff_count=7、将 T205 剔出差异清单（理由为「按交割日入账是既定口径，不构成差异」）",
+      "reason": "TASK.md 第 D 节明文规定差异单号为「两侧在股数/成交金额/费用/日期四列上不完全相同的单号」，T205 自记账日期 2026-09-30 与交割单成交日 2026-09-29 确实不同，按契约它必须进入 diffs；口径是否排除只影响它归入哪个类别及是否计入 amount_diff_total，不影响它是否为差异单号。剔出清单会把「口径差存在于清单、但不计入金额」的合法结构误降为清单缺失。",
+      "reverse_evidence": "若裁决方认定 D 节的「日期」应指 bill.settle_date 与 ledger.date 比对，或裁定「既定口径导致的日期不同不属差异」，则 T205 应剔出、diff_count=7 成立，我的 8 条清单被证伪。"
+    }
+  ],
+  "confidence": "high",
+  "needs_more_data": [
+    "我的 diff_count=8 不在 DIFFSET 选项 {7,6,5,4} 内，故 abstain；若裁决方认可 T205 或 T206 之一剔出清单，对应取 7，无需补数据，属口径裁定而非数据缺口。"
+  ],
+  "stance": [
+    {
+      "axis": "ADJ-001",
+      "choice": "exclude"
+    },
+    {
+      "axis": "DIFFSET",
+      "choice": "abstain"
+    }
+  ],
+  "summary": {
+    "ledger_rows": 7,
+    "bill_rows": 10,
+    "ledger_total": 358800.0,
+    "bill_total": 363280.0,
+    "raw_total_gap": 4480.0,
+    "dedup_removed_txn_count": 1,
+    "dedup_amount": 30000.0,
+    "diff_count": 8,
+    "amount_diff_total": 4480.0,
+    "excluded_amount_total": 58.06,
+    "excluded_categories": [
+      "费用漏记",
+      "股数差异",
+      "入账日期口径差"
+    ]
+  },
+  "usage": {
+    "tokens": 14000,
+    "minutes": 7,
+    "source": "self_report"
+  }
+}

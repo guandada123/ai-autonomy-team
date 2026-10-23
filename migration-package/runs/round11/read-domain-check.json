@@ -1,0 +1,327 @@
+{
+  "check": "read_domain",
+  "round_dir": "runs/round11",
+  "round_role": "evidence_round",
+  "contract_version": "2.1",
+  "stage": "B",
+  "generated_at": "2026-10-20T14:13:07+08:00",
+  "read_domains": "config/read_domains.json",
+  "applied": true,
+  "verdict": "CLEAN",
+  "hits": [],
+  "per_seat": [
+    {
+      "seat": "AD-01",
+      "status": "valid",
+      "declared_reads": [
+        {
+          "source": "reads[0]",
+          "declared": "runs/round11/prompts/AD-01.md",
+          "canonical": "runs/round11/prompts/AD-01.md",
+          "class": "allow"
+        },
+        {
+          "source": "reads[1]",
+          "declared": "runs/round11/verdict-layered.json",
+          "canonical": "runs/round11/verdict-layered.json",
+          "class": "allow"
+        },
+        {
+          "source": "reads[2]",
+          "declared": "runs/round11/pending-adjudication.json",
+          "canonical": "runs/round11/pending-adjudication.json",
+          "class": "allow"
+        },
+        {
+          "source": "reads[3]",
+          "declared": "runs/round11/read-domain-check.json",
+          "canonical": "runs/round11/read-domain-check.json",
+          "class": "allow"
+        },
+        {
+          "source": "reads[4]",
+          "declared": "runs/round11/seat-check.json",
+          "canonical": "runs/round11/seat-check.json",
+          "class": "allow"
+        },
+        {
+          "source": "reads[5]",
+          "declared": "runs/round11/EX-01.json",
+          "canonical": "runs/round11/EX-01.json",
+          "class": "allow"
+        },
+        {
+          "source": "reads[6]",
+          "declared": "runs/round11/EX-02.json",
+          "canonical": "runs/round11/EX-02.json",
+          "class": "allow"
+        },
+        {
+          "source": "reads[7]",
+          "declared": "runs/round11/EX-03.json",
+          "canonical": "runs/round11/EX-03.json",
+          "class": "allow"
+        },
+        {
+          "source": "reads[8]",
+          "declared": "runs/round11/XJ-01.json",
+          "canonical": "runs/round11/XJ-01.json",
+          "class": "allow"
+        },
+        {
+          "source": "reads[9]",
+          "declared": "runs/round11/PM-01.json",
+          "canonical": "runs/round11/PM-01.json",
+          "class": "allow"
+        },
+        {
+          "source": "reads[10]",
+          "declared": "runs/round11/answer-final.json",
+          "canonical": "runs/round11/answer-final.json",
+          "class": "allow"
+        },
+        {
+          "source": "reads[11]",
+          "declared": "runs/round11/answer-status.json",
+          "canonical": "runs/round11/answer-status.json",
+          "class": "allow"
+        },
+        {
+          "source": "reads[12]",
+          "declared": "runs/round11/round-manifest.json",
+          "canonical": "runs/round11/round-manifest.json",
+          "class": "allow"
+        },
+        {
+          "source": "reads[13]",
+          "declared": "fixtures/tasks/T-04/TASK.md",
+          "canonical": "fixtures/tasks/T-04/TASK.md",
+          "class": "unclassified"
+        },
+        {
+          "source": "reads[14]",
+          "declared": "fixtures/tasks/T-04/ledger.csv",
+          "canonical": "fixtures/tasks/T-04/ledger.csv",
+          "class": "unclassified"
+        },
+        {
+          "source": "reads[15]",
+          "declared": "fixtures/tasks/T-04/bill.csv",
+          "canonical": "fixtures/tasks/T-04/bill.csv",
+          "class": "unclassified"
+        },
+        {
+          "source": "reads[16]",
+          "declared": "runs/round11/（目录列举 ls）",
+          "canonical": "runs/round11/",
+          "class": "allow"
+        },
+        {
+          "source": "reads[17]",
+          "declared": "fixtures/（os.walk 元数据遍历与 mtime 分布统计，仅输出按分钟聚合的计数）",
+          "canonical": "fixtures/（os.walk",
+          "class": "unclassified"
+        },
+        {
+          "source": "reads[18]",
+          "declared": "fixtures/tasks/T-01、T-06~T-09 等目录的文件名（由 find -mmin 输出被动枚举，仅路径与 mtime）",
+          "canonical": "fixtures/tasks/T-01、T-06~T-09 等目录的文件名（由 find -mmin 输出被动枚举，仅路径与 mtime）",
+          "class": "unclassified"
+        }
+      ],
+      "evidence_derived": [
+        {
+          "source": "evidence[0]",
+          "declared": "runs/round11/pending-adjudication.json（verdict=pending_adjudication、summary.pending=2、adjudication_source=none、ts=2026-10-20T14:05:47+08:00）",
+          "canonical": "runs/round11/pending-adjudication.json（verdict=pending_adjudication、summary.pending=2、adjudication_source=none、ts=2026-10-20T14:05:47+08:00）",
+          "class": "allow"
+        },
+        {
+          "source": "evidence[1]",
+          "declared": "runs/round11/verdict-layered.json（10 项 checks 全部 ok=true、pending=2、answer.sha256=e68f3159…）",
+          "canonical": "runs/round11/verdict-layered.json（10 项 checks 全部 ok=true、pending=2、answer.sha256=e68f3159…）",
+          "class": "allow"
+        },
+        {
+          "source": "evidence[2]",
+          "declared": "fixtures/tasks/T-04/ledger.csv + bill.csv（csv+Decimal 全量 5+8 行独立复算）",
+          "canonical": "fixtures/tasks/T-04/ledger.csv",
+          "class": "unclassified"
+        },
+        {
+          "source": "evidence[3]",
+          "declared": "runs/round11/seat-check.json（xj_family_check=null；PM-01 sha256=261e6353…；generated_at=14:04:30）",
+          "canonical": "runs/round11/seat-check.json（xj_family_check=null；PM-01 sha256=261e6353…；generated_at=14:04:30）",
+          "class": "allow"
+        },
+        {
+          "source": "evidence[4]",
+          "declared": "runs/round11/read-domain-check.json（verdict=CLEAN、hits=[]、seats=5、boundary=声明式下界）",
+          "canonical": "runs/round11/read-domain-check.json（verdict=CLEAN、hits=[]、seats=5、boundary=声明式下界）",
+          "class": "allow"
+        },
+        {
+          "source": "evidence[5]",
+          "declared": "runs/round11/PM-01.json:diff_preserved（6 条，含少数派原文）与 EX-01/EX-02/EX-03.json 的 stance/summary 字段",
+          "canonical": "EX-01/EX-02/EX-03.json",
+          "class": "unclassified"
+        },
+        {
+          "source": "evidence[5]",
+          "declared": "runs/round11/PM-01.json:diff_preserved（6 条，含少数派原文）与 EX-01/EX-02/EX-03.json 的 stance/summary 字段",
+          "canonical": "runs/round11/PM-01.json",
+          "class": "allow"
+        },
+        {
+          "source": "evidence[6]",
+          "declared": "runs/round11/EX-01.json / EX-02.json / EX-03.json 的字段全集（diffs/categories 缺失情况）",
+          "canonical": "runs/round11/EX-01.json",
+          "class": "allow"
+        },
+        {
+          "source": "evidence[7]",
+          "declared": "fixtures/ 文件 mtime 分布（161 件 @2026-10-20T13:46）与 runs/round11 各产物 mtime（EX 13:42:49 / answer-final 14:02:27 / seat-check 14:04:30 / answer-status 14:05:34 / verdict 14:05:47 / PM-01 14:06:20）",
+          "canonical": "fixtures/",
+          "class": "unclassified"
+        }
+      ],
+      "severity": "error"
+    },
+    {
+      "seat": "PM-01",
+      "status": "valid",
+      "declared_reads": [
+        {
+          "source": "reads[0]",
+          "declared": "runs/round11/prompts/PM-01.md",
+          "canonical": "runs/round11/prompts/PM-01.md",
+          "class": "allow"
+        },
+        {
+          "source": "reads[1]",
+          "declared": "fixtures/tasks/T-04/TASK.md",
+          "canonical": "fixtures/tasks/T-04/TASK.md",
+          "class": "unclassified"
+        },
+        {
+          "source": "reads[2]",
+          "declared": "fixtures/tasks/T-04/ledger.csv",
+          "canonical": "fixtures/tasks/T-04/ledger.csv",
+          "class": "unclassified"
+        },
+        {
+          "source": "reads[3]",
+          "declared": "fixtures/tasks/T-04/bill.csv",
+          "canonical": "fixtures/tasks/T-04/bill.csv",
+          "class": "unclassified"
+        },
+        {
+          "source": "reads[4]",
+          "declared": "runs/round11/EX-01.json",
+          "canonical": "runs/round11/EX-01.json",
+          "class": "allow"
+        },
+        {
+          "source": "reads[5]",
+          "declared": "runs/round11/EX-02.json",
+          "canonical": "runs/round11/EX-02.json",
+          "class": "allow"
+        },
+        {
+          "source": "reads[6]",
+          "declared": "runs/round11/EX-03.json",
+          "canonical": "runs/round11/EX-03.json",
+          "class": "allow"
+        },
+        {
+          "source": "reads[7]",
+          "declared": "runs/round11/XJ-01.json",
+          "canonical": "runs/round11/XJ-01.json",
+          "class": "allow"
+        },
+        {
+          "source": "reads[8]",
+          "declared": "runs/round11/round-manifest.json",
+          "canonical": "runs/round11/round-manifest.json",
+          "class": "allow"
+        },
+        {
+          "source": "reads[9]",
+          "declared": "protocol/07-轮次与指标.md",
+          "canonical": "protocol/07-轮次与指标.md",
+          "class": "allow"
+        },
+        {
+          "source": "reads[10]",
+          "declared": "runs/round11/seat-check.json",
+          "canonical": "runs/round11/seat-check.json",
+          "class": "allow"
+        },
+        {
+          "source": "reads[11]",
+          "declared": "runs/round11/read-domain-check.json",
+          "canonical": "runs/round11/read-domain-check.json",
+          "class": "allow"
+        }
+      ],
+      "evidence_derived": [
+        {
+          "source": "evidence[0]",
+          "declared": "runs/round11/seat-check.json（stage=A，verdict=all_valid，aggregation_blocked=[]，4/4 valid）",
+          "canonical": "runs/round11/seat-check.json",
+          "class": "allow"
+        },
+        {
+          "source": "evidence[1]",
+          "declared": "fixtures/tasks/T-04/ledger.csv + bill.csv（python3 + Decimal 全量 5+8 行独立复算）",
+          "canonical": "fixtures/tasks/T-04/ledger.csv",
+          "class": "unclassified"
+        },
+        {
+          "source": "evidence[2]",
+          "declared": "fixtures/tasks/T-04/ledger.csv + bill.csv 日期列逐单比对",
+          "canonical": "bill.csv",
+          "class": "unclassified"
+        },
+        {
+          "source": "evidence[2]",
+          "declared": "fixtures/tasks/T-04/ledger.csv + bill.csv 日期列逐单比对",
+          "canonical": "fixtures/tasks/T-04/ledger.csv",
+          "class": "unclassified"
+        },
+        {
+          "source": "evidence[3]",
+          "declared": "fixtures/tasks/T-04/ledger.csv 的 note 列（T027「按委托价记账」、T030「10送3，未更新持仓股数」、T032「按交割日入账」）对照 bill.csv 的 note 列（T032「按成交日列示」）",
+          "canonical": "fixtures/tasks/T-04/ledger.csv",
+          "class": "unclassified"
+        },
+        {
+          "source": "evidence[4]",
+          "declared": "runs/round11/EX-01.json / EX-02.json / EX-03.json / XJ-01.json",
+          "canonical": "runs/round11/EX-01.json",
+          "class": "allow"
+        },
+        {
+          "source": "evidence[5]",
+          "declared": "runs/round11/answer-status.json（JD-01 生成，provenance=post_hoc_derived）与 seat_check.py --verify-final 输出",
+          "canonical": "runs/round11/answer-status.json",
+          "class": "allow"
+        },
+        {
+          "source": "evidence[5]",
+          "declared": "runs/round11/answer-status.json（JD-01 生成，provenance=post_hoc_derived）与 seat_check.py --verify-final 输出",
+          "canonical": "seat_check.py",
+          "class": "unclassified"
+        }
+      ],
+      "severity": "error"
+    }
+  ],
+  "summary": {
+    "seats": 2,
+    "hits": 0,
+    "seats_declaring_reads": 2
+  },
+  "boundary": "本文件是【声明式下界】：CLEAN 只说明「没有可检出的越界」，不说明「没有越界」。席位读取未申报的文件，对脚本完全不可见。",
+  "action": "PASS"
+}

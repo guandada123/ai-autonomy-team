@@ -1,0 +1,449 @@
+{
+  "check": "read_domain",
+  "round_dir": "runs/round7",
+  "round_role": "evidence_round",
+  "contract_version": "2.1",
+  "stage": "all",
+  "generated_at": "2026-10-20T08:35:56+08:00",
+  "read_domains": "config/read_domains.json",
+  "applied": true,
+  "verdict": "CLEAN",
+  "hits": [],
+  "per_seat": [
+    {
+      "seat": "EX-01",
+      "status": "valid",
+      "declared_reads": [
+        {
+          "source": "reads[0]",
+          "declared": "runs/round7/prompts/EX-01.md",
+          "canonical": "runs/round7/prompts/EX-01.md",
+          "class": "allow"
+        },
+        {
+          "source": "reads[1]",
+          "declared": "fixtures/tasks/T-03/TASK.md",
+          "canonical": "fixtures/tasks/T-03/TASK.md",
+          "class": "unclassified"
+        },
+        {
+          "source": "reads[2]",
+          "declared": "fixtures/tasks/T-03/ledger.csv",
+          "canonical": "fixtures/tasks/T-03/ledger.csv",
+          "class": "unclassified"
+        },
+        {
+          "source": "reads[3]",
+          "declared": "fixtures/tasks/T-03/bill.csv",
+          "canonical": "fixtures/tasks/T-03/bill.csv",
+          "class": "unclassified"
+        }
+      ],
+      "evidence_derived": [
+        {
+          "source": "evidence[0]",
+          "declared": "fixtures/tasks/T-03/ledger.csv:2-6 字段 amount",
+          "canonical": "fixtures/tasks/T-03/ledger.csv",
+          "class": "unclassified"
+        },
+        {
+          "source": "evidence[1]",
+          "declared": "fixtures/tasks/T-03/bill.csv:2-9 字段 amount",
+          "canonical": "fixtures/tasks/T-03/bill.csv",
+          "class": "unclassified"
+        },
+        {
+          "source": "evidence[2]",
+          "declared": "fixtures/tasks/T-03/bill.csv:4 与 ledger.csv:4（T019）",
+          "canonical": "fixtures/tasks/T-03/bill.csv",
+          "class": "unclassified"
+        },
+        {
+          "source": "evidence[2]",
+          "declared": "fixtures/tasks/T-03/bill.csv:4 与 ledger.csv:4（T019）",
+          "canonical": "ledger.csv",
+          "class": "unclassified"
+        },
+        {
+          "source": "evidence[3]",
+          "declared": "fixtures/tasks/T-03/bill.csv:9 与 ledger.csv:6（T024）",
+          "canonical": "fixtures/tasks/T-03/bill.csv",
+          "class": "unclassified"
+        },
+        {
+          "source": "evidence[3]",
+          "declared": "fixtures/tasks/T-03/bill.csv:9 与 ledger.csv:6（T024）",
+          "canonical": "ledger.csv",
+          "class": "unclassified"
+        },
+        {
+          "source": "evidence[4]",
+          "declared": "fixtures/tasks/T-03/bill.csv:5-8（T020/T021/T022/T023）",
+          "canonical": "fixtures/tasks/T-03/bill.csv",
+          "class": "unclassified"
+        }
+      ],
+      "severity": "error"
+    },
+    {
+      "seat": "EX-02",
+      "status": "valid",
+      "declared_reads": [
+        {
+          "source": "reads[0]",
+          "declared": "runs/round7/prompts/EX-02.md",
+          "canonical": "runs/round7/prompts/EX-02.md",
+          "class": "allow"
+        },
+        {
+          "source": "reads[1]",
+          "declared": "fixtures/tasks/T-03/TASK.md",
+          "canonical": "fixtures/tasks/T-03/TASK.md",
+          "class": "unclassified"
+        },
+        {
+          "source": "reads[2]",
+          "declared": "fixtures/tasks/T-03/ledger.csv",
+          "canonical": "fixtures/tasks/T-03/ledger.csv",
+          "class": "unclassified"
+        },
+        {
+          "source": "reads[3]",
+          "declared": "fixtures/tasks/T-03/bill.csv",
+          "canonical": "fixtures/tasks/T-03/bill.csv",
+          "class": "unclassified"
+        }
+      ],
+      "evidence_derived": [
+        {
+          "source": "evidence[0]",
+          "declared": "fixtures/tasks/T-03/ledger.csv#L2-L6 全 5 行 amount 列",
+          "canonical": "fixtures/tasks/T-03/ledger.csv",
+          "class": "unclassified"
+        },
+        {
+          "source": "evidence[1]",
+          "declared": "fixtures/tasks/T-03/bill.csv#L2-L9 全 8 行 amount 列",
+          "canonical": "fixtures/tasks/T-03/bill.csv",
+          "class": "unclassified"
+        },
+        {
+          "source": "evidence[2]",
+          "declared": "fixtures/tasks/T-03/bill.csv#L5 (T020 中签买入 26000.00) 与 ledger.csv 无 T020",
+          "canonical": "fixtures/tasks/T-03/bill.csv",
+          "class": "unclassified"
+        },
+        {
+          "source": "evidence[2]",
+          "declared": "fixtures/tasks/T-03/bill.csv#L5 (T020 中签买入 26000.00) 与 ledger.csv 无 T020",
+          "canonical": "ledger.csv",
+          "class": "unclassified"
+        },
+        {
+          "source": "evidence[3]",
+          "declared": "fixtures/tasks/T-03/bill.csv#L6,L8 (T021/T023 股息 260.00×2)",
+          "canonical": "fixtures/tasks/T-03/bill.csv",
+          "class": "unclassified"
+        },
+        {
+          "source": "evidence[4]",
+          "declared": "fixtures/tasks/T-03/ledger.csv#L6 vs bill.csv#L9 (T024)",
+          "canonical": "fixtures/tasks/T-03/ledger.csv",
+          "class": "unclassified"
+        },
+        {
+          "source": "evidence[5]",
+          "declared": "fixtures/tasks/T-03/ledger.csv#L4 vs bill.csv#L4 (T019)",
+          "canonical": "fixtures/tasks/T-03/ledger.csv",
+          "class": "unclassified"
+        }
+      ],
+      "severity": "error"
+    },
+    {
+      "seat": "EX-03",
+      "status": "valid",
+      "declared_reads": [
+        {
+          "source": "reads[0]",
+          "declared": "runs/round7/prompts/EX-03.md",
+          "canonical": "runs/round7/prompts/EX-03.md",
+          "class": "allow"
+        },
+        {
+          "source": "reads[1]",
+          "declared": "fixtures/tasks/T-03/TASK.md",
+          "canonical": "fixtures/tasks/T-03/TASK.md",
+          "class": "unclassified"
+        },
+        {
+          "source": "reads[2]",
+          "declared": "fixtures/tasks/T-03/ledger.csv",
+          "canonical": "fixtures/tasks/T-03/ledger.csv",
+          "class": "unclassified"
+        },
+        {
+          "source": "reads[3]",
+          "declared": "fixtures/tasks/T-03/bill.csv",
+          "canonical": "fixtures/tasks/T-03/bill.csv",
+          "class": "unclassified"
+        }
+      ],
+      "evidence_derived": [
+        {
+          "source": "evidence[0]",
+          "declared": "fixtures/tasks/T-03/ledger.csv:2-6 · amount 列 · 全 5 行",
+          "canonical": "fixtures/tasks/T-03/ledger.csv",
+          "class": "unclassified"
+        },
+        {
+          "source": "evidence[1]",
+          "declared": "fixtures/tasks/T-03/bill.csv:2-9 · amount 列 · 全 8 行",
+          "canonical": "fixtures/tasks/T-03/bill.csv",
+          "class": "unclassified"
+        },
+        {
+          "source": "evidence[2]",
+          "declared": "fixtures/tasks/T-03/bill.csv:4 与 ledger.csv:4 · T019 的 amount/fee_total 单元格",
+          "canonical": "fixtures/tasks/T-03/bill.csv",
+          "class": "unclassified"
+        },
+        {
+          "source": "evidence[2]",
+          "declared": "fixtures/tasks/T-03/bill.csv:4 与 ledger.csv:4 · T019 的 amount/fee_total 单元格",
+          "canonical": "ledger.csv",
+          "class": "unclassified"
+        },
+        {
+          "source": "evidence[3]",
+          "declared": "fixtures/tasks/T-03/bill.csv:5,6,8 · T020/T021/T023 的 amount 单元格",
+          "canonical": "fixtures/tasks/T-03/bill.csv",
+          "class": "unclassified"
+        },
+        {
+          "source": "evidence[4]",
+          "declared": "fixtures/tasks/T-03/ledger.csv:5 与 bill.csv:7 · T022 的 shares 单元格",
+          "canonical": "bill.csv",
+          "class": "unclassified"
+        },
+        {
+          "source": "evidence[4]",
+          "declared": "fixtures/tasks/T-03/ledger.csv:5 与 bill.csv:7 · T022 的 shares 单元格",
+          "canonical": "fixtures/tasks/T-03/ledger.csv",
+          "class": "unclassified"
+        },
+        {
+          "source": "evidence[5]",
+          "declared": "fixtures/tasks/T-03/ledger.csv:6 与 bill.csv:9 · T024 的日期列",
+          "canonical": "bill.csv",
+          "class": "unclassified"
+        },
+        {
+          "source": "evidence[5]",
+          "declared": "fixtures/tasks/T-03/ledger.csv:6 与 bill.csv:9 · T024 的日期列",
+          "canonical": "fixtures/tasks/T-03/ledger.csv",
+          "class": "unclassified"
+        },
+        {
+          "source": "evidence[6]",
+          "declared": "fixtures/tasks/T-03/TASK.md:61-64,71-73,81-84",
+          "canonical": "fixtures/tasks/T-03/TASK.md",
+          "class": "unclassified"
+        }
+      ],
+      "severity": "error"
+    },
+    {
+      "seat": "PM-01",
+      "status": "valid",
+      "declared_reads": [
+        {
+          "source": "reads[0]",
+          "declared": "runs/round7/prompts/PM-01.md",
+          "canonical": "runs/round7/prompts/PM-01.md",
+          "class": "allow"
+        },
+        {
+          "source": "reads[1]",
+          "declared": "fixtures/tasks/T-03/TASK.md",
+          "canonical": "fixtures/tasks/T-03/TASK.md",
+          "class": "unclassified"
+        },
+        {
+          "source": "reads[2]",
+          "declared": "fixtures/tasks/T-03/ledger.csv",
+          "canonical": "fixtures/tasks/T-03/ledger.csv",
+          "class": "unclassified"
+        },
+        {
+          "source": "reads[3]",
+          "declared": "fixtures/tasks/T-03/bill.csv",
+          "canonical": "fixtures/tasks/T-03/bill.csv",
+          "class": "unclassified"
+        },
+        {
+          "source": "reads[4]",
+          "declared": "runs/round7/EX-01.json",
+          "canonical": "runs/round7/EX-01.json",
+          "class": "allow"
+        },
+        {
+          "source": "reads[5]",
+          "declared": "runs/round7/EX-02.json",
+          "canonical": "runs/round7/EX-02.json",
+          "class": "allow"
+        },
+        {
+          "source": "reads[6]",
+          "declared": "runs/round7/EX-03.json",
+          "canonical": "runs/round7/EX-03.json",
+          "class": "allow"
+        },
+        {
+          "source": "reads[7]",
+          "declared": "runs/round7/XJ-01.json",
+          "canonical": "runs/round7/XJ-01.json",
+          "class": "allow"
+        },
+        {
+          "source": "reads[8]",
+          "declared": "runs/round7/rejected-fabricated/",
+          "canonical": "runs/round7/rejected-fabricated/",
+          "class": "allow"
+        }
+      ],
+      "evidence_derived": [],
+      "severity": "error"
+    },
+    {
+      "seat": "XJ-01",
+      "status": "valid",
+      "declared_reads": [
+        {
+          "source": "reads[0]",
+          "declared": "runs/round7/prompts/XJ-01.md",
+          "canonical": "runs/round7/prompts/XJ-01.md",
+          "class": "allow"
+        },
+        {
+          "source": "reads[1]",
+          "declared": "fixtures/tasks/T-03/TASK.md",
+          "canonical": "fixtures/tasks/T-03/TASK.md",
+          "class": "unclassified"
+        },
+        {
+          "source": "reads[2]",
+          "declared": "fixtures/tasks/T-03/ledger.csv",
+          "canonical": "fixtures/tasks/T-03/ledger.csv",
+          "class": "unclassified"
+        },
+        {
+          "source": "reads[3]",
+          "declared": "fixtures/tasks/T-03/bill.csv",
+          "canonical": "fixtures/tasks/T-03/bill.csv",
+          "class": "unclassified"
+        },
+        {
+          "source": "reads[4]",
+          "declared": "runs/round7/EX-01.json",
+          "canonical": "runs/round7/EX-01.json",
+          "class": "allow"
+        },
+        {
+          "source": "reads[5]",
+          "declared": "runs/round7/EX-02.json",
+          "canonical": "runs/round7/EX-02.json",
+          "class": "allow"
+        },
+        {
+          "source": "reads[6]",
+          "declared": "runs/round7/EX-03.json",
+          "canonical": "runs/round7/EX-03.json",
+          "class": "allow"
+        }
+      ],
+      "evidence_derived": [
+        {
+          "source": "evidence[0]",
+          "declared": "fixtures/tasks/T-03/ledger.csv#amount列合计",
+          "canonical": "fixtures/tasks/T-03/ledger.csv",
+          "class": "unclassified"
+        },
+        {
+          "source": "evidence[1]",
+          "declared": "fixtures/tasks/T-03/bill.csv#amount列合计",
+          "canonical": "fixtures/tasks/T-03/bill.csv",
+          "class": "unclassified"
+        },
+        {
+          "source": "evidence[2]",
+          "declared": "fixtures/tasks/T-03/bill.csv#row=T020",
+          "canonical": "fixtures/tasks/T-03/bill.csv",
+          "class": "unclassified"
+        },
+        {
+          "source": "evidence[3]",
+          "declared": "fixtures/tasks/T-03/bill.csv#rows=T021,T023",
+          "canonical": "fixtures/tasks/T-03/bill.csv",
+          "class": "unclassified"
+        },
+        {
+          "source": "evidence[4]",
+          "declared": "fixtures/tasks/T-03/ledger.csv#row=T019 + bill.csv#row=T019",
+          "canonical": "bill.csv",
+          "class": "unclassified"
+        },
+        {
+          "source": "evidence[4]",
+          "declared": "fixtures/tasks/T-03/ledger.csv#row=T019 + bill.csv#row=T019",
+          "canonical": "fixtures/tasks/T-03/ledger.csv",
+          "class": "unclassified"
+        },
+        {
+          "source": "evidence[5]",
+          "declared": "fixtures/tasks/T-03/ledger.csv#row=T022 vs bill.csv#row=T022",
+          "canonical": "fixtures/tasks/T-03/ledger.csv",
+          "class": "unclassified"
+        },
+        {
+          "source": "evidence[6]",
+          "declared": "fixtures/tasks/T-03/ledger.csv#row=T024 vs bill.csv#row=T024",
+          "canonical": "fixtures/tasks/T-03/ledger.csv",
+          "class": "unclassified"
+        },
+        {
+          "source": "evidence[7]",
+          "declared": "runs/round7/EX-02.json#conclusion+summary+falsification",
+          "canonical": "runs/round7/EX-02.json",
+          "class": "allow"
+        },
+        {
+          "source": "evidence[8]",
+          "declared": "runs/round7/EX-03.json#conclusion+summary",
+          "canonical": "runs/round7/EX-03.json",
+          "class": "allow"
+        },
+        {
+          "source": "evidence[9]",
+          "declared": "runs/round7/EX-01.json#summary vs EX-02.json#summary",
+          "canonical": "runs/round7/EX-01.json",
+          "class": "allow"
+        },
+        {
+          "source": "evidence[10]",
+          "declared": "runs/round7/EX-02.json#reads+disclosure",
+          "canonical": "runs/round7/EX-02.json",
+          "class": "allow"
+        }
+      ],
+      "severity": "error"
+    }
+  ],
+  "summary": {
+    "seats": 5,
+    "hits": 0,
+    "seats_declaring_reads": 5
+  },
+  "boundary": "本文件是【声明式下界】：CLEAN 只说明「没有可检出的越界」，不说明「没有越界」。席位读取未申报的文件，对脚本完全不可见。",
+  "action": "PASS"
+}

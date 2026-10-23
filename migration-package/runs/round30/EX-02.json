@@ -1,0 +1,128 @@
+{
+  "seat": "EX-02",
+  "round": 30,
+  "conclusion": "最强反论：26640.00 只是「所有差额一律装进同一个桶」的算术副产品，不是分类正确性。股息与送转是权益类非成交事件（T053 甚至是唯一非 000858 标的、自记账全表无 600519），把 520.00 塞进成交金额差异会让差异指标失真；T056 仅日期口径不同、差额 0.00，占位一条只会虚增条数。我方口径：diff_count=5、amount_diff_total=26000.00、excluded_amount_total=640.00。",
+  "strongest_counter_arguments": [
+    {
+      "target": "ANON-A",
+      "argument": "「amount_diff_total 等于 raw_total_gap(26640.00) 所以口径正确」是同义反复：只要把所有非零差额都归入「计入」，该恒等式必然成立，它对「哪类差额不该计入」零信息量。反证方式很简单——排除口径下 26120.00+520.00=26640.00、我方口径下 26000.00+640.00=26640.00，三个口径全部闭合。闭合性来自构造，不来自证据；用它当正确性判据，等于用加法验证分类学。",
+      "reverse_evidence": "若某个口径下 计入+排除 ≠ raw_total_gap，说明该口径漏项或重复计，此时恒等式才具备判别力；或若能给出契约明文要求「全部差异一律计入」，则恒等式与文本同时成立，我方让步。"
+    },
+    {
+      "target": "ANON-A",
+      "argument": "T052 一条就占计入总额的 97.6%（26000/26640），差异指标退化为「有没有漏记一笔中签」。指标要能被多条摊平才具备区分度；把 520.00 的权益项也计入，看似把指标拉满，实则稀释不了单条主导度（26640 里 26000 仍占 97.6%），所以「全计入更完整」这个理由在信息论上不成立。",
+      "reverse_evidence": "若类似任务中单条占比长期低于 50%，则「单条主导」不构成对全计入口径的反驳。"
+    },
+    {
+      "target": "ANON-C",
+      "argument": "T056 被列入差异清单，但股数/成交金额/费用三项全等、仅入账日 2026-09-17 与成交日 2026-09-16 相差一日（恰等于 settle_date）。这是记账基准差异，不是记录不一致；把它计入 diff_count 会让「差异条数」同时承载两类互不换算的量（有钱的差与没钱的差），此后任何按条数做的分诊都会误判。",
+      "reverse_evidence": "若能证明 ledger 的入账日在正常情形下应等于成交日（即该台账约定按成交日入账），则 T056 是真实记账错误，必须列入清单。"
+    }
+  ],
+  "what_would_change_my_mind": "三条任一成立即使我放弃本立场：①契约或裁决记录明文规定权益类不计入/计入的具体准则（而非让席位自拟类别名）；②提供 600519 属本账户的持仓或资金流水，证明 T053 的 260.00 是本账户权益而非跨标的串号；③提供台账记账约定写明入账日应等于成交日，使 T056 成为确定的记录错误。",
+  "evidence": [
+    {
+      "pointer": "fixtures/tasks/T-07/bill.csv#T053 的 code 列",
+      "what_it_shows": "T053 是 bill 全表唯一的非 000858 标的（600519），金额 260.00、side=股息入账、shares=0、价格 0.00、费用全 0。与自记账全表（5 行均为 000858）无任何标的对应关系，属权益类而非成交类。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-07/bill.csv#T054 的 shares 列与 amount 列",
+      "what_it_shows": "股数 30、amount 0.00、price 0.00、三项费用均为 0.00；即该单号在金额维度贡献恒为 0。把它计入成交金额差异不改变 26640.00 一分钱，却把 diff_count 抬高一条——条数与金额两条轴在此单号上完全脱钩。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-07/bill.csv#T055 的 side 列",
+      "what_it_shows": "side=股息入账、amount 260.00、shares=0、费用全 0.00；与 T053 同构，两笔合计 520.00，构成排除口径的全部金额来源。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-07/ledger.csv#T051,T056 的 note 列",
+      "what_it_shows": "note 分别为「按委托价记账」「按交割日入账」——台账自己标注了这两笔用的是异于对手方的基准，属口径差而非未知原因差额；这正是 ADJ-001 要裁决的对象，不应在算术层被默认吞进 amount_diff_total。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-07/bill.csv#T056 的 trade_date 与 settle_date 列",
+      "what_it_shows": "trade_date=2026-09-16、settle_date=2026-09-17；ledger.date=2026-09-17 与 settle_date 同日。即 T056 的日期差是「入账日对齐交割日」的正常记账结果，差额 0.00，非金额差错。"
+    }
+  ],
+  "falsification": "若契约被解释为「凡四列不完全相同即为差异单号且一律计入金额差异」，则我方 5 条清单与 26000.00/640.00 同时为错，正确值应为 6 条与 26640.00/0.00；若 T056 的入账日应按台账约定等于成交日，则 diff_count 应回到 6 而非 5。",
+  "reads": [
+    {
+      "path": "runs/round30/prompts/EX-02.md",
+      "purpose": "读取对立面席位职责、steelman 纪律与输出契约字段"
+    },
+    {
+      "path": "runs/round30/prompts/EX-01.md",
+      "purpose": "确认同轮其它席位的字段要求与 stance 选项空间，避免把「多数派」误解成选项之外；不作证据"
+    },
+    {
+      "path": "runs/round30/prompts/EX-03.md",
+      "purpose": "确认落地席位的 cost/op_grade 结构，判断其结论是否可能被成本论据绑架；不作证据"
+    },
+    {
+      "path": "fixtures/tasks/T-07/TASK.md",
+      "purpose": "读取 summary 字段定义、重复项口径、四列差异判定与四个易错点，定位可攻击的判定边界"
+    },
+    {
+      "path": "fixtures/tasks/T-07/bill.csv",
+      "purpose": "逐行复算 8 行与 128460.00，并取 code/side/trade_date/settle_date/分项费用作为反论证据"
+    },
+    {
+      "path": "fixtures/tasks/T-07/ledger.csv",
+      "purpose": "逐行复算 5 行与 101820.00，取 note 列判断两笔口径差的自述依据"
+    },
+    {
+      "path": "protocol/02-辩论协议.md",
+      "purpose": "确认对立面 KPI（被说服即失职）与「人数不产生权重、证据才产生权重」的聚合规则"
+    },
+    {
+      "path": "protocol/06-写入域与判据分层.md",
+      "purpose": "确认 diff_count/amount_diff_total/excluded_amount_total 属 adjudication 层，机器侧无 expected，故多数派口径不具真值地位"
+    },
+    {
+      "path": "protocol/07-轮次与指标.md",
+      "purpose": "确认 DIFFSET 取 summary.diff_count、ADJ-001 由 excluded_amount_total 是否为零反推，以及 W_STANCE_SEMANTIC_CONFLICT 的判据"
+    }
+  ],
+  "dissent": [
+    {
+      "against": "ANON-A",
+      "reason": "全计入口径把 T054（金额 0.00）与 T052（金额 26000.00）同等计为「一条差异」，随后又用 diff_count 与 amount_diff_total 两个数并列呈现，读者会误以为 6 条差异对应 26640.00 的可分摊结构；实际上 6 条中 3 条金额为 0（T054/T056 及部分）——条数与金额在此彻底脱钩，把二者放在同一张 summary 里而不加标注，是给人看的数字，不是给人判的数字。",
+      "reverse_evidence": "若 summary 约定要求同时给出条数与金额并明确二者不可互相分摊（例如规定 diff_count 只作分诊用、金额只作对账用），则该批评不成立。"
+    }
+  ],
+  "confidence": "medium",
+  "needs_more_data": [
+    "缺数据：无 600519 的持仓/资金流水，无法确认 T053 的 260.00 是否属本账户权益（这是我把 T053 归入排除类的关键前提）。",
+    "缺数据：无持仓余额表，无法核验 T054 送转 30 股的基准股数（10 送 3 对应基准 300 股，但自记账 000858 实际净持仓推算为 100 股，送转基数对不上）。",
+    "缺规则：契约未定义「日期列」在台账只有入账日、交割单有成交日与交割日两列时应对照哪一列，导致 T056 是否计入完全取决于解释。",
+    "缺规则：DIFFSET 选项空间 7/6/5/4 隐含「跨月」维度，本任务无跨自然月单号，选项无法表达「跨期(跨日)」这一真实争议，属选项空间与夹具结构不匹配。"
+  ],
+  "stance": [
+    {"axis": "ADJ-001", "choice": "exclude"},
+    {"axis": "DIFFSET", "choice": "5"}
+  ],
+  "summary": {
+    "ledger_rows": 5,
+    "bill_rows": 8,
+    "ledger_total": 101820.00,
+    "bill_total": 128460.00,
+    "raw_total_gap": 26640.00,
+    "dedup_removed_txn_count": 0,
+    "dedup_amount": 0.00,
+    "diff_count": 5,
+    "amount_diff_total": 26000.00,
+    "excluded_amount_total": 640.00,
+    "excluded_categories": ["权益类非成交变动", "成交价口径差"]
+  },
+  "diffs": [
+    {"id": "T051", "category": "成交价口径差"},
+    {"id": "T052", "category": "自记账遗漏(中签买入)"},
+    {"id": "T053", "category": "权益类非成交变动"},
+    {"id": "T054", "category": "权益类非成交变动"},
+    {"id": "T055", "category": "权益类非成交变动"}
+  ],
+  "categories": {
+    "成交价口径差": ["T051"],
+    "自记账遗漏(中签买入)": ["T052"],
+    "权益类非成交变动": ["T053", "T054", "T055"]
+  },
+  "usage": {"tokens": 6400, "minutes": 10, "source": "self_report"}
+}

@@ -1,0 +1,32 @@
+{
+  "task_id": "TASK-BROKER-RECON-002",
+  "note": "事实表列 schema（D-0012）：定义派生「观测不一致」时逐列比对的字段与渲染表头。缺失此文件 = 001 默认布局。★ 比对列必须两侧 CSV 都存在，否则 fail-closed 拒绝。",
+  "key": "txn_id",
+  "sides": [
+    {
+      "file": "ledger.csv",
+      "name": "自记账",
+      "date_col": "date",
+      "amount_col": "amount",
+      "compare": [
+        {"col": "fee_total", "label": "费用", "agg": "sum", "fmt": "money"},
+        {"col": "shares", "label": "股数", "agg": "sum", "fmt": "int"}
+      ]
+    },
+    {
+      "file": "bill.csv",
+      "name": "交割单",
+      "date_col": "trade_date",
+      "amount_col": "amount",
+      "compare": [
+        {"col": "fee_total", "label": "费用", "agg": "sum", "fmt": "money"},
+        {"col": "shares", "label": "股数", "agg": "sum", "fmt": "int"}
+      ]
+    }
+  ],
+  "_why": [
+    "金额/费用/股数取 sum（同单号多行合计后比对），行数与日期集合参与签名 —— 与 001 的「行数/金额合计/日期集合/标记列」四项观测同构。",
+    "日期列：自记账用 date（入账日），交割单用 trade_date（成交日）。settle_date 是另一候选基准，属裁决层歧义（XJ-01 已点名），故不进入签名 —— 表里看到的是原始观测，不是已选口径。",
+    "★ 本 schema 只定义【怎么呈现原始观测】，不定义【哪些算差异】—— 后者由 spec/adjudication.json 的判断项 + 人类裁决决定。"
+  ]
+}

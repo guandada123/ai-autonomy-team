@@ -1,0 +1,152 @@
+{
+  "seat": "EX-01",
+  "round": 5,
+  "conclusion": "两侧单号均唯一（dedup=0）；合计 114800.00 对 141440.00，原始差 26640.00。差异单号 6 个：T003 价差 120.00、T004 中签买入漏记 26000.00 计入金额差，计 26120.00；T005/T007 分红现金 520.00、T006 送转股数、T008 记账日错位差额均为 0，列清单但不计入，excluded=520.00。",
+  "evidence": [
+    {
+      "pointer": "fixtures/tasks/T-01/bill.csv 第 5 行 txn_id=T004 的 amount 单元格，对照 ledger.csv 首列无 T004",
+      "what_it_shows": "交割单有中签买入 500 股 amount 26000.00，自记账整单缺失，占原始差 26000/26640"
+    },
+    {
+      "pointer": "fixtures/tasks/T-01/bill.csv 第 6、8 行（T005、T007）side=股息入账 的 shares/price/amount 列 = 0/0.00/260.00",
+      "what_it_shows": "该 amount 是分红现金而非成交金额，与 ledger.amount 列口径不同，列差异但不计入金额差"
+    },
+    {
+      "pointer": "fixtures/tasks/T-01/ledger.csv 第 5 行 T006 shares=0 与 bill.csv 第 7 行 T006 shares=30（两侧 amount 均 0.00）",
+      "what_it_shows": "仅股数列不同，金额差额 0.00；列入清单只增条数不减金额"
+    },
+    {
+      "pointer": "fixtures/tasks/T-01/ledger.csv 第 6 行 T008 date=2026-09-18 与 bill.csv 第 9 行 T008 trade_date=2026-09-17、settle_date=2026-09-18",
+      "what_it_shows": "shares/amount/fee 双侧一致，差异只在记账日取成交日还是交割日；取 trade_date 则 T008 为差异、差额 0.00，是 6 或 5 的唯一开关"
+    },
+    {
+      "pointer": "fixtures/tasks/T-01/ledger.csv 第 4 行 T003（45.00/45000.00/11.70）与 bill.csv 第 4 行 T003（45.12/45120.00/11.73）",
+      "what_it_shows": "委托价与成交价错账，金额差 120.00、费用差 0.03，属实质错账"
+    },
+    {
+      "pointer": "ledger.csv 第 2 列与 bill.csv 第 1 列 txn_id 逐列去重计数（5 行 / 8 行）",
+      "what_it_shows": "两侧单号均唯一，无分批成交重复，dedup_removed_txn_count=0、dedup_amount=0.00"
+    }
+  ],
+  "falsification": "若差异判定的日期列应取 settle_date（交割日）而非 trade_date，则 T008 两侧同为 2026-09-18、不再是差异，diff_count 降为 5（金额两字段不变，因 T008 差额为 0）；若规定股息入账/送转的 amount 全额计入金额差，则 amount_diff_total=26640.00、excluded_amount_total=0.00；若 CSV 实存隐藏行或重复单号，则 rows 与 dedup 字段全部作废。",
+  "reads": [
+    {
+      "path": "runs/round5/prompts/EX-01.md",
+      "purpose": "读取席位职责、读取域、输出 schema 与字数预算"
+    },
+    {
+      "path": "fixtures/tasks/T-01/TASK.md",
+      "purpose": "读取字段定义、差异判定口径与四个易错点"
+    },
+    {
+      "path": "fixtures/tasks/T-01/ledger.csv",
+      "purpose": "取自记账 5 行原始值并逐行比对"
+    },
+    {
+      "path": "fixtures/tasks/T-01/bill.csv",
+      "purpose": "取交割单 8 行原始值并逐行比对"
+    },
+    {
+      "path": "protocol/02-辩论协议.md",
+      "purpose": "确认每席必交反对意见与输出契约"
+    },
+    {
+      "path": "protocol/03-结构审计七查.md",
+      "purpose": "确认 ADJ-001 金额口径与 ADJ-002 差异清单范围为待签项"
+    },
+    {
+      "path": "runs/round5/inputs/",
+      "purpose": "列举目录，确认本轮无额外输入文件（空）"
+    }
+  ],
+  "dissent": [
+    {
+      "against": "ANON-A",
+      "reason": "若其主张 diff_count=5（把 T008 日期错位剔出清单），则违背 TASK.md D 段「股数/成交金额/费用/日期四列不完全相同即为差异单号」——第 83 行明文把日期列入判定列，且 T008 的 settle_date 恰等于自记账 9-18，说明自记账按交割日入账、交割单按成交日列示，是设计出来的口径差而非噪声。",
+      "reverse_evidence": "若 fixture 明确声明日期列只取 settle_date，或 truth 中 T008 不在差异集，则本条反对撤回。"
+    },
+    {
+      "against": "ANON-A",
+      "reason": "若其把 T005/T007 的 260.00 当作成交金额并入 amount_diff_total，会把分红现金误当成交额，与「amount 列是成交金额」的定义冲突，且使 amount_diff_total 虚增 520.00。",
+      "reverse_evidence": "若 TASK.md 或 truth 规定一侧缺失单号一律全额计入金额差异，则本条撤回。"
+    }
+  ],
+  "confidence": "high",
+  "needs_more_data": [],
+  "stance": [
+    {
+      "axis": "ADJ-001",
+      "choice": "exclude"
+    },
+    {
+      "axis": "DIFFSET",
+      "choice": "6"
+    }
+  ],
+  "summary": {
+    "ledger_rows": 5,
+    "bill_rows": 8,
+    "ledger_total": 114800.0,
+    "bill_total": 141440.0,
+    "raw_total_gap": 26640.0,
+    "dedup_removed_txn_count": 0,
+    "dedup_amount": 0.0,
+    "diff_count": 6,
+    "amount_diff_total": 26120.0,
+    "excluded_amount_total": 520.0,
+    "excluded_categories": [
+      "口径差-分红现金",
+      "口径差-送转股数",
+      "口径差-记账日期"
+    ]
+  },
+  "diffs": [
+    {
+      "id": "T003",
+      "category": "价格费用不符"
+    },
+    {
+      "id": "T004",
+      "category": "单侧缺失-成交"
+    },
+    {
+      "id": "T005",
+      "category": "口径差-分红现金"
+    },
+    {
+      "id": "T006",
+      "category": "口径差-送转股数"
+    },
+    {
+      "id": "T007",
+      "category": "口径差-分红现金"
+    },
+    {
+      "id": "T008",
+      "category": "口径差-记账日期"
+    }
+  ],
+  "categories": {
+    "价格费用不符": [
+      "T003"
+    ],
+    "单侧缺失-成交": [
+      "T004"
+    ],
+    "口径差-分红现金": [
+      "T005",
+      "T007"
+    ],
+    "口径差-送转股数": [
+      "T006"
+    ],
+    "口径差-记账日期": [
+      "T008"
+    ]
+  },
+  "usage": {
+    "tokens": 14800,
+    "minutes": 5.0,
+    "source": "self_report"
+  }
+}

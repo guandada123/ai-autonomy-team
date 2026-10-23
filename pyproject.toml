@@ -1,0 +1,33 @@
+# 本项目是「脚本集」而非可安装库：所有入口都以 `python3 scripts/<name>.py` 直接运行，
+# 没有 console_scripts，也没有需要 pip install 的包。
+# 因此这里**刻意不定义 [project] / [build-system]** —— 定义了就会变成"能 pip install
+# 但装完不可用"的空包，比不定义更误导。
+#
+# 项目元数据见 README.md（目标、范围、模块划分）与 VERSION。
+# 依赖见 DEPENDENCIES.md：零第三方依赖，只用 Python 标准库。
+
+# ── ruff ──────────────────────────────────────────────────────────────
+# 与 Claw 项目同一套规则，便于两个项目之间搬代码时行为一致。
+[tool.ruff]
+target-version = "py39"
+line-length = 100
+exclude = [
+    "_trash",
+    "_archive",
+    "migration-package/runs",
+    "__pycache__",
+]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "C4", "SIM", "ARG", "PTH"]
+ignore = [
+    "E501",  # 行长由 formatter 管；中文注释按显示宽度算会误报
+    "B008",  # 允许函数默认值里调 Path()（本项目 locates 用）
+    "SIM108",# 三元表达式可读性不如 if/else 的分支
+]
+
+[tool.ruff.lint.per-file-ignores]
+# 回归套件与夹具生成器里有大量"故意写错"的样本，以及为可读性展开的长函数
+"scripts/regress.py" = ["ARG", "SIM"]
+"scripts/make_*.py" = ["ARG"]
+"scripts/judges/*.py" = ["ARG"]

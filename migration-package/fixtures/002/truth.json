@@ -1,0 +1,36 @@
+{
+  "task_id": "TASK-BROKER-RECON-002",
+  "task_name": "券商交割单与自记账核对（A股）",
+  "data_note": "全部为合成数据，不含任何真实账户或持仓信息",
+  "rules": {
+    "dedup": "交割单中同一 txn_id 出现多次（分批成交）→ 去重，仅保留首条；多出行的金额计入 dedup_amount",
+    "fee": "佣金 万分之2.5（最低 5 元）/ 印花税 卖出千分之0.5 / 过户费 万分之0.1，双向",
+    "net_vs_gross": "自记账按成交金额记账、费用单列；券商交割单同样单列 —— 本夹具【不】把净额差异伪装成成交金额差异",
+    "settlement_day": "自记账按交割日入账、券商按成交日列示 → 产生日期差异（T+1）",
+    "equity": "送转股（金额 0、股数变化）与现金分红（仅券商侧）→ 归为权益变动",
+    "missing": "仅券商侧存在（新股中签、现金分红）→ 归为真实缺失，计入金额差异"
+  },
+  "expected": {
+    "ledger_rows": 7,
+    "bill_rows": 10,
+    "dedup_removed_txn_count": 1,
+    "dedup_amount": 15000.0,
+    "ledger_total": 358800.0,
+    "bill_total": 363280.0,
+    "raw_total_gap": 4480.0,
+    "diff_count": 7,
+    "diff_ids": [
+      "T202",
+      "T204",
+      "T205",
+      "T206",
+      "T207",
+      "T209",
+      "T210"
+    ],
+    "amount_diff_total": 4480.0,
+    "excluded_amount_total": 63.17
+  },
+  "checks": [],
+  "note": "★ 本文件的 expected 沿用【默认口径】：ADJ-001=exclude（费用不计入成本差异）、ADJ-002=7。它只是一条历史口径的锚，不是真值 —— 签署人可另行裁决，判 fail 是正确结果。"
+}

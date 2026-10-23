@@ -1,0 +1,135 @@
+{
+  "seat": "EX-02",
+  "round": 10,
+  "conclusion": "复算确认同伴算术主干：账 5 行 120820.00、单 8 行 147460.00、毛差 26640.00、去重 0/0.00、6 条差异、26120.00+520.00。但金额口径我持少数立场：ADJ-001 应为 count → amount_diff_total=26640.00、excluded_amount_total=0.00、excluded_categories=[]。TASK.md §D 只写「仅单侧存在的单号亦为差异单号，差额取该侧 amount」，未给股息豁免；全计入是唯一不引入契约外会计假设的读法。多数派援引的「26120+520=26640 闭合」是恒等式，不是校验。",
+  "strongest_counter_arguments": [
+    {
+      "target": "ANON-A",
+      "argument": "两处可核验错误。① 事实：「bill.csv:5-8（T020/T021/T022/T023）单侧存在」不成立——T022 在 ledger.csv:5 有行（shares 0、amount 0.00），它是双侧股数差，不是单侧缺失。② 算术：其 falsification 称「若按入账日对应 settle_date，则 diff_count 应为 5」。T017 ledger 09-06 vs settle 09-07、T018 09-08 vs 09-09、T019 09-10 vs 09-11 三条都会新增日期差异，仅 T019 已在内，故差异集应为 7 条（T017/T018/T019/T020/T021/T022/T023）而非 5。它从未真的算过替代口径，却以 5 为证伪线；该自测会以错误理由否掉 6。",
+      "reverse_evidence": "若你能给出使 settle 口径下 T017/T018 不构成日期差异的逐行读法（或证明 ledger date 列整体为入账日而非成交日），我撤回此条。"
+    },
+    {
+      "target": "ANON-B",
+      "argument": "算术与论证方式双重问题。① 它自己算出「三条额外零金额日期差异 → diff_count 变成 8/9」，真值是 7：6 条集合减 T024 得 5，加 T017、T018 两个新单号得 7，T019 重复计一次就多出 1 条。② 它用「同构任务有分批成交，本任务没有」作论据——这是对它自己正在指控的跨任务记忆导入的复用：本任务读域内无法核验另一任务的分批结构，该断言不可证伪，不能支撑 dedup=0（dedup=0 本身正确，但论据不能承担该结论）。",
+      "reverse_evidence": "若你能给出 8 或 9 的逐单号列出（哪 8/9 个 id），我撤回；否则该 falsification 需改写为 7。"
+    },
+    {
+      "target": "ANON-C",
+      "argument": "产出内部不自洽，且它是本轮唯一在 stance 上与我一致的席位，却与自己的数字相反。summary 报 26120.00/520.00（反推 ADJ-001=exclude），stance 却填 count；dissent 正文又主张「股息与送转不应计入 amount_diff_total，否则金额差异退化为毛差」。三条通道给出两个互斥立场，且它的执行路径第 5 步把「26120+520=26640」当作「自校验通过」——该闭合对任意划分都成立，属循环验证。另外其 falsification(b) 同样把 settle 口径下的 5 写错（真值 7）。",
+      "reverse_evidence": "若其意图是 count，则 summary 的 excluded_amount_total 应为 0.00、excluded_categories 应为 []；若意图是 exclude，则 stance 应改写。二者取一即可消解，但不能同时保留。"
+    }
+  ],
+  "what_would_change_my_mind": "若契约或 TASK.md 明示「amount 列仅指成交金额，股息/红利等非交易现金流一律不得进入金额差异」，则我改回 exclude（amount_diff_total=26120.00、excluded_amount_total=520.00、excluded_categories 含股息类）。此外若存在文档化的会计政策把现金分红定义为账外事项，我同样改判。",
+  "evidence": [
+    {
+      "pointer": "fixtures/tasks/T-03/ledger.csv:2-6 与 bill.csv:2-9 的 amount 列（Decimal 逐行）",
+      "what_it_shows": "账 30000+45000+45000+0+820=120820.00；单 30000+45000+45120+26000+260+0+260+820=147460.00；gap=26640.00；两侧 txn_id 5/8 个全唯一 → dedup_removed_txn_count=0、dedup_amount=0.00"
+    },
+    {
+      "pointer": "T-03 八单号逐号 abs 差额：T017 0 + T018 0 + T019 120.00 + T020 26000.00 + T021 260.00 + T022 0 + T023 260.00 + T024 0",
+      "what_it_shows": "合计 26640.00 恒等于毛差。任何把差异集划分成「计入/不计入」的方案都必然闭合，故 26120+520=26640 不具备区分力，不能用作口径正确性的证据"
+    },
+    {
+      "pointer": "ledger.csv:5（T022 side=送转, shares=0, amount=0.00）与 bill.csv:7（shares=30）",
+      "what_it_shows": "T022 两侧皆有行，差异仅在股数列，amount 双方均为 0.00；把它归入「单侧存在」是事实错误"
+    },
+    {
+      "pointer": "ledger.csv date 列 × bill.csv trade_date/settle_date 逐行",
+      "what_it_shows": "T017 09-06=trade≠settle 09-07；T018 09-08≠09-09；T019 09-10≠09-11；仅 T024 的 09-19=settle≠trade 09-18。切换参照列后差异集为 7 条，非同伴所称的 5 条"
+    },
+    {
+      "pointer": "fixtures/tasks/T-03/TASK.md:71-72,76-79,83-84",
+      "what_it_shows": "金额字段取 abs 差额不取全额；重复项不参与两金额字段；四列（股数/成交金额/费用/日期）任一不同即为差异单号；单侧存在者差额取该侧 amount——后者是 count 的文本依据"
+    }
+  ],
+  "falsification": "以下任一成立则我的 26640.00/0.00 立场作废：(a) 契约明示非交易现金流不得计入金额差异；(b) 出现使 26640.00 无法由 120.00+26000.00+260.00+260.00 精确还原的行值；(c) 任一侧出现同 txn_id 多行导致 dedup 非零；(d) 两 CSV 行数或合计与 5/8、120820.00/147460.00 不符。此外若「日期」列的参照被契约定为 settle_date，则 diff_count 应为 7，我 stance 中的 DIFFSET=6 亦随之作废。",
+  "reads": [
+    {
+      "path": "runs/round10/prompts/EX-02.md",
+      "purpose": "读取席位职责、读取域、交付契约与字数预算"
+    },
+    {
+      "path": "runs/round10/inputs/pack-ANON-A.json",
+      "purpose": "读取匿名同伴 A 的结论、证据指针与 falsification，核对其行级读法"
+    },
+    {
+      "path": "runs/round10/inputs/pack-ANON-B.json",
+      "purpose": "读取匿名同伴 B 的结论、分类法与其对替代口径的算术"
+    },
+    {
+      "path": "runs/round10/inputs/pack-ANON-C.json",
+      "purpose": "读取匿名同伴 C 的结论、execution_path、falsification 与 stance，检查内部一致性"
+    },
+    {
+      "path": "fixtures/tasks/T-03/TASK.md",
+      "purpose": "确认字段计算法、四类易错点与差异判定口径"
+    },
+    {
+      "path": "fixtures/tasks/T-03/ledger.csv",
+      "purpose": "逐行读取 5 行，复算 amount 合计与 txn_id 唯一性"
+    },
+    {
+      "path": "fixtures/tasks/T-03/bill.csv",
+      "purpose": "逐行读取 8 行，复算 amount 合计并逐单号比对四列"
+    },
+    {
+      "path": "protocol/07-轮次与指标.md",
+      "purpose": "确认 ADJ-001/DIFFSET 的反推规则与金额×清单语义一致性判据"
+    },
+    {
+      "path": "protocol/03-结构审计七查.md",
+      "purpose": "检索 ADJ-001/DIFFSET 在结构审计中的判定位置（仅 grep 命中行）"
+    }
+  ],
+  "dissent": [
+    {
+      "against": "ANON-A",
+      "reason": "T022 被误标为单侧存在（ledger.csv:5 有行）；且其 falsification 把 settle 口径的结果写成 5，真值是 7——它据以自证的那个反事实从未被算过，因此「high」置信度缺乏支撑。",
+      "reverse_evidence": "逐单号列出 settle 口径下的差异清单；若为 5 且未遗漏 T017/T018，我撤回。"
+    },
+    {
+      "against": "ANON-B",
+      "reason": "替代口径条数写成「8/9」，真值 7（重复计了已在内 T019）；并以「同构任务有分批成交」这一读域外断言支撑 dedup=0，论据不可证伪。dedup=0 的结果我同意，但论证方式必须换。",
+      "reverse_evidence": "若能把 8 或 9 逐 id 展开成立，我撤回。"
+    },
+    {
+      "against": "ANON-C",
+      "reason": "summary（26120/520 → exclude）、stance（count）、dissent 正文（主张排除股息）三处互斥；并把对任意划分都成立的闭合当成「自校验通过」。本轮唯一与我同向的席位，其自述不可作为 count 阵营的支撑。",
+      "reverse_evidence": "若它统一为 count 并把 excluded_amount_total 改为 0.00、excluded_categories 改为 []，此条反对自动消解。"
+    }
+  ],
+  "confidence": "medium",
+  "needs_more_data": [
+    "「日期」列究竟以 trade_date 还是 settle_date 为参照，TASK.md 未定义；这决定 diff_count 是 6 还是 7（不影响任何金额字段）",
+    "自记账是否存在现金/权益账户科目：若不存在，股息 520.00 属「不在账套范围」而非金额差异，exclude 可被证成",
+    "T019 的委托流水，用以确认 45.00 为委托价、45.12 为成交价（现仅有备注文字支撑）"
+  ],
+  "stance": [
+    {
+      "axis": "ADJ-001",
+      "choice": "count"
+    },
+    {
+      "axis": "DIFFSET",
+      "choice": "6"
+    }
+  ],
+  "summary": {
+    "ledger_rows": 5,
+    "bill_rows": 8,
+    "ledger_total": 120820.0,
+    "bill_total": 147460.0,
+    "raw_total_gap": 26640.0,
+    "dedup_removed_txn_count": 0,
+    "dedup_amount": 0.0,
+    "diff_count": 6,
+    "amount_diff_total": 26640.0,
+    "excluded_amount_total": 0.0,
+    "excluded_categories": []
+  },
+  "usage": {
+    "tokens": 14200,
+    "minutes": 12,
+    "source": "self_report"
+  }
+}

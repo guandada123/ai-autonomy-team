@@ -1,0 +1,110 @@
+{
+ "task_id": "T-13",
+ "round": 18,
+ "aggregated_by": "PM-01",
+ "summary": {
+  "ledger_rows": 5,
+  "bill_rows": 8,
+  "ledger_total": 118800.0,
+  "bill_total": 133240.0,
+  "raw_total_gap": 14440.0,
+  "dedup_removed_txn_count": 0,
+  "dedup_amount": 0.0,
+  "diff_count": 6,
+  "amount_diff_total": 14440.0,
+  "excluded_amount_total": 0.0,
+  "fee_diff_total": 5.17,
+  "excluded_categories": [
+   "单侧仅交割单·股息入账（非交易性现金流）"
+  ]
+ },
+ "diffs": [
+  {
+   "id": "T099",
+   "category": "成交价差（价格/金额/费用不一致）"
+  },
+  {
+   "id": "T100",
+   "category": "单侧仅交割单·新股中签（自记账无）"
+  },
+  {
+   "id": "T101",
+   "category": "单侧仅交割单·股息入账（非交易性现金流）"
+  },
+  {
+   "id": "T102",
+   "category": "股数不一致·送转权益变动（金额 0）"
+  },
+  {
+   "id": "T103",
+   "category": "单侧仅交割单·股息入账（非交易性现金流）"
+  },
+  {
+   "id": "T104",
+   "category": "日期口径差（成交日↔交割日，金额 0）"
+  }
+ ],
+ "categories": {
+  "成交价差（价格/金额/费用不一致）": [
+   "T099"
+  ],
+  "单侧仅交割单·新股中签（自记账无）": [
+   "T100"
+  ],
+  "单侧仅交割单·股息入账（非交易性现金流）": [
+   "T101",
+   "T103"
+  ],
+  "股数不一致·送转权益变动（金额 0）": [
+   "T102"
+  ],
+  "日期口径差（成交日↔交割日，金额 0）": [
+   "T104"
+  ]
+ },
+ "falsification": "下列任一成立，本聚合结论即错，均可用 fixtures/tasks/T-13/{ledger,bill}.csv 逐行重跑核验：(1) 若裁决明确「amount 列包含全部资金变动、不区分成交金额与非交易性现金流」，则 T101/T103 的 520.00 应计入金额差异，正确答案为 amount_diff_total=14440.00、excluded_amount_total=0.00、excluded_categories=[]（即 EX-02 少数派口径）；(2) 若 §D 的「日期」被裁决取 settle_date，则 T097/T098/T099 成为日期差、T104 不再差异，diff_count 由 6 变 7，金额两字段不变；(3) 若 §B 的判重被裁决为「按内容特征（同 code/shares/price/amount）判重」而非按单号，则 T098 会被并入 T097，dedup_removed_txn_count=1、dedup_amount=30000.00；(4) 若 T100（新股中签 13800.00）被裁决为非交易项，则 amount_diff_total=120.00。四项恒等关系 amount_diff_total+excluded_amount_total=14440.00 仅能证伪漏加/错加，不能裁决归类归属。",
+ "diff_preserved": [
+  {
+   "side": "多数",
+   "conclusion": "EX-01 与 EX-03：股息入账 T101/T103 的 260.00×2 不是成交金额（shares=0、price=0.00、三项费用全 0，0×0≠260.00），归入「不计入金额差异」类；amount_diff_total=13920.00（120.00+13800.00+0+0）、excluded_amount_total=520.00。本席采纳此支。",
+   "falsification": "若契约或人类裁决把 amount 定义为「全部资金变动」、要求股息入账计入金额差异，或能证明 T101/T103 的 260.00 对应某笔真实成交（shares>0 或费用非 0），本结论即错。"
+  },
+  {
+   "side": "少数",
+   "conclusion": "EX-02：契约 §C 未给归类准则，三组分桶（14440+0 / 13920+520 / 120+14320）均满足 gap 恒等，故取零假设 amount_diff_total=14440.00、excluded_amount_total=0.00、excluded_categories=[]，并声明该值不比 13920.00/520.00 更真，只少一次未申报裁决。",
+   "falsification": "若契约/裁决给出唯一归类准则（尤其明写「非交易性现金流不计入」），则零假设失去「最少未声明判断」的唯一优势，该少数支失效；反之本席的 13920.00/520.00 即多了一次未申报裁决。"
+  },
+  {
+   "side": "多数",
+   "conclusion": "全体三席一致：日期基准取 bill.trade_date（T097/T098/T099/T102 四行逐字相等），diff_count=6（T099、T100、T101、T102、T103、T104）；取 settle_date 会多出 3 条假差异并把 T104 洗成匹配。",
+   "falsification": "若 §D 的「日期」被裁决为 settle_date（交割日），diff_count 应为 7，本条作废；金额两字段不受影响。"
+  },
+  {
+   "side": "少数",
+   "conclusion": "EX-02 提示：dedup=0/0.00 是按单号字面判定，掩盖了内容判重形态（T097 与 T098 的 code/shares/price/amount/fee_total 完全相同，仅 txn_id 与交易日不同），按内容判重会得 1 个/30000.00 并使 T098 退出核对。本席未采纳内容判重，仅留痕。",
+   "falsification": "若 §B 的「重复」被裁决为按内容特征而非按单号，则 dedup_removed_txn_count=1、dedup_amount=30000.00，T098 从 diffs 中消失，summary 六字段需整体重算。"
+  }
+ ],
+ "aggregation_inputs": [
+  {
+   "seat": "EX-01",
+   "sha256": "72f632c67f529bcacb31394e6de2727390b05c188e2ab1602df17b3a71657851",
+   "seat_check_status": "valid"
+  },
+  {
+   "seat": "EX-02",
+   "sha256": "663a4099d391b004ae36225f0c157e2b04697e26bd656386f0aa9149e11ad709",
+   "seat_check_status": "valid"
+  },
+  {
+   "seat": "EX-03",
+   "sha256": "6d113d8138a042518a21d5d851dea7c89a4a3d8922e364be8c2237ea5f4e2e4b",
+   "seat_check_status": "valid"
+  }
+ ],
+ "redo": {
+  "triggered_by": "runs/round18/adjudication-record.json（ADJ-001=count，verdict=fail）",
+  "rule": "count implies：amount_diff_total=14440.0、excluded=0.00（fee 任务 implies 金额中性，D-0016）",
+  "note": "机械改判：数值由裁决记录 × spec implies 唯一确定"
+ }
+}

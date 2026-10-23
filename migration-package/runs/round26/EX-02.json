@@ -1,0 +1,195 @@
+{
+  "seat": "EX-02",
+  "round": 26,
+  "conclusion": "最强对立面：380.00 的闭合不是证据，是算术巧合。T043 两侧费用各由自身金额派生（45000→11.70，45120→11.73），说明自记账是按委托价整笔登记的口径选择而非录错，口径差 120.00 应剔除，得 260.00/120.00。清单仍取 6 条；但改按 settle_date 映射实测为 7 条，两种映射同样无文本支撑。",
+  "strongest_counter_arguments": [
+    {
+      "target": "ANON-A",
+      "argument": "A 以「契约未授权剔除」为由把 120.00 全额计入。但契约同样未授权「必须计入」：TASK.md 明写「不预设你对『该不该算差异』的判断」。把「无明文禁止」读成「明文要求」，是举证责任倒置。更强的一点在数据里——ledger 的 11.70 恰等于 45000×0.025%+0.45，bill 的 11.73 恰等于 45120×0.025%+0.45：错记不会让费用随错误金额精确重算，只有「换了计价基准」才会。这不是笔误，是口径。",
+      "reverse_evidence": "若 T043 的 note 不是「按委托价记账」，或 11.70 无法由 45000 按公示费率精确复算，则「口径选择」的解释崩塌，A 成立。"
+    },
+    {
+      "target": "ANON-B",
+      "argument": "B 把「amount_diff_total+excluded_amount_total 必须等于 raw_total_gap」当作自校验。该恒等式不在 TASK.md 里，且 380.00/0.00 与 260.00/120.00 两种切分都等于 380.00——它能证的只是「没漏单号」，无法在两种归属间分辨。拿一个对两类假设同时成立的等式去检验假设，是循环论证；B 的 falsification 自己也承认这一点，却仍按 380.00 落数。",
+      "reverse_evidence": "若该恒等式写入 TASK.md 或 spec 且对分类有约束力，或存在某一类切分使其不成立，则 B 的校验可判真伪。"
+    },
+    {
+      "target": "ANON-C",
+      "argument": "C 报 120.00/260.00：把 260.00 单侧股息剔出、把 120.00 口径差留在金额里，却自述 ADJ-001=exclude（口径差不计入）。数字与自述指向两个不同条目，按 07 §4.1 的 implies 精确比对会落到 abstain，该席在翻边率里不可比。另外 C 说「6 条即全部问题」超出证据能力是对的，但它据此把 T042 的 1680.00 列为共模盲区，同时又接受 380.00 闭合——同一套闭合逻辑，对己有利时用、不利时弃。",
+      "reverse_evidence": "若 spec 的 exclude 选项 implies 恰为 120.00/260.00（即以单侧现金流入为剔除对象），则 C 自洽，此反论失效。"
+    }
+  ],
+  "what_would_change_my_mind": "人类签署 ADJ-001=count 并写明理由（把按委托价记账定为错记而非口径），或出现 T043 的委托单证明 45.00 从未被委托过；届时我放弃 260.00/120.00，改为 380.00/0.00。",
+  "evidence": [
+    {
+      "pointer": "fixtures/tasks/T-06/bill.csv#T043",
+      "what_it_shows": "fee 11.28+0.45=11.73，ledger 45000×0.025%+0.45=11.70：两侧各与自身金额自洽"
+    },
+    {
+      "pointer": "fixtures/tasks/T-06/ledger.csv#date↔bill.csv#trade_date,settle_date",
+      "what_it_shows": "T041–T045 等于 trade_date；改对 settle_date 新增 5 条、T048 退出=7 条"
+    },
+    {
+      "pointer": "fixtures/tasks/T-06/bill.csv#T047",
+      "what_it_shows": "shares=0,amount=260.00，价×量=0≠260，非成交；占 gap 68.4%"
+    },
+    {
+      "pointer": "fixtures/tasks/T-06/ledger.csv#amount↔bill.csv#amount",
+      "what_it_shows": "304800.00/305180.00，gap=380.00；8 单号唯一，dedup=0"
+    }
+  ],
+  "falsification": "任一成立即我错：① T043 的委托价/成交价关系被证伪（45.00 从未作为委托价存在），口径差解释失效；② 契约明文把单侧非成交现金流入排除在金额差异外——则我的 260.00 也须移出，amount_diff_total 变 0.00，我的切分反而不如 A；③ 重算 gap≠380.00 或出现重复单号，则 120/260 的分母须整体重算。",
+  "reads": [
+    {
+      "path": "runs/round26/prompts/EX-02.md",
+      "purpose": "本席提示词：对立面职责、KPI 反转、字段别名与反对对象须匿名"
+    },
+    {
+      "path": "runs/round26/prompts/（同目录另两份席位提示词，模板同构）",
+      "purpose": "核对另两席的硬性字段与 dissent 写法要求，确认 cost/rollback 非本席必填；其正文为本轮模板，不含同伴结论"
+    },
+    {
+      "path": "fixtures/tasks/T-06/TASK.md",
+      "purpose": "字段定义、判定口径 D、四个易错点、金额一律取原始值"
+    },
+    {
+      "path": "fixtures/tasks/T-06/ledger.csv",
+      "purpose": "7 行逐行复算 amount/fee_total/date/shares，并验算费用与金额的一致性"
+    },
+    {
+      "path": "fixtures/tasks/T-06/bill.csv",
+      "purpose": "8 行逐行复算，验算 commission+transfer_fee=fee_total，并做 settle_date 反事实映射"
+    },
+    {
+      "path": "runs/round26/inputs/pack-ANON-A.json",
+      "purpose": "读取同伴 A 的 summary 与 stance，构造最强反论"
+    },
+    {
+      "path": "runs/round26/inputs/pack-ANON-B.json",
+      "purpose": "读取同伴 B 的执行路径与自校验恒等式，检验其是否有契约依据"
+    },
+    {
+      "path": "runs/round26/inputs/pack-ANON-C.json",
+      "purpose": "读取同伴 C 的 120.00/260.00 切分与 stance，检验自洽性"
+    },
+    {
+      "path": "protocol/07-轮次与指标.md",
+      "purpose": "ADJ-001 的 implies 反推、DIFFSET 四选项语义、W_STANCE_MISMATCH 的适用"
+    },
+    {
+      "path": "protocol/02-辩论协议.md",
+      "purpose": "聚合规则为证据制而非投票制，及 EX-02 的 KPI 定义"
+    },
+    {
+      "path": "protocol/06-写入域与判据分层.md",
+      "purpose": "确认 diff_count/amount_diff_total 被机械挡在算术层之外"
+    },
+    {
+      "path": "protocol/03-结构审计七查.md",
+      "purpose": "第 2 查外部钩子的判据，确认指针须可回读"
+    },
+    {
+      "path": "protocol/04-双裁判规范.md",
+      "purpose": "判断项交人类闸门，机器不裁决"
+    }
+  ],
+  "dissent": [
+    {
+      "against": "ANON-A",
+      "reason": "A 的 380.00/0.00 建立在「无明文禁止即可计入」上，但契约对分类明确不作预设；且 A 自述 exclude 而数字是 count，两处互相打脸。若按 A 的记账口径对外报送，68.4% 的漏记流入会被记成价格差错，责任归属从「漏记事件」滑向「定价误差」。",
+      "reverse_evidence": "若契约存在一条明文「按委托价记账的差额计入金额差异」，或 T043 的费用无法由 45000 精确复算，则 A 的计入成立。"
+    },
+    {
+      "against": "ANON-B",
+      "reason": "B 用一条契约里不存在的恒等式（两字段之和=gap）充当正确性判据，而该式对本例两种切分同时成立，不具分辨力；据此宣称「自校验通过」是把一致性当成正确性。",
+      "reverse_evidence": "若该恒等式被写入 TASK.md 或 spec，或某一切分使其不成立，则 B 的校验具备判伪能力。"
+    },
+    {
+      "against": "ANON-C",
+      "reason": "C 的条目与自述错位：数字剔除的是 260.00 单侧股息，自述剔除的是口径差；按 implies 反推会落 abstain，该席立场不可比。它还自设「380.00 闭合」为验收，却又据此推共模盲区——同一逻辑选择性使用。",
+      "reverse_evidence": "若 spec 的 exclude implies 就是 120.00/260.00，则 C 自洽，反对失效。"
+    }
+  ],
+  "confidence": "medium",
+  "needs_more_data": [
+    "缺数据：T043 的委托单原件（委托价与成交价的时间戳），决定 45.00 是基准还是错值",
+    "缺数据：T047 的 260.00 分红在资金流水的到账凭证，决定是否已跨期入账",
+    "缺规则：契约未规定口径差（按委托价记账）计入还是剔除，ADJ-001 无机器可判的 expected",
+    "缺规则：契约未定义 ledger.date 的映射基准（trade_date 还是 settle_date），导致 6 条与 7 条同样合规",
+    "缺规则：契约未规定单侧非成交现金流入（股息）是否进入 amount_diff_total"
+  ],
+  "stance": [
+    {
+      "axis": "ADJ-001",
+      "choice": "exclude"
+    },
+    {
+      "axis": "DIFFSET",
+      "choice": "6"
+    }
+  ],
+  "summary": {
+    "ledger_rows": 7,
+    "bill_rows": 8,
+    "ledger_total": 304800.00,
+    "bill_total": 305180.00,
+    "raw_total_gap": 380.00,
+    "dedup_removed_txn_count": 0,
+    "dedup_amount": 0.00,
+    "diff_count": 6,
+    "amount_diff_total": 260.00,
+    "excluded_amount_total": 120.00,
+    "excluded_categories": [
+      "计价口径差（按委托价记账）"
+    ]
+  },
+  "diffs": [
+    {
+      "id": "T043",
+      "category": "计价口径差（按委托价记账）"
+    },
+    {
+      "id": "T044",
+      "category": "费用漏记（漏过户费）"
+    },
+    {
+      "id": "T045",
+      "category": "费用漏记（漏过户费）"
+    },
+    {
+      "id": "T046",
+      "category": "股数不符（送转未更新）"
+    },
+    {
+      "id": "T047",
+      "category": "单侧缺失（股息入账）"
+    },
+    {
+      "id": "T048",
+      "category": "日期不符（按交割日入账）"
+    }
+  ],
+  "categories": {
+    "计价口径差（按委托价记账）": [
+      "T043"
+    ],
+    "费用漏记（漏过户费）": [
+      "T044",
+      "T045"
+    ],
+    "股数不符（送转未更新）": [
+      "T046"
+    ],
+    "单侧缺失（股息入账）": [
+      "T047"
+    ],
+    "日期不符（按交割日入账）": [
+      "T048"
+    ]
+  },
+  "usage": {
+    "tokens": 23000,
+    "minutes": 11,
+    "source": "self_report"
+  }
+}

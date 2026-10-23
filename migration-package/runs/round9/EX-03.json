@@ -1,0 +1,209 @@
+{
+  "seat": "EX-03",
+  "round": 9,
+  "conclusion": "单脚本可一次跑通：Decimal 逐行求和 114800.00/129240.00，差额 14440.00；两侧单号各唯一（dedup 0/0.00）；按股数/金额/费用/成交日比出 6 条差异；T011 的 120.00 归为计量基准差，列清单但不计金额，故 amount_diff 14320.00、excluded 120.00。日期基准与金额归属各设一个常量开关，改判只改两行、不重写清单；写盘先备份再原子替换，🟡 级可回滚。",
+  "execution_path": [
+    "1. pathlib 定位 fixtures/tasks/T-02/{ledger,bill}.csv，open(encoding='utf-8', newline='')+DictReader，断言表头列名集合与 TASK.md 一致。",
+    "2. Decimal(str(v)) 求 ledger_total/bill_total/raw_total_gap，禁 float。",
+    "3. 按 txn_id 分组，len>1 记重复单号；重复号整体移出两个金额桶（本夹具两侧均无重复）。",
+    "4. 取 txn_id 并集排序，逐号比 shares/amount/fee_total/date；DATE_BASIS='trade_date' 为常量，单侧存在直接记差异。",
+    "5. 打类别标签，diffs 与 categories 由同一份 dict 反向生成，保证自洽。",
+    "6. 断言 amount_diff_total+excluded_amount_total+dedup_amount==raw_total_gap，不成立即中断、不落盘。",
+    "7. 旧 answer.json 移入 _trash/（不调用 unlink），写 tmp 后 os.replace 原子替换；json.dumps(ensure_ascii=False, indent=2)，输出固定 LF。"
+  ],
+  "cost": {
+    "token_estimate": "本席约 19k（提示词≈4k、三份同伴包≈9k、两份 CSV+复算≈3k、成文≈3k）；六席一轮≈115k，约为单轮直算（7–8k）的 15 倍，与多智能体常数吻合。重跑同阶，无外部 API。",
+    "wall_clock": "脚本 <1s；本席端到端≈15 分钟，其中口径判定占七成。夹具扩到 1e4 行仍秒级。",
+    "human_touchpoints": "3 个：① 裁定日期基准（trade_date 还是 settle_date，直接决定 6 还是 7）；② 裁定口径差是否计入（14320/120 还是 14440/0）；③ 签署 answer.json。①②可在同一次评审合并，净人工≈1 次裁定 + 1 次签署。"
+  },
+  "rollback": "🟡 级：写 answer.json 前 cp 至 _trash/answer.json.<ts>，用 tmp+os.replace 原子替换；回滚=移回备份并重跑（输入只读、Decimal+排序遍历，结果可复现）。若已被聚合成 answer-final，须作废该轮聚合产物再重跑聚合步，代价≈1 轮聚合 token，故落盘到聚合之间留短窗口。禁止 unlink（沙箱拦截会留下半个文件）。",
+  "op_grade": "🟡",
+  "cross_platform_risks": [
+    {
+      "risk": "解释器：Windows 上 python3 可能是 Store 占位符直接退出 9009；shebang 在 Windows 无效",
+      "mitigation": "不写 shebang；文档写明 macOS 用 python3、Windows 用 py -3，统一 python3 -X utf8 调用"
+    },
+    {
+      "risk": "路径：字符串拼 '{base}/ledger.csv' 依赖 cwd，反斜杠/盘符混用即断",
+      "mitigation": "全部 pathlib.Path(__file__).resolve().parent 派生，禁 os.sep 与手工 '/'"
+    },
+    {
+      "risk": "换行：CRLF 下不传 newline='' 会产生空行；输出 CRLF 会改 sha256，与记录的哈希对不上",
+      "mitigation": "读 newline=''、写 newline='\\n'，写完用 read_bytes() 复核；已核两 CSV 无 CRLF"
+    },
+    {
+      "risk": "编码：Windows 默认 cp936 读中文名会 UnicodeDecodeError；带 BOM 用 utf-8 读则首列名变 '\\ufefftxn_id'，静默取空算成 0",
+      "mitigation": "显式 encoding='utf-8'，表头 strip('\\ufeff') 后断言列名集合；已核两文件无 BOM（478/918 字节）"
+    },
+    {
+      "risk": "浮点：float 累加在分位漂移，amount_diff 与 raw_total_gap 差 0.01 即判错",
+      "mitigation": "Decimal(str(x)) 全程，quantize('0.01')，比较用 =="
+    },
+    {
+      "risk": "shell：[[ ]]/<<</管道 grep 校验在 zsh/bash 与 Windows 间不一致",
+      "mitigation": "校验一律写 python 断言，Bash 只做单行调用"
+    }
+  ],
+  "evidence": [
+    {
+      "pointer": "fixtures/tasks/T-02/ledger.csv + bill.csv#col=amount（Decimal 逐行复算）",
+      "what_it_shows": "30000+26000+45000+0+13800=114800.00；账单 30000+26000+45120+13800+260+0+260+13800=129240.00；gap=14440.00，等于逐单差额之和。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-02/{ledger,bill}.csv#col=txn_id 频次",
+      "what_it_shows": "5 行 5 号 / 8 行 8 号，无同号多行 → dedup_removed_txn_count=0、dedup_amount=0.00；按内容去重才会误伤 T012/T016（同参不同号）。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-02/{ledger,bill}.csv#四列比对（date vs trade_date）",
+      "what_it_shows": "T011 金额 45000/45120、费用 11.70/11.73；T012 单侧 13800.00；T013/T015 各 260.00；T014 股数 0/30、金额 0；T016 仅日期 09-19/09-18 → 6 条。"
+    },
+    {
+      "pointer": "同一比对改取 settle_date 的实测结果",
+      "what_it_shows": "得 7 条（T009/T010 进、T016 出）：日期基准是 diff_count 的唯一开关，且错误基准会落进合法选项 7，只能靠 note=正常 行反向校准。"
+    }
+  ],
+  "falsification": "三者任一成立我即错：① 台账 date 被裁定须对齐 settle_date（则 diff=7，T016 不再是差异，DIFFSET 应为 7）；② 口径差被裁定计入（amount_diff=14440.00、excluded=0.00）；③ 存在未列出的分批成交行使 dedup>0。另需声明：amount_diff+excluded==gap 在三种分法下都成立，故金额闭合不能作为本方案正确的证据，只能作为漏项检测。",
+  "reads": [
+    {
+      "path": "runs/round9/prompts/EX-03.md",
+      "purpose": "取席位职责、读取域、字数预算与硬性字段"
+    },
+    {
+      "path": "runs/round9/inputs/pack-ANON-A.json",
+      "purpose": "匿名同伴产出之一：其 14320/120 分法与结构论证"
+    },
+    {
+      "path": "runs/round9/inputs/pack-ANON-B.json",
+      "purpose": "匿名同伴产出之二：其 13920/520 分法、执行路径与跨平台清单"
+    },
+    {
+      "path": "runs/round9/inputs/pack-ANON-C.json",
+      "purpose": "匿名同伴产出之三：其 count 立场（14440/0）"
+    },
+    {
+      "path": "fixtures/tasks/T-02/TASK.md",
+      "purpose": "取 §A-§D 字段定义、四列差异判据与四个易错点"
+    },
+    {
+      "path": "fixtures/tasks/T-02/ledger.csv",
+      "purpose": "逐行取 date/shares/amount/fee_total/note，自行求和"
+    },
+    {
+      "path": "fixtures/tasks/T-02/bill.csv",
+      "purpose": "逐行取 trade_date/settle_date/shares/amount/fee_total/note，自行求和"
+    },
+    {
+      "path": "protocol/02-辩论协议.md",
+      "purpose": "确认输出契约、强制反对与 reads/evidence 区分"
+    },
+    {
+      "path": "protocol/07-轮次与指标.md",
+      "purpose": "取 ADJ-001/DIFFSET 操作化定义、out_of_space 判据与语义冲突式"
+    }
+  ],
+  "dissent": [
+    {
+      "against": "ANON-B",
+      "reason": "把 520.00 股息放进 excluded、却把 T011 的 120.00 计入金额差，与金额轴的结构约束相反：excluded 的非零部分应只来自口径差（日期项两侧金额相等，贡献恒为 0）。另外『settle 基准会冲到 8 条』算错——T016 会由差异翻成非差异，实测 7 条，仍落在合法选项内，等于一个会被静默接受的错。",
+      "reverse_evidence": "若分红被判定为非交易现金流、契约明令不得进入成交金额轴，则 13920/520 成立。"
+    },
+    {
+      "against": "ANON-C",
+      "reason": "count 使 excluded_amount_total 与 excluded_categories 恒为 0/[]，ADJ-001 退化为无区分力的恒真式；同批产出对『120.00 进哪个桶』给出互斥答案，说明该轴缺一条机械判据，只凭直觉在重跑时会漂移，而本轮正是不允许引入新证据的修订轮，漂移无从纠正。",
+      "reverse_evidence": "若裁判声明一切差额一律计入、契约不设排除类，则 count 正确、我的 14320/120 错。"
+    },
+    {
+      "against": "ANON-A",
+      "reason": "其 dissent[0].against 指向自身编号的 count 立场，自我指涉构不成 (axis, target, direction) 三元组，该反对边不应计入 dissent_entropy；其金额结论与本席一致，不影响数值。",
+      "reverse_evidence": "若该条实为模板占位、聚合前剔除，则只是格式瑕疵，不损其结论。"
+    }
+  ],
+  "strongest_counter_arguments": [
+    {
+      "target": "本席 exclude 立场",
+      "argument": "对账目的是账实相符：45120.00 是真实资金流出，账面少记 120.00 会让持仓成本全盘失真，理应按实际成交价计入。",
+      "reverse_evidence": "若记账规范允许按委托价暂记、待成交回报再调整，则 exclude 成立。"
+    }
+  ],
+  "what_would_change_my_mind": "T011 成交回报证明 45.00 是录入错误；或记账规范明文要求按实际成交价入账。",
+  "confidence": "medium",
+  "needs_more_data": [
+    "自记账『按入账日记账』的书面口径：入账日=成交日还是交割日（决定 6 还是 7）",
+    "T011 成交回报单（判断 120.00 是基准差还是错记）",
+    "券商侧是否把股息计入成交金额统计（决定 520.00 的归属桶）"
+  ],
+  "stance": [
+    {
+      "axis": "ADJ-001",
+      "choice": "exclude"
+    },
+    {
+      "axis": "DIFFSET",
+      "choice": "6"
+    }
+  ],
+  "summary": {
+    "ledger_rows": 5,
+    "bill_rows": 8,
+    "ledger_total": 114800.0,
+    "bill_total": 129240.0,
+    "raw_total_gap": 14440.0,
+    "dedup_removed_txn_count": 0,
+    "dedup_amount": 0.0,
+    "diff_count": 6,
+    "amount_diff_total": 14320.0,
+    "excluded_amount_total": 120.0,
+    "excluded_categories": [
+      "成交价计量基准差（按委托价记账）"
+    ]
+  },
+  "diffs": [
+    {
+      "id": "T011",
+      "category": "成交价计量基准差（按委托价记账）"
+    },
+    {
+      "id": "T012",
+      "category": "自记账漏记成交（新股中签买入）"
+    },
+    {
+      "id": "T013",
+      "category": "自记账漏记现金分红"
+    },
+    {
+      "id": "T014",
+      "category": "权益变动股数未更新（送转）"
+    },
+    {
+      "id": "T015",
+      "category": "自记账漏记现金分红"
+    },
+    {
+      "id": "T016",
+      "category": "入账日与成交日不符（按交割日入账）"
+    }
+  ],
+  "categories": {
+    "成交价计量基准差（按委托价记账）": [
+      "T011"
+    ],
+    "自记账漏记成交（新股中签买入）": [
+      "T012"
+    ],
+    "自记账漏记现金分红": [
+      "T013",
+      "T015"
+    ],
+    "权益变动股数未更新（送转）": [
+      "T014"
+    ],
+    "入账日与成交日不符（按交割日入账）": [
+      "T016"
+    ]
+  },
+  "usage": {
+    "tokens": 19000,
+    "minutes": 15,
+    "source": "self_report"
+  }
+}

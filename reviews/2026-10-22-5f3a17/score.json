@@ -1,0 +1,382 @@
+{
+  "slug": "2026-10-22-5f3a17",
+  "criteria_total": 5,
+  "results": [
+    {
+      "angle": 1,
+      "angle_name": "主推",
+      "criterion": "C1",
+      "criterion_name": "点名具体对象",
+      "status": "pass",
+      "evidence": "点出发版流程 / pre_release_check 退出码语义 / I 自洽扫描三个具体对象"
+    },
+    {
+      "angle": 1,
+      "angle_name": "主推",
+      "criterion": "C2",
+      "criterion_name": "数字可追溯",
+      "status": "pass",
+      "evidence": "引 651 行、24/24、D-0042 的 2→11，均标 [材料]"
+    },
+    {
+      "angle": 1,
+      "angle_name": "主推",
+      "criterion": "C3",
+      "criterion_name": "下游影响说清",
+      "status": "pass",
+      "evidence": "列发版流程、退出码消费方、I 自洽扫描；未覆盖项明写「材料未覆盖」"
+    },
+    {
+      "angle": 1,
+      "angle_name": "主推",
+      "criterion": "C4",
+      "criterion_name": "可证伪条件",
+      "status": "pass",
+      "evidence": "若 --check 返 0 且 summary 相对原决策无新增可行动项，则判断错"
+    },
+    {
+      "angle": 1,
+      "angle_name": "主推",
+      "criterion": "C5",
+      "criterion_name": "自身盲区",
+      "status": "pass",
+      "evidence": "主推天然算不出账；会把「没用过」读成「还没用」；看不到「不做」的收益"
+    },
+    {
+      "angle": 2,
+      "angle_name": "反对",
+      "criterion": "C1",
+      "criterion_name": "点名具体对象",
+      "status": "pass",
+      "evidence": "点发版人动作集与退出码消费方两条具体链路"
+    },
+    {
+      "angle": 2,
+      "angle_name": "反对",
+      "criterion": "C2",
+      "criterion_name": "数字可追溯",
+      "status": "pass",
+      "evidence": "引 8/8、40 格、2→11；第3条自标「当前处于不可判定状态」"
+    },
+    {
+      "angle": 2,
+      "angle_name": "反对",
+      "criterion": "C3",
+      "criterion_name": "下游影响说清",
+      "status": "pass",
+      "evidence": "4 类下游逐条写，未覆盖项明说「材料未覆盖」"
+    },
+    {
+      "angle": 2,
+      "angle_name": "反对",
+      "criterion": "C4",
+      "criterion_name": "可证伪条件",
+      "status": "pass",
+      "evidence": "若 40 格在发版前填完且未推迟发版，则「会卡发版」判断错"
+    },
+    {
+      "angle": 2,
+      "angle_name": "反对",
+      "criterion": "C5",
+      "criterion_name": "自身盲区",
+      "status": "pass",
+      "evidence": "漏「不做」的代价；漏收益侧；漏阈值问题；漏路径区分"
+    },
+    {
+      "angle": 3,
+      "angle_name": "成本",
+      "criterion": "C1",
+      "criterion_name": "点名具体对象",
+      "status": "pass",
+      "evidence": "点 pre_release_check.py / score.json / summary.md 三个具体对象"
+    },
+    {
+      "angle": 3,
+      "angle_name": "成本",
+      "criterion": "C2",
+      "criterion_name": "数字可追溯",
+      "status": "pass",
+      "evidence": "引材料数字，并声明阈值为本角自设、非材料数字"
+    },
+    {
+      "angle": 3,
+      "angle_name": "成本",
+      "criterion": "C3",
+      "criterion_name": "下游影响说清",
+      "status": "pass",
+      "evidence": "4 类下游，明确「不能判定为有也不能判定为无」"
+    },
+    {
+      "angle": 3,
+      "angle_name": "成本",
+      "criterion": "C4",
+      "criterion_name": "可证伪条件",
+      "status": "pass",
+      "evidence": "填 40 格中位 ≤10 分钟 / 4 周建目录次数为 0，则判断错"
+    },
+    {
+      "angle": 3,
+      "angle_name": "成本",
+      "criterion": "C5",
+      "criterion_name": "自身盲区",
+      "status": "pass",
+      "evidence": "看不到「省」的一侧；看不到 40 格被敷衍填写导致的质量衰减"
+    },
+    {
+      "angle": 4,
+      "angle_name": "前提",
+      "criterion": "C1",
+      "criterion_name": "点名具体对象",
+      "status": "pass",
+      "evidence": "点 octagon.py / reviews/ / score.json"
+    },
+    {
+      "angle": 4,
+      "angle_name": "前提",
+      "criterion": "C2",
+      "criterion_name": "数字可追溯",
+      "status": "pass",
+      "evidence": "引 24/24 与「真实使用次数：0」"
+    },
+    {
+      "angle": 4,
+      "angle_name": "前提",
+      "criterion": "C3",
+      "criterion_name": "下游影响说清",
+      "status": "pass",
+      "evidence": "发版执行人（人）与发版节奏（流程）两条硬下游"
+    },
+    {
+      "angle": 4,
+      "angle_name": "前提",
+      "criterion": "C4",
+      "criterion_name": "可证伪条件",
+      "status": "pass",
+      "evidence": "若接入前已完成 ≥1 次真实闭环，则「未验证就设必跑」判断错"
+    },
+    {
+      "angle": 4,
+      "angle_name": "前提",
+      "criterion": "C5",
+      "criterion_name": "自身盲区",
+      "status": "pass",
+      "evidence": "结构性只答「该不该做」，漏「做得对不对」等 5 块"
+    },
+    {
+      "angle": 5,
+      "angle_name": "受益方",
+      "criterion": "C1",
+      "criterion_name": "点名具体对象",
+      "status": "pass",
+      "evidence": "列出材料中 5 个可点名的受益方候选对象"
+    },
+    {
+      "angle": 5,
+      "angle_name": "受益方",
+      "criterion": "C2",
+      "criterion_name": "数字可追溯",
+      "status": "pass",
+      "evidence": "逐条引材料原句并标注来源"
+    },
+    {
+      "angle": 5,
+      "angle_name": "受益方",
+      "criterion": "C3",
+      "criterion_name": "下游影响说清",
+      "status": "pass",
+      "evidence": "按下游类型逐项写，记「材料未覆盖」而非默认无"
+    },
+    {
+      "angle": 5,
+      "angle_name": "受益方",
+      "criterion": "C4",
+      "criterion_name": "可证伪条件",
+      "status": "pass",
+      "evidence": "若 40 格大面积跳过或长期 not_run 而发版仍放行，则判断错"
+    },
+    {
+      "angle": 5,
+      "angle_name": "受益方",
+      "criterion": "C5",
+      "criterion_name": "自身盲区",
+      "status": "pass",
+      "evidence": "看不见未被点名者；完全看不见成本；会把「覆盖」误当「受益」"
+    },
+    {
+      "angle": 6,
+      "angle_name": "依赖与外部性",
+      "criterion": "C1",
+      "criterion_name": "点名具体对象",
+      "status": "pass",
+      "evidence": "分上游依赖与下游两端点名，含 reviews/ 产物"
+    },
+    {
+      "angle": 6,
+      "angle_name": "依赖与外部性",
+      "criterion": "C2",
+      "criterion_name": "数字可追溯",
+      "status": "pass",
+      "evidence": "引 651 行与「真实使用次数：0」"
+    },
+    {
+      "angle": 6,
+      "angle_name": "依赖与外部性",
+      "criterion": "C3",
+      "criterion_name": "下游影响说清",
+      "status": "pass",
+      "evidence": "发版流程为唯一可观测阻断点；产物当前「无下游」并给依据"
+    },
+    {
+      "angle": 6,
+      "angle_name": "依赖与外部性",
+      "criterion": "C4",
+      "criterion_name": "可证伪条件",
+      "status": "pass",
+      "evidence": "若有脚本/日报/告警读取 reviews/*/score.json，则「无下游」判断错"
+    },
+    {
+      "angle": 6,
+      "angle_name": "依赖与外部性",
+      "criterion": "C5",
+      "criterion_name": "自身盲区",
+      "status": "pass",
+      "evidence": "系统性低估半径；看不了「不接入」的外部性；看不了时序"
+    },
+    {
+      "angle": 7,
+      "angle_name": "风险与不可逆",
+      "criterion": "C1",
+      "criterion_name": "点名具体对象",
+      "status": "pass",
+      "evidence": "点 octagon.py 与 pre_release_check 的 A–H 八项"
+    },
+    {
+      "angle": 7,
+      "angle_name": "风险与不可逆",
+      "criterion": "C2",
+      "criterion_name": "数字可追溯",
+      "status": "pass",
+      "evidence": "引材料数字，缺数处标「未计时 / 未实测」"
+    },
+    {
+      "angle": 7,
+      "angle_name": "风险与不可逆",
+      "criterion": "C3",
+      "criterion_name": "下游影响说清",
+      "status": "pass",
+      "evidence": "发版窗口是否装得下、门禁耗时两处硬下游"
+    },
+    {
+      "angle": 7,
+      "angle_name": "风险与不可逆",
+      "criterion": "C4",
+      "criterion_name": "可证伪条件",
+      "status": "pass",
+      "evidence": "重跑 --decision 若覆盖已填成果则判断错（本轮已实测，未触发）"
+    },
+    {
+      "angle": 7,
+      "angle_name": "风险与不可逆",
+      "criterion": "C5",
+      "criterion_name": "自身盲区",
+      "status": "pass",
+      "evidence": "看不了值不值；看不了判据对不对；看不了行为偏移且该失效回滚不了"
+    },
+    {
+      "angle": 8,
+      "angle_name": "度量与证伪",
+      "criterion": "C1",
+      "criterion_name": "点名具体对象",
+      "status": "pass",
+      "evidence": "点四个开关、四档退出码、score.json 40 格"
+    },
+    {
+      "angle": 8,
+      "angle_name": "度量与证伪",
+      "criterion": "C2",
+      "criterion_name": "数字可追溯",
+      "status": "pass",
+      "evidence": "引 651 行、24/24、8 份、40 格"
+    },
+    {
+      "angle": 8,
+      "angle_name": "度量与证伪",
+      "criterion": "C3",
+      "criterion_name": "下游影响说清",
+      "status": "pass",
+      "evidence": "5 类下游逐项写，含「无下游」与「材料未覆盖」的区分"
+    },
+    {
+      "angle": 8,
+      "angle_name": "度量与证伪",
+      "criterion": "C4",
+      "criterion_name": "可证伪条件",
+      "status": "pass",
+      "evidence": "判断 A/B 各配证伪条件（出现任一实测耗时则 A 错）"
+    },
+    {
+      "angle": 8,
+      "angle_name": "度量与证伪",
+      "criterion": "C5",
+      "criterion_name": "自身盲区",
+      "status": "pass",
+      "evidence": "7 条，含「40 格全填合格与真审查在度量口径下不可区分」"
+    }
+  ],
+  "actions": {
+    "1": [
+      {
+        "text": "新门禁编号需避让已有的 I（字母占位已被非门禁项占用）",
+        "level": "minor",
+        "dup": null
+      }
+    ],
+    "2": [
+      {
+        "text": "先补测 pre_release_check 基线耗时，否则「增加耗时」无法观测",
+        "level": "change",
+        "dup": null
+      }
+    ],
+    "3": [],
+    "4": [
+      {
+        "text": "先跑 ≥1 次真实决策闭环，再决定是否设为必跑",
+        "level": "change",
+        "dup": null
+      }
+    ],
+    "5": [
+      {
+        "text": "补记未被点名的受影响者：将来接手的人、被门禁阻断后临时补 40 格的人",
+        "level": "minor",
+        "dup": null
+      }
+    ],
+    "6": [
+      {
+        "text": "卡点是人不是代码：能否稳定坐下来填 40 格",
+        "level": "minor",
+        "dup": null
+      }
+    ],
+    "7": [
+      {
+        "text": "重跑覆盖风险的验证方法（填一格 → 重跑 → 看是否保留）",
+        "level": "change",
+        "dup": null
+      }
+    ],
+    "8": [
+      {
+        "text": "「40 格全填合格」与真审查在度量口径下不可区分，需额外留痕才能归因",
+        "level": "change",
+        "dup": null
+      }
+    ]
+  },
+  "how_to_fill": "① results[]：每项 status 填 pass/fail（不留 not_run），evidence 填原文依据一句。没跑过就别填 pass —— 那会让汇总变成假绿灯。② actions{角号:[...]}：登记该角提出的可行动项，level 取 ['change', 'minor']，dup 填提出过同一项的其他角号（字符串，无重复填 null）。★ 判据矩阵只证明「这份产出合不合格」，覆盖增量看 actions。",
+  "filled_by": "主会话（依据 outputs/ 原文与复盘 §五 手工统计）",
+  "filled_at": "2026-10-22T22:53+08:00",
+  "updated_at": "2026-10-22T23:22:58+08:00"
+}

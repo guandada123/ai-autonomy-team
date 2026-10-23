@@ -1,0 +1,105 @@
+{
+  "seat": "EX-03",
+  "round": 3,
+  "conclusion": "本任务 90% 可完全脚本化、无需 LLM：算术层用 Decimal 精确算，唯一不可算的是口径差归类。落地方案=确定性脚本产出全部算术字段 + 单个人工闸门裁定 ADJ-001。我认同 exclude/7：amount_diff_total=500.02、excluded_amount_total=180.00、diff_count=7；180.00 的归属必须由闸门显式留痕，不得作为脚本默认值藏进代码。",
+  "execution_path": [
+    "1. 冻结输入：对 ledger.csv / bill.csv 取 sha256 写入 runs/round3/ex03/frozen.json；以只读方式打开，encoding='utf-8-sig' 防 BOM。",
+    "2. 算术层（零判断、硬裁判可自动裁决）：Decimal(str) 读 amount，quantize 至 scale=2、ROUND_HALF_UP；得 rows 27/27、totals 37490.50 / 38010.52、raw_total_gap 520.02、dedup 1 个单号 / 1200.00。",
+    "3. 账面闭合自检（必须断言，失败即中止）：1200.00 + 0.02 − 680.02 == 520.02；不等则说明 dedup 或 scale 处理有误，不得继续往下写。",
+    "4. 差异清单：T101/T102（0.01+0.01）、T103（重复，只由 dedup_amount 表达）、T104/T105（口径）、T106（跨月，差额 0.00 仍占清单）、T107（单边 500.00）→ 7 条。",
+    "5. 分类不写死：脚本同时渲染两套候选（exclude→500.02/180.00；count→680.02/0.00）到 pending-adjudication.json，由裁决记录选一；未选则保持 pending。",
+    "6. 人类闸门：人类填写裁决记录；脚本带 --record 重跑，把 record 的 sha256 写入 evidence；未填时以非零退出码（3）表达「未裁决」，不得当作通过。",
+    "7. 发布：先把既有 answer.json 移到 _trash/<ts>/，再「写 .tmp → fsync → 原子替换」；全程不调用删除函数。"
+  ],
+  "cost": {
+    "token_estimate": "脚本路径 ≈0 LLM token（纯 Python，单次运行 <1s）；本席本轮自耗 ≈23.5k（提示词 6KB + 两 CSV + 三匿名包 + 2 篇协议）；若沿用三席辩论，全项目 ≈45–75k，约 15–20× 单轮对话。故算术部分用脚本、辩论只用于 ADJ-001 一条轴，可省约 80% token。",
+    "wall_clock": "脚本 <5s；人工闸门填裁决记录 5–10 分钟（真正的 wall-clock 瓶颈）；含一轮辩论的全流程 15–30 分钟。",
+    "human_touchpoints": "必须 1 次：ADJ-001（口径差 180.00 是否计入金额差异）——此项不可自动生成，否则闸门失效；可选 1 次：舍入容差阈值（影响仅 0.02）。"
+  },
+  "rollback": "全流程只新增 runs/round3/ex03/ 下文件，fixtures/ 与 protocol/ 全程只读，不产生回滚需求。回滚 = 把本次产物移到 runs/round3/_trash/<ts>/（禁删除）；若已覆盖既有 answer.json，则从 _trash/<ts>/ 取回上一版复原，不重算。写盘一律 tmp+fsync+原子替换，保证任何时刻磁盘上不存在半写文件。",
+  "op_grade": "🟡",
+  "op_grade_reason": "计算本身可逆且只读输入（应为 🟢），但「覆盖既有 answer.json」属跨模块可见产物，一旦写错会把错误的 180.00 归属传播到下游对账；故升为 🟡：执行前先备份到 _trash/ + 跑通账面闭合断言。无 🔴 项。",
+  "cross_platform_risks": [
+    {"risk": "解释器路径：脚本写死 python 或 /usr/bin/env python，macOS 只有 python3", "mitigation": "文档与 make 目标统一用 python3；脚本内仅用 sys.executable 做子进程调用"},
+    {"risk": "浮点误差：float 下 (2500.01−2500.00)+(3210.51−3210.50)=0.020000000000436557，直接 ==0.02 会失败", "mitigation": "全程 Decimal(str(x))，quantize('0.01', ROUND_HALF_UP)，比较用 Decimal 相等而非 abs 容差"},
+    {"risk": "路径拼接：字符串 + 分隔符在换环境即断，且相对路径依赖 cwd", "mitigation": "pathlib.Path(__file__).resolve().parents[n] 定位包根，禁止 str 拼接与硬编码盘符"},
+    {"risk": "换行：Windows 默认写 CRLF，导致产物 sha256 与 mac 侧不一致", "mitigation": "open(..., newline='') 读写，JSON 落盘统一 '\\n'，并在写后断言 b'\\r\\n' not in payload"},
+    {"risk": "编码：Windows 默认 cp936/GBK，读含中文 note 的 CSV 会 UnicodeDecodeError 或乱码", "mitigation": "显式 encoding='utf-8-sig' 读、encoding='utf-8' 写；ensure_ascii=False 并 round-trip 校验"},
+    {"risk": "删除：回滚脚本用删除调用，mac 侧沙箱拦截后回滚半途失败", "mitigation": "统一改名进 _trash/，不实现任何删除分支"},
+    {"risk": "shell 差异：用 bash 的 rm -rf / sed -i 做清理，mac 的 BSD sed 与 zsh 行为不同", "mitigation": "清理与改写全部在 Python 内完成，不依赖 shell 语法"},
+    {"risk": "文件名 Unicode 归一化：macOS APFS 存 NFD，Windows 存 NFC，按中文名匹配文件会 FileNotFoundError", "mitigation": "只按固定 ASCII 文件名（ledger.csv / bill.csv）定位"}
+  ],
+  "evidence": [
+    {"pointer": "fixtures/ledger.csv:2-29 + fixtures/bill.csv:2-29", "what_it_shows": "两侧各 27 数据行；台账合计 37490.50、账单合计 38010.52，raw_total_gap=520.02；T103 在账单出现两行同额、T107 仅台账有——重复与单边缺失均可确定，无需 LLM 判断。"},
+    {"pointer": "fixtures/ledger.csv:26-27 + fixtures/bill.csv:26-27", "what_it_shows": "T104/T105 台账 2120/1060 标 Y、账单 2000/1000 标 N；2120/2000=1060/1000=1.06，差额 120+60=180.00 恰为税额，故 excluded_amount_total=180.00、amount_diff_total 只余 0.01+0.01+500.00=500.02。"},
+    {"pointer": "fixtures/ledger.csv:22-24,28 + fixtures/bill.csv:22-24,28", "what_it_shows": "T101/T102 各差 0.01；T106 两侧同为 4800.00、仅日期 09-30→10-01（差额 0.00 仍占清单）；T107 账单缺失 500.00。三项相加得闭合式 1200.00+0.02−680.02=520.02。"},
+    {"pointer": "protocol/06-写入域与判据分层.md:117-123", "what_it_shows": "金额类路径必须 decimal_equals 且声明 scale；文中给出 float 相加得 0.020000000000436557 的实测值——支撑本席 Decimal + quantize 的强制要求。"},
+    {"pointer": "protocol/06-写入域与判据分层.md:70-78", "what_it_shows": "目标机 chmod 去写权限才是物理隔离；Windows 侧 attrib/ACL 只是软屏障，只能检测不能预防——决定回滚必须靠 _trash 目录。"},
+    {"pointer": "protocol/07-轮次与指标.md:79-82,120-128", "what_it_shows": "ADJ-001 由 amount_diff_total==500.02 且 excluded==180.00 反推为 exclude，DIFFSET 取 summary.diff_count；金额字段缺失即反推为 abstain——这是本席必须同时申报两个金额字段的机制依据。"},
+    {"pointer": "protocol/02-辩论协议.md:17-33", "what_it_shows": "多智能体约为单轮对话 15 倍 token、且须设硬上限；支撑「算术层脚本化、辩论只留给单条判断轴」的取舍。"}
+  ],
+  "falsification": "以下任一成立，本方案不可行或数字错：(1) T103 两行被认定为两笔独立合法交易而非重复导入，则去重规则不确定，520.02 的闭合断言失效；(2) amount 出现 2 位以上小数或混币种，scale=2 的 quantize 会静默截断；(3) 运行环境无 Python3.8+ 或 runs/ 只读，脚本路径不可执行；(4) 人类闸门在预算内无法填写，ADJ-001 保持 pending（非零退出），500.02/180.00 只是候选值而非结论；(5) note 的「口径差异样本」属非权威标注，则 180.00 的唯一文本依据消失，应移入计入侧（680.02/0.00）。",
+  "dissent": [
+    {
+      "against": "ANON-C",
+      "reason": "三条可机检的缺陷：①其 evidence 与结论直接取自被净化器替换为 [deny-domain path redacted] 的禁读域，并以「机器已固化」作为唯一理由，按读取域规则本身即不可采；②summary 只给 diff_count=7，却自述 exclude——金额字段缺失，脚本反推只能得 abstain，与其立场冲突；③rollback 写的目录与轮次号均错，照此回滚会写进错误轮次。",
+      "reverse_evidence": "若能给出不含禁读域的数据内证据，补齐 amount_diff_total=500.02 与 excluded_amount_total=180.00，并把回滚路径改到本轮目录，则本条撤回。"
+    },
+    {
+      "against": "ANON-B",
+      "reason": "B 缺 execution_path、cost、rollback、op_grade、cross_platform_risks——按落地纪律这是「不可执行」而非「论证略简」：成本未估、回滚未设计、操作未分级，一旦 180.00 的归属写错没有任何退回路径。且它把「口径差是制度性还是录入错误」列为待决，却同时输出确定的 500.02/180.00，自洽性有缺口。",
+      "reverse_evidence": "若 B 补出 token/wall-clock/人工介入次数、回滚路径与操作分级，则「不可执行」降级为「职责缺位」。"
+    }
+  ],
+  "strongest_counter_arguments": [
+    {
+      "target": "ANON-A",
+      "argument": "A 与 B 的 exclude 论证都建立在「note 列自证 + 两个样本比值 1.06」上，本质是 n=2 的归纳；若第三个口径样本比率为 3% 或 13%，则「制度性 6%」归因崩溃，180.00 的排除失去依据。作为落地席我必须指出：这条判断轴不可由脚本自动闭合，只能交闸门。",
+      "reverse_evidence": "若存在成文规则明定「口径差一律不计入金额差异」，则归纳风险消除，脚本可直接固化而无需人工闸门。"
+    },
+    {
+      "target": "ANON-C",
+      "argument": "C 的成本论证是循环的：它以「若唯一目标是拿到 500.02/180.00」为前提得出「多智能体 20× 浪费」，但 500.02 与 680.02 之争恰是本题唯一的真实判断轴，把结论当作已知锚点来算成本，等于先假定分歧不存在再论证不必检验。",
+      "reverse_evidence": "若全部字段均为纯算术、无任何归类判断轴，则其成本结论成立——但 ADJ-001 的存在本身即否证该前提。"
+    }
+  ],
+  "needs_more_data": [
+    "是否存在成文的舍入容差阈值（决定 T101/T102 的 0.02 计入还是并入 excluded，金额影响仅 0.02，不影响 diff_count）",
+    "T104/T105 账单侧 tax_included=N 是制度性口径还是录入错误（决定 180.00 归属；本轮无新数据，须由闸门裁定）"
+  ],
+  "reads": [
+    {"path": "runs/round3/prompts/EX-03.md", "purpose": "本轮提示词：确认 revision_round 职责、读取域、输出契约与字数预算"},
+    {"path": "fixtures/TASK.md", "purpose": "字段定义与三条易错点，用作脚本断言的规范来源"},
+    {"path": "fixtures/ledger.csv", "purpose": "台账原始数据；用于行数/合计/逐单号比对与差异清单构造"},
+    {"path": "fixtures/bill.csv", "purpose": "账单原始数据；用于识别 T103 重复行、T107 单边缺失、T104/T105 的 Y/N 翻转"},
+    {"path": "protocol/06-写入域与判据分层.md", "purpose": "确认金额须 Decimal+scale、Windows 只能检测不能预防"},
+    {"path": "protocol/07-轮次与指标.md", "purpose": "确认 stance 由金额字段机械反推、DIFFSET 取 diff_count"},
+    {"path": "protocol/02-辩论协议.md", "purpose": "取多智能体 15× token 与强制反对条款"},
+    {"path": "runs/round3/inputs/pack-ANON-A.json", "purpose": "读取匿名同伴 A 的立场与论证，判断其可落地性与需反对之处"},
+    {"path": "runs/round3/inputs/pack-ANON-B.json", "purpose": "读取匿名同伴 B 的立场与论证，核查其是否给出执行/成本/回滚"},
+    {"path": "runs/round3/inputs/pack-ANON-C.json", "purpose": "读取匿名同伴 C 的立场与论证，核查其证据来源与 summary 字段完整性"}
+  ],
+  "usage": {
+    "tokens": 23500,
+    "minutes": 14,
+    "source": "self_report"
+  },
+  "stance": [
+    {"axis": "ADJ-001", "choice": "exclude"},
+    {"axis": "DIFFSET", "choice": "7"}
+  ],
+  "summary": {
+    "ledger_rows": 27,
+    "bill_rows": 27,
+    "ledger_total": 37490.50,
+    "bill_total": 38010.52,
+    "raw_total_gap": 520.02,
+    "dedup_removed_txn_count": 1,
+    "dedup_amount": 1200.00,
+    "diff_count": 7,
+    "amount_diff_total": 500.02,
+    "excluded_amount_total": 180.00,
+    "excluded_categories": ["口径差异"]
+  },
+  "confidence": "high"
+}

@@ -1,0 +1,100 @@
+{
+ "task_id": "T-17",
+ "round": 21,
+ "aggregated_by": "PM-01",
+ "summary": {
+  "ledger_rows": 5,
+  "bill_rows": 8,
+  "ledger_total": 243820.0,
+  "bill_total": 258260.0,
+  "raw_total_gap": 14440.0,
+  "dedup_removed_txn_count": 0,
+  "dedup_amount": 0.0,
+  "diff_count": 6,
+  "amount_diff_total": 14440.0,
+  "excluded_amount_total": 0.0,
+  "fee_diff_total": 5.17,
+  "excluded_categories": [
+   "股数不一致-送转未登记"
+  ]
+ },
+ "diffs": [
+  {
+   "id": "T131",
+   "category": "价格口径差"
+  },
+  {
+   "id": "T132",
+   "category": "单侧缺失-中签买入"
+  },
+  {
+   "id": "T133",
+   "category": "单侧缺失-现金分红"
+  },
+  {
+   "id": "T134",
+   "category": "股数不一致-送转未登记"
+  },
+  {
+   "id": "T135",
+   "category": "单侧缺失-现金分红"
+  },
+  {
+   "id": "T136",
+   "category": "日期口径差"
+  }
+ ],
+ "categories": {
+  "价格口径差": [
+   "T131"
+  ],
+  "单侧缺失-中签买入": [
+   "T132"
+  ],
+  "单侧缺失-现金分红": [
+   "T133",
+   "T135"
+  ],
+  "股数不一致-送转未登记": [
+   "T134"
+  ],
+  "日期口径差": [
+   "T136"
+  ]
+ },
+ "falsification": "若以下任一成立，本结论即错：①§D 的「日期」应取 settle_date 而非 trade_date —— 我独立 Decimal 复算得该口径下 diff_count=7（T129 09-05→09-06、T130 09-07→09-08 亦成差异，T136 反而不成），而非三席共同声称的 5；无论取 5 还是 7，都不等于 6；②T133 与 T135 实为同一分红事件的两个推送行（如券商按事件分两行推送同一 txn_id），则 dedup_removed_txn_count=1、dedup_amount=260.00、amount_diff_total 降为 14180.00；③T131 的 45.00 不是「按委托价记账」而是成交价错填（如券商委托流水显示委托价亦为 45.12），则 120.00 属真实错记，我的「口径分离、金额全计入」失去依据，少数派的 14320.00／120.00 成立；④T134 的 30 股并非送转而是应按市价折算金额的权益变动，则其 amount 差不为 0.00，我把该类别整体排除在金额差异之外即错；⑤若「amount_diff_total == raw_total_gap」被当作硬校验使用 —— 本样本 6 条差额全部同向（bill ≥ ledger），该等式是构造性恒等，仅提供算术自洽、不提供归类正确性，把它当独立证据即误用。",
+ "diff_preserved": [
+  {
+   "side": "多数",
+   "conclusion": "【EX-01／EX-03】ADJ-001 取 count：6 条差异全部计入金额差异，amount_diff_total=14440.00，excluded_amount_total=0.00。理由：排除会把人工介入从 1 次推到 3 次，且排除动作在金额层不可见、不可机器验证；T131 的 note「按委托价记账」不足以豁免 120.00 的差额。",
+   "falsification": "若 45.00 被证明是成交价错填而非按委托价记账（券商委托流水显示委托价亦为 45.12），则 120.00 不是口径选择而是错记，「分离口径」这一理由消失；若契约要求 T131 必须以实际成交价重算基准后差额重分类，则 14440.00 的构成错误。"
+  },
+  {
+   "side": "少数",
+   "conclusion": "【EX-02】ADJ-001 取 exclude：口径差单列为排除额，amount_diff_total=14320.00、excluded_amount_total=120.00、excluded_categories=[\"价格口径差\",\"日期口径差\"]。理由：14440.00 同时承载「需补记」（13800+260+260）与「需重算基准」（120.00）两类异质动作，下游无法区分；且 Σ|d|=gap 是无反向项时的构造性恒等，零信息量。",
+   "falsification": "若 45.00 被证明是成交价错填（委托价亦 45.12），120.00 属真实错记应计入，14320.00／120.00 即错；若下游动作被允许合并为「按券商口径重算全部」的单一操作，则「两类动作不可混用」的前提不成立。"
+  },
+  {
+   "side": "少数",
+   "conclusion": "【EX-02 dissent】dedup=0 只能算「按定义取到」，不能算「已核实无重复」：T133／T135 同为现金分红 260.00、间隔 2 天，若券商按同一事件分两行推送同一 txn_id（正是 §B 所列分批成交形态），dedup 立刻为 1。结论对「券商推送粒度」这一输入外事实高度敏感，而该事实不在两份 CSV 内。",
+   "falsification": "若 bill.csv 提供分红公告号等稳定事件键并证明两笔为不同事件，则 dedup=0 可升格为已核实，本异议消解；反之若存在事件键证明同一事件，则 dedup_removed_txn_count=1、dedup_amount=260.00、amount_diff_total=14180.00。"
+  }
+ ],
+ "aggregation_inputs": [
+  {
+   "seat": "EX-01",
+   "sha256": "3947a09b72ffa17c602b655c938ce49ec6efff2f2cc54b382a61cb8d36ec0f79",
+   "seat_check_status": "valid"
+  },
+  {
+   "seat": "EX-02",
+   "sha256": "9f0414c397d227484cd00f269570ffb9c6cfd04caefc4f0d2eee888228c03496",
+   "seat_check_status": "valid"
+  },
+  {
+   "seat": "EX-03",
+   "sha256": "320317273a47b2c46ef19bea772d2a164dfcb86a2b9fec4ef3cd8b157e388674",
+   "seat_check_status": "valid"
+  }
+ ]
+}

@@ -1,0 +1,92 @@
+{
+  "seat": "EX-01",
+  "round": 19,
+  "conclusion": "按 §A–§D 字面执行：行 7/8，合计 409420.00 与 409800.00，raw_total_gap=380.00；两侧 15 个单号无重复，dedup 判 0 个/0.00。日期按成交日比，得 6 条差异 T107/T108/T109/T110/T111/T112，金额差 120.00+260.00=380.00 与总差恒等，故无排除项。",
+  "evidence": [
+    {
+      "pointer": "fixtures/tasks/T-14/ledger.csv#amount 列 T105–T112 共 7 数据行",
+      "what_it_shows": "168000+168000+45000+13800+13800+0+820=409420.00；行数 7，对应 §A 的 ledger_rows 与 ledger_total。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-14/bill.csv#amount 列 T105–T112 共 8 数据行",
+      "what_it_shows": "168000+168000+45120+13800+13800+0+260+820=409800.00；比 ledger 恰多一行 T111 的 260.00，bill_total−ledger_total=380.00。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-14/ledger.csv#txn_id 列(7 值) + bill.csv#txn_id 列(8 值)",
+      "what_it_shows": "两列各自无重复值，不存在「分批成交同号多行」；号段 T108/T109、T110/T111 跳号不构成重复 → §B 两个字段均为 0 与 0.00。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-14/ledger.csv#T107:price=45.00,amount=45000.00,fee_total=11.70 对照 bill.csv#T107:price=45.12,amount=45120.00,fee_total=11.73",
+      "what_it_shows": "委托价记账 vs 实际成交价：金额列差 0.12×1000=120.00，费用列差 0.03。price 不在 §D 四列内，但金额列已捕获该单，差额 120.00 即 amount_diff_total 的主项。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-14/ledger.csv#T112:date=2026-09-19 对照 bill.csv#T112:trade_date=2026-09-18,settle_date=2026-09-19",
+      "what_it_shows": "股数 100、金额 820.00、费用 5.01 三列完全相等，仅日期不等；按成交日比判为差异、金额差 0.00（按交割日比则不成差异，见 falsification）。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-14/bill.csv#T108,T109:fee_total=12.04=佣金5.00+印花税6.90+过户费0.14 对照 ledger.csv#T108,T109:fee_total=5.00",
+      "what_it_shows": "两单仅费用列不等、各差 7.04，amount 均 13800.00 相等 → 计入差异但金额差 0.00；印证 §C 易错点 1「amount 与 fee_total 分开取、不合算」。"
+    },
+    {
+      "pointer": "fixtures/tasks/T-14/bill.csv#T110:shares=30,side=送转,amount=0.00 对照 ledger.csv#T110:shares=0,amount=0.00",
+      "what_it_shows": "10送3 权益变动只在股数列 0↔30 不等，两侧 amount 与 fee 均为 0.00 → 计差异、金额差 0.00，不影响 amount_diff_total。"
+    }
+  ],
+  "diffs": [
+    {"id": "T107", "category": "金额与费用差异-按委托价记账"},
+    {"id": "T108", "category": "费用差异-漏计印花税与过户费"},
+    {"id": "T109", "category": "费用差异-漏计印花税与过户费"},
+    {"id": "T110", "category": "股数差异-送转未更新持仓"},
+    {"id": "T111", "category": "单侧差异-现金分红未入账"},
+    {"id": "T112", "category": "日期差异-按交割日入账"}
+  ],
+  "categories": {
+    "金额与费用差异-按委托价记账": ["T107"],
+    "费用差异-漏计印花税与过户费": ["T108", "T109"],
+    "股数差异-送转未更新持仓": ["T110"],
+    "单侧差异-现金分红未入账": ["T111"],
+    "日期差异-按交割日入账": ["T112"]
+  },
+  "summary": {
+    "ledger_rows": 7,
+    "bill_rows": 8,
+    "ledger_total": 409420.00,
+    "bill_total": 409800.00,
+    "raw_total_gap": 380.00,
+    "dedup_removed_txn_count": 0,
+    "dedup_amount": 0.00,
+    "diff_count": 6,
+    "amount_diff_total": 380.00,
+    "excluded_amount_total": 0.00,
+    "excluded_categories": []
+  },
+  "falsification": "①若 §D 的「日期」被裁决映射为 bill.settle_date，则 T105–T109 五单均成日期差异、T112 反而不差，diff_count 变为 7 且清单全变，本结论的 diffs 与 diff_count 即错；②若某单号在单侧出现多行（本数据没有），dedup_amount 非零，raw_total_gap 须先扣 dedup 才与 amount_diff_total 恒等，恒等式失效；③若 §D 的「费用」被要求取 commission/stamp_tax/transfer_fee 分解列而非 fee_total，T107 的 0.03 差会改变差异构成（但不改金额差 120.00）。",
+  "reads": [
+    {"path": "fixtures/tasks/T-14/TASK.md", "purpose": "取 §A–§D 字段定义与四个易错点，逐条对照执行"},
+    {"path": "fixtures/tasks/T-14/ledger.csv", "purpose": "逐行读取 7 行自记账原始值，累加 amount、检查 txn_id 重复"},
+    {"path": "fixtures/tasks/T-14/bill.csv", "purpose": "逐行读取 8 行交割单原始值，累加 amount、检查 txn_id 重复与费用三列分解"},
+    {"path": "protocol/02-辩论协议.md", "purpose": "确认单轮四阶段、强制反对义务与输出契约字段"},
+    {"path": "protocol/03-结构审计七查.md", "purpose": "确认九查判据（外部钩子、分歧留存、规格假设）与本席产出的合规边界"},
+    {"path": "protocol/07-轮次与指标.md", "purpose": "确认 stance 反推规则、evidence/reads 语义分工与 usage 预算定义式"},
+    {"path": "runs/round19/prompts/EX-01.md", "purpose": "本席提示词：读取域、字数预算、硬性字段与 stance 选项空间"}
+  ],
+  "dissent": [
+    {
+      "against": "ANON-B",
+      "reason": "把 T111 的 260.00 移出 amount_diff_total 缺乏契约授权：§D 明写「仅单侧存在的单号亦为差异单号，差额取该单号在该侧的 amount」，§C 也没有给出「不计入」类别的准入条件。且 380.00 与 raw_total_gap 严格恒等是唯一可自检的闭合关系，一旦排除，报告金额 120.00 不再等于账面总差，读者需二次相加才能还原真实缺口，对账更难收敛。",
+      "reverse_evidence": "若账套或科目余额表显示该 260.00 已于 9 月前以「应收股利」确认收入（同一经济事项已入账），则 260 属重复计量而非缺口，应改判 exclude，我的 380.00 即为高估。"
+    }
+  ],
+  "confidence": "high",
+  "needs_more_data": [
+    "缺规则：§D 的「日期」列未指明比对 bill.trade_date 还是 settle_date（两列同时存在），本席按成交日解释，需裁决确认。",
+    "缺规则：§C 的「不计入金额差异」类别只有字段算法、没有准入条件，无法机械判定哪些单号可入该类。",
+    "缺数据：无持仓或期初股数表，无法验证 T110「10送3」应加 30 股后总股数是否正确（起点不可见）。",
+    "缺数据：无科目余额表，无法验证 T111 的 260.00 是否已在前期挂账。"
+  ],
+  "stance": [
+    {"axis": "ADJ-001", "choice": "count"},
+    {"axis": "DIFFSET", "choice": "6"}
+  ],
+  "usage": {"tokens": 21500, "minutes": 11, "source": "self_report"}
+}

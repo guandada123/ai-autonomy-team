@@ -1,0 +1,145 @@
+{
+  "seat": "EX-03",
+  "round": 32,
+  "conclusion": "落地路径为一次性确定性脚本：6 条差异、120.00 计入 / 260.00 排除，全流程 🟢 可逆（输入只读、输出可重算）；唯一人工闸门是日期基准与股息归属两条缺规则，须人签一次（exit 3）。",
+  "execution_path": [
+    "以 pathlib 定位 fixtures/tasks/T-15/{ledger.csv,bill.csv}，csv.DictReader(encoding='utf-8', newline='') 读入，禁用列序对齐（两表列数 10 vs 12）",
+    "显式列映射：ledger.amount↔bill.amount、ledger.fee_total↔bill.fee_total、ledger.date↔bill.trade_date（settle_date 单独留存，不进比对）",
+    "金额一律 Decimal(str)，不落 float；舍入到 0.01 且只在输出时 quantize",
+    "按 txn_id 建哈希表：先算 ledger_rows=7、bill_rows=8、两合计与 raw_total_gap=380.00",
+    "重复判定按「单号在一侧出现次数>1」统计：两侧各 0 个 → dedup_removed_txn_count=0、dedup_amount=0.00（不按经济同质做模糊去重，契约明写按单号）",
+    "四列比对生成 6 条差异：T115 金额+费用、T116/T117 费用、T118 股数、T119 单侧、T120 日期；每条落 1 个自定类别，categories 由 diffs 反向生成以保证自洽",
+    "amount_diff_total=120.00（仅 T115 的 abs 差）；T116/T117/T118/T120 金额列相等→贡献 0.00；T119 归入「单侧缺失·非交易权益项」→ excluded_amount_total=260.00，两者相加 380.00 对平 raw_gap",
+    "写 answer.json：json.dump(ensure_ascii=False)、写入前固定 LF（open(..., newline='\\n')）、Decimal 转 2 位字符串后按数值落盘；同日答写入 _trash/ 备份再覆盖",
+    "对两个待裁项输出 pending-adjudication（日期基准 6/7 条、股息归属 120/380），verify.py 走 adjudication 层返回 3，等人签后重跑 --record"
+  ],
+  "cost": {
+    "token_estimate": "本席位自述约 10.5k tokens（3 份提示词 + 2 份 CSV + 2 份协议 + 1 次复算）；三席并行合计约 31k，为单轮直答（~2k）的 15 倍量级，与多智能体 15× 惯例一致",
+    "wall_clock": "计算本身 <1s（7+8 行，O(n) 两次遍历）；含脚本编写与核对约 10 分钟；人签往返另计 10–15 分钟",
+    "human_touchpoints": "1 次（ADJ：日期基准 + 股息归属，两项可合并为一次签署）"
+  },
+  "rollback": "输入两表全程只读，不产生中间态；answer.json 覆盖前先复制到 runs/round32/_trash/answer.json.<sha8>.<ts>（不调 unlink，macOS 沙箱会拦截删除）。回滚=改回 record 或删除本次 answer.json 后由脚本幂等重算，最长回滚代价为一次重跑（<1s），不存在不可逆写入。",
+  "op_grade": "🟢",
+  "cross_platform_risks": [
+    {
+      "risk": "解释器路径：Windows 习惯写 python，目标机 macOS(M4) 只有 python3",
+      "mitigation": "脚本与文档一律 python3；shebang 用 #!/usr/bin/env python3"
+    },
+    {
+      "risk": "路径拼接：字符串 + '/' 在两侧都脆",
+      "mitigation": "pathlib.Path 全程，base = Path(__file__).resolve().parents[n]"
+    },
+    {
+      "risk": "编码：Windows 默认 GBK，中文 name/note 列会崩或乱码",
+      "mitigation": "读写均显式 encoding='utf-8'，不加 errors='ignore'（宁崩不静默丢字）"
+    },
+    {
+      "risk": "换行：open 默认把 \\n 转 \\r\\n，产出 CRLF 会被判格式不符",
+      "mitigation": "read 用 newline=''，write 用 newline='\\n'，产出固定 LF"
+    },
+    {
+      "risk": "浮点：0.1+0.2 类误差会让 120.00 变 119.999…",
+      "mitigation": "全链路 Decimal，仅输出时 quantize(Decimal('0.01'))；比对用 decimal_equals 语义"
+    },
+    {
+      "risk": "删除：unlink 在本机沙箱被拦截，脚本中途失败会留下半成品",
+      "mitigation": "不用 unlink；旧版移入 _trash/，写临时文件后 os.replace 原子替换"
+    }
+  ],
+  "evidence": [
+    {
+      "pointer": "fixtures/tasks/T-15/{ledger,bill}.csv#amount",
+      "what_it_shows": "299400.00/299780.00/gap 380.00 一次跑通；txn_id 唯一→dedup 恒 0，去重无判别力"
+    },
+    {
+      "pointer": "fixtures/tasks/T-15/bill.csv#表头(12)×ledger.csv#表头(10)",
+      "what_it_shows": "列集合不同→须显式列映射，按列序对齐必错位"
+    },
+    {
+      "pointer": "fixtures/tasks/T-15/TASK.md#B",
+      "what_it_shows": "去重按单号 O(n) 计数；T116/T117 特征近同但单号异，模糊去重会误删 13800.00"
+    },
+    {
+      "pointer": "protocol/06-写入域与判据分层.md#§2.3",
+      "what_it_shows": "diff_count/amount_diff_total 不在白名单→adjudication 层，禁写 expected"
+    }
+  ],
+  "falsification": "若 6 条清单的日期基准最终被人签改为 settle_date（则应为 7 条，T113/T114 进入、T120 退出），或股息 260.00 被判应计入成交金额差异（则 380.00/0.00），我的执行路径需改判定分支；若目标机无 python3 或无 Decimal（非 CPython），则整套路径不可执行。",
+  "reads": [
+    {
+      "path": "runs/round32/prompts/EX-03.md",
+      "purpose": "本席位提示词（其余两份席位提示词由编排层统一读取，未进入本席位证据链，故不在本席位 reads 内申报）"
+    },
+    {
+      "path": "fixtures/tasks/T-15/TASK.md",
+      "purpose": "字段计算方法、输出结构、四条约束"
+    },
+    {
+      "path": "fixtures/tasks/T-15/ledger.csv",
+      "purpose": "取列结构（10 列）与逐行合计，验证脚本读入假设"
+    },
+    {
+      "path": "fixtures/tasks/T-15/bill.csv",
+      "purpose": "取列结构（12 列）与逐行合计，识别列映射风险"
+    },
+    {
+      "path": "protocol/06-写入域与判据分层.md",
+      "purpose": "确认算术层白名单、decimal_equals 与 exit 3 待裁语义"
+    },
+    {
+      "path": "protocol/02-辩论协议.md",
+      "purpose": "确认单任务 token 预算与聚合规则"
+    }
+  ],
+  "dissent": [
+    {
+      "against": "ANON-A",
+      "reason": "把 380.00 全部计入会让 amount_diff_total 与 raw_total_gap 恒等，脚本层面等于删掉了这个字段：任何分类 bug 都不会被断言捕获，回归测试形同虚设。落地角度需要一个能失败的字段。",
+      "reverse_evidence": "若 spec 的期望值确为 amount_diff_total=380.00 且 excluded_amount_total=0.00，则本条撤回，我改判全计入。"
+    },
+    {
+      "against": "ANON-B",
+      "reason": "其「6 条依赖未写基准」的指控成立，但结论仍停在质疑：脚本必须在两种基准下都能跑（参数化 date_basis），并把差异条数作为待裁输出而非常量，否则换夹具即静默出错。",
+      "reverse_evidence": "若人签明确 date_basis=trade_date，则参数化可退化为单分支，本条降级为可选加固而非必需。"
+    }
+  ],
+  "confidence": "high",
+  "needs_more_data": [
+    "缺规则：date_basis（trade_date / settle_date）未定义 —— 决定 6 条还是 7 条，脚本须参数化",
+    "缺规则：单侧非成交权益项（T119 股息 260.00）归属未定义 —— 决定 120.00/260.00 还是 380.00/0.00",
+    "缺数据：无 —— 输入完整（7+8 行、8 个单号可定位），不存在需要补采的外部数据；不得把缺规则误记为数据不足"
+  ],
+  "stance": [
+    {
+      "axis": "ADJ-001",
+      "choice": "exclude"
+    },
+    {
+      "axis": "DIFFSET",
+      "choice": "6"
+    }
+  ],
+  "summary": {
+    "ledger_rows": 7,
+    "bill_rows": 8,
+    "ledger_total": 299400.00,
+    "bill_total": 299780.00,
+    "raw_total_gap": 380.00,
+    "dedup_removed_txn_count": 0,
+    "dedup_amount": 0.00,
+    "diff_count": 6,
+    "amount_diff_total": 120.00,
+    "excluded_amount_total": 260.00,
+    "excluded_categories": [
+      "费用口径差",
+      "股数口径差",
+      "日期口径差",
+      "单侧缺失·非交易权益项"
+    ]
+  },
+  "usage": {
+    "tokens": 10500,
+    "minutes": 10,
+    "source": "self_report"
+  }
+}

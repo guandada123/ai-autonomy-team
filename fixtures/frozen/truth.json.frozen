@@ -1,0 +1,154 @@
+{
+  "task_id": "SYNTH-RECON-001",
+  "task_name": "跨平台数据核对与差异归因",
+  "data_note": "全部为合成数据，不含任何真实业务信息",
+  "rules": {
+    "dedup": "账单中同一 txn_id 出现多次 → 去重，仅保留首条",
+    "rounding": "金额差为小额（≤0.05）且非税额 → 归为「舍入差」，计入金额差异",
+    "caliber": "含税/不含税口径不一致且差额恰等于税额 → 归为「口径差」，**标注但不计入金额差异**",
+    "cross_month": "同一笔 txn_id 日期跨月、金额一致 → 归为「跨月归属」，按各自月份归属，**不剔除**",
+    "missing": "台账有、账单无 → 归为「真实缺失」，计入金额差异"
+  },
+  "expected": {
+    "ledger_rows": 27,
+    "bill_rows": 27,
+    "dedup_removed_txn_count": 1,
+    "dedup_amount": 1200.0,
+    "diff_count": 7,
+    "diff_ids": [
+      "T101",
+      "T102",
+      "T103",
+      "T104",
+      "T105",
+      "T106",
+      "T107"
+    ],
+    "amount_diff_total": 500.02,
+    "excluded_amount_total": 180.0,
+    "ledger_total": 37490.5,
+    "bill_total": 38010.52,
+    "raw_total_gap": 520.02,
+    "excluded_categories": [
+      "口径差",
+      "跨月归属"
+    ],
+    "categories": {
+      "舍入差": [
+        "T101",
+        "T102"
+      ],
+      "重复计": [
+        "T103"
+      ],
+      "口径差": [
+        "T104",
+        "T105"
+      ],
+      "跨月归属": [
+        "T106"
+      ],
+      "真实缺失": [
+        "T107"
+      ]
+    }
+  },
+  "checks": [
+    {
+      "name": "台账行数",
+      "type": "numeric_equals",
+      "path": "summary.ledger_rows",
+      "expected": 27
+    },
+    {
+      "name": "账单原始行数",
+      "type": "numeric_equals",
+      "path": "summary.bill_rows",
+      "expected": 27
+    },
+    {
+      "name": "去重笔数",
+      "type": "numeric_equals",
+      "path": "summary.dedup_removed_txn_count",
+      "expected": 1
+    },
+    {
+      "name": "去重金额",
+      "type": "numeric_equals",
+      "path": "summary.dedup_amount",
+      "expected": 1200.0,
+      "tol": 0.01
+    },
+    {
+      "name": "差异总条数",
+      "type": "numeric_equals",
+      "path": "summary.diff_count",
+      "expected": 7
+    },
+    {
+      "name": "差异清单命中（txn 无序集合，与类别命名无关）",
+      "type": "set_equals",
+      "path": "diffs",
+      "key": "id",
+      "expected": [
+        "T101",
+        "T102",
+        "T103",
+        "T104",
+        "T105",
+        "T106",
+        "T107"
+      ]
+    },
+    {
+      "name": "金额差异合计（仅计应计入的类别）",
+      "type": "numeric_equals",
+      "path": "summary.amount_diff_total",
+      "expected": 500.02,
+      "tol": 0.01
+    },
+    {
+      "name": "被排除项的差额合计",
+      "type": "numeric_equals",
+      "path": "summary.excluded_amount_total",
+      "expected": 180.0,
+      "tol": 0.01
+    },
+    {
+      "name": "台账总额（纯算术锚点）",
+      "type": "numeric_equals",
+      "path": "summary.ledger_total",
+      "expected": 37490.5,
+      "tol": 0.01
+    },
+    {
+      "name": "账单总额（纯算术锚点）",
+      "type": "numeric_equals",
+      "path": "summary.bill_total",
+      "expected": 38010.52,
+      "tol": 0.01
+    },
+    {
+      "name": "总额差（纯算术锚点）",
+      "type": "numeric_equals",
+      "path": "summary.raw_total_gap",
+      "expected": 520.02,
+      "tol": 0.01
+    },
+    {
+      "name": "必须声明哪些类别被排除在金额差异之外",
+      "type": "present",
+      "path": "summary.excluded_categories"
+    },
+    {
+      "name": "必须给出类别归属",
+      "type": "present",
+      "path": "categories"
+    },
+    {
+      "name": "必须给出证伪条件（不可裁决的结论一律不合格）",
+      "type": "present",
+      "path": "falsification"
+    }
+  ]
+}

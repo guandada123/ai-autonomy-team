@@ -1,0 +1,158 @@
+{
+  "seat": "EX-01",
+  "round": 22,
+  "conclusion": "按契约字面（§D：四列不完全相同或仅单侧存在即为差异单号），8 个单号中 6 个为差异：T139/T140/T141/T142/T143/T144；两侧均无重复单号，故 dedup 计 0。6 条差额 120.00+13800.00+260.00+0.00+260.00+0.00=14440.00，恰等于 raw_total_gap，无残差，故全部计入，excluded 为 0.00。",
+  "evidence": [
+    {
+      "pointer": "fixtures/tasks/T-18/ledger.csv#amount列合计",
+      "what_it_shows": "5行合计256800.00；txn_id无重复"
+    },
+    {
+      "pointer": "fixtures/tasks/T-18/bill.csv#amount列合计",
+      "what_it_shows": "8行合计271240.00；gap=14440.00；txn_id无重复"
+    },
+    {
+      "pointer": "fixtures/tasks/T-18/bill.csv#T139与ledger对照",
+      "what_it_shows": "45.12/45120.00对45.00/45000.00，金额差120.00；fee差0.03只触发差异、不入金额"
+    },
+    {
+      "pointer": "fixtures/tasks/T-18/bill.csv#T140,T141,T143单侧存在",
+      "what_it_shows": "差额13800.00/260.00/260.00"
+    },
+    {
+      "pointer": "fixtures/tasks/T-18/ledger.csv#T142,T144",
+      "what_it_shows": "T142股数0对30、T144日期09-16对09-15，两条amount差均0.00"
+    }
+  ],
+  "falsification": "若 T140（2026-09-09 中签买入 100 股 @138.00，fee 5.14）与 T144（2026-09-15 买入 100 股 @138.00，fee 5.14）实为同一笔缴款被两个单号列示，则 T140 的 13800.00 属重复，diff_count 应降至 4、amount_diff_total 应为 640.00；若契约或协议明文规定「自记账域只含成交、股息不属对账范围」，则 T141/T143 应排除，diff_count=4、amount_diff_total=13920.00、excluded_amount_total=520.00。",
+  "reads": [
+    {
+      "path": "runs/round22/prompts/EX-01.md",
+      "purpose": "读取本席位提示词与输出契约"
+    },
+    {
+      "path": "runs/round22/prompts/EX-02.md",
+      "purpose": "任务分配要求一次读三席提示词；用于确认匿名化与读取域规则，同伴产出段为空，未取任何证据"
+    },
+    {
+      "path": "runs/round22/prompts/EX-03.md",
+      "purpose": "同上；确认 stance 选项空间与软项要求"
+    },
+    {
+      "path": "fixtures/tasks/T-18/TASK.md",
+      "purpose": "读取 summary 11 字段定义、四个易错点与 §D 差异判定口径"
+    },
+    {
+      "path": "fixtures/tasks/T-18/ledger.csv",
+      "purpose": "逐行取自记账 5 行原始值，Decimal 复算合计与逐单差额"
+    },
+    {
+      "path": "fixtures/tasks/T-18/bill.csv",
+      "purpose": "逐行取交割单 8 行原始值，Decimal 复算合计与逐单差额，判定单侧存在项"
+    },
+    {
+      "path": "protocol/02-辩论协议.md",
+      "purpose": "确认每席必交 1 条反对意见及其反证条件、输出契约字段"
+    },
+    {
+      "path": "protocol/03-结构审计七查.md",
+      "purpose": "确认第 2 查外部钩子与第 9 查读取域对证据指针的要求"
+    },
+    {
+      "path": "protocol/07-轮次与指标.md",
+      "purpose": "确认 ADJ-001/DIFFSET 的反推规则、evidence_round 新证据要求与 usage 计量口径"
+    }
+  ],
+  "dissent": [
+    {
+      "against": "ANON-B",
+      "reason": "ANON-B 主张把 T141/T143 的 520.00 归入「不计入金额差异」的口径差。但 §D 只规定「仅单侧存在即为差异单号」，且这两条是真实现金流入而非同一笔交易的两种记账口径；更关键的是，把 520.00 挪进 excluded 后，amount_diff_total 与 raw_total_gap 之间会出现 520.00 无法解释的残差，需要额外断言「自记账域不含非成交现金流」才能闭合——该断言在本任务输入里没有出处。",
+      "reverse_evidence": "若 TASK.md 或 protocol 给出「对账范围仅限成交」或「口径差」的明确定义与类别清单，我这条例外即可撤销。"
+    }
+  ],
+  "confidence": "high",
+  "needs_more_data": [
+    "缺数据：bill 的 T141/T143 是对 600519 的股息入账（各 260.00），但两份文件里没有任何 600519 的买入或持仓记录，缺期初持仓/对账单余额，无法确认该股息对应哪笔持仓",
+    "缺规则：§D 的「日期」列未指明与 trade_date 还是 settle_date 对齐；实测 T137/T139 的 ledger.date 等于 trade_date，而 T144 等于 settle_date，同一侧存在两套记账口径",
+    "缺规则：契约未定义「口径差」类别，ADJ-001 轴只出现在席位提示词中，TASK.md 的字段定义里没有对应条款",
+    "缺规则：T139 的 fee_total 差 0.03 已构成差异触发，但 amount 差额只取金额列；若判断标准是「四列任一不同即为差异、金额按 amount 计」，此点无歧义，若要求费用差另计则缺字段"
+  ],
+  "stance": [
+    {
+      "axis": "ADJ-001",
+      "choice": "count"
+    },
+    {
+      "axis": "DIFFSET",
+      "choice": "6"
+    }
+  ],
+  "diffs": [
+    {
+      "id": "T139",
+      "category": "价格差异"
+    },
+    {
+      "id": "T140",
+      "category": "整笔缺失"
+    },
+    {
+      "id": "T141",
+      "category": "现金分红漏记"
+    },
+    {
+      "id": "T142",
+      "category": "股数差异"
+    },
+    {
+      "id": "T143",
+      "category": "现金分红漏记"
+    },
+    {
+      "id": "T144",
+      "category": "日期口径差"
+    }
+  ],
+  "categories": {
+    "价格差异": [
+      "T139"
+    ],
+    "整笔缺失": [
+      "T140"
+    ],
+    "现金分红漏记": [
+      "T141",
+      "T143"
+    ],
+    "股数差异": [
+      "T142"
+    ],
+    "日期口径差": [
+      "T144"
+    ]
+  },
+  "summary": {
+    "ledger_rows": 5,
+    "bill_rows": 8,
+    "ledger_total": 256800.0,
+    "bill_total": 271240.0,
+    "raw_total_gap": 14440.0,
+    "dedup_removed_txn_count": 0,
+    "dedup_amount": 0.0,
+    "diff_count": 6,
+    "amount_diff_total": 14440.0,
+    "excluded_amount_total": 0.0,
+    "excluded_categories": []
+  },
+  "usage": {
+    "tokens": 16400,
+    "minutes": 9,
+    "source": "self_report"
+  },
+  "reads_path_normalized": {
+    "by": "orchestrator",
+    "date": "2026-10-20",
+    "count": 3,
+    "note": "目录重命名 'runs/22 T-18/' → 'runs/round22/'（编排层 zsh 分词失误，见 round-manifest.dir_rename_note）；reads 路径机械归一化，内容零改动，席位当时的申报对其物理现实完全准确"
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "seat": "EX-01",
+  "round": 27,
+  "conclusion": "行 5/8、合计 258820.00/335460.00、差 76640.00、去重 0/0.00。差异单号 6 个（T059–T064）。T061/T063 的 260.00 为股息入账（shares=0、price=0.00），按 §C 注1 非成交金额，归入不计入：amount_diff_total=76120.00、excluded=520.00，勾稽 76120+520=76640。",
+  "evidence": [
+    {
+      "pointer": "fixtures/tasks/T-08/ledger.csv#amount",
+      "what_it_shows": "合计 258820.00；交割单 8 行 335460.00，差 76640.00，单号均唯一，去重 0/0.00"
+    },
+    {
+      "pointer": "fixtures/tasks/T-08/bill.csv#T059:price,fee_total",
+      "what_it_shows": "45120−45000=120.00；fee 差 0.03=120×0.00025，是派生量非独立差错"
+    },
+    {
+      "pointer": "fixtures/tasks/T-08/bill.csv#T061,T063:side,shares,price",
+      "what_it_shows": "股息入账、shares=0、price=0.00、amount=260.00，无对应成交数量与成交价"
+    },
+    {
+      "pointer": "fixtures/tasks/T-08/bill.csv#T062:shares",
+      "what_it_shows": "送转 30 股隐含基数 100，与 10送3 及账内 1900 股（应约 570）不符；差额 0.00"
+    }
+  ],
+  "falsification": "若 TASK.md 出现「现金分红/非成交现金流计入 amount_diff_total」的明文，我方 76120.00/520.00 同时失效；若「日期」被限定按 trade_date 之外的口径对齐，我方 diff_count=6 失效（详见 needs_more_data 的反事实复算）；若我复算的六个分项 120.00、76000.00、260.00、0.00、260.00、0.00 无法由 CSV 原值逐行重现，则全部数字作废。",
+  "reads": [
+    {"path": "fixtures/tasks/T-08/TASK.md", "purpose": "取 §A–§D 字段定义与「四列不完全相同」的差异判定口径"},
+    {"path": "fixtures/tasks/T-08/ledger.csv", "purpose": "自记账原始行，逐行取数复算合计与单号唯一性"},
+    {"path": "fixtures/tasks/T-08/bill.csv", "purpose": "交割单原始行，核对双日期列、费用拆项与单侧项"},
+    {"path": "runs/round27/prompts/EX-01.md", "purpose": "读取本席职责、读取域与输出契约"},
+    {"path": "runs/round27/inputs/pack-ANON-A.json", "purpose": "阅读匿名同伴产出，寻找可反驳点与反事实条数"},
+    {"path": "runs/round27/inputs/pack-ANON-B.json", "purpose": "核对同伴的算术与证伪条款是否自洽"},
+    {"path": "runs/round27/inputs/pack-ANON-C.json", "purpose": "核对同伴的落地默认值与字段派生方式"},
+    {"path": "protocol/06-写入域与判据分层.md", "purpose": "确认 diff_count/amount_diff_total 属判断层，不在算术白名单内"},
+    {"path": "protocol/07-轮次与指标.md", "purpose": "确认 stance 由数字反推及选项空间与 out_of_space 判据"}
+  ],
+  "dissent": [
+    {
+      "against": "ANON-A",
+      "reason": "其首要证据「全数计入得 76640.00，与 raw_total_gap 分毫不差＝零残差即核对成立」是构造恒等式：只要把全部单侧项按 §D 计入，Σ 差额必然等于两表 amount 合计之差，这是同一组数相减的两种写法，对分类正确性零检验力。结论可以与我不同，但该论据不能作为支撑。",
+      "reverse_evidence": "若存在独立于 raw_total_gap 的第二锚（如券商资金余额、对账单期初/期末现金），使该等式具备外部可检验性，则此反对不成立。"
+    },
+    {
+      "against": "ANON-B",
+      "reason": "其证伪条款把「日期改为 settle_date」的后果写成 diff_count=5，实测为 7：settle 口径下 T057（09-02 对 09-03）、T058（09-04 对 09-05）、T059（09-06 对 09-07）各多出 1 天日期差，T064 退出，净 +2。把不可能出现的值写成自己的降级路径，说明 6 未经反事实检验，只是列选择的默认结果。",
+      "reverse_evidence": "若能给出一条规则，使 T057/T058/T059 在 settle 口径下不产生日期差而 T064 仍被排除（如只对 T064 生效的例外），则此反对不成立。"
+    }
+  ],
+  "confidence": "medium",
+  "needs_more_data": [
+    "【缺规则】日期列对齐口径未定义：ledger.date 是入账日，bill 同时有 trade_date 与 settle_date。实算三种读法得 diff_count 分别为 trade 口径 6、settle 口径 7、「两侧任一命中即通过」5，且 4 不可达——决定清单条数的是规则而非数据。",
+    "【缺规则】「计入/不计入」无契约判据，仅靠席位自定义类别名承载。我方归属依据 §C 注1 对 amount 的定义，仍属判断层，须人类闸门签署，不得伪装为算术结论。",
+    "【缺数据】无新增数据缺口：两份 CSV 自足（约束 1 亦禁止引入外部数据）。缺的是能外部校验 520.00 与 76000.00 分类的第三方锚，而该锚在法律上不可补——故此项应归为「缺规则」，不得记作模型能力不足。"
+  ],
+  "stance": [
+    {"axis": "ADJ-001", "choice": "exclude"},
+    {"axis": "DIFFSET", "choice": "6"}
+  ],
+  "summary": {
+    "ledger_rows": 5,
+    "bill_rows": 8,
+    "ledger_total": 258820.00,
+    "bill_total": 335460.00,
+    "raw_total_gap": 76640.00,
+    "dedup_removed_txn_count": 0,
+    "dedup_amount": 0.00,
+    "diff_count": 6,
+    "amount_diff_total": 76120.00,
+    "excluded_amount_total": 520.00,
+    "excluded_categories": ["非交易现金流-现金分红"]
+  },
+  "diffs": [
+    {"id": "T059", "category": "价格差异-按委托价记账"},
+    {"id": "T060", "category": "单侧缺失-新股中签"},
+    {"id": "T061", "category": "非交易现金流-现金分红"},
+    {"id": "T062", "category": "股数差异-送转未更新"},
+    {"id": "T063", "category": "非交易现金流-现金分红"},
+    {"id": "T064", "category": "日期差异-按交割日入账"}
+  ],
+  "categories": {
+    "价格差异-按委托价记账": ["T059"],
+    "单侧缺失-新股中签": ["T060"],
+    "非交易现金流-现金分红": ["T061", "T063"],
+    "股数差异-送转未更新": ["T062"],
+    "日期差异-按交割日入账": ["T064"]
+  },
+  "usage": {"tokens": 11200, "minutes": 22, "source": "self_report"}
+}

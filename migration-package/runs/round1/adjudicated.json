@@ -1,0 +1,135 @@
+{
+  "task_id": "SYNTH-RECON-001",
+  "verdict": "adjudicated",
+  "judge": "JD-01",
+  "judge_impl": "scripts/judge/verify.py (non-LLM, stdlib-only)",
+  "spec_layer": "adjudication",
+  "summary": {
+    "total": 6,
+    "passed": 6,
+    "failed": 0,
+    "pending": 0
+  },
+  "checks": [
+    {
+      "name": "ADJ-001 → summary.amount_diff_total",
+      "type": "decimal_equals",
+      "ok": true,
+      "expected": "500.02",
+      "actual": "实际 500.02 vs 期望 500.02（Decimal 精确相等，scale=2）",
+      "weight": 1
+    },
+    {
+      "name": "ADJ-001 → summary.excluded_amount_total",
+      "type": "decimal_equals",
+      "ok": true,
+      "expected": "180.0",
+      "actual": "实际 180.00 vs 期望 180.00（Decimal 精确相等，scale=2）",
+      "weight": 1
+    },
+    {
+      "name": "ADJ-002 → summary.diff_count",
+      "type": "numeric_equals",
+      "ok": true,
+      "expected": "7",
+      "actual": "实际 7 vs 期望 7",
+      "weight": 1
+    },
+    {
+      "name": "ADJ-002 → diffs",
+      "type": "set_equals",
+      "ok": true,
+      "expected": "[\"T101\", \"T102\", \"T103\", \"T104\", \"T105\", \"T106\", \"T107\"]",
+      "actual": "集合一致（7 项）",
+      "weight": 1
+    },
+    {
+      "name": "ADJ-003 → summary.diff_count",
+      "type": "numeric_equals",
+      "ok": true,
+      "expected": "7",
+      "actual": "实际 7 vs 期望 7",
+      "weight": 1
+    },
+    {
+      "name": "ADJ-003 → diffs",
+      "type": "set_equals",
+      "ok": true,
+      "expected": "[\"T101\", \"T102\", \"T103\", \"T104\", \"T105\", \"T106\", \"T107\"]",
+      "actual": "集合一致（7 项）",
+      "weight": 1
+    }
+  ],
+  "pending": [],
+  "adjudication_source": "human",
+  "carries_undeclared_judgment": false,
+  "evidence": [
+    {
+      "label": "spec",
+      "path": "fixtures/spec/adjudication.json",
+      "sha256": "b20d25f2980c7f8b34bc7e880bb588bbe15f6248bc937c5e3cf9048732843d56"
+    },
+    {
+      "label": "answer",
+      "path": "runs/round1/answer-final.json",
+      "sha256": "a21bf8e2a24a46d20cc77cca462bfcea4f6cf63c99496dbe044c91afdeb4606d"
+    },
+    {
+      "label": "adjudication_record",
+      "path": "runs/round1/adjudication-record.SELFTEST-PLUMBING-ONLY.json",
+      "sha256": "4e8031a3eb7542bf849bd2c14402d7956b0e5e5fec0cd3cd8371009d4ac5b8ef"
+    }
+  ],
+  "ts": "2026-10-16T16:36:43+08:00",
+  "override_policy": "本裁决不可被静默覆盖。PM 若要推进 fail 的动作，必须留痕：「覆盖 JD-01 的 fail 判定。风险评级：__。不可逆：__。理由：__。承担人：PM-01。」",
+  "adjudication_provenance": [
+    {
+      "id": "ADJ-001",
+      "chosen": "exclude",
+      "path": "summary.amount_diff_total",
+      "source": "human_adjudication",
+      "decided_by": "SELFTEST-PLUMBING-ONLY-NOT-A-HUMAN-DECISION",
+      "rationale": "【管路自检用，非真实裁决】选 exclude 以复现 answer-final.json 的既有数字"
+    },
+    {
+      "id": "ADJ-001",
+      "chosen": "exclude",
+      "path": "summary.excluded_amount_total",
+      "source": "human_adjudication",
+      "decided_by": "SELFTEST-PLUMBING-ONLY-NOT-A-HUMAN-DECISION",
+      "rationale": "【管路自检用，非真实裁决】选 exclude 以复现 answer-final.json 的既有数字"
+    },
+    {
+      "id": "ADJ-002",
+      "chosen": "as_diff",
+      "path": "summary.diff_count",
+      "source": "human_adjudication",
+      "decided_by": "SELFTEST-PLUMBING-ONLY-NOT-A-HUMAN-DECISION",
+      "rationale": "【管路自检用，非真实裁决】"
+    },
+    {
+      "id": "ADJ-002",
+      "chosen": "as_diff",
+      "path": "diffs",
+      "source": "human_adjudication",
+      "decided_by": "SELFTEST-PLUMBING-ONLY-NOT-A-HUMAN-DECISION",
+      "rationale": "【管路自检用，非真实裁决】"
+    },
+    {
+      "id": "ADJ-003",
+      "chosen": "as_diff",
+      "path": "summary.diff_count",
+      "source": "human_adjudication",
+      "decided_by": "SELFTEST-PLUMBING-ONLY-NOT-A-HUMAN-DECISION",
+      "rationale": "【管路自检用，非真实裁决】"
+    },
+    {
+      "id": "ADJ-003",
+      "chosen": "as_diff",
+      "path": "diffs",
+      "source": "human_adjudication",
+      "decided_by": "SELFTEST-PLUMBING-ONLY-NOT-A-HUMAN-DECISION",
+      "rationale": "【管路自检用，非真实裁决】"
+    }
+  ]
+}

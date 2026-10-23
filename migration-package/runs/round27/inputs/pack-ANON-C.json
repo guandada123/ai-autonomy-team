@@ -1,0 +1,197 @@
+{
+  "conclusion": "落地：纯标准库脚本（Decimal+pathlib）由 CSV 派生全部 11 个字段，零手填；三条断言钉住清单条数、金额勾稽与类别自洽。默认 exclude 出 76120.00/520.00/6 条，保留 --include-nontrade-cash 开关，1 秒内可翻回 76640.00/0.00 且不改代码。分级 🟡：可逆，但数字进对外报告，须先备份。",
+  "execution_path": [
+    "1. 定锚读入：pathlib.Path 读 fixtures/tasks/T-08/{ledger.csv,bill.csv}，open(encoding='utf-8', newline='')，Decimal(str(v)) 逐列转换；断言 len(L)==5 且 len(B)==8，不等即 exit 2。",
+    "2. 建索引判重：txn_id → 行列表；len(rows)>1 计入 dedup_removed_txn_count 并把多出行 amount 累加进 dedup_amount。本数据两侧单号均唯一，结果为 0 个 / 0.00，但必须显式输出 0 而不是省略字段。",
+    "3. 四列逐列比对：shares / amount / fee_total / 日期（bill 侧取 trade_date）；任一列不等或仅单侧存在即入 diff 清单；单侧项差额取该侧 amount（§D 末句）。得 T059 120.00、T060 76000.00、T061 260.00、T062 0.00、T063 260.00、T064 0.00。",
+    "4. 类别表外置为常量：CALIBER={'非交易现金流-现金分红'}，NONTRADE_CASH={'T061','T063'}；amount_diff_total 与 excluded_amount_total 一律由类别表派生，脚本内不出现任何金额字面量（禁手填，见协议铁律 9）。",
+    "5. 三条断言：① diff_count==len(diffs)==6；② amount_diff_total+excluded_amount_total+dedup_amount==raw_total_gap（76120.00+520.00+0.00=76640.00）；③ set(categories)=={d['category'] for d in diffs} 且 excluded_categories 的每个键都在 categories 内。任一失败即 exit 1 并拒绝写盘。",
+    "6. 写盘回读：写 [deny-domain path redacted]answer-proposal.json（JSON 数字、UTF-8、LF），随后 json.load 回读并重新跑第 5 步三断言；回读失败视为未写成功。"
+  ],
+  "cost": {
+    "token_estimate": "本席 1.04 万 tokens；三辩论席合计约 3.5 万；按同量级外推本轮六席约 7 万，低于 per_task_token_hard_cap=160000（07 §6.1：按求和计）",
+    "wall_clock": "人读+复算 18–20 分钟；脚本执行 <1 秒（8 行 CSV，无网络、无第三方库）",
+    "human_touchpoints": "1 次：ADJ-001/DIFFSET 人类闸门签署；若裁定与默认相反，再 1 次参数翻转确认（改开关或改 CALIBER 常量），共 2 次"
+  },
+  "rollback": "脚本只读 fixtures/、只写 [deny-domain path redacted] 下单个 JSON，无外部副作用。回滚三级：①参数级——加 --include-nontrade-cash 重跑即回到 76640.00/0.00/[]，不改代码；②文件级——先把旧 JSON rename 到 _trash/（本沙箱 unlink 被拦截，禁用 unlink），再由新产物覆盖；③已对外报送——用 excluded_amount_total 的 T061/T063 明细反查更正，520.00 的构成始终保留在 categories 中，可逐笔回溯，非不可逆操作。",
+  "op_grade": "🟡",
+  "cross_platform_risks": [
+    {
+      "risk": "解释器路径：Windows 侧习惯 py -3 / python，目标机 macOS 只有 python3",
+      "mitigation": "脚本首行不写绝对路径，文档统一用 python3；CI 里用 sys.version_info 断言 >= 3.9"
+    },
+    {
+      "risk": "路径拼接：字符串 + '/' 在 Windows 上产生混合分隔符",
+      "mitigation": "全部用 pathlib.Path / 运算符；相对包根解析，不写死盘符"
+    },
+    {
+      "risk": "编码：Windows 默认 GBK，读 CSV 会抛 UnicodeDecodeError 或读出乱码姓名列",
+      "mitigation": "open(..., encoding='utf-8', newline='') 显式声明；写盘同样显式 UTF-8"
+    },
+    {
+      "risk": "换行：csv 模块必须 newline='' 才能正确处理引号内换行；输出需固定 LF",
+      "mitigation": "读用 newline=''，写用 newline='\\n'；提交前用 file/xxd 抽验行尾"
+    },
+    {
+      "risk": "删除：脚本若用 unlink() 清理旧产物会被本机沙箱 fail-closed 拦截",
+      "mitigation": "改为 Path.rename() 移到 _trash/，保留可恢复副本"
+    },
+    {
+      "risk": "金额比较：float 会引入 0.020000000000436557 类误差，导致断言随机失败",
+      "mitigation": "全程 Decimal，断言用 == 与 quantize('0.01')，不用 abs(a-b)<eps"
+    }
+  ],
+  "summary": {
+    "ledger_rows": 5,
+    "bill_rows": 8,
+    "ledger_total": 258820.0,
+    "bill_total": 335460.0,
+    "raw_total_gap": 76640.0,
+    "dedup_removed_txn_count": 0,
+    "dedup_amount": 0.0,
+    "diff_count": 6,
+    "amount_diff_total": 76120.0,
+    "excluded_amount_total": 520.0,
+    "excluded_categories": [
+      "非交易现金流-现金分红"
+    ]
+  },
+  "diffs": [
+    {
+      "id": "T059",
+      "category": "价格差异-按委托价记账"
+    },
+    {
+      "id": "T060",
+      "category": "单侧缺失-新股中签"
+    },
+    {
+      "id": "T061",
+      "category": "非交易现金流-现金分红"
+    },
+    {
+      "id": "T062",
+      "category": "股数差异-送转未更新"
+    },
+    {
+      "id": "T063",
+      "category": "非交易现金流-现金分红"
+    },
+    {
+      "id": "T064",
+      "category": "日期口径差-按交割日入账"
+    }
+  ],
+  "categories": {
+    "价格差异-按委托价记账": [
+      "T059"
+    ],
+    "单侧缺失-新股中签": [
+      "T060"
+    ],
+    "非交易现金流-现金分红": [
+      "T061",
+      "T063"
+    ],
+    "股数差异-送转未更新": [
+      "T062"
+    ],
+    "日期口径差-按交割日入账": [
+      "T064"
+    ]
+  },
+  "evidence": [
+    {
+      "pointer": "protocol/05-工作协议.md#铁律 9,10",
+      "what_it_shows": "关键数字须脚本取数禁手填；金额须 decimal_equals 并声明 scale"
+    },
+    {
+      "pointer": "protocol/06-写入域与判据分层.md#2.3 白名单",
+      "what_it_shows": "diff_count/amount_diff_total/excluded 被挡在算术层外，[答案来源引用已净化]"
+    },
+    {
+      "pointer": "fixtures/tasks/T-08/bill.csv#fee_total(T059 11.70→11.73)",
+      "what_it_shows": "只比 amount 会漏掉列级差异 0.03，必须四列独立比对"
+    },
+    {
+      "pointer": "fixtures/tasks/T-08/ledger.csv#txn_id（5 个全唯一）",
+      "what_it_shows": "去重零触发，但契约要求显式输出 0 与 0.00 而非跳过"
+    }
+  ],
+  "falsification": "若 CSV 出现同 txn_id 多行（分批成交）、负数、千分位或含 BOM 的列，则当前解析与去重分支覆盖不足，方案需改；若人类闸门裁定 ADJ-001=count，而默认参数仍为 exclude，则产物与裁决不一致、方案不可交付；若三断言中的勾稽恒等式因出现「跨月且金额不等」的单侧项而不成立，则第 5 步断言会误杀合法产物，须先修正断言再执行。",
+  "reads": [
+    {
+      "path": "[deny-domain path redacted]prompts/ANON-C.md",
+      "purpose": "读取落地席位职责、成本与回滚要求"
+    },
+    {
+      "path": "fixtures/tasks/T-08/TASK.md",
+      "purpose": "取得字段定义与输出形状，确定脚本断言的锚点"
+    },
+    {
+      "path": "fixtures/tasks/T-08/ledger.csv",
+      "purpose": "确认行数、单号唯一性与列结构"
+    },
+    {
+      "path": "fixtures/tasks/T-08/bill.csv",
+      "purpose": "确认双日期列、费用拆项与单侧行"
+    },
+    {
+      "path": "protocol/02-辩论协议.md",
+      "purpose": "确认输出契约与成本预算条款"
+    },
+    {
+      "path": "protocol/03-结构审计七查.md",
+      "purpose": "确认第 8 写入域与第 9 读取域约束"
+    },
+    {
+      "path": "protocol/05-工作协议.md",
+      "purpose": "取得 Decimal/回读/操作分级等铁律"
+    },
+    {
+      "path": "protocol/06-写入域与判据分层.md",
+      "purpose": "取得判据分层与金额闸门的具体要求"
+    },
+    {
+      "path": "protocol/07-轮次与指标.md",
+      "purpose": "取得预算计量定义式（tokens 求和、minutes 取最大）"
+    },
+    {
+      "path": "[deny-domain path redacted]",
+      "purpose": "目录列举以确认产出位置，未进入 presentation/"
+    }
+  ],
+  "dissent": [
+    {
+      "against": "ANON-A",
+      "reason": "若采纳全数计入（76640.00/0.00），excluded_amount_total 与 excluded_categories 两个字段恒为空，契约为它们保留的分支永远不执行——不是数据里没有口径差，而是这个口径把口径差定义掉了。且 520.00 与 76000.00 混入同一合计后，出错时无法判断偏差来自现金项还是成交项，排障成本落在运维侧。",
+      "reverse_evidence": "若契约声明这两个字段仅为向后兼容保留，或下游只消费单一合计而不看排除明细，则该反对不成立。"
+    },
+    {
+      "against": "ANON-B",
+      "reason": "以「原始总差等于差额合计」作为正确性证据不可执行：该等式由构造保证，任何全计入清单都满足，脚本把它写成断言只能证明加减法没写错，不能证明分类对。把它当验收判据会给出虚假的绿灯。",
+      "reverse_evidence": "若断言改为「类别表可外部复现 + 每笔差额可回溯到 CSV 行号」，则检验力成立，此反对失效。"
+    }
+  ],
+  "confidence": "high",
+  "needs_more_data": [
+    "【缺规则】日期列对齐口径（trade_date vs settle_date）未定义，脚本只能硬编码 trade_date 并标注假设，这属于规则缺口而非数据缺口。",
+    "【缺规则】「非交易现金流」类别的判定标准未落成可执行判据（当前用 side=股息入账 硬编码 id 白名单），换一份数据即失效，需上游给出规则。",
+    "【缺数据】无：两份 CSV 自足；脚本不引入外部数据（约束 1）。"
+  ],
+  "stance": [
+    {
+      "axis": "ADJ-001",
+      "choice": "exclude"
+    },
+    {
+      "axis": "DIFFSET",
+      "choice": "6"
+    }
+  ],
+  "usage": {
+    "tokens": 10400,
+    "minutes": 19,
+    "source": "self_report"
+  }
+}

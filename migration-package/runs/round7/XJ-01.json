@@ -1,0 +1,220 @@
+{
+  "seat": "XJ-01",
+  "round": 7,
+  "conclusion": "本轮分歧清单共 7 项。核心线索：(1) 三席一致的 raw_total_gap=26640.00 可由 CSV 复算证实，但三席一致的 ledger_total=114800.00 / bill_total=141440.00 与按原始值复算的 120820.00 / 147460.00 各差 6020.00——gap 正确系两侧同额误差抵消，属『高置信度错误共识』直接样本；(2) 三席 diff_count=6、id 集合 T019–T024 与复算一致，但单号↔内容映射整体错位：中签买入 26000.00 实为 bill T020（三席均记作 T021），两笔股息 260.00 实为 bill T021/T023（被记作 T019/T022），ledger T019 实为买入价差 45000/45120=120.00（被记作『股息』或归入虚构的『T020 两笔 13800/13920』，该数字在本数据中不存在）；ledger 侧不存在任何股息行，EX-01/EX-02 关于『ledger T019 股息 260 与 bill T022 对冲』的叙事在本数据面上无依据；(3) EX-02 结论段自我修正链条不可复算，最终 summary 与自身 excluded_categories 矛盾；(4) 同为 count 的 EX-01/EX-02 excluded 处理不同；(5) EX-03 excluded=520 只在排除两笔股息时才与 gap 闭合，与其声明的排除类别成员不符；(6) EX-02 披露读取域外文件 round-manifest.json；(7) EX-03 引用 T-01/T003 提示跨任务记忆污染，三席均未自查。全体一致点：dedup=0、diff_count=6、gap=26640.00，其中 dedup 与 gap 与复算一致，diff_count/id 集合一致但类别归属错位。",
+  "disagreements": [
+    {
+      "topic": "两笔股息 260.00 计入 vs 排除（口径分歧）",
+      "positions": [
+        {
+          "anon_id": "A",
+          "stance": "count：单侧缺失按 D 节字面全额计入（26640.00，excluded=0）"
+        },
+        {
+          "anon_id": "B",
+          "stance": "名义 count，但结论段反复：先主张 T019/T022 对冲不计入，最终仍报 26640.00/excluded=0"
+        },
+        {
+          "anon_id": "C",
+          "stance": "exclude：股息为非交易现金流，amount_diff_total=26120.00、excluded=520.00"
+        }
+      ],
+      "why_it_matters": "决定 amount_diff_total/excluded_amount_total 的唯一分岔点；count 口径下合计恰与 gap 闭合，exclude 口径下差 520。D 节『仅单侧存在的单号亦为差异单号，差额取该侧 amount』字面未按 side 或业务性质排除任何条目。",
+      "decidable_by": "可执行裁判"
+    },
+    {
+      "topic": "EX-02 summary 自洽性（结论段大量自我修正与矛盾叙述）",
+      "positions": [
+        {
+          "anon_id": "B",
+          "stance": "结论段链条：对冲不计入 → 又计入 → 『以硬校验为准』→ 报 amount_diff_total=26640/excluded=0；其 falsification 段另称『若不对冲则 26900』"
+        },
+        {
+          "anon_id": "复算",
+          "stance": "B 的 excluded_categories=[\"股息对冲（T019/T022 记错表，相互冲销）\"] 非空，但 excluded_amount_total=0.00——类别与金额互相矛盾；若对冲成立应为 26120/520，若不成立则类别应为空；结论段中间算式（26000+260+240+140=26640，140 无来源；26900=26640+260 亦与自身对冲叙事不符）均无法从数据复算"
+        }
+      ],
+      "why_it_matters": "B 的最终数字恰好是 count 口径的正确值，但其推理链整体失效：数字正确可能是试错收敛而非计算所得，其结论段不可作为归因依据。",
+      "decidable_by": "可执行裁判（纯文本自洽检查）"
+    },
+    {
+      "topic": "同为 count 口径，excluded 处理不一致（A vs B）",
+      "positions": [
+        {
+          "anon_id": "A",
+          "stance": "excluded_categories=[]、excluded_amount_total=0.00（完全无排除类）"
+        },
+        {
+          "anon_id": "B",
+          "stance": "excluded_categories 含『股息对冲』一项，excluded_amount_total 却为 0.00"
+        }
+      ],
+      "why_it_matters": "两者同为 ADJ-001=count、DIFFSET=6，却在 excluded 字段上不相容；按 TASK.md 定义，归入『不计入』类别的非重复单号差额应进入 excluded_amount_total，B 的类别-金额组合至少有一处违反定义。",
+      "decidable_by": "可执行裁判"
+    },
+    {
+      "topic": "单号↔内容映射错位（三席共同，但内部互相矛盾）",
+      "positions": [
+        {
+          "anon_id": "数据面",
+          "stance": "bill T020=中签买入 26000.00（单侧）；bill T021/T023=股息入账各 260.00（单侧）；bill/ledger T019=45000 vs 45120（价差 120.00，note『实际成交价』对『按委托价记账』）；ledger T022 vs bill T022=送转 0 股 vs 30 股（金额均 0）；ledger T024 vs bill T024=金额 820 相同、入账日 09-19 对成交日 09-18（时点差，金额 0）；ledger 侧无任何股息行；数据中不存在 13800/13920"
+        },
+        {
+          "anon_id": "A/B",
+          "stance": "T021=中签 26000、T019/T022=股息 260（并衍生『对冲』叙事）、T020=两笔价差 240.00（45000/45120 与 13800/13920）"
+        },
+        {
+          "anon_id": "C",
+          "stance": "T021=单侧缺失 26000、T019/T022=股息（非交易现金流 520）、结论段并引用 T003"
+        }
+      ],
+      "why_it_matters": "三席的 diff_count=6 与 id 集合 T019–T024 恰与复算一致，但类别归属整体错位一档，id↔category↔amount 三元组无一能从本数据复算；疑似转抄自同构任务（C 自认与 T-01 同构）。差异分类结果本身不可信，即使总数碰巧正确。",
+      "decidable_by": "可执行裁判（逐行比对 CSV）"
+    },
+    {
+      "topic": "全体一致的合计数与复算不符",
+      "positions": [
+        {
+          "anon_id": "A/B/C 一致",
+          "stance": "ledger_total=114800.00、bill_total=141440.00、raw_total_gap=26640.00"
+        },
+        {
+          "anon_id": "复算",
+          "stance": "ledger_total=120820.00（30000+45000+45000+0+820）、bill_total=147460.00（30000+45000+45120+26000+260+0+260+820）、gap=26640.00；两侧各差 6020.00"
+        }
+      ],
+      "why_it_matters": "gap 正确纯因两侧同额误差抵消；ledger_total/bill_total 是 A 节纯算术字段，三席同错且同额，强烈提示同源转抄而非独立计算——这是『共识不等于正确』的直接样本。",
+      "decidable_by": "可执行裁判"
+    },
+    {
+      "topic": "EX-03 排除金额与自身排除类别成员不符",
+      "positions": [
+        {
+          "anon_id": "C",
+          "stance": "excluded_amount_total=520.00，排除类别成员为 T019、T022（非交易现金流入）；最终以 26120+520=26640 闭合"
+        },
+        {
+          "anon_id": "复算",
+          "stance": "按 C 自己的归类，T019 差额为 120.00（价差）、T022 差额为 0.00（股数差），excluded 应为 120.00 而非 520.00；520.00 只在排除 bill T021+T023（两笔股息）时成立"
+        }
+      ],
+      "why_it_matters": "C 的合计闭合是算术上的，不是归类上的：闭合结果与其 diffs/categories 的自洽性要求（TASK.md 约束 4）冲突。",
+      "decidable_by": "可执行裁判"
+    },
+    {
+      "topic": "读取域与污染信号",
+      "positions": [
+        {
+          "anon_id": "B",
+          "stance": "disclosure 自述读取了 runs/round7/round-manifest.json（读取域外），声称未用作判据"
+        },
+        {
+          "anon_id": "C",
+          "stance": "结论段引用『与三席同构任务（T-01）完全同构』『T003』——指向跨任务记忆污染"
+        },
+        {
+          "anon_id": "A/B",
+          "stance": "叙事含本数据不存在的 13800/13920 数字，疑似同一污染源"
+        }
+      ],
+      "why_it_matters": "读取域违规可脚本核验；跨任务内容渗入说明三席可能并非基于本轮数据独立计算，影响全部数字的采信基础。",
+      "decidable_by": "可执行裁判（读取域脚本核验）；污染归因需人类闸门"
+    }
+  ],
+  "overlooked_stances": [
+    "无一席独立复算并展示 ledger_total/bill_total 的验证过程——三席合计疑同源转抄，6020 的偏差来源无人定位",
+    "无人把 bill T019（45000→45120，note『实际成交价』）识别为独立的委托价 vs 成交价价差条目（120.00），而是挂靠在虚构的『T020 两笔』上",
+    "无人指出 T022 股数差（0 vs 30）的金额差额为 0：它影响 diff 成员身份，但对 amount_diff_total/excluded_amount_total 贡献为 0",
+    "仅 EX-01 提及 10送3 应为 300 股而交割单记 30 股的疑似笔误（该观察本身有价值），但因整体 id 错位挂在错误叙事下，且未讨论其对股数口径的影响",
+    "无人质疑三席之间 dissent 的『假想敌』结构：A/B 的 dissent 均针对 ANON-C 的 exclude 立场，但均附带『若给出勾稽则撤回』的软化条件，未真正对撞"
+  ],
+  "presentation_controls": {
+    "anonymized": false,
+    "order_randomized": false,
+    "length_normalized": false
+  },
+  "self_caution": "三控未执行的如实申报：我审阅的是原始产出文件，含真实席位名 EX-01/02/03（未匿名化）；按文件名顺序阅读（未随机）；未做长度归一。我按文件顺序与 dissent 内容假设 A=EX-01/B=EX-02/C=EX-03，若匿名映射不同，dissent 指向需重排。我的复算同样可能有误：6020 的合计偏差我无法定位成因；diff_count=6 与 id 集合的一致可能是共享偏差；我对『股息应计入』的倾向受 D 节字面引导，硬裁判的口径解释可能不同。我是跨家族评委，权重为 0，以上全部为线索。",
+  "note": "本产出为线索，非判据，决策权重为 0",
+  "evidence": [
+    {
+      "pointer": "fixtures/tasks/T-03/ledger.csv#amount列合计",
+      "what_it_shows": "5 行复算 120820.00（30000+45000+45000+0+820），与三席一致的 114800.00 差 6020.00"
+    },
+    {
+      "pointer": "fixtures/tasks/T-03/bill.csv#amount列合计",
+      "what_it_shows": "8 行复算 147460.00，与三席一致的 141440.00 差 6020.00；gap=26640.00 系两侧同额误差抵消"
+    },
+    {
+      "pointer": "fixtures/tasks/T-03/bill.csv#row=T020",
+      "what_it_shows": "中签买入 500@52.00=26000.00 单侧存在——三席均记作 T021"
+    },
+    {
+      "pointer": "fixtures/tasks/T-03/bill.csv#rows=T021,T023",
+      "what_it_shows": "两笔股息入账各 260.00 单侧存在——EX-01/02 记作 T019/T022 并衍生对冲叙事"
+    },
+    {
+      "pointer": "fixtures/tasks/T-03/ledger.csv#row=T019 + bill.csv#row=T019",
+      "what_it_shows": "45000.00（按委托价记账）vs 45120.00（实际成交价），价差 120.00——三席均未按此 id 归类；『T020 两笔 13800/13920』在本数据中不存在"
+    },
+    {
+      "pointer": "fixtures/tasks/T-03/ledger.csv#row=T022 vs bill.csv#row=T022",
+      "what_it_shows": "送转 0 股 vs 30 股，金额均 0——股数列差异、金额差为 0；bill 30 股与 10送3 应有 300 股不符，疑似数据笔误"
+    },
+    {
+      "pointer": "fixtures/tasks/T-03/ledger.csv#row=T024 vs bill.csv#row=T024",
+      "what_it_shows": "金额 820 相同，入账日 09-19 对成交日 09-18——时点差，金额 0；EX-01 将其错归为『股本变动』"
+    },
+    {
+      "pointer": "runs/round7/EX-02.json#conclusion+summary+falsification",
+      "what_it_shows": "结论段反复横跳（对冲→计入→以硬校验为准），最终 26640/0 与 excluded_categories 非空及『不对冲则 26900』三方矛盾；中间算式含无来源数字 140"
+    },
+    {
+      "pointer": "runs/round7/EX-03.json#conclusion+summary",
+      "what_it_shows": "最终 26120+520=26640 闭合，但按其排除类别成员（T019=120、T022=0）excluded 应为 120 而非 520；并引用 T-01/T003"
+    },
+    {
+      "pointer": "runs/round7/EX-01.json#summary vs EX-02.json#summary",
+      "what_it_shows": "同为 count：A excluded_categories=[]/0.00，B 类别非空但金额 0.00，互不相容"
+    },
+    {
+      "pointer": "runs/round7/EX-02.json#reads+disclosure",
+      "what_it_shows": "自述读取域外文件 round-manifest.json，已诚实披露，是否影响验收待裁定"
+    }
+  ],
+  "falsification": "若我对两份 CSV 的复算有误（如列解析错误或行遗漏），则『合计 6020 偏差』与『gap 系误差抵消』两条线索不成立；若三席实际读到的输入文件与 fixtures/tasks/T-03 当前内容不同（被替换或版本差异），则 id 错位与合计偏差需重新归因；若硬裁判明文采纳对冲/排除口径，EX-02 的数字矛盾可减轻，但其结论段文本的自相矛盾与 excluded 类别-金额失配仍独立成立；若 13800/13920 能在本轮输入之外找到合法出处，则『跨任务污染』判断需撤销。",
+  "reads": [
+    {
+      "path": "runs/round7/prompts/XJ-01.md",
+      "purpose": "席位职责、读取域、输出契约与三控要求"
+    },
+    {
+      "path": "fixtures/tasks/T-03/TASK.md",
+      "purpose": "字段定义、差异判定口径与易错点"
+    },
+    {
+      "path": "fixtures/tasks/T-03/ledger.csv",
+      "purpose": "自记账 5 行原始值与复算"
+    },
+    {
+      "path": "fixtures/tasks/T-03/bill.csv",
+      "purpose": "交割单 8 行原始值与复算"
+    },
+    {
+      "path": "runs/round7/EX-01.json",
+      "purpose": "匿名席 A 原始产出审阅"
+    },
+    {
+      "path": "runs/round7/EX-02.json",
+      "purpose": "匿名席 B 原始产出审阅（重点：结论段自洽性）"
+    },
+    {
+      "path": "runs/round7/EX-03.json",
+      "purpose": "匿名席 C 原始产出审阅"
+    }
+  ],
+  "usage": {
+    "tokens": 28000,
+    "minutes": 12,
+    "source": "self_report"
+  }
+}

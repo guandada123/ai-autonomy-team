@@ -1,0 +1,297 @@
+{
+  "_note": "L3 前提探针标注集。正例取自 33 轮真实教训，负例取自 2026-10-22 已完成的真实工作；每条 note 说明标注依据。",
+  "cases": [
+    {
+      "id": "T01",
+      "should_hit": true,
+      "note": "D-0028 定位参考实现，无外部使用者",
+      "card": {
+        "beneficiary": "我们团队自己用",
+        "metric": "{}"
+      }
+    },
+    {
+      "id": "T02",
+      "should_hit": true,
+      "note": "33 轮机制从未有使用者（历史原话）",
+      "card": {
+        "beneficiary": "机制本身",
+        "metric": "{}"
+      }
+    },
+    {
+      "id": "T03",
+      "should_hit": true,
+      "note": "D-0025 五条价值主张从未检验",
+      "card": {
+        "beneficiary": "投资决策的准确性",
+        "metric": {
+          "name": "更准",
+          "baseline": null,
+          "method": null
+        }
+      }
+    },
+    {
+      "id": "T04",
+      "should_hit": true,
+      "note": "MANIFEST 数字对齐这类维护任务，无指标基线",
+      "card": {
+        "beneficiary": "维护者",
+        "metric": "{}"
+      }
+    },
+    {
+      "id": "T05",
+      "should_hit": true,
+      "note": "再跑一轮合成任务，讲不出不做的代价",
+      "card": {
+        "beneficiary": "研究机制的人",
+        "metric": {
+          "name": "错误决策数",
+          "baseline": 0,
+          "method": "每月从 decisions/ 统计被推翻条数"
+        },
+        "do_nothing_cost": {
+          "description": "没想过",
+          "comparable": false
+        }
+      }
+    },
+    {
+      "id": "T06",
+      "should_hit": true,
+      "note": "改配色，答不出具体受损方",
+      "card": {
+        "beneficiary": "大家",
+        "metric": "{}"
+      }
+    },
+    {
+      "id": "T07",
+      "should_hit": true,
+      "note": "只写提升效率，属泛称",
+      "card": {
+        "beneficiary": "系统",
+        "metric": "{}"
+      }
+    },
+    {
+      "id": "T08",
+      "should_hit": true,
+      "note": "有指标名但无基线",
+      "card": {
+        "beneficiary": "运维同学",
+        "metric": {
+          "name": "稳定性",
+          "baseline": null,
+          "method": "看情况"
+        }
+      }
+    },
+    {
+      "id": "T09",
+      "should_hit": true,
+      "note": "不做的代价不可比较",
+      "card": {
+        "beneficiary": "运维同学",
+        "metric": {
+          "name": "错误决策数",
+          "baseline": 0,
+          "method": "每月从 decisions/ 统计被推翻条数"
+        },
+        "do_nothing_cost": {
+          "description": "可能出问题",
+          "comparable": false
+        }
+      }
+    },
+    {
+      "id": "T10",
+      "should_hit": true,
+      "note": "beneficiary 为空",
+      "card": {
+        "beneficiary": "",
+        "metric": {
+          "name": "错误决策数",
+          "baseline": 0,
+          "method": "每月从 decisions/ 统计被推翻条数"
+        },
+        "do_nothing_cost": {
+          "description": "不修则仪表盘继续显示 0，按 0 做判断",
+          "comparable": true
+        }
+      }
+    },
+    {
+      "id": "N01",
+      "should_hit": false,
+      "note": "实盘对账：受损方具体、指标有基线",
+      "card": {
+        "beneficiary": "我，每天开盘前核对账本与券商截图时",
+        "metric": {
+          "name": "对账残差",
+          "baseline": 33.09,
+          "method": "real_recon 逐仓残差"
+        },
+        "do_nothing_cost": {
+          "description": "不修则仪表盘继续显示 0，按 0 做判断",
+          "comparable": true
+        }
+      }
+    },
+    {
+      "id": "N02",
+      "should_hit": false,
+      "note": "dashboard 死读修复",
+      "card": {
+        "beneficiary": "看实盘卡片的我，以及任何接手此看板的人",
+        "metric": {
+          "name": "死读字段数",
+          "baseline": 4,
+          "method": "field_provenance --consumer-file"
+        },
+        "do_nothing_cost": {
+          "description": "不修则仪表盘继续显示 0，按 0 做判断",
+          "comparable": true
+        }
+      }
+    },
+    {
+      "id": "N03",
+      "should_hit": false,
+      "note": "盘前 daily_pnl 保护",
+      "card": {
+        "beneficiary": "每天 8 点看日报的人，若显示日 ¥0 会误判",
+        "metric": {
+          "name": "被抹成 0 的次数",
+          "baseline": 0,
+          "method": "单测 + 盘前实跑"
+        },
+        "do_nothing_cost": {
+          "description": "不修则仪表盘继续显示 0，按 0 做判断",
+          "comparable": true
+        }
+      }
+    },
+    {
+      "id": "N04",
+      "should_hit": false,
+      "note": "判据终审恢复",
+      "card": {
+        "beneficiary": "审计者与决策者，算错一次就污染证据链",
+        "metric": {
+          "name": "错误决策数",
+          "baseline": 0,
+          "method": "每月从 decisions/ 统计被推翻条数"
+        },
+        "do_nothing_cost": {
+          "description": "不修则仪表盘继续显示 0，按 0 做判断",
+          "comparable": true
+        }
+      }
+    },
+    {
+      "id": "N05",
+      "should_hit": false,
+      "note": "开源调研",
+      "card": {
+        "beneficiary": "要选型的人，选错要返工两周",
+        "metric": {
+          "name": "候选维护活跃度",
+          "baseline": "issue 中位 9.4 天",
+          "method": "GitHub API 实取"
+        },
+        "do_nothing_cost": {
+          "description": "不修则仪表盘继续显示 0，按 0 做判断",
+          "comparable": true
+        }
+      }
+    },
+    {
+      "id": "N06",
+      "should_hit": false,
+      "note": "快照恢复演练",
+      "card": {
+        "beneficiary": "误删真源的人，没有快照就只能重写",
+        "metric": {
+          "name": "可恢复文件数",
+          "baseline": 69,
+          "method": "snapshot_sources --verify"
+        },
+        "do_nothing_cost": {
+          "description": "不修则仪表盘继续显示 0，按 0 做判断",
+          "comparable": true
+        }
+      }
+    },
+    {
+      "id": "N07",
+      "should_hit": false,
+      "note": "含泛称但主体具体（边界）",
+      "card": {
+        "beneficiary": "散户投资者（每月查看对账单的 3 个账户）",
+        "metric": {
+          "name": "错误决策数",
+          "baseline": 0,
+          "method": "每月从 decisions/ 统计被推翻条数"
+        },
+        "do_nothing_cost": {
+          "description": "不修则仪表盘继续显示 0，按 0 做判断",
+          "comparable": true
+        }
+      }
+    },
+    {
+      "id": "N08",
+      "should_hit": false,
+      "note": "baseline 为 0 属合法值（边界）",
+      "card": {
+        "beneficiary": "负责发布的人",
+        "metric": {
+          "name": "失败次数",
+          "baseline": 0,
+          "method": "pre_release_check 每日一次"
+        },
+        "do_nothing_cost": {
+          "description": "不修则仪表盘继续显示 0，按 0 做判断",
+          "comparable": true
+        }
+      }
+    },
+    {
+      "id": "N09",
+      "should_hit": false,
+      "note": "代价描述很短但可比较（边界）",
+      "card": {
+        "beneficiary": "核对账本的人",
+        "metric": {
+          "name": "错误决策数",
+          "baseline": 0,
+          "method": "每月从 decisions/ 统计被推翻条数"
+        },
+        "do_nothing_cost": {
+          "description": "差 33 元",
+          "comparable": true
+        }
+      }
+    },
+    {
+      "id": "N10",
+      "should_hit": false,
+      "note": "长文本含团队但主体具体（边界）",
+      "card": {
+        "beneficiary": "团队里的审计角色 AD-01，它需要在每轮回答三条前提",
+        "metric": {
+          "name": "错误决策数",
+          "baseline": 0,
+          "method": "每月从 decisions/ 统计被推翻条数"
+        },
+        "do_nothing_cost": {
+          "description": "不修则仪表盘继续显示 0，按 0 做判断",
+          "comparable": true
+        }
+      }
+    }
+  ]
+}

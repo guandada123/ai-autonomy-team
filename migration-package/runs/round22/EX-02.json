@@ -1,0 +1,179 @@
+{
+  "seat": "EX-02",
+  "round": 22,
+  "conclusion": "6 条差异单号成立，但只有 4 条涉及金额。把 T141/T143 的 520.00 计入「成交金额差异」是口径混淆：自记账只记成交，股息是账外现金事件，应归 excluded。amount_diff_total=13920.00、excluded_amount_total=520.00。更严重的是 T140 与 T144 七个数值列全等，13800.00 有重复计入之嫌。",
+  "strongest_counter_arguments": [
+    {
+      "target": "ANON-A",
+      "argument": "ANON-A 的核心论据是「6 条差额相加 14440.00 恰等于 raw_total_gap，无残差」。这是循环论证：只要把所有差异单号一律归入「计入」，该等式必然成立——因为两侧差额的加总本来就等于两个合计之差。它只能证明分类完备，不能证明分类正确；用一个恒等式去验证分类，等于用结论验证结论。真正的检验应当是「某条差异是否属于成交金额口径」，而这一点恒等式完全无话可说。",
+      "reverse_evidence": "若存在某条差异在「计入/排除」之外还有第三种处置（例如 T142 差额为 0 却 shares 差 30），且在该处置下恒等式仍成立并能被独立判定，则此批评不成立。"
+    },
+    {
+      "target": "ANON-A",
+      "argument": "T140（trade 2026-09-09 / settle 09-10，中签买入 100 股 @138.00）与 T144（trade 09-15 / settle 09-16，买入 100 股 @138.00）除 txn_id、日期、side 外，shares/price/amount/commission/stamp_tax/transfer_fee/fee_total 七列逐一相等（100 / 138.00 / 13800.00 / 5.00 / 0.00 / 0.14 / 5.14），且 ledger 侧只有其中一个 13800.00。合理的替代解释是：自记账把中签缴款按 T144 入账，券商另用 T140 列示同一笔。若成立，T140 既不是「整笔缺失」也不是新增差异，amount_diff_total 应为 640.00（count 口径）或 120.00（exclude 口径）。",
+      "reverse_evidence": "若券商侧能提供 T140 与 T144 的成交编号或资金流水号，证明二者为两笔独立缴款（如中签缴款与二级市场买入各有独立清算流水），则本反论不成立。目前我只有单号与日期可区分，无法排除同笔。"
+    },
+    {
+      "target": "ANON-C",
+      "argument": "「6 条差异」这个数字被噪声稀释：T142 与 T144 的金额差额均为 0.00，T144 仅是 ledger.date 落在 settle_date 而非 trade_date 的一天日期错位，占 diff_count 的三分之一却不携带任何金额信息。把 diff_count 当作业质量或风险指标会被系统性高估；真正需要处置的只有 T139（价格差 120.00）与 T140（13800.00）。",
+      "reverse_evidence": "若契约明确 diff_count 的用途是「需人工复核的单号数」而非「金额风险计数」，则 0 差额条目理应计入，本反论不成立。"
+    }
+  ],
+  "what_would_change_my_mind": "若 TASK.md 或协议把对账范围明文定义为「全部资金变动（含股息、红利）」，或券商能提供 600519 的持仓/流水证明 T141/T143 对应真实且未入账的持仓，我就放弃「排除」立场，改判 amount_diff_total=14440.00；若 T140 与 T144 被证明为同笔，则无论金额轴如何，diff_count 与 amount_diff_total 都要下调。",
+  "evidence": [
+    {
+      "pointer": "fixtures/tasks/T-18/bill.csv#T140与T144数值列",
+      "what_it_shows": "shares/price/amount/commission/stamp_tax/transfer_fee/fee_total七列全等（100/138.00/13800.00/5.00/0.00/0.14/5.14），仅单号与日期不同"
+    },
+    {
+      "pointer": "fixtures/tasks/T-18/bill.csv#T141,T143的code",
+      "what_it_shows": "600519股息各260.00，但两侧均无600519任何买入或持仓"
+    },
+    {
+      "pointer": "fixtures/tasks/T-18/ledger.csv#T142",
+      "what_it_shows": "shares=0对30，note「未更新持仓股数」，两侧amount均0.00"
+    },
+    {
+      "pointer": "fixtures/tasks/T-18/TASK.md#C表",
+      "what_it_shows": "amount_diff_total定义把归类权交给席位，未强制全额计入"
+    }
+  ],
+  "falsification": "若对账范围被明文定义包含股息等非成交现金流，或 T141/T143 能被证明对应真实存在且未入账的持仓，则「排除 520.00」的立场错误，正确值应为 amount_diff_total=14440.00、excluded=0.00；若 T140/T144 为同笔，则本文引用的 diff_count=6 也一并失效。",
+  "reads": [
+    {
+      "path": "runs/round22/prompts/EX-02.md",
+      "purpose": "读取本席位提示词、对立面职责与输出契约"
+    },
+    {
+      "path": "runs/round22/prompts/EX-01.md",
+      "purpose": "任务分配要求一次读三席提示词；用于确认 stance 选项空间与匿名化规则，同伴产出段为空，未取任何证据"
+    },
+    {
+      "path": "runs/round22/prompts/EX-03.md",
+      "purpose": "同上；确认软项字段与字数预算"
+    },
+    {
+      "path": "fixtures/tasks/T-18/TASK.md",
+      "purpose": "读取 summary 11 字段定义、四个易错点与 §D 差异判定口径，确认契约是否强制某一分类"
+    },
+    {
+      "path": "fixtures/tasks/T-18/ledger.csv",
+      "purpose": "逐行复算自记账合计与逐单差额，核查 code 取值集合与 note 字段"
+    },
+    {
+      "path": "fixtures/tasks/T-18/bill.csv",
+      "purpose": "逐行复算交割单合计，比对 T140/T144 的数值列，核查股息对应标的是否有持仓"
+    },
+    {
+      "path": "protocol/02-辩论协议.md",
+      "purpose": "确认聚合是证据制而非投票制、对立面 KPI 与必交反对要求"
+    },
+    {
+      "path": "protocol/03-结构审计七查.md",
+      "purpose": "确认第 2 查外部钩子要求，避免使用不可回读的论据"
+    },
+    {
+      "path": "protocol/07-轮次与指标.md",
+      "purpose": "确认 ADJ-001/DIFFSET 反推规则及 W_STANCE_MISMATCH 对本席的常态性"
+    }
+  ],
+  "dissent": [
+    {
+      "against": "ANON-A",
+      "reason": "ANON-A 以「无残差」作为分类正确的证据。但 6 条差额的加总恒等于 raw_total_gap 与分类方式无关，该恒等式对「股息该不该计入」零信息量；把 520.00 计入成交金额差异，会让金额口径同时承载成交价差与账外现金流两类完全不同的风险，后续无法分别追踪。",
+      "reverse_evidence": "若 ANON-A 能给出独立于该恒等式的证据（例如契约条款或券商对账口径说明）证明股息属成交金额口径，我撤回此反对。"
+    },
+    {
+      "against": "ANON-C",
+      "reason": "ANON-C 主张全额计入以保持账面与券商合计一致。但把 520.00 塞进 amount_diff_total 只是让本期等式好看：缺口仍在账外，下期对账仍需重新发现这两笔股息，并把一次性识别成本变成每期重复成本；且 0 差额条目（T142/T144）被计入后，diff_count=6 会让复核者去查两个根本无金额的单号。",
+      "reverse_evidence": "若能证明 exclude 会导致后续期间必须重复投入识别成本（例如差异表未落盘、无跨期追踪），则 ANON-C 的成本论证成立。"
+    }
+  ],
+  "confidence": "medium",
+  "needs_more_data": [
+    "缺数据：T140 与 T144 的成交编号/资金流水号——现有字段无法判断两笔 13800.00 是两次独立缴款还是同笔的两种列示",
+    "缺数据：600519（T141/T143 股息标的）的期初持仓与分红实施公告，两侧文件均无该标的任何持仓痕迹",
+    "缺规则：契约未定义「口径差」类别，也未规定自记账的记账域是否包含非成交现金流；ADJ-001 只存在于席位提示词，TASK.md 无对应条款",
+    "缺规则：§D 的「日期」列未指明对齐 trade_date 还是 settle_date；实测 T137/T139 对齐 trade_date、T144 对齐 settle_date，同侧两套口径"
+  ],
+  "stance": [
+    {
+      "axis": "ADJ-001",
+      "choice": "exclude"
+    },
+    {
+      "axis": "DIFFSET",
+      "choice": "6"
+    }
+  ],
+  "diffs": [
+    {
+      "id": "T139",
+      "category": "价格差异"
+    },
+    {
+      "id": "T140",
+      "category": "整笔缺失"
+    },
+    {
+      "id": "T141",
+      "category": "现金分红口径差"
+    },
+    {
+      "id": "T142",
+      "category": "股数差异"
+    },
+    {
+      "id": "T143",
+      "category": "现金分红口径差"
+    },
+    {
+      "id": "T144",
+      "category": "日期口径差"
+    }
+  ],
+  "categories": {
+    "价格差异": [
+      "T139"
+    ],
+    "整笔缺失": [
+      "T140"
+    ],
+    "现金分红口径差": [
+      "T141",
+      "T143"
+    ],
+    "股数差异": [
+      "T142"
+    ],
+    "日期口径差": [
+      "T144"
+    ]
+  },
+  "summary": {
+    "ledger_rows": 5,
+    "bill_rows": 8,
+    "ledger_total": 256800.0,
+    "bill_total": 271240.0,
+    "raw_total_gap": 14440.0,
+    "dedup_removed_txn_count": 0,
+    "dedup_amount": 0.0,
+    "diff_count": 6,
+    "amount_diff_total": 13920.0,
+    "excluded_amount_total": 520.0,
+    "excluded_categories": [
+      "现金分红口径差"
+    ]
+  },
+  "usage": {
+    "tokens": 17300,
+    "minutes": 10,
+    "source": "self_report"
+  },
+  "reads_path_normalized": {
+    "by": "orchestrator",
+    "date": "2026-10-20",
+    "count": 3,
+    "note": "目录重命名 'runs/22 T-18/' → 'runs/round22/'（编排层 zsh 分词失误，见 round-manifest.dir_rename_note）；reads 路径机械归一化，内容零改动，席位当时的申报对其物理现实完全准确"
+  }
+}

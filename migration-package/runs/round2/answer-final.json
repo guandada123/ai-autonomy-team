@@ -1,0 +1,101 @@
+{
+  "summary": {
+    "ledger_rows": 27,
+    "bill_rows": 27,
+    "ledger_total": 37490.5,
+    "bill_total": 38010.52,
+    "raw_total_gap": 520.02,
+    "dedup_removed_txn_count": 1,
+    "dedup_amount": 1200.0,
+    "diff_count": 7,
+    "amount_diff_total": 680.02,
+    "excluded_amount_total": 0.0,
+    "excluded_categories": [
+      "跨月归属"
+    ]
+  },
+  "diffs": [
+    {
+      "id": "T101",
+      "category": "舍入差"
+    },
+    {
+      "id": "T102",
+      "category": "舍入差"
+    },
+    {
+      "id": "T103",
+      "category": "重复导入"
+    },
+    {
+      "id": "T104",
+      "category": "口径差异"
+    },
+    {
+      "id": "T105",
+      "category": "口径差异"
+    },
+    {
+      "id": "T106",
+      "category": "跨月归属"
+    },
+    {
+      "id": "T107",
+      "category": "账单缺失"
+    }
+  ],
+  "categories": {
+    "舍入差": [
+      "T101",
+      "T102"
+    ],
+    "重复导入": [
+      "T103"
+    ],
+    "口径差异": [
+      "T104",
+      "T105"
+    ],
+    "跨月归属": [
+      "T106"
+    ],
+    "账单缺失": [
+      "T107"
+    ]
+  },
+  "falsification": "本聚合结论在以下任一条件成立时失效：(1) 若 T104/T105 的 tax_included 差异被证实为录入错误而非制度性口径，则 180.00 应移入 amount_diff_total（变为 680.02）；(2) 若存在成文「≤0.01 视为一致」容差，则舍入差应剔除（变为 500.00 / 180.02）；(3) 若 T106 的跨月归属按存在性差异剔除，则 diff_count 应为 6；(4) 若 T103 两行被判定为独立交易，则 dedup 归零。",
+  "aggregation_inputs": [
+    {
+      "seat": "EX-01",
+      "sha256": "11ddd22f09e915a5d7d0b87c73d339cf02bbed11cbf3c86bd3f1eb948717661f",
+      "seat_check_status": "valid"
+    },
+    {
+      "seat": "EX-02",
+      "sha256": "e7b00b669e6145a43b432fca276947b8dd3da457bc5f4ec0da4772f9d6c86d45",
+      "seat_check_status": "valid"
+    },
+    {
+      "seat": "EX-03",
+      "sha256": "eeba44c00895c3186df0afaaa170d3a45f64f71d6bb6aea35fa4c8def544c772",
+      "seat_check_status": "valid"
+    },
+    {
+      "seat": "XJ-01",
+      "sha256": "e0a3e70b538370b75a1fb11b030d334a4ded5ba5b001150d39a2f73497967fc6",
+      "seat_check_status": "valid"
+    }
+  ],
+  "pm_note": {
+    "writer": "PM-01",
+    "aggregation_rule_applied": "硬裁判通过 > 有独立证据支持的少数 > 无证据的多数",
+    "basis": "EX-01 与 EX-02 独立产出同一立场（exclude / 7），且各自给出证据指针；EX-03 未对 ADJ-001 给出数字（自述 exclude 但反推为 abstain，记 W_STANCE_MISMATCH）。",
+    "dissent_preserved": true,
+    "round2_specific": "本轮为 revision_round：EX-02 未改变立场，但把 confidence 由 medium 上调至 high，并指出上一轮它为「甲」构造的 steelman 含一处事实错误（note 列明文标注「口径差异样本」，使 6% 成为数据内声明常量而非 n=2 归纳）。这是「对立面席位履职」的产物，不是从众。"
+  },
+  "redo": {
+    "triggered_by": "runs/round2/adjudication-record.json（ADJ-001=count，verdict=fail 于 adjudicated.json）",
+    "rule": "ADJ-001=count implies：amount_diff_total=680.02、excluded_amount_total=0.00",
+    "note": "机械改判：数值由裁决记录 × spec implies 唯一确定，verify 复核"
+  }
+}

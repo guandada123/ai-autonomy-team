@@ -1,0 +1,176 @@
+{
+  "seat": "EX-02",
+  "round": 20,
+  "conclusion": "6 条清单我照列，但金额轴必须剔除 120.00 的价格口径差：真实资金缺口只有 260.00。更关键的是主指标只取 amount 列，结构性漏报 77.52 的费用少计与 30 股股数错记——380.00 把该报的漏了、把不该报的报了。",
+  "strongest_counter_arguments": [
+    {
+      "target": "ANON-A",
+      "argument": "380.00 是可辩护的下界，不是可执行的对账结论。T123 的 120.00 来自记账价与成交价的口径碰撞，两侧股数、日期、费用结构一致；把口径差计入「金额差异」，等于让每一笔按委托价挂账的成交都永久复现同类差异，差异台账永远无法归零。对账的目标是定位资金缺口，不是记录记账习惯。",
+      "reverse_evidence": "若往期台账显示同类口径差异逐期累积且从未被记账口径修正消化（即确实发生了资金划付差），则 120.00 应计入金额差异。"
+    },
+    {
+      "target": "ANON-C",
+      "argument": "机械执行契约得到的结果自洽但不完备：amount_diff_total 只看 amount 列，T124/T125 各 38.76（合计 77.52）的费用少计与 T126 的 30 股在金额轴上贡献恒为 0。一个把 380.00 报出去、把 77.52 静默的核对结果，风险排序是反的——金额最大的条目风险最低，风险最高的条目金额为零。",
+      "reverse_evidence": "若另有费用轴与股数轴的独立报表且被下游实际消费，本反对降级为口径建议而非阻断项。"
+    }
+  ],
+  "what_would_change_my_mind": "若 adjudication 明示价格口径差计入金额差异，且往期不存在口径修正机制，我改立场；若下游只消费 amount_diff_total 单一指标，我的第二条反对不会被任何补充数据推翻。",
+  "evidence": [
+    {
+      "pointer": "两表行 T123 的 price/amount/fee_total 三列对位",
+      "what_it_shows": "45.00 对 45.12、45000.00 对 45120.00、11.70 对 11.73；股数 1000/1000、日期同为 2026-09-06 → 唯一变量是记账价，非资金缺口"
+    },
+    {
+      "pointer": "两表行 T124、T125 的 fee_total",
+      "what_it_shows": "19.00 对 57.76，各差 38.76、合计 77.52；两侧 amount 均 76000.00 相等，故该 77.52 在 amount_diff_total 中贡献 0"
+    },
+    {
+      "pointer": "两表行 T126 的 shares",
+      "what_it_shows": "ledger 0 对 bill 30，amount 两侧均 0.00 → 30 股错记在金额轴贡献 0"
+    },
+    {
+      "pointer": "两表行 T127 的单侧存在性",
+      "what_it_shows": "仅 bill 有，amount 260.00，无对应股数与费用 → 唯一同时具备「单侧」与「非零金额」的条目"
+    },
+    {
+      "pointer": "bill.csv 的 trade_date 与 settle_date 双列 × ledger.date",
+      "what_it_shows": "T121-T127 的 ledger.date 全等于 trade_date，仅 T128 等于 settle_date（09-15 对 09-14）→ T128 是记账基准偏移，非成交日错记"
+    }
+  ],
+  "falsification": "若 T123 的 120.00 伴随券商侧实际现金划付差（amount 差即资金差），或 T128 的日期差对应两笔不同成交，则「口径差非资金差」的判断与剔除后 260.00 的金额结论同时失效。",
+  "reads": [
+    {
+      "path": "fixtures/tasks/T-16/TASK.md",
+      "purpose": "读取字段定义与差异判定口径（A/B/C/D 四节）"
+    },
+    {
+      "path": "fixtures/tasks/T-16/ledger.csv",
+      "purpose": "逐行取 amount/shares/fee_total/date 复算"
+    },
+    {
+      "path": "fixtures/tasks/T-16/bill.csv",
+      "purpose": "逐行取 amount/shares/fee_total/trade_date/settle_date 复算"
+    },
+    {
+      "path": "protocol/02-辩论协议.md",
+      "purpose": "确认单轮输出契约与强制反对要求"
+    },
+    {
+      "path": "protocol/03-结构审计七查.md",
+      "purpose": "确认外部钩子与读取域的判定方式"
+    },
+    {
+      "path": "protocol/07-轮次与指标.md",
+      "purpose": "确认 §4.1 立场反推规则与 DIFFSET 取值语义"
+    },
+    {
+      "path": "runs/round20/round-manifest.json",
+      "purpose": "核对本轮轮次类型、契约版本与预期席位"
+    },
+    {
+      "path": "runs/round20/prompts/EX-01.md",
+      "purpose": "读取本席位提示词与输出模板"
+    },
+    {
+      "path": "runs/round20/prompts/EX-02.md",
+      "purpose": "读取同轮模板以对齐字段契约（无同伴产出内容）"
+    },
+    {
+      "path": "runs/round20/prompts/EX-03.md",
+      "purpose": "读取同轮模板以对齐字段契约（无同伴产出内容）"
+    }
+  ],
+  "dissent": [
+    {
+      "against": "ANON-A",
+      "reason": "以契约字面为唯一依据，会把「口径碰撞」与「资金缺口」压进同一个 380.00，使差异金额既不能用于追缴也不能用于归零校验；字面正确不等于可用。",
+      "reverse_evidence": "若该产出的唯一用途是审计留痕（不驱动资金动作），字面口径即为正确目标，本条反对撤回。"
+    }
+  ],
+  "confidence": "medium",
+  "needs_more_data": [
+    "[缺数据] 无往期对账台账，无法判断同类价格口径差是否曾以资金形式结清——这是判断 120.00 计不计入的唯一实质依据",
+    "[缺数据] T127 缺权益登记日与派息实施公告，260.00 的期间归属未定",
+    "[缺规则] 费用轴（77.52）与股数轴（30 股）是否属本任务交付范围未在 TASK.md 声明；summary 无对应字段承接，属规格缺口而非数据缺口"
+  ],
+  "stance": [
+    {
+      "axis": "ADJ-001",
+      "choice": "exclude"
+    },
+    {
+      "axis": "DIFFSET",
+      "choice": "6"
+    }
+  ],
+  "summary": {
+    "ledger_rows": 7,
+    "bill_rows": 8,
+    "ledger_total": 287820.0,
+    "bill_total": 288200.0,
+    "raw_total_gap": 380.0,
+    "dedup_removed_txn_count": 0,
+    "dedup_amount": 0.0,
+    "diff_count": 6,
+    "amount_diff_total": 260.0,
+    "excluded_amount_total": 120.0,
+    "excluded_categories": [
+      "PRICE_BASIS_DIFF"
+    ]
+  },
+  "diffs": [
+    {
+      "id": "T123",
+      "category": "PRICE_BASIS_DIFF"
+    },
+    {
+      "id": "T124",
+      "category": "FEE_UNDERSTATED"
+    },
+    {
+      "id": "T125",
+      "category": "FEE_UNDERSTATED"
+    },
+    {
+      "id": "T126",
+      "category": "SHARES_MISMATCH"
+    },
+    {
+      "id": "T127",
+      "category": "BILL_ONLY"
+    },
+    {
+      "id": "T128",
+      "category": "DATE_BASIS_DIFF"
+    }
+  ],
+  "categories": {
+    "PRICE_BASIS_DIFF": [
+      "T123"
+    ],
+    "FEE_UNDERSTATED": [
+      "T124",
+      "T125"
+    ],
+    "SHARES_MISMATCH": [
+      "T126"
+    ],
+    "BILL_ONLY": [
+      "T127"
+    ],
+    "DATE_BASIS_DIFF": [
+      "T128"
+    ]
+  },
+  "usage": {
+    "tokens": 6300,
+    "minutes": 12,
+    "source": "self_report"
+  },
+  "reads_path_normalized": {
+    "by": "orchestrator",
+    "date": "2026-10-20",
+    "count": 4,
+    "note": "目录重命名 'runs/20 T-16/' → 'runs/round20/'（编排层 zsh 分词失误，见 round-manifest.dir_rename_note）；reads 路径机械归一化，内容零改动，席位当时的申报对其物理现实完全准确"
+  }
+}

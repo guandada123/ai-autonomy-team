@@ -1,0 +1,97 @@
+{
+  "seat": "EX-03",
+  "round": 27,
+  "conclusion": "可执行版：纯标准库脚本由两份 CSV 派生全部 11 字段，零手填金额；默认 exclude 得 76120.00/520.00/6 条，另留 --include-nontrade-cash 开关，1 秒内翻到 76640.00/0.00 不改代码。日期判定须显式钉住 trade_date——换 settle 口径条数变 7 而金额不变。分级 🟡：可逆但对外报送，先备份。",
+  "execution_path": [
+    "1. 定锚读入：pathlib.Path 拼 fixtures/tasks/T-08/{ledger.csv,bill.csv}，open(encoding='utf-8', newline='')，逐列 Decimal(str(v))；断言 len(L)==5、len(B)==8，不等即 exit 2。",
+    "2. 判重：txn_id → 行列表，重复单号计入 dedup_removed_txn_count，多出行 amount 累加进 dedup_amount；本数据两侧均唯一，必须显式输出 0 与 0.00 而非省略字段。",
+    "3. 四列比对：shares/amount/fee_total/日期，日期列固定取 bill.trade_date（5 个双侧单号中 4 个与 ledger.date 相同，T064 是唯一例外）；任一列不等或仅单侧存在即入清单；单侧项差额取该侧 amount。得 T059 120.00、T060 76000.00、T061 260.00、T062 0.00、T063 260.00、T064 0.00。",
+    "4. 类别表外置常量：CALIBER={'非交易现金流-现金分红'}、NONTRADE={'T061','T063'}；两个金额字段一律由类别表派生，脚本内不出现金额字面量。",
+    "5. 三条断言：① diff_count==len(diffs)==6；② amount_diff_total+excluded_amount_total+dedup_amount==raw_total_gap（76120.00+520.00+0.00=76640.00）；③ set(categories)=={d.category} 且 excluded_categories 的每个键都在 categories 内。任一失败 exit 1 并拒绝写盘。",
+    "6. 写盘回读：写 runs/round27/answer-proposal.json（JSON 数字、UTF-8、LF），json.load 回读后重跑第 5 步三断言；回读失败视为未写成功。"
+  ],
+  "cost": {
+    "token_estimate": "本席 1.06 万 tokens；三辩论席合计约 3.5 万；按同量级外推本轮六席约 7 万，低于 per_task_token_hard_cap=160000（07 §6.1 按求和计）",
+    "wall_clock": "人读+复算 20 分钟；脚本执行 <1 秒（13 行 CSV，无网络、无第三方依赖）",
+    "human_touchpoints": "2 次：①人类闸门签署 ADJ-001/DIFFSET；②若裁决与默认相反，改开关参数重跑并复核三断言"
+  },
+  "rollback": "脚本只读 fixtures/、只写 runs/round27/ 下单个 JSON，无外部副作用，回滚三级：①参数级——加 --include-nontrade-cash 重跑即回到 76640.00/0.00/[]，不改代码；②文件级——旧产物先 rename 到 _trash/（沙箱拦截 unlink，禁用 unlink），再由新产物覆盖，保留可恢复副本；③已报送——按 categories 中 T061/T063 明细逐笔反查更正，520.00 的构成始终留在清单内，可回溯，非不可逆操作。",
+  "op_grade": "🟡",
+  "cross_platform_risks": [
+    {"risk": "解释器：开发机习惯 py -3/python，目标 macOS 只有 python3", "mitigation": "脚本不写解释器绝对路径，文档统一 python3，入口处 sys.version_info 断言 >=3.9"},
+    {"risk": "路径拼接：字符串 + '/' 在 Windows 产生混合分隔符", "mitigation": "全部用 pathlib.Path 的 / 运算符，按包根相对解析，不写死盘符"},
+    {"risk": "编码：Windows 默认 GBK，读 CSV 会抛 UnicodeDecodeError 或读出乱码姓名列", "mitigation": "open(..., encoding='utf-8', newline='') 显式声明，写盘同样显式 UTF-8"},
+    {"risk": "换行：csv 模块不给 newline='' 时引号内换行处理异常；输出默认 CRLF", "mitigation": "读用 newline=''，写用 newline='\\n'，提交前用 file 抽验行尾为 LF"},
+    {"risk": "删除：脚本若用 unlink() 清理旧产物会被沙箱 fail-closed 拦截", "mitigation": "改为 Path.rename() 移入 _trash/，不调用 unlink"},
+    {"risk": "金额：float 引入 0.020000000000436557 类误差，断言随机失败", "mitigation": "全程 Decimal，断言用 == 与 quantize('0.01')，不用 abs(a-b)<eps"}
+  ],
+  "evidence": [
+    {"pointer": "fixtures/tasks/T-08/ledger.csv#txn_id + bill.csv#txn_id", "what_it_shows": "两侧单号全唯一，去重零触发，但必须显式输出 0/0.00 而非省略字段"},
+    {"pointer": "fixtures/tasks/T-08/bill.csv#T059:fee_total", "what_it_shows": "11.73 对 11.70 差 0.03=120.00×0.00025，属价差派生量，应标注不重复计数"},
+    {"pointer": "fixtures/tasks/T-08/bill.csv#trade_date,settle_date", "what_it_shows": "日期列决定条数：trade 6、settle 7、任一命中 5；硬编码 trade_date 是假设，须写进注释"},
+    {"pointer": "fixtures/tasks/T-08/bill.csv#T060,T061,T063:amount", "what_it_shows": "520.00 占差 0.68%、76000.00 占 99.16%，开关只动 0.68%，故须参数化而非重写"}
+  ],
+  "falsification": "若数据出现同 txn_id 多行（分批成交）、负数、千分位或含 BOM 的列，现行解析与去重分支不足，方案需改；若人类闸门裁定 count 而默认参数仍为 exclude，产物与裁决不一致，方案不可交付；若出现「单侧存在且金额不等」的新单号，第 5 步的勾稽恒等式不再恒成立，断言会误杀合法产物，须先修断言再执行。",
+  "reads": [
+    {"path": "fixtures/tasks/T-08/TASK.md", "purpose": "取字段定义与输出形状，确定脚本断言的锚点"},
+    {"path": "fixtures/tasks/T-08/ledger.csv", "purpose": "确认行数、单号唯一性、列结构与持仓轨迹"},
+    {"path": "fixtures/tasks/T-08/bill.csv", "purpose": "确认双日期列、费用拆项与三条单侧行"},
+    {"path": "runs/round27/prompts/EX-03.md", "purpose": "读取落地席位的成本、回滚、操作分级与跨平台要求"},
+    {"path": "runs/round27/inputs/pack-ANON-A.json", "purpose": "核对全数计入方案的字段派生与可执行代价"},
+    {"path": "runs/round27/inputs/pack-ANON-B.json", "purpose": "核对默认值来源与其证伪条款"},
+    {"path": "runs/round27/inputs/pack-ANON-C.json", "purpose": "对照同类落地方案，避免重复其断言设计缺陷"},
+    {"path": "protocol/06-写入域与判据分层.md", "purpose": "确认写盘路径边界与金额闸门要求（decimal_equals + scale）"},
+    {"path": "protocol/07-轮次与指标.md", "purpose": "取预算计量定义式（tokens 求和、minutes 取最大）与硬上限"}
+  ],
+  "dissent": [
+    {
+      "against": "ANON-A",
+      "reason": "全数计入会让 excluded_amount_total 与 excluded_categories 两个契约字段恒为空，分支永不执行；更实际的问题是 76640.00 把 76000.00 的成交未入账与 520.00 的现金流水并成一个数，下游按合计归因时无法判断偏差来自成交侧还是现金侧，排障成本转嫁到运维。可执行性要求保留可分辨的中间量，而不是一个更大的合计。",
+      "reverse_evidence": "若下游契约只消费单一 amount_diff_total 且不读 categories，或契约声明 excluded_* 仅为向后兼容保留，则此反对不成立。"
+    },
+    {
+      "against": "ANON-B",
+      "reason": "其证伪条款写「settle 口径则 diff_count=5」，实算为 7（T057/T058/T059 各多 1 天日期差，T064 退出）。以此作为方案的五条边界，会让脚本的降级分支指向一个算不出来的值；可执行方案不能把未验证的条数写进断言与文件。",
+      "reverse_evidence": "若存在使 settle 口径只影响 T064 的规则，或实测确为 5，则此反对不成立。"
+    }
+  ],
+  "confidence": "high",
+  "needs_more_data": [
+    "【缺规则】日期列对齐口径未定义（trade_date 还是 settle_date）。脚本只能硬编码 trade_date 并标注为假设：trade 6 条、settle 7 条、任一命中 5 条，这是规则缺口。",
+    "【缺规则】「非交易现金流」未落成可执行判据，当前用 side=股息入账 + 单号白名单硬编码，换一份数据即失效，需上游给出规则（如 shares=0 且 price=0 且无对应成交）。",
+    "【缺数据】无：两份 CSV 自足，脚本不引入外部数据（约束 1）；亦不以缺对账锚为由改判，该项不可通过补数据解决。"
+  ],
+  "stance": [
+    {"axis": "ADJ-001", "choice": "exclude"},
+    {"axis": "DIFFSET", "choice": "6"}
+  ],
+  "summary": {
+    "ledger_rows": 5,
+    "bill_rows": 8,
+    "ledger_total": 258820.00,
+    "bill_total": 335460.00,
+    "raw_total_gap": 76640.00,
+    "dedup_removed_txn_count": 0,
+    "dedup_amount": 0.00,
+    "diff_count": 6,
+    "amount_diff_total": 76120.00,
+    "excluded_amount_total": 520.00,
+    "excluded_categories": ["非交易现金流-现金分红"]
+  },
+  "diffs": [
+    {"id": "T059", "category": "价格差异-按委托价记账"},
+    {"id": "T060", "category": "单侧缺失-新股中签"},
+    {"id": "T061", "category": "非交易现金流-现金分红"},
+    {"id": "T062", "category": "股数差异-送转未更新"},
+    {"id": "T063", "category": "非交易现金流-现金分红"},
+    {"id": "T064", "category": "日期差异-按交割日入账"}
+  ],
+  "categories": {
+    "价格差异-按委托价记账": ["T059"],
+    "单侧缺失-新股中签": ["T060"],
+    "非交易现金流-现金分红": ["T061", "T063"],
+    "股数差异-送转未更新": ["T062"],
+    "日期差异-按交割日入账": ["T064"]
+  },
+  "usage": {"tokens": 10600, "minutes": 20, "source": "self_report"}
+}

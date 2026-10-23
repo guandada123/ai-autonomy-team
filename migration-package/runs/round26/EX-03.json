@@ -1,0 +1,220 @@
+{
+  "seat": "EX-03",
+  "round": 26,
+  "conclusion": "可执行版：单条 Decimal 流水线一次跑完即得 7/8 行、304800.00/305180.00、gap 380.00、dedup 0、6 条差异、380.00 计入、0.00 排除，无需人工重算。唯一待签是 ADJ-001，翻转它只改两个字段（380.00/0.00 ↔ 260.00/120.00），回滚为改回一行常量。真实风险在读入侧，不在算法。",
+  "execution_path": [
+    "① 读入：pathlib 定位包根下 fixtures/tasks/T-06/{ledger,bill}.csv，encoding='utf-8-sig'，newline=''，csv.DictReader，首列名 lstrip('\\ufeff')。",
+    "② 算术层：len(rows) → 7/8；amount 用 Decimal(原始字符串) 逐行累加 → 304800.00/305180.00；gap=bill−ledger=380.00。全程不构造 float。",
+    "③ 重复层：两侧各自 Counter(txn_id)，出现次数>1 才计重复；实测两侧全为 1 → dedup_removed_txn_count=0、dedup_amount=0.00。",
+    "④ 差异层：对 8 个单号并集逐列比 shares/amount/fee_total/date（ledger.date vs bill.trade_date），任一不等即差异单，单侧存在亦计入 → 命中 T043、T044、T045、T046、T047、T048 共 6 条。",
+    "⑤ 分类层：6 条归入互斥类别，amount_diff_total 只累加「计入」类别中非重复单号的 abs 差额 → 120.00+260.00=380.00；费用/股数/日期三类差额为 0.00，excluded_amount_total=0.00、excluded_categories=[]。",
+    "⑥ 自检（非契约要求，仅作漏单告警）：amount_diff_total+excluded_amount_total 应等于 raw_total_gap；不等即回第 ④ 步查漏，但相等不证明分类正确。",
+    "⑦ 落盘：answers/answer.json 用 json.dump(ensure_ascii=False, indent=2)，金额以字符串或 quantize(0.01) 写出，行尾统一 \\n；写后回读校验 summary 11 个键齐全。"
+  ],
+  "cost": {
+    "token_estimate": "本席自述约 1.9 万 tokens（读 3 份输入 + 14 份协议/包，脚本可忽略）；按六席同量级外推 10–13 万，占 protocol/07 §6.1 的 per_task_token_hard_cap=160000 约 62%–81%，余量不足以再开两轮全量，后续轮应只做增量校验。",
+    "wall_clock": "脚本单次 <1 秒（15 行数据、无 IO 放大）；人工核对 6 条差异并勾选 ADJ-001 约 6–8 分钟。",
+    "human_touchpoints": "1 次勾选（ADJ-001：120.00 计入 or 剔除）。若采纳剔除，追加 1 次确认（改 amount/excluded 两字段后重跑），合计不超过 2 次。"
+  },
+  "rollback": "核对本身只读，回滚成本为零：answer.json 写独立路径，重跑幂等覆盖，不触碰 CSV。若据此调账：只追加 journal 行、不就地改写 ledger.csv；改动前把两份 CSV 快照到 _trash/snapshots/<ts>/（沙箱禁 unlink，一律移动不删除）；回滚=反向冲销追加行 + sha256 与快照比对复原。",
+  "op_grade": "🟡",
+  "cross_platform_risks": [
+    {
+      "risk": "解释器路径写死（/usr/bin/python 或 Windows 的 .venv\\Scripts\\python.exe），在 Mac mini M4 上直接失败。",
+      "mitigation": "shebang 用 #!/usr/bin/env python3，文档统一写 python3，不依赖虚拟环境绝对路径。"
+    },
+    {
+      "risk": "编码：Windows 默认 GBK，读「买入/送转/股息入账」会 UnicodeDecodeError 或写出问号。",
+      "mitigation": "两侧显式 encoding='utf-8-sig'，输出 ensure_ascii=False 且固定 utf-8。"
+    },
+    {
+      "risk": "换行：Windows 下写出变 CRLF，diff 全红、sha256 对不上。",
+      "mitigation": "读 newline=''，写 newline='' 或二进制写入固定 LF。"
+    },
+    {
+      "risk": "路径拼接用字符串 + 反斜杠，在大小写敏感的外置卷（/Volumes/ZHITAI）上失效。",
+      "mitigation": "一律 pathlib.Path 拼接并 resolve()，以包根为锚，不写字面量分隔符。"
+    },
+    {
+      "risk": "浮点：0.26 用 float 累加得 0.26000000000000001，6.50/6.76 比较失真，导致 T044/T045 被判相等。",
+      "mitigation": "Decimal 由 CSV 字符串直接构造，用 != 精确判定，输出统一 quantize(0.01)。"
+    },
+    {
+      "risk": "清理临时文件用 Path.unlink()，本机沙箱拦截会中断整批。",
+      "mitigation": "改为移动到 _trash/，保留可追溯痕迹。"
+    }
+  ],
+  "evidence": [
+    {
+      "pointer": "fixtures/tasks/T-06/ledger.csv#amount(7行)",
+      "what_it_shows": "累加=304800.00；无空值/千分位，Decimal 可直接构造"
+    },
+    {
+      "pointer": "fixtures/tasks/T-06/bill.csv#amount(8行)",
+      "what_it_shows": "累加=305180.00，gap=+380.00；8 单号均唯一，dedup=0"
+    },
+    {
+      "pointer": "fixtures/tasks/T-06/bill.csv#T046,T047",
+      "what_it_shows": "shares 30 vs 0、单侧 260.00；amount 差 0.00"
+    },
+    {
+      "pointer": "fixtures/tasks/T-06/ledger.csv#T043↔bill.csv#T043",
+      "what_it_shows": "45000.00/45120.00 差 120.00，fee 11.70/11.73"
+    },
+    {
+      "pointer": "protocol/07-轮次与指标.md#§6.1",
+      "what_it_shows": "tokens 取全席之和、minutes 取最大，与 cap 160000 比较"
+    }
+  ],
+  "falsification": "任一成立即本方案不可执行或成本结论错：① 两份 CSV 行数或 amount 列出现空值/非数字/千分位，Decimal 构造抛错且原值不可回读；② 差异需按 settle_date 映射才成立——则该映射无文本依据，脚本必须内置一个未经裁定的口径开关，人工介入次数从 1 升到 2；③ 实测六席 tokens 之和超 160000 或 wall-clock 超上限，则「一轮可完成」不成立，须拆轮。",
+  "reads": [
+    {
+      "path": "runs/round26/prompts/EX-03.md",
+      "purpose": "本席提示词：成本/回滚/操作分级/跨平台必查项"
+    },
+    {
+      "path": "runs/round26/prompts/（同目录另两份席位提示词，模板同构）",
+      "purpose": "核对另两席的硬性字段与字数预算，确认本席需额外补齐 cost/rollback/op_grade；其正文为本轮模板，不含同伴结论"
+    },
+    {
+      "path": "fixtures/tasks/T-06/TASK.md",
+      "purpose": "字段算法 A/B/C、判定口径 D、四个易错点，作为流水线步骤的规格来源"
+    },
+    {
+      "path": "fixtures/tasks/T-06/ledger.csv",
+      "purpose": "7 行原始值，逐行验算 amount 与费用、确认无重复单号"
+    },
+    {
+      "path": "fixtures/tasks/T-06/bill.csv",
+      "purpose": "8 行原始值，逐行验算 amount/费用/日期，确认无重复单号"
+    },
+    {
+      "path": "runs/round26/inputs/pack-ANON-A.json",
+      "purpose": "比对同伴 A 的数字与自述立场是否一致（一致性影响聚合成本）"
+    },
+    {
+      "path": "runs/round26/inputs/pack-ANON-B.json",
+      "purpose": "比对同伴 B 的执行路径与成本申报，避免重复实现"
+    },
+    {
+      "path": "runs/round26/inputs/pack-ANON-C.json",
+      "purpose": "比对同伴 C 的分类方案，评估其落地所需的人工介入次数"
+    },
+    {
+      "path": "protocol/07-轮次与指标.md",
+      "purpose": "§6.1 预算计量定义式与 §五 席位输出契约（硬性字段）"
+    },
+    {
+      "path": "protocol/06-写入域与判据分层.md",
+      "purpose": "写入域 allow/deny、第 8 查快照机制、金额必须 decimal_equals"
+    },
+    {
+      "path": "protocol/05-工作协议.md",
+      "purpose": "工作流与留痕要求（成本与回滚是否需要决策日志）"
+    },
+    {
+      "path": "protocol/03-结构审计七查.md",
+      "purpose": "第 3 查终止条件、第 8 查写入域的可检验形态"
+    },
+    {
+      "path": "protocol/04-双裁判规范.md",
+      "purpose": "确认硬裁判非 LLM，成本与回滚不进入机器裁决"
+    },
+    {
+      "path": "protocol/02-辩论协议.md",
+      "purpose": "终止条件四选一与失败归因纪律"
+    }
+  ],
+  "dissent": [
+    {
+      "against": "ANON-C",
+      "reason": "C 的 120.00/260.00 切分要求脚本持有一张「哪些类别不计入」的白名单，而该白名单在契约里没有定义源。落地后果具体：每来一个新类别都要人判一次，人工介入从 1 次升到 N 次；且 excluded_categories 是自由文本，机器无法核验其与金额是否匹配，等于把一个不可回读的字段放进 summary。它还声称费用差 0.55「无落点」是契约缺口——按 TASK.md 易错点 1，amount 与 fee 本就分开取，这是规格而非缺口，据此提 schema 变更属超范围。",
+      "reverse_evidence": "若契约或 spec 给出可枚举的「不计入」类别清单（且能被脚本校验），或 summary 确实新增费用差字段，则 C 的方案在成本上与我等价，反对不成立。"
+    },
+    {
+      "against": "ANON-A",
+      "reason": "A 自述 ADJ-001=exclude 而报 380.00/0.00，自述与数字反向。对落地而言这不是措辞问题：聚合脚本按数字反推得 count，与自述不一致会产生 W_STANCE_MISMATCH，该警告若被当作噪声忽略，后续轮的翻边率与分歧熵全部建立在错标立场上；且它列 3 个 excluded_categories 而排除金额 0.00，会让核对者以为存在被排除的金额。",
+      "reverse_evidence": "若聚合以自述为准并据此对齐，或 A 的 excluded_categories 明确标注为零差额类别，则此风险不成立。"
+    }
+  ],
+  "confidence": "high",
+  "needs_more_data": [
+    "缺数据：T043 的委托单原件与成交回报（确认 45.00 的来源），否则口径开关无法定值",
+    "缺数据：T047 的 260.00 在资金流水的到账记录，决定是否需要补记一笔而非仅列差异",
+    "缺数据：M4 上的实际 tokens/wall-clock 实测值（本席成本为外推，非本机实测）",
+    "缺规则：契约未规定口径差计入还是剔除（ADJ-001），脚本只能把它做成常量开关",
+    "缺规则：契约未定义 ledger.date 的映射基准（trade_date vs settle_date），决定是否需要第二个开关"
+  ],
+  "stance": [
+    {
+      "axis": "ADJ-001",
+      "choice": "count"
+    },
+    {
+      "axis": "DIFFSET",
+      "choice": "6"
+    }
+  ],
+  "summary": {
+    "ledger_rows": 7,
+    "bill_rows": 8,
+    "ledger_total": 304800.00,
+    "bill_total": 305180.00,
+    "raw_total_gap": 380.00,
+    "dedup_removed_txn_count": 0,
+    "dedup_amount": 0.00,
+    "diff_count": 6,
+    "amount_diff_total": 380.00,
+    "excluded_amount_total": 0.00,
+    "excluded_categories": []
+  },
+  "diffs": [
+    {
+      "id": "T043",
+      "category": "成交金额不符（按委托价记账）"
+    },
+    {
+      "id": "T044",
+      "category": "费用漏记（漏过户费）"
+    },
+    {
+      "id": "T045",
+      "category": "费用漏记（漏过户费）"
+    },
+    {
+      "id": "T046",
+      "category": "股数不符（送转未更新）"
+    },
+    {
+      "id": "T047",
+      "category": "单侧缺失（股息入账）"
+    },
+    {
+      "id": "T048",
+      "category": "日期不符（按交割日入账）"
+    }
+  ],
+  "categories": {
+    "成交金额不符（按委托价记账）": [
+      "T043"
+    ],
+    "费用漏记（漏过户费）": [
+      "T044",
+      "T045"
+    ],
+    "股数不符（送转未更新）": [
+      "T046"
+    ],
+    "单侧缺失（股息入账）": [
+      "T047"
+    ],
+    "日期不符（按交割日入账）": [
+      "T048"
+    ]
+  },
+  "usage": {
+    "tokens": 19000,
+    "minutes": 10,
+    "source": "self_report"
+  }
+}

@@ -1,0 +1,197 @@
+{
+  "seat": "AD-01",
+  "round": 4,
+  "action": "HOLD",
+  "conclusion": "本轮结构 HOLD：第 5 查因 pending-adjudication.json 非空（2 项待裁决）自动 HOLD（流程性，移交裁判）；第 8 查因 write-domain-check.json 在 runs/round4/ 缺失而不可核验，记 HOLD。其余七查 PASS。结构事实：EX-01（E_STANCE_OUT_OF_SPACE）、EX-03（E_BAD_EVIDENCE_ITEM×7）被契约否决，上一版 AD-01（E_AUDIT_INPUT_MISSING）亦被否决；本版已按契约 v2.1 完成对两份裁判产物的时序锚定（audited_inputs 逐项抄录）。只驳结构，不驳任何席位的数值结论。",
+  "audited_inputs": [
+    {
+      "path": "runs/round4/verdict-layered.json",
+      "verdict": "pending_adjudication",
+      "spec_layer": "all",
+      "ts": "2026-10-20T01:53:49+08:00"
+    },
+    {
+      "path": "runs/round4/pending-adjudication.json",
+      "verdict": "pending_adjudication",
+      "spec_layer": "all",
+      "pending_count": 2,
+      "ts": "2026-10-20T01:53:49+08:00"
+    }
+  ],
+  "checks": [
+    {
+      "no": 1,
+      "name": "谁在验证谁",
+      "verdict": "PASS",
+      "reason": "结构事实：本轮验收由非 LLM 脚本执行（seat_check / verify.py，judge_impl 声明 stdlib-only），XJ-01 自报跨家族、AD-01 由与 PM 不同家族模型担任。保留：各席「家族」字段均为自报，本席无法机检；故第 1 查为勉强通过。"
+    },
+    {
+      "no": 2,
+      "name": "外部钩子",
+      "verdict": "PASS",
+      "reason": "聚合结论均锚定可回读外部实体：fixtures/002 CSV、seat-check.json、verdict-layered.json；PM-01 aggregation_inputs 含逐席 sha256，verdict-layered evidence 含 answer-final.json 与 spec 文件的 sha256。",
+      "evidence": "runs/round4/seat-check.json"
+    },
+    {
+      "no": 3,
+      "name": "终止条件",
+      "verdict": "PASS",
+      "reason": "verdict-layered.json 显式给出 pending_adjudication 终态及 ADJ-001（count/exclude）、ADJ-002（7/6/5/4）的选项空间；各席 falsification 字段齐备，满足显式终止条件。",
+      "evidence": "runs/round4/verdict-layered.json"
+    },
+    {
+      "no": 4,
+      "name": "分歧留存",
+      "verdict": "PASS",
+      "reason": "PM-01 diff_preserved 保留多数/少数两侧并声明 XJ-01 权重 0；XJ-01 留存 5 项分歧；EX-01/EX-03 被否决一事作为结构事实记录于 PM-01 board（T-002-EX01/T-002-EX03，state=阻塞），未抹平。",
+      "evidence": "runs/round4/PM-01.json#board"
+    },
+    {
+      "no": 5,
+      "name": "规格假设",
+      "verdict": "HOLD",
+      "reason": "自动判定：pending-adjudication.json 非空（pending=2，ADJ-001 费用是否计入金额差异、ADJ-002 差异清单口径），分层 spec adjudication 层有未决项 ⇒ HOLD。",
+      "evidence": "runs/round4/pending-adjudication.json"
+    },
+    {
+      "no": 6,
+      "name": "失败归因",
+      "verdict": "PASS",
+      "reason": "EX-01/EX-03 的否决原因均为结构/格式类（E_STANCE_OUT_OF_SPACE、E_BAD_EVIDENCE_ITEM），未发现「模型失败」与「数据不足」的互相误记；PM-01 board 的 blocker 描述与 seat-check errors 一致。附结构备注：seat-check 对 EX-01 的错误字段标注在反推 stance（源自 summary.diff_count=8 超出选项空间），而 PM-01 board 写作「stance.DIFFSET=8」，与该席自报 abstain 存在字面差异，属记录精度问题，不影响归因方向。",
+      "evidence": "runs/round4/seat-check.json"
+    },
+    {
+      "no": 7,
+      "name": "无裁判推进",
+      "verdict": "PASS",
+      "reason": "PM-01 board 每项动作均带 judge 状态（pass/fail）；两项 pending 裁决未被 PM 自行拍板（decision 明言保留分歧移交裁判）；EX-01/EX-03 标注阻塞+fail，未继续推进。",
+      "evidence": "runs/round4/PM-01.json#board"
+    },
+    {
+      "no": 8,
+      "name": "写入域",
+      "verdict": "HOLD",
+      "reason": "write-domain-check.json 在 runs/round4/ 目录清单中不存在：轮前基线 wd-baseline.json 在，但轮后写入域比对产物未产出，核验链条断在最后一步。无任何「已发生禁写」的证据，但按契约 v2.1 该机器产物应产出而缺失，结构上不可判定为 PASS。",
+      "evidence": "runs/round4/wd-baseline.json"
+    },
+    {
+      "no": 9,
+      "name": "席位读取域",
+      "verdict": "PASS",
+      "reason": "read-domain-check.json verdict=CLEAN，hits=0，6 席均申报 reads。按提示词，CLEAN 是声明式下界，不证明未发生未申报读取——不表述为「已隔离」。",
+      "evidence": "runs/round4/read-domain-check.json"
+    }
+  ],
+  "assumptions_to_adjudicate": [
+    {
+      "assumption": "ADJ-001：交易费用（佣金+印花税+过户费）是否计入「成本差异」金额（count / exclude）",
+      "why_undecidable": "契约层未定，机器裁决显式保留为 pending，本席无真值不得代答",
+      "what_would_make_it_decidable": "裁判在 adjudication 层签署任一选项，answer 相应字段随之重算"
+    },
+    {
+      "assumption": "ADJ-002：差异清单应含哪些条目（diff_count ∈ {7,6,5,4}，同时决定 T206/T210 与 T205 的去留）",
+      "why_undecidable": "同上，属裁决层未决项",
+      "what_would_make_it_decidable": "裁判签署选项后重算 summary.diff_count 与 diffs"
+    },
+    {
+      "assumption": "write-domain-check.json 缺失是流程中断还是遗漏",
+      "why_undecidable": "轮后写入域比对未产出，本席无法区分「未发生写入所以未生成」与「应生成而未生成」",
+      "what_would_make_it_decidable": "编排方补产该文件，或 PM 出具本轮无共享/禁写目录写入的授权留痕"
+    }
+  ],
+  "cost_score": {
+    "feedback_delay": "低",
+    "error_cost": "低",
+    "irreversibility": "低",
+    "product": "低"
+  },
+  "barely_passed": "第 1 查（谁在验证谁）：家族独立性全部依赖自报字段，本席无机器手段核验，判定依据薄弱。",
+  "my_blind_spots": "①本轮未重读 TASK.md/ledger.csv/bill.csv 原文，对被否决席位内容的结构复核完全依赖 seat-check.json 的机器结论；②write-domain-check.json 缺失意味着若有未申报写入，我对第 8 查完全不可见；③各席 usage 均为 self_report，无法验证；④我无法检测自己对 EX-02 结构完整性的判断是否受其「勾稽成立」表述影响——我读到的被否决版本摘要（上一版 AD-01 evidence 中引用的 EX 摘要）与本版原文可能存在措辞差异，我未做逐字比对。",
+  "forbidden": "本产出不评任何席位数值结论之对错；EX-02 的 diff_count=7、amount_diff_total=4480 等在本席视野内为「结构合规且待裁决」而非「正确」。",
+  "evidence": [
+    {
+      "pointer": "runs/round4/verdict-layered.json",
+      "what_it_shows": "verdict=pending_adjudication、spec_layer=all、ts=2026-10-20T01:53:49+08:00、summary pending=2——时序锚定与第 3/5 查依据。"
+    },
+    {
+      "pointer": "runs/round4/pending-adjudication.json",
+      "what_it_shows": "pending 含 ADJ-001（count/exclude）与 ADJ-002（7/6/5/4），adjudication_source=none——第 5 查 HOLD 的直接依据。"
+    },
+    {
+      "pointer": "runs/round4/seat-check.json",
+      "what_it_shows": "6 席中 EX-01/EX-03/AD-01(上一版) invalid（E_STANCE_OUT_OF_SPACE / E_BAD_EVIDENCE_ITEM×7 / E_AUDIT_INPUT_MISSING），aggregation_admissible=[EX-02,PM-01,XJ-01]——第 4/6 查依据及「被否决」结构事实。"
+    },
+    {
+      "pointer": "runs/round4/read-domain-check.json",
+      "what_it_shows": "verdict=CLEAN、hits=0、seats_declaring_reads=6——第 9 查 PASS 依据（声明式下界）。"
+    },
+    {
+      "pointer": "runs/round4/（目录清单）",
+      "what_it_shows": "目录含 answer-final.json、pending-adjudication.json、verdict-layered.json、read-domain-check.json、seat-check.json、wd-baseline.json 等，但 write-domain-check.json 不存在——第 8 查 HOLD 依据。"
+    },
+    {
+      "pointer": "runs/round4/PM-01.json#board",
+      "what_it_shows": "board 各项均带 judge 状态与 blocker；EX-01/EX-03 记为阻塞+fail——第 4/7 查依据。"
+    },
+    {
+      "pointer": "runs/round4/XJ-01.json",
+      "what_it_shows": "5 项分歧（T208 入清单、dedup_amount 语义、ADJ-001 轴义、excluded 差额列别、日期基准）与 self_caution——第 4 查分歧留存依据。"
+    },
+    {
+      "pointer": "runs/round4/wd-baseline.json",
+      "what_it_shows": "轮前写入域基线存在（deny 前缀含 fixtures/、outputs/、docs/ 等），但轮后比对产物缺失——第 8 查核验链条断裂的物证。"
+    }
+  ],
+  "reads": [
+    {
+      "path": "runs/round4/prompts/AD-01.md",
+      "purpose": "完整重读席位提示词，逐字核对九查清单、时序前置条件与 audited_inputs 硬字段要求"
+    },
+    {
+      "path": "runs/round4/verdict-layered.json",
+      "purpose": "锚定裁判产物：抄录 verdict/spec_layer/ts"
+    },
+    {
+      "path": "runs/round4/pending-adjudication.json",
+      "purpose": "锚定裁判产物：抄录 verdict/spec_layer/pending_count/ts，并作第 5 查自动判定输入"
+    },
+    {
+      "path": "runs/round4/read-domain-check.json",
+      "purpose": "第 9 查机器结论：各席申报读取分类与 hits"
+    },
+    {
+      "path": "runs/round4/seat-check.json",
+      "purpose": "各席契约校验结论：invalid 名单、错误码、聚合准入名单（第 4/6 查输入）"
+    },
+    {
+      "path": "runs/round4/EX-01.json",
+      "purpose": "被审计席位产出原文（已被契约否决，仅记录结构事实）"
+    },
+    {
+      "path": "runs/round4/EX-02.json",
+      "purpose": "被审计席位产出原文：结构字段完整性核对（不评结论）"
+    },
+    {
+      "path": "runs/round4/EX-03.json",
+      "purpose": "被审计席位产出原文（已被契约否决，仅记录结构事实）"
+    },
+    {
+      "path": "runs/round4/XJ-01.json",
+      "purpose": "被审计席位产出原文：分歧留存结构核对（第 4 查）"
+    },
+    {
+      "path": "runs/round4/PM-01.json",
+      "purpose": "被审计席位产出原文：board/judge 状态标注核对（第 7 查）"
+    },
+    {
+      "path": "runs/round4/（目录清单，ls）",
+      "purpose": "确认裁判侧产物存在性与 write-domain-check.json 缺失（第 8 查）"
+    }
+  ],
+  "falsification": "若 runs/round4/ 实际存在 write-domain-check.json 而我的目录清单有误，则第 8 查 HOLD 不成立；若 pending-adjudication.json 的 spec_layer 实为其他值（我两次读取均得 \"all\" 并经 grep 复核），则本锚定被 E_AUDIT_INPUT_STALE 拒绝；若 seat-check.json 判定的错误码与各席文件实际内容不符，则第 6 查结论失效；若本轮 PM 曾对 fixtures/ 等禁写目录做未留痕写入，则第 8/9 查的 PASS/HOLD 判断整体失效（该情形对我不可见）。",
+  "usage": {
+    "tokens": 48000,
+    "minutes": 12,
+    "source": "self_report"
+  }
+}

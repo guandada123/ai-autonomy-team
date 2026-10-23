@@ -1,0 +1,174 @@
+{
+  "check": "seat_contract",
+  "xj_family_check": null,
+  "contract_version": "2.1",
+  "expected_contract_version": "2.1",
+  "reads_required": true,
+  "stage": "B",
+  "round_dir": "runs/round29",
+  "round_role": "revision_round",
+  "generated_at": "2026-10-20T21:11:17+08:00",
+  "params_sha256": "96d0f9da01c33d3bfc97b04ffb39b549dd2037f8658345906eee1615da596dff",
+  "seats_expected": [
+    "AD-01",
+    "PM-01"
+  ],
+  "results": [
+    {
+      "seat": "AD-01",
+      "file": "runs/round29/AD-01.json",
+      "sha256": null,
+      "status": "invalid",
+      "errors": [
+        {
+          "code": "E_MISSING_SEAT",
+          "field": "-",
+          "msg": "轮次内缺少该席位产出"
+        }
+      ],
+      "warnings": [],
+      "derived": {}
+    },
+    {
+      "seat": "PM-01",
+      "status": "valid",
+      "errors": [],
+      "warnings": [
+        {
+          "code": "W_MISSING_CONFIDENCE",
+          "field": "confidence",
+          "msg": "软性字段缺失：confidence"
+        },
+        {
+          "code": "W_MISSING_DISSENT",
+          "field": "dissent",
+          "msg": "软性字段缺失：dissent"
+        },
+        {
+          "code": "W_MISSING_NEEDS_MORE_DATA",
+          "field": "needs_more_data",
+          "msg": "软性字段缺失：needs_more_data"
+        },
+        {
+          "code": "W_READS_UNCLASSIFIED",
+          "field": "reads[4]",
+          "msg": "路径不在读取域任何清单内：fixtures/tasks/T-10/TASK.md"
+        },
+        {
+          "code": "W_READS_UNCLASSIFIED",
+          "field": "reads[5]",
+          "msg": "路径不在读取域任何清单内：fixtures/tasks/T-10/ledger.csv"
+        },
+        {
+          "code": "W_READS_UNCLASSIFIED",
+          "field": "reads[6]",
+          "msg": "路径不在读取域任何清单内：fixtures/tasks/T-10/bill.csv"
+        }
+      ],
+      "stance_mismatches": [],
+      "derived": {
+        "evidence_pointer_count": 0,
+        "evidence_pointers": [],
+        "pointer_id_definition": "sha256(sorted('<file>|<selector>'))[:16]",
+        "declared_stance": {},
+        "derived_stance": {},
+        "axes": [],
+        "semantic_conflicts": [],
+        "usage": {
+          "tokens": 16800,
+          "minutes": 12.0,
+          "source": "self_report"
+        },
+        "read_domain": {
+          "declared_reads": [
+            {
+              "source": "reads[0]",
+              "declared": "runs/round29/prompts/PM-01.md",
+              "canonical": "runs/round29/prompts/PM-01.md",
+              "class": "allow"
+            },
+            {
+              "source": "reads[1]",
+              "declared": "runs/round29/EX-01.json",
+              "canonical": "runs/round29/EX-01.json",
+              "class": "allow"
+            },
+            {
+              "source": "reads[2]",
+              "declared": "runs/round29/EX-02.json",
+              "canonical": "runs/round29/EX-02.json",
+              "class": "allow"
+            },
+            {
+              "source": "reads[3]",
+              "declared": "runs/round29/EX-03.json",
+              "canonical": "runs/round29/EX-03.json",
+              "class": "allow"
+            },
+            {
+              "source": "reads[4]",
+              "declared": "fixtures/tasks/T-10/TASK.md",
+              "canonical": "fixtures/tasks/T-10/TASK.md",
+              "class": "unclassified"
+            },
+            {
+              "source": "reads[5]",
+              "declared": "fixtures/tasks/T-10/ledger.csv",
+              "canonical": "fixtures/tasks/T-10/ledger.csv",
+              "class": "unclassified"
+            },
+            {
+              "source": "reads[6]",
+              "declared": "fixtures/tasks/T-10/bill.csv",
+              "canonical": "fixtures/tasks/T-10/bill.csv",
+              "class": "unclassified"
+            },
+            {
+              "source": "reads[7]",
+              "declared": "runs/round29/round-manifest.json",
+              "canonical": "runs/round29/round-manifest.json",
+              "class": "allow"
+            },
+            {
+              "source": "reads[8]",
+              "declared": "runs/round29/seat-check.json",
+              "canonical": "runs/round29/seat-check.json",
+              "class": "allow"
+            },
+            {
+              "source": "reads[9]",
+              "declared": "runs/round29/",
+              "canonical": "runs/round29/",
+              "class": "allow"
+            }
+          ],
+          "evidence_derived": [],
+          "applied": true,
+          "severity": "error"
+        }
+      },
+      "file": "runs/round29/PM-01.json",
+      "sha256": "defe1e65c41abf414eeec74718ddd45848f372f18ceb7c691613da7948131c69"
+    }
+  ],
+  "aggregation_admissible": [
+    "PM-01"
+  ],
+  "aggregation_blocked": [
+    {
+      "seat": "AD-01",
+      "sha256": null,
+      "errors": [
+        "E_MISSING_SEAT"
+      ]
+    }
+  ],
+  "verdict": "has_invalid",
+  "summary": {
+    "total": 2,
+    "valid": 1,
+    "invalid": 1
+  },
+  "spec_sha256": "a791d96a96ae916b2def9d6878d8d8609e00822f7a836045ebe7350590be1f5d",
+  "read_domain_verdict": "CLEAN"
+}

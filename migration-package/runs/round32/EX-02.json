@@ -1,0 +1,124 @@
+{
+  "seat": "EX-02",
+  "round": 32,
+  "conclusion": "「amount_diff_total=380.00」是把 raw_total_gap 抄进该字段的同义反复，不构成归因；可裁决的切分是 120.00 计入 / 260.00 排除，而 6 条清单本身依赖一条契约未写的日期基准（换 settle_date 基准即 7 条）。",
+  "strongest_counter_arguments": [
+    {
+      "target": "ANON-A",
+      "argument": "把六条差异全部计入后，amount_diff_total 恒等于 raw_total_gap（380.00=380.00）。这使该字段与一个纯算术量完全共线：任何错误分类都无法被算术证伪，字段因此失去独立信息量。契约特意保留 excluded_amount_total 与 excluded_categories 两个字段，说明它预期存在「不计入」的类别；若全部计入，这两个字段在本任务恒为 0 与 []，设计意图落空。更强的读法是：T119 是 side=股息入账、shares=0、price=0 的非成交项，它落入交割单的 amount 列是口径问题，不是成交金额不一致——把它计入等于把「自记账没有这一类科目」误报成「成交金额不符」。",
+      "reverse_evidence": "若 spec 明示 excluded_categories 应为 []、excluded_amount_total=0.00 且 amount_diff_total 必须等于 raw_total_gap，则本反论不成立。"
+    },
+    {
+      "target": "ANON-C",
+      "argument": "「6 条」并非由规则演绎得出，而是从数据归纳得出：7 行自记账里有 6 行等于 bill.trade_date、只有 T120 等于 settle_date。据此反推「基准是成交日」并用它判定 T120 为差异，是先用数据定基准、再用基准判数据——循环。若生成器以 settle_date 为准，同一份 CSV 给出 7 条（T113/09-03 vs 09-04、T114/09-05 vs 09-06 进入，T120 退出），且 7 同样自洽。契约对「日期」二字未指定列，这个分歧不能靠置信度消解，只能走人签。",
+      "reverse_evidence": "若契约或 spec 明写「日期取 bill.trade_date」，则 6 条为规则演绎而非归纳，本反论撤回。"
+    },
+    {
+      "target": "ANON-A",
+      "argument": "费用差被无声吞掉：T116/T117 各差 7.04（5.00 vs 12.04），合计 14.08，但两者 amount 列相等，故对 amount_diff_total 贡献为 0。也就是说 diff_count=6 里有 3 条（T116/T117/T118）对任何金额字段贡献都是 0.00——「条数」与「金额」两个口径并非同一批实体。任何以「6 条已全部计入金额」自证的答案，在这三条上是不成立的。",
+      "reverse_evidence": "若存在一个金额字段把 fee_total 差额并入合计（违反易错点 1「不要相加后再比对」），则这三条可对金额有贡献；否则本条恒成立。"
+    }
+  ],
+  "what_would_change_my_mind": "spec 同时写明两件事：(a) 日期一律取 trade_date；(b) 单侧非成交权益项计入成交金额差异且 excluded_categories 为 []。二者齐备，我改判 6 条 / 380.00 / 0.00。",
+  "evidence": [
+    {
+      "pointer": "fixtures/tasks/T-15/bill.csv#settle_date",
+      "what_it_shows": "settle 基准 7 条（T113/T114 进、T120 退）；trade 基准 6 条"
+    },
+    {
+      "pointer": "fixtures/tasks/T-15/ledger.csv#date",
+      "what_it_shows": "6/7 行等 trade_date，仅 T120 等 settle_date→基准系归纳"
+    },
+    {
+      "pointer": "fixtures/tasks/T-15/TASK.md#C.excluded_*",
+      "what_it_shows": "单列排除字段→预期存在不计入类别；全计入则恒 0/[]"
+    },
+    {
+      "pointer": "fixtures/tasks/T-15/bill.csv#T119",
+      "what_it_shows": "非成交项（shares=price=0）占 amount 列，260 属口径差"
+    },
+    {
+      "pointer": "fixtures/tasks/T-15/ledger.csv#T116,T117",
+      "what_it_shows": "fee 各差 7.04 但 amount 相等→贡献 0.00"
+    }
+  ],
+  "falsification": "若契约文本把「单侧非成交类权益项」划入金额差异，或把 amount_diff_total 定义为必须等于 raw_total_gap−dedup_amount，则我的 120.00/260.00 切分错；若契约指定日期列，则 6/7 之争消失，我的第二条反论失效。",
+  "reads": [
+    {
+      "path": "runs/round32/prompts/EX-02.md",
+      "purpose": "本席位提示词（其余两份席位提示词由编排层统一读取，未进入本席位证据链，故不在本席位 reads 内申报）"
+    },
+    {
+      "path": "fixtures/tasks/T-15/TASK.md",
+      "purpose": "取字段定义与四列差异口径，寻找契约空白"
+    },
+    {
+      "path": "fixtures/tasks/T-15/ledger.csv",
+      "purpose": "逐行复算 7 行合计、日期列与 note"
+    },
+    {
+      "path": "fixtures/tasks/T-15/bill.csv",
+      "purpose": "逐行复算 8 行合计、trade_date/settle_date 双列"
+    },
+    {
+      "path": "protocol/06-写入域与判据分层.md",
+      "purpose": "确认 diff_count/amount_diff_total 属 adjudication 层、不由硬裁判裁决"
+    },
+    {
+      "path": "protocol/02-辩论协议.md",
+      "purpose": "确认对立面席位职责与证据制聚合规则"
+    }
+  ],
+  "dissent": [
+    {
+      "against": "ANON-A",
+      "reason": "380.00 与 raw_total_gap 完全相等，属同义反复：它不解释差额从哪来，只是把差额换个字段名。归因结果应当能够错——若一个字段无论分类对错都返回同一个数，它就没有承载判断。",
+      "reverse_evidence": "若 spec 的 amount_diff_total 期望值确为 380.00 且 excluded_amount_total=0.00，则本条被证伪，我接受。"
+    },
+    {
+      "against": "ANON-C",
+      "reason": "把「6 条」当作可执行脚本的确定输出，掩盖了它是数据归纳的产物；脚本一旦按 trade_date 硬编码，换夹具（或有跨月交割）就会静默给出错误条数而不报警。落地必须先把它标为待裁项而非常量。",
+      "reverse_evidence": "若契约指定日期列、或夹具内 dates 与 settle_date 全部错月可区分，则基准不再歧义，本条撤回。"
+    }
+  ],
+  "confidence": "medium",
+  "needs_more_data": [
+    "缺规则：日期比对基准（trade_date / settle_date）未指定 —— 直接决定 6 条还是 7 条",
+    "缺规则：单侧非成交权益项（T119 股息）在「成交金额差异」中的归属未定义",
+    "缺规则：送转 T118（股数 0→30、金额双 0）是否属金额类差异未定义，仅四列口径判为差异",
+    "缺数据：无 —— 8 个单号两侧可完整定位，无缺失行、无重复单号"
+  ],
+  "stance": [
+    {
+      "axis": "ADJ-001",
+      "choice": "exclude"
+    },
+    {
+      "axis": "DIFFSET",
+      "choice": "6"
+    }
+  ],
+  "summary": {
+    "ledger_rows": 7,
+    "bill_rows": 8,
+    "ledger_total": 299400.00,
+    "bill_total": 299780.00,
+    "raw_total_gap": 380.00,
+    "dedup_removed_txn_count": 0,
+    "dedup_amount": 0.00,
+    "diff_count": 6,
+    "amount_diff_total": 120.00,
+    "excluded_amount_total": 260.00,
+    "excluded_categories": [
+      "费用口径差",
+      "股数口径差",
+      "日期口径差",
+      "单侧缺失·非交易权益项"
+    ]
+  },
+  "usage": {
+    "tokens": 11200,
+    "minutes": 11,
+    "source": "self_report"
+  }
+}

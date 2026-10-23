@@ -1,0 +1,51 @@
+{"ts": "2026-10-20T06:57:55.814003+00:00", "actor": "build_package.py(--apply)", "written": 2, "unchanged": 20, "changed_files": ["scripts/judges/verify.py", "scripts/judges/seat_check.py"]}
+{"ts": "2026-10-20T07:15:28.852515+00:00", "actor": "build_package.py(--apply)", "written": 0, "unchanged": 22, "changed_files": []}
+{"ts": "2026-10-20T07:24:17.134293+00:00", "actor": "build_package.py(--apply)", "written": 1, "unchanged": 21, "changed_files": ["scripts/judges/seat_check.py"]}
+{"ts": "2026-10-20T07:27:49.014043+00:00", "actor": "build_package.py(--apply)", "written": 0, "unchanged": 22, "changed_files": []}
+{"ts": "2026-10-20T09:22:20.030988+00:00", "actor": "build_package.py(--apply)", "written": 0, "unchanged": 22, "changed_files": []}
+{"ts": "2026-10-20T09:30:43.567821+00:00", "actor": "build_package.py(--apply)", "written": 2, "unchanged": 20, "changed_files": ["docs/protocol/03-结构审计七查.md", "docs/protocol/07-轮次与指标.md"]}
+{"ts": "2026-10-20T09:34:21.052235+00:00", "actor": "build_package.py(--apply)", "written": 0, "unchanged": 22, "changed_files": []}
+{"ts": "2026-10-20T11:42:43.031730+00:00", "actor": "build_package.py(--apply)", "written": 0, "unchanged": 22, "changed_files": []}
+{"ts": "2026-10-20T11:53:04.672195+00:00", "actor": "build_package.py(--apply)", "written": 2, "unchanged": 20, "changed_files": ["scripts/judges/verify.py", "scripts/judges/seat_check.py"]}
+{"ts": "2026-10-20T11:59:03.923171+00:00", "actor": "build_package.py(--apply)", "written": 0, "unchanged": 22, "changed_files": []}
+{"ts": "2026-10-20T12:18:30.422861+00:00", "actor": "build_package.py(--apply)", "written": 0, "unchanged": 22, "changed_files": []}
+{"ts": "2026-10-20T13:11:43.566502+00:00", "actor": "build_package.py(--apply)", "written": 0, "unchanged": 22, "changed_files": []}
+{"ts": "2026-10-20T13:14:13.510965+00:00", "actor": "build_package.py(--apply)", "written": 0, "unchanged": 22, "changed_files": []}
+{"ts": "2026-10-20T13:18:17.999225+00:00", "actor": "build_package.py(--apply)", "written": 0, "unchanged": 22, "changed_files": []}
+{"ts": "2026-10-20T13:27:48.787495+00:00", "actor": "build_package.py(--apply)", "written": 0, "unchanged": 22, "changed_files": []}
+{"ts": "2026-10-20T13:35:54.375489+00:00", "actor": "build_package.py(--apply)", "written": 0, "unchanged": 22, "changed_files": []}
+{"ts": "2026-10-20T14:00:05.129113+00:00", "actor": "build_package.py(--apply)", "written": 1, "unchanged": 21, "changed_files": ["scripts/judges/verify.py"]}
+{"ts": "2026-10-20T14:06:54.381682+00:00", "actor": "build_package.py(--apply)", "written": 1, "unchanged": 21, "changed_files": ["scripts/judges/verify.py"]}
+{"ts": "2026-10-20T14:07:18.577563+00:00", "actor": "build_package.py(--apply)", "written": 0, "unchanged": 22, "changed_files": []}
+{"ts": "2026-10-20T14:08:07.604661+00:00", "actor": "build_package.py(--apply)", "written": 0, "unchanged": 22, "changed_files": []}
+{"ts": "2026-10-20T14:10:02.100542+00:00", "actor": "build_package.py(--apply)", "written": 1, "unchanged": 21, "changed_files": ["scripts/judges/verify.py"]}
+{"ts": "2026-10-20T14:17:39.726604+00:00", "actor": "build_package.py(--apply)", "written": 1, "unchanged": 21, "changed_files": ["scripts/judges/verify.py"]}
+{"ts": "2026-10-20T14:24:19.669867+00:00", "actor": "build_package.py(--apply)", "written": 2, "unchanged": 20, "changed_files": ["scripts/judges/verify.py", "scripts/new_round.py"]}
+{"ts": "2026-10-20T14:29:22.781926+00:00", "actor": "build_package.py(--apply)", "written": 0, "unchanged": 22, "changed_files": []}
+{"ts": "2026-10-20T14:34:30.283497+00:00", "actor": "build_package.py(--apply)", "written": 1, "unchanged": 21, "changed_files": ["scripts/judges/verify.py"]}
+{"ts": "2026-10-20T14:34:43.024808+00:00", "actor": "build_package.py(--apply)", "written": 0, "unchanged": 22, "changed_files": []}
+{"ts": "2026-10-20T14:44:49.536971+00:00", "actor": "build_package.py(--apply)", "written": 0, "unchanged": 22, "changed_files": []}
+{"ts": "2026-10-20T15:08:04.039587+00:00", "actor": "build_package.py(--apply)", "written": 0, "unchanged": 22, "changed_files": []}
+{"ts": "2026-10-20T15:19:52.723618+00:00", "actor": "build_package.py(--apply)", "written": 0, "unchanged": 22, "changed_files": []}
+{"ts": "2026-10-20T15:20:24.697652+00:00", "actor": "build_package.py(--apply)", "written": 0, "unchanged": 22, "changed_files": []}
+{"ts": "2026-10-20T15:22:17.132459+00:00", "actor": "build_package.py(--apply)", "written": 0, "unchanged": 22, "changed_files": []}
+{"ts": "2026-10-20T23:53:22.621889+00:00", "actor": "build_package.py(--apply)", "written": 1, "unchanged": 21, "changed_files": ["docs/protocol/07-轮次与指标.md"]}
+{"ts": "2026-10-21T00:23:33.266542+00:00", "actor": "build_package.py(--apply)", "written": 1, "unchanged": 21, "changed_files": ["scripts/judges/verify.py"]}
+{"ts": "2026-10-21T00:23:38.343613+00:00", "actor": "build_package.py(--apply)", "written": 1, "unchanged": 21, "changed_files": ["scripts/judges/verify.py"]}
+{"ts": "2026-10-21T02:43:43.086728+00:00", "actor": "build_package.py(--apply)", "written": 1, "unchanged": 21, "changed_files": ["docs/protocol/03-结构审计七查.md"]}
+{"ts": "2026-10-21T02:44:36.023899+00:00", "actor": "build_package.py(--apply)", "written": 0, "unchanged": 22, "changed_files": []}
+{"ts": "2026-10-21T03:41:27.204890+00:00", "actor": "build_package.py(--apply)", "written": 0, "unchanged": 22, "changed_files": []}
+{"ts": "2026-10-21T04:46:21.280658+00:00", "actor": "build_package.py(--apply)", "written": 0, "unchanged": 22, "changed_files": []}
+{"ts": "2026-10-21T06:02:06.102343+00:00", "actor": "build_package.py(--apply)", "written": 0, "unchanged": 22, "changed_files": []}
+{"ts": "2026-10-21T06:02:53.591200+00:00", "actor": "build_package.py(--apply)", "written": 0, "unchanged": 22, "changed_files": []}
+{"ts": "2026-10-21T06:03:15.909435+00:00", "actor": "build_package.py(--apply)", "written": 0, "unchanged": 22, "changed_files": []}
+{"ts": "2026-10-21T06:19:37.302153+00:00", "actor": "build_package.py(--apply)", "written": 0, "unchanged": 22, "changed_files": []}
+{"ts": "2026-10-21T08:09:15.870064+00:00", "actor": "build_package.py(--apply)", "written": 0, "unchanged": 22, "changed_files": []}
+{"ts": "2026-10-21T12:06:18.473430+00:00", "actor": "build_package.py(--apply)", "written": 0, "unchanged": 22, "changed_files": []}
+{"ts": "2026-10-22T03:11:50.362093+00:00", "actor": "build_package.py(--apply)", "written": 1, "unchanged": 21, "changed_files": ["scripts/judges/verify.py"]}
+{"ts": "2026-10-22T05:41:20.870240+00:00", "actor": "build_package.py(--apply)", "written": 0, "unchanged": 22, "changed_files": []}
+{"ts": "2026-10-22T06:29:08.212954+00:00", "actor": "build_package.py(--apply)", "written": 1, "unchanged": 21, "changed_files": ["scripts/new_round.py"]}
+{"ts": "2026-10-22T07:17:56.941906+00:00", "actor": "build_package.py(--apply)", "written": 0, "unchanged": 22, "changed_files": []}
+{"ts": "2026-10-22T07:18:48.052519+00:00", "actor": "build_package.py(--apply)", "written": 1, "unchanged": 21, "changed_files": ["scripts/new_round.py"]}
+{"ts": "2026-10-22T07:31:53.696625+00:00", "actor": "build_package.py(--apply)", "written": 0, "unchanged": 22, "changed_files": []}
+{"ts": "2026-10-22T07:38:53.652589+00:00", "actor": "build_package.py(--apply)", "written": 0, "unchanged": 22, "changed_files": []}
