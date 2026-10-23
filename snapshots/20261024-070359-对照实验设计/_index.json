@@ -1,7 +1,7 @@
 {
- "created_at": "2026-10-24T06:53:22",
- "label": "规则性质三段式",
- "file_count": 103,
+ "created_at": "2026-10-24T07:03:59",
+ "label": "对照实验设计",
+ "file_count": 105,
  "files": {
   "scripts/build_package.py": {
    "sha256": "b2dad8c4b0adc07c8cc367c51c292263c2789cf6501a0a7481c80260de23f494",
@@ -112,8 +112,8 @@
    "bytes": 11300
   },
   "scripts/regress.py": {
-   "sha256": "c9e19d842879500f846a4f43a8e45c5f7086fc9a278c30f2d5dda86000996aa4",
-   "bytes": 58298
+   "sha256": "8dddca0d17825e86514aaf1bd2c6784ade3c479b3c72dd2f2f3c040f52a6fb2b",
+   "bytes": 59121
   },
   "scripts/secret_patterns.py": {
    "sha256": "c77c883691005f530cff2444c7acb0470dfadf595ae1c15dbc98b34857b56ef1",
@@ -386,6 +386,14 @@
   "docs/decisions/D-0056-基线扩样暴露题集敏感性.md": {
    "sha256": "a6cad8939761ce11d9949ad97f18fa89892c4a3e71831cb3aa0679ecb287b654",
    "bytes": 6737
+  },
+  "docs/decisions/D-0057-题库v1冻结.md": {
+   "sha256": "1a47a009b3849d4a8c1ec5022439fa50edcc4b63a6417f7e70c5ec0af949f385",
+   "bytes": 3687
+  },
+  "docs/decisions/D-0058-对照实验设计一轮三席.md": {
+   "sha256": "91b69ab24a3ebb919b377a3144ac8716c8f4a2054987bfcb43cd193b11235b2f",
+   "bytes": 4702
   },
   "docs/decisions/TEMPLATE.md": {
    "sha256": "0bbc33940a540ae0e983817d9b1cf6daf6502ff233074d5023a3466511867e6e",
