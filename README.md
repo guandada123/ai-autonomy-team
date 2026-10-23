@@ -15,7 +15,7 @@
 | 发布门禁 | A–H 全过（8/8） |
 | 全量回归 | 50/50 |
 | 源码规模 | 26 个脚本（`scripts/` 24 + `judges/` 2）/ 约 12,600 行 |
-| 已有资产 | 33 轮运行记录 · 44 份决策 · 12 条经验教训 · 7 份协议 |
+| 已有资产 | 33 轮运行记录 · 43 份决策 · 13 条经验教训 · 7 份协议 |
 
 ---
 
@@ -74,13 +74,13 @@ make test           # 等价于 python3 scripts/regress.py
 scripts/               ★ 唯一源码树（24 个脚本 + judges/ 2 个）
 config/                契约参数（改这个 = 改判据口径）
 docs/protocol/         7 份工作协议
-docs/decisions/        44 份决策记录（D-XXXX）
-.learnings/            12 条经验教训（L-XXXX）
+docs/decisions/        43 份决策记录（编号到 D-0044；D-0017 未建，以文件数为准）
+.learnings/            13 条经验教训（L-XXXX）
 templates/             席位提示词模板
 fixtures/frozen/       冻结基线（回归第 8 项依赖，不可删）
 migration-package/     ⚠️ 构建产物（--check 可验证），其中 runs/ 是 33 轮真实记录
 reviews/               八角审查产出
-_trash/  _archive/     ⊘ 不入库，可重建
+_trash/  _archive/     ⊘ 不入库：scratch 可重建，快照归档只此一份
 ```
 
 **三类目录别混淆**：

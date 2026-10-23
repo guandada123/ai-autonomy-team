@@ -1,6 +1,6 @@
 {
- "created_at": "2026-10-23T17:54:28",
- "label": "审计修复S1S2M1",
+ "created_at": "2026-10-23T18:33:40",
+ "label": "脱敏修复与计数门禁",
  "file_count": 87,
  "files": {
   "scripts/build_package.py": {
@@ -16,8 +16,8 @@
    "bytes": 15106
   },
   "scripts/check_docs_consistency.py": {
-   "sha256": "61bbe6a9bbc3a54a60692a52a9dd1671060f64e35a6907a668262c1f51392ed7",
-   "bytes": 7148
+   "sha256": "af8ea532791014dac26ee9988d02b123c6d41a3ebaf5259a5a9ccf448977dd86",
+   "bytes": 9698
   },
   "scripts/field_provenance.py": {
    "sha256": "7926bba3821fd39f01e9045238f33b72a1550250f25a7c694165e656050b9b1c",
@@ -68,8 +68,8 @@
    "bytes": 41902
   },
   "scripts/make_transfer.py": {
-   "sha256": "fc7ed1a57d823ffca5751ab19441a86ce490bb4d6574835b8d1d95ba65019e61",
-   "bytes": 7712
+   "sha256": "06c5aaa394c0d6c3806fb1ab300e09fb6ee5c7498b2c76bfd94a9ba0a55d9eb5",
+   "bytes": 8025
   },
   "scripts/metrics.py": {
    "sha256": "4efa70dbdd117f04b9a91090dd1fc5862d597f5f93b44ad3b5803ae11011c4d2",
@@ -84,20 +84,20 @@
    "bytes": 47373
   },
   "scripts/pre_release_check.py": {
-   "sha256": "e23e737fd907269d8784ebfb4aa811df11d58fea280a2c8f3305235e2168cef4",
-   "bytes": 10137
+   "sha256": "61a6cd63def32eb97cb8bd47ab727a9fb4782371872024c996d9ad8caf7c2f4d",
+   "bytes": 10152
   },
   "scripts/premise_probe.py": {
    "sha256": "a4e112a8ac9dc7f04529a9693e3a798aaa00b9625854cf880f77dc92a34d2245",
    "bytes": 6961
   },
   "scripts/real_recon.py": {
-   "sha256": "2569eee0d1ae4903a1864fa32840013581a55257a1fb0bdc7bac86a592ad23aa",
-   "bytes": 16627
+   "sha256": "e49c00f5d980cda67c15123fb2ae4f0f6dccdacd745d9fb2dc1ae681fb4080eb",
+   "bytes": 17283
   },
   "scripts/redact_report.py": {
-   "sha256": "5a71a8d7a61a65f6628f0faf385e36a2fdf2dc9f1a0ca3066880685aa65cfbfe",
-   "bytes": 6149
+   "sha256": "b0557dfa5ba2659b0f9da12495a4deabbcbb29664a5620a160b3e5c913a9b2dc",
+   "bytes": 11300
   },
   "scripts/regress.py": {
    "sha256": "e762b3d89717aa9d419f05b4d1b93fab06e51453037fe5d40edc0d9f535f7e27",
@@ -108,12 +108,12 @@
    "bytes": 2627
   },
   "scripts/snapshot_sources.py": {
-   "sha256": "23c0d75d3e17b49a3aaffb892e549be48ea53c5bab7cbfa303ccea686ad8f0e8",
-   "bytes": 8511
+   "sha256": "cb2c2b228b42b5b5b1e4ef2d3cc7c45463637dca0bfdad064877bda91a5e4873",
+   "bytes": 15825
   },
   "scripts/sync_doc_numbers.py": {
-   "sha256": "8a3d5478a74a61407b9f60f2220f1c91a6333dc9dbe5150f0d4d760a09e53a32",
-   "bytes": 4363
+   "sha256": "1d8a99945ded39806c9495891bae040144f3f9dcffe6eca1d5ca0704a9a5481e",
+   "bytes": 5214
   },
   "scripts/team_metrics.py": {
    "sha256": "65607e125e4966898b120291a45b438d129663ace21048bafa8d77ebc11fb094",

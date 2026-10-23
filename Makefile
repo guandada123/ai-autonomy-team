@@ -23,8 +23,8 @@ help:
 	@echo "    make check         发布前全量门禁（A–H，8 项）"
 	@echo ""
 	@echo "  日常："
-	@echo "    make test          全量回归（50 项）"
-	@echo "    make selftest      各脚本内置自检（闸门/开轮/八角）"
+	@echo "    make test          全量回归（项数见输出，不在此写死）"
+	@echo "    make selftest      各脚本内置自检（闸门/开轮/八角/脱敏）"
 	@echo "    make metrics       三轨指标看板"
 	@echo "    make review DECISION='...'  八角审查（生成 8 份提示词）"
 	@echo ""
@@ -54,7 +54,10 @@ selftest:
 	@echo "── 八角审查 ──"
 	$(PY) $(SCRIPTS)/octagon.py --self-test
 	@echo ""
-	@echo "── 判据自检 + 全量门禁（含 50 项回归，约 60 秒）──"
+	@echo "── 脱敏（对外版生成器）──"
+	$(PY) $(SCRIPTS)/redact_report.py --self-test
+	@echo ""
+	@echo "── 判据自检 + 全量门禁（内含全量回归，约 60 秒）──"
 	$(PY) $(SCRIPTS)/pre_release_check.py
 
 # ── 观测 ──────────────────────────────────────────────────────────────
@@ -64,7 +67,7 @@ metrics:
 review:
 	@if [ -z "$(DECISION)" ]; then \
 		echo "用法: make review DECISION='要审查的决定' [FACTS=材料.md]"; exit 2; fi
-	$(PY) $(SCRIPTS)/octagon.py --decision "$(DECISION)" $(if $(FACTS),--facts $(FACTS),)
+	$(PY) $(SCRIPTS)/octagon.py --decision "$(DECISION)" $(if $(FACTS),--facts "$(FACTS)",)
 
 # ── 交付 ──────────────────────────────────────────────────────────────
 package-check:

@@ -81,6 +81,9 @@ def main():
     cfg = pf.get("config") or {}
     tx = pf.get("transactions") or []
     summ = pf.get("summary") or {}
+    # 缺失值按 0 参与恒等式（D() 的语义），但**必须在 notes 里留痕**：
+    # 否则输出 JSON 的 summary.cash="0" 会被下游读成"账户真的没钱"。
+    cash_missing = pf.get("cash") is None and summ.get("cash_available") is None
     cash = D(pf.get("cash") if pf.get("cash") is not None else summ.get("cash_available"))
 
     # 两种账户形态：模拟盘 positions(dict) / 实盘 holdings(list)。恒等式同一套，只是取数路径不同。
@@ -105,6 +108,9 @@ def main():
             diffs.append(dict(id=cid, name=name, expect=str(expect), actual=str(actual), note=note))
 
     notes = []
+    if cash_missing:
+        notes.append("账本无 cash、summary 也无 cash_available：现金按 0 参与恒等式。"
+                     "此时 I1/I9/I11 红属**字段缺失**，不是账算错")
     init = D(cfg.get("initial_capital"))
     add_cap = sum((D(a.get("amount")) for a in cfg.get("capital_additions") or []), D(0))
 
@@ -138,6 +144,8 @@ def main():
 
     # ---- I4/I5/I6 逐持仓派生字段 ----
     for c, p in pos_items:
+        if p.get("total_cost") is None and p.get("avg_cost") is None:
+            notes.append(f"{c} 无 total_cost 也无 avg_cost：成本按 0 计，I5 的浮盈会等于整个市值")
         sh = D(p.get("shares"))
         px = D(p.get("current_price"))
         mv = D(p.get("market_value"))

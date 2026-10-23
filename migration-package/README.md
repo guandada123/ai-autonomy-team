@@ -46,7 +46,9 @@ python3 judges/verify.py --spec-dir fixtures/spec \
 #    （包内不含已创建的任务 —— 原因见该文件头部说明）
 ```
 
-> ⚠️ **不要删除工作区里的 `_trash/backup-pre-P5/truth.json.frozen`** ——
+> ⚠️ **冻结基线是 `fixtures/frozen/truth.json.frozen`**（2026-10-23 起）——
+> 它随 git 入库，解压/克隆即有；`_trash/backup-pre-P5/` 下那份是迁移前的旧副本，
+> 已不再是任何脚本的依赖，删不删都不影响回归。
 > 回归第 8 项用它做「`truth.json` 是否被动过」的逐字节比对。
 
 ---

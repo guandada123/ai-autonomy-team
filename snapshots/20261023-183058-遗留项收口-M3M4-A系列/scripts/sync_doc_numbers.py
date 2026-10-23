@@ -15,9 +15,10 @@ r"""sync_doc_numbers.py —— 把文档中的「当前 MANIFEST 数字」同步
    原始 / 原为 / 审计时 / 对齐前 / 此前 / 为 \d / →
 
 例：
-  ✅ 会改：`MANIFEST **1095 条 / 7,885,557 字节**`
+  ✅ 会改：`MANIFEST **1095 条 / 7,885,557 字节**`（条数与字节数一起改成当前值）
   ⏭️ 跳过：`（原始为 7,840,273）`
   ⏭️ 跳过：`（审计时 7,883,426；此后共 +1,084）`
+  ⏭️ 跳过：`# 期望：{'file_count': 1095, 'total_bytes': 7883426}`（代码块里的历史快照）
 
 ## 用法
 
@@ -40,6 +41,11 @@ MANIFEST = ROOT / "migration-package" / "MANIFEST.json"
 # 出现这些词的行，其数字视为「历史值」，不改
 HIST_MARKERS = ("原始", "原为", "审计时", "对齐前", "此前", "当时", "→")
 NUM_PAT = re.compile(r"7,\d{3},\d{3}")
+# 文件数（形如「1095 条」）。只在**本行含当前字节数**时才改 ——
+# 字节数是"当前值"的天然锚点：历史行的字节数不是当前值，所以文件数也不会被误改。
+# 这条规则是 N2 缺口的补实现（2026-10-23）：此前只有字节数被同步，
+# 于是文档出现「1095 条 / 当代字节数」这种自相矛盾的组合。
+FILE_COUNT_PAT = re.compile(r"(\d[\d,]*)(\s*条)")
 
 
 def fmt(n):
@@ -60,6 +66,19 @@ def is_historical(line):
     return any(m in line for m in HIST_MARKERS)
 
 
+def _fmt_count(m, real_n):
+    """文件数替换：沿用原文的千分位风格（`1095 条` ↔ `1,099 条` 都见过）。
+
+    第一版写成 `(\\d{3,5})` 是个真 bug：遇到带千分位的 `1,099 条` 会只匹配
+    后三位 `099`，替换后得到 `1,1099 条`（2026-10-23 当场咬到）。
+    """
+    raw = m.group(1)
+    if raw.replace(",", "") == str(real_n):
+        return m.group(0)
+    out = fmt(real_n) if "," in raw else str(real_n)
+    return f"{out}{m.group(2)}"
+
+
 def main():
     ap = argparse.ArgumentParser(description="同步文档中的当前 MANIFEST 数字")
     ap.add_argument("--dry-run", action="store_true", help="只预览，不写入")
@@ -72,10 +91,6 @@ def main():
         return 2
     real_b, real_n = int(st["total_bytes"]), int(st["file_count"])
     valid_bytes = {fmt(real_b)}
-    # 文件数的白名单原为 valid_counts = {fmt(real_n), str(real_n)}，构造后从未使用
-    # —— 即「文件数」从未被本脚本同步过，只有字节数被同步。
-    # 2026-10-23 审计发现。此处删除死变量但**不假装已实现**；补实现会改写文档数字，
-    # 需单独评估，见审计报告。
 
     changes, stale = [], []
     for p in sorted(DOCS.glob("*.md")):
@@ -89,6 +104,8 @@ def main():
             for hit in set(NUM_PAT.findall(ln)):
                 if hit not in valid_bytes:
                     new = new.replace(hit, fmt(real_b))
+            if fmt(real_b) in new:
+                new = FILE_COUNT_PAT.sub(lambda m: _fmt_count(m, real_n), new)
             if new != ln:
                 stale.append(f"{p.name}: {ln.strip()[:60]}")
                 touched = True

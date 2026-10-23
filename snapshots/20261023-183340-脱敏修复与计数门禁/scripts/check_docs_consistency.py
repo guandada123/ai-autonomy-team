@@ -28,6 +28,10 @@
         不假装已覆盖。要补需另写一条只匹配文件数的规则。
   B. 索引行数：`docs/*.md` 中被 `| NNN |` 引用的行数是否等于该文件实际行数
   C. 契约版本：文档里的 `vX.Y` 声明是否与 `config/params.json` 一致
+  D. 计数声明：**当前状态文档**（README / ARCHITECTURE / DEPENDENCIES）里的
+     「N 条经验 / N 份决策 / N 轮运行 / N 份协议」是否等于磁盘实际条数。
+     `docs/*.md` **不在**本项范围：那是历史审计记录，写的是当时的事实，
+     拿今天的磁盘去判它错，会把"历史正确"报成红，反而掩盖真问题。
 
 退出码：0 全部一致 / 1 存在不一致（仅 --strict 时）/ 2 环境错误
 """
@@ -42,6 +46,22 @@ DOCS = ROOT / "docs"
 PKG = ROOT / "migration-package"
 
 OK, BAD, ERR = 0, 1, 2
+
+# D 项扫描范围：只扫「当前状态」类文档。docs/*.md 是历史审计，不参与（见文件头）。
+STATUS_DOCS = ["README.md", "ARCHITECTURE.md", "DEPENDENCIES.md"]
+
+# D 项规则：正则 → (人类可读标签, 计数函数)。正则刻意写得窄（"条经验"而不是"条"），
+# 宽匹配会把「3 条铁律」这类无关说法一起抓进来。
+COUNT_RULES = [
+    (re.compile(r"(\d+)\s*条经验"), "经验条数",
+     lambda: len(list((ROOT / ".learnings").glob("*.md")))),
+    (re.compile(r"(\d+)\s*份决策"), "决策份数",
+     lambda: len(list((DOCS / "decisions").glob("D-*.md")))),
+    (re.compile(r"(\d+)\s*轮运行"), "运行轮数",
+     lambda: len([d for d in (PKG / "runs").glob("round*") if d.is_dir()])),
+    (re.compile(r"(\d+)\s*份协议"), "协议份数",
+     lambda: len(list((DOCS / "protocol").glob("*.md")))),
+]
 
 
 def load_json(p):
@@ -123,6 +143,33 @@ def check_contract_version(problems):
     return checked
 
 
+def check_count_claims(problems):
+    """D. 当前状态文档里的计数声明 vs 磁盘实际。"""
+    checked = 0
+    for name in STATUS_DOCS:
+        p = ROOT / name
+        if not p.exists():
+            problems.append(("D", f"{name} 缺失", "状态文档不存在"))
+            continue
+        text = p.read_text(encoding="utf-8")
+        for rx, label, counter in COUNT_RULES:
+            hits = set(rx.findall(text))
+            if not hits:
+                continue
+            actual = counter()
+            for declared in hits:
+                checked += 1
+                if int(declared) == actual:
+                    continue
+                # 同行带历史限定词 = 当时事实，跳过（与 A 项同一口径）
+                line = next((ln for ln in text.splitlines() if declared in ln), "")
+                if re.search(r"原始|原为|审计时|对齐前|此前|当时", line):
+                    continue
+                problems.append(
+                    ("D", f"{name}: {label}声明 {declared}", f"磁盘实际 {actual}"))
+    return checked
+
+
 def main():
     ap = argparse.ArgumentParser(description="文档与磁盘一致性校验（只读）")
     ap.add_argument("--strict", action="store_true", help="存在不一致时 exit 1（CI 用）")
@@ -137,12 +184,14 @@ def main():
     a = check_manifest_numbers(problems)
     b = check_index_line_counts(problems)
     c = check_contract_version(problems)
+    d = check_count_claims(problems)
 
     if not args.quiet:
         print("[check_docs_consistency] 文档 ↔ 磁盘一致性")
         print(f"  A. MANIFEST 数字   : 校验 {a} 处")
         print(f"  B. 索引行数        : 校验 {b} 处")
         print(f"  C. 契约版本        : 校验 {c} 处")
+        print(f"  D. 计数声明        : 校验 {d} 处")
         print()
 
     if problems:
@@ -153,15 +202,16 @@ def main():
         kinds = {k for k, _, _ in problems}
         if "A" in kinds:
             print("\n[A 类可自动修复] python3 scripts/sync_doc_numbers.py", file=sys.stderr)
-        if kinds & {"B", "C"}:
-            print("[B/C 类需人工] B=索引行数（改文档后重跑索引同步），C=契约版本声明",
+        if kinds & {"B", "C", "D"}:
+            print("[B/C/D 类需人工] B=索引行数（改文档后重跑索引同步），C=契约版本声明，"
+                  "D=计数声明（改文档数字以匹配磁盘，别改磁盘去凑文档）",
                   file=sys.stderr)
         if args.strict:
             return BAD
         print("\n（非 --strict 模式：仅报告，不返回失败码）", file=sys.stderr)
         return OK
 
-    print(f"[PASS] 全部一致（合计校验 {a + b + c} 处）")
+    print(f"[PASS] 全部一致（合计校验 {a + b + c + d} 处）")
     return OK
 
 

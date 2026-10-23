@@ -13,7 +13,7 @@
 
 ## 检查项
 
-  A. 文档一致性    check_docs_consistency（MANIFEST 数字 / 索引行数 / 契约版本）
+  A. 文档一致性    check_docs_consistency（MANIFEST 数字 / 索引行数 / 契约版本 / 计数声明）
   B. 全量回归      regress.py 必须 50/50、EXIT=0
   C. 判据自检      verify.py --self-test 必须 27/27
   D. 包完整性      MANIFEST 自校验（file_count / total_bytes 与实际一致）
