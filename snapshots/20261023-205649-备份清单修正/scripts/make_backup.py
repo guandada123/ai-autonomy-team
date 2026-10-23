@@ -163,16 +163,24 @@ def do_list(dest):
     if not dest.is_dir():
         print(f"[ERR] 备份目录不存在：{dest}", file=sys.stderr)
         return ERR
-    items = sorted(dest.glob("*.*"))
+    # 只认本工具会产出的两种文件名。原来用 `*.*` 通配：macOS 一进目录就写
+    # `.DS_Store`，于是「最新一份」被它抢走（2026-10-23 实测）——
+    # 列目录是给人做删除决策的，把非备份文件混进来等于给错依据。
+    items = sorted([p for pat in ("ai-autonomy-team-*.bundle", "snapshots-archive-*.tar.gz")
+                    for p in dest.glob(pat)])
     if not items:
         print(f"[ERR] 目录里没有备份：{dest}", file=sys.stderr)
         return BAD
     print(f"备份目录：{dest}")
+    total = 0
     for p in items:
+        size = p.stat().st_size
+        total += size
         age = (datetime.now() - datetime.fromtimestamp(p.stat().st_mtime)).days
-        print(f"  {p.name:44s} {human(p.stat().st_size):>9s}  {age} 天前")
+        print(f"  {p.name:44s} {human(size):>9s}  {age} 天前")
     newest = max(items, key=lambda p: p.stat().st_mtime)
-    print(f"\n最新一份：{newest.name}（{(datetime.now() - datetime.fromtimestamp(newest.stat().st_mtime)).days} 天前）")
+    print(f"\n合计 {human(total)}（{len(items)} 个文件）")
+    print(f"最新一份：{newest.name}（{(datetime.now() - datetime.fromtimestamp(newest.stat().st_mtime)).days} 天前）")
     return OK
 
 
@@ -183,6 +191,17 @@ def main():
     ap.add_argument("--list", action="store_true", help="只列现有备份，不做新的")
     ap.add_argument("--self-test", action="store_true", help="只验证「验证逻辑」本身")
     args = ap.parse_args()
+
+    # 浅克隆绝不能当备份源：Git 允许在 shallow 仓库里 `bundle create --all`，
+    # 但产出的 bundle **不可还原**（缺历史边界对象），而"能还原"正是本工具的全部价值。
+    # 2026-10-23 CI 实测：actions/checkout 默认 --depth 1，本工具自检 4 项挂第 1 项。
+    # 与其产一个看起来成功、实际还原不了的包，不如前置拒绝并说清怎么修。
+    if not args.list:
+        rc, out = _run(["git", "rev-parse", "--is-shallow-repository"])
+        if rc == 0 and out.strip() == "true":
+            print("[ERR] 当前是浅克隆（shallow）—— bundle 无法还原，拒绝生成。\n"
+                  "      修：git fetch --unshallow（或改用完整 clone）后重跑", file=sys.stderr)
+            return ERR
 
     if args.self_test:
         return self_test()

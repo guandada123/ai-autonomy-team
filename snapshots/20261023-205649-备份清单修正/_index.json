@@ -1,6 +1,6 @@
 {
- "created_at": "2026-10-23T20:47:24",
- "label": "钩子检查与CI",
+ "created_at": "2026-10-23T20:56:49",
+ "label": "备份清单修正",
  "file_count": 91,
  "files": {
   "scripts/build_package.py": {
@@ -52,8 +52,8 @@
    "bytes": 41768
   },
   "scripts/make_backup.py": {
-   "sha256": "dc967613b63007dafc4718b6dca5cdb9125e17e22bb9d8d2961efdd5a174bac6",
-   "bytes": 10071
+   "sha256": "9b6b3f48b2e7336a62d4247d56a32ecfa663206e35b63b53c7492a8628218c70",
+   "bytes": 11374
   },
   "scripts/make_fixtures.py": {
    "sha256": "1f7329d2cc180b6e9bfe982b65b9f519bfb31c513444f5207359faaae4cdff2e",
@@ -332,12 +332,12 @@
    "bytes": 2906
   },
   "docs/decisions/D-0045-仓库整库私有.md": {
-   "sha256": "e5b0d5eaee123f005f235c65bf59d2eeb27f2c00e9ef695f6ed6be035ac60b36",
-   "bytes": 7487
+   "sha256": "1a69169043a8ee0d3d25d9099c3a736a521ddd86e91d81246c21afc78358e47c",
+   "bytes": 8091
   },
   "docs/decisions/D-0046-接最小CI与钩子检查.md": {
-   "sha256": "04e7388c39dd1d5835a43327c3cab35a4997edfdc108fc868e36eee9f3d6aa45",
-   "bytes": 4256
+   "sha256": "b100c8252afba717dd7d9f6d45301cca57506aaa019209aa41a4c70c6adc7454",
+   "bytes": 5567
   },
   "docs/decisions/TEMPLATE.md": {
    "sha256": "0bbc33940a540ae0e983817d9b1cf6daf6502ff233074d5023a3466511867e6e",

@@ -163,16 +163,24 @@ def do_list(dest):
     if not dest.is_dir():
         print(f"[ERR] 备份目录不存在：{dest}", file=sys.stderr)
         return ERR
-    items = sorted(dest.glob("*.*"))
+    # 只认本工具会产出的两种文件名。原来用 `*.*` 通配：macOS 一进目录就写
+    # `.DS_Store`，于是「最新一份」被它抢走（2026-10-23 实测）——
+    # 列目录是给人做删除决策的，把非备份文件混进来等于给错依据。
+    items = sorted([p for pat in ("ai-autonomy-team-*.bundle", "snapshots-archive-*.tar.gz")
+                    for p in dest.glob(pat)])
     if not items:
         print(f"[ERR] 目录里没有备份：{dest}", file=sys.stderr)
         return BAD
     print(f"备份目录：{dest}")
+    total = 0
     for p in items:
+        size = p.stat().st_size
+        total += size
         age = (datetime.now() - datetime.fromtimestamp(p.stat().st_mtime)).days
-        print(f"  {p.name:44s} {human(p.stat().st_size):>9s}  {age} 天前")
+        print(f"  {p.name:44s} {human(size):>9s}  {age} 天前")
     newest = max(items, key=lambda p: p.stat().st_mtime)
-    print(f"\n最新一份：{newest.name}（{(datetime.now() - datetime.fromtimestamp(newest.stat().st_mtime)).days} 天前）")
+    print(f"\n合计 {human(total)}（{len(items)} 个文件）")
+    print(f"最新一份：{newest.name}（{(datetime.now() - datetime.fromtimestamp(newest.stat().st_mtime)).days} 天前）")
     return OK
 
 

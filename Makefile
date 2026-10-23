@@ -12,7 +12,7 @@ PKG     := migration-package
 
 .DEFAULT_GOAL := help
 .PHONY: help check test selftest handover metrics review package-check \
-        package-apply snapshot sync-docs pre-push hooks backup clean
+        package-apply snapshot sync-docs pre-push hooks backup backup-list clean
 
 # ── 帮助 ──────────────────────────────────────────────────────────────
 help:
@@ -28,6 +28,7 @@ help:
 	@echo "    make pre-push      推之前自查（历史密钥 + 远端是否 private）"
 	@echo "    make hooks         安装 git pre-push 钩子（本地文件，换机需重装）"
 	@echo "    make backup        本地备份（bundle + 快照归档，逐份还原验证）"
+	@echo "    make backup-list   列出已有备份、不生成新的（含总占用）"
 	@echo "    make metrics       三轨指标看板"
 	@echo "    make review DECISION='...'  八角审查（生成 8 份提示词）"
 	@echo ""
@@ -90,8 +91,13 @@ hooks:
 # ── 备份 ──────────────────────────────────────────────────────────────
 # 远端不覆盖 .gitignore 的 _trash/（历史快照归档只此一份），故本地另备一份。
 # 每份产物都做还原验证：文件存在不算备份，能还原且一致才算。
+# 注意：`make backup --list` 不生效 —— `--list` 会被 make 自己吃掉（表现为打印
+#       make 帮助且 exit 0）。要传参用 ARGS，或直接用下面的 backup-list。
 backup:
-	$(PY) $(SCRIPTS)/make_backup.py
+	$(PY) $(SCRIPTS)/make_backup.py $(ARGS)
+
+backup-list:
+	$(PY) $(SCRIPTS)/make_backup.py --list
 
 # ── 交付 ──────────────────────────────────────────────────────────────
 package-check:
