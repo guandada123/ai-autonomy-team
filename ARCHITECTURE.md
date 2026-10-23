@@ -115,8 +115,7 @@
 |---|---|---|---|
 | `judges/seat_check.py` | 2364 | 校验席位输出是否满足契约（字段、类型、枚举）；聚合时防伪造（同家族票数、cross_family 标记） | 不判断结论对错；不生成输出 |
 | `judges/verify.py` | 1223 | 硬裁判 JD-01：按 spec 逐字段比对期望值，输出 verdict | 不解释"为什么错"；不做模糊匹配 |
-| `inspect_agent_routing.py` | 238 | 判定子代理**实际**被路由到哪个模型家族（读运行时记录，不采信子代理自述） | 不修改路由；跨家族判定依赖本机会话缓存，换机须人工重跑 |
-| `migration-package/config/params.json` | 25 KB | 契约参数：`contract_version`、`seat_contract.families`、三轨指标定义 | 不是运行时状态；改它等于改判据口径，必须重跑回归 |
+| `inspect_agent_routing.py` | 237 || `migration-package/config/params.json` | 25 KB | 契约参数：`contract_version`、`seat_contract.families`、三轨指标定义 | 不是运行时状态；改它等于改判据口径，必须重跑回归 |
 | `migration-package/config/read_domains.json` / `write_domains.json` | 9 KB / 1.3 KB | 声明每个脚本能读哪些域、能写哪些域 | 不是访问控制（文本约束，不是物理屏障） |
 
 > `inspect_agent_routing.py` 的输出会写回 `params.json` 的 `seat_contract.families`，是 `new_round` 开轮闸门的**唯一数据来源**：家族未实测则拒绝开轮（除非显式 `--allow-unverified-families` 并留痕）。
@@ -127,28 +126,20 @@
 
 | 模块 | 行数 | 职责 | **明确不负责** |
 |---|---|---|---|
-| `new_round.py` | 1113 | 开轮：建目录、渲染席位提示词、写 `round-manifest.json`；`--check` 校验既有轮次 | 不派发、不调用模型。`preflight` 闸门只判"能不能开"，不管"开了之后跑得好不好" |
-| `premise_probe.py` | 174 | 三条探针做前提审查（成本、可逆性、度量） | 不替代人的判断；命中只报不阻断（阻断由 `new_round` 的闸门做） |
-| `octagon.py` | 952 | 八角审查：生成 8 份视角隔离提示词 → 校验产出五段齐全 → 汇总判据矩阵与可行动项增量 | **不派发**（生成提示词后由主会话/外部派）；不做语义判定（五项判据靠人工填，脚本只校验结构与占位符） |
-
+| `new_round.py` | 1154 || `premise_probe.py` | 174 | 三条探针做前提审查（成本、可逆性、度量） | 不替代人的判断；命中只报不阻断（阻断由 `new_round` 的闸门做） |
+| `octagon.py` | 951 |
 ### L2 度量层
 
 | 模块 | 行数 | 职责 | **明确不负责** |
 |---|---|---|---|
-| `metrics.py` | 735 | 单轮指标采集（席位耗时、token、判据命中） | 不跨轮聚合 |
-| `team_metrics.py` | 293 | 三轨看板：错误决策数（分推翻/更正）、返工率、金额偏差 | 不做趋势预测；`no_data` 不等于 0（刻意区分"不知道"与"没有"） |
+| `metrics.py` | 733 || `team_metrics.py` | 293 | 三轨看板：错误决策数（分推翻/更正）、返工率、金额偏差 | 不做趋势预测；`no_data` 不等于 0（刻意区分"不知道"与"没有"） |
 
 ### L3 验收层
 
 | 模块 | 行数 | 检查什么 | 何时跑 |
 |---|---|---|---|
-| `regress.py` | 886 | 50 项：契约、判据、夹具、幂等、防伪、py39 兼容 | 改任何 L0/L1 代码后 |
-| `pre_release_check.py` | 234 | A–H 8 项门禁（见下） | 发版前 |
-| `check_consistency.py` | 373 | 声明与算术产出是否自洽（如 manifest 声明 1095 条，实际是否 1095） | 改产物结构后 |
-| `check_docs_consistency.py` | 165 | `docs/*.md` 里的数字与磁盘实际是否一致 | 改文档后 |
-| `verify_handover.py` | 216 | 接手验收：6 项环境自检（第 6 项查推送钩子是否已装），一条命令回答"在你机器上能用吗" | 首次接手 |
-| `precheck.py`（包内） | 245 | 目标机环境自检（Python 版本、路径可写、夹具完整） | 迁移到新机后 |
-
+| `regress.py` | 885 || `pre_release_check.py` | 275 || `check_consistency.py` | 373 | 声明与算术产出是否自洽（如 manifest 声明 1095 条，实际是否 1095） | 改产物结构后 |
+| `check_docs_consistency.py` | 307 || `verify_handover.py` | 224 || `precheck.py`（包内） | 244 |
 **A–H 门禁清单**（`make check`）：
 
 | 项 | 检查 | 失败的典型原因 |
@@ -171,30 +162,22 @@
 | `make_fixtures.py` | 515 | 合成核对任务 #1：输入、真值、分层判据 |
 | `make_fixtures_002.py` | 352 | 合成任务 #2（独立样本，避免只在一个任务上过拟合） |
 | `make_round_fixtures.py` | 295 | 多轮/席位契约的回归夹具 |
-| `make_tasks_20.py` | 822 | 20 条留出任务批量生成 + 自检 |
-
+| `make_tasks_20.py` | 820 |
 ### L5 交付层
 
 | 模块 | 行数 | 职责 |
 |---|---|---|
-| `build_package.py` | 218 | 源 → 包同步。`--check` 逐字节比对，`--apply` 同步，`--manifest` 重建清单 |
-| `gen_manifest.py`（包内） | 254 | 生成 `MANIFEST.json`（每文件 sha256 + 总字节） |
-| `make_transfer.py` | 207 | 打整棵工作区为 zip，供跨机迁移 |
-
+| `build_package.py` | 217 || `gen_manifest.py`（包内） | 254 | 生成 `MANIFEST.json`（每文件 sha256 + 总字节） |
+| `make_transfer.py` | 213 |
 > **`migration-package/` 的定位**：它是**构建产物**，不是第二个源码树。判据：`build_package.py --check` 能把它从 `scripts/` 完全重建。
 
 ### L6 运维工具
 
 | 模块 | 行数 | 职责 |
 |---|---|---|
-| `snapshot_sources.py` | 217 | 真源快照（改口径前先打，`--verify` 对比） |
-| `secret_patterns.py` | 68 | 密钥检测模式的**单一真源** |
-| `redact_report.py` | 155 | 从正本生成对外版（脱敏绝对路径、账号、标的） |
-| `field_provenance.py` | 177 | 字段溯源：这个字段谁在写 |
+| `snapshot_sources.py` | 381 || `secret_patterns.py` | 91 || `redact_report.py` | 248 || `field_provenance.py` | 177 | 字段溯源：这个字段谁在写 |
 | `canon.py` | 174 | 标识与词表规范化 |
-| `sync_doc_numbers.py` | 120 | 把文档里的数字同步为实际值（**会写文件**，唯一有副作用的工具） |
-| `real_recon.py` | 297 | 真实账本恒等式对账（外部输入，需显式给路径） |
-
+| `sync_doc_numbers.py` | 191 || `real_recon.py` | 316 |
 ---
 
 ## 四、目录结构
@@ -224,7 +207,7 @@ ai-autonomy-team/
 ├── (无根 config/)             ← 契约参数物理在 migration-package/config/，勿在根找
 ├── docs/
 │   ├── protocol/              ← 7 份工作协议（规范正文）
-│   ├── decisions/             ← 46 份决策记录（编号到 D-0047；D-0017 未建）
+│   ├── decisions/             ← 47 份决策记录（编号到 D-0048；D-0017 未建）
 │   └── *.md                   ← 32 份分析/审计/复盘（历史存档）
 ├── .learnings/                ← 15 条经验教训（L-XXXX，跨项目通用）
 ├── templates/                 ← 席位提示词模板（new_round 渲染用）

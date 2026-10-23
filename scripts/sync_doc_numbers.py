@@ -47,6 +47,11 @@ NUM_PAT = re.compile(r"7,\d{3},\d{3}")
 # 于是文档出现「1095 条 / 当代字节数」这种自相矛盾的组合。
 FILE_COUNT_PAT = re.compile(r"(\d[\d,]*)(\s*条)")
 
+# 代码行数行：`| `xxx.py` | 2364 | 说明 |`。只认第二格是纯数字的行 ——
+# ARCHITECTURE 里还有「谁依赖谁」的表，第二格是文件列表，不是行数。
+CODE_ROW_PAT = re.compile(r"^(\|\s*`([\w./]+\.py)`[^|]*\|\s*)(\d+)(\s*\|)")
+STATUS_DOCS = ("ARCHITECTURE.md", "README.md", "DEPENDENCIES.md")
+
 
 def fmt(n):
     return f"{n:,}"
@@ -77,6 +82,48 @@ def _fmt_count(m, real_n):
         return m.group(0)
     out = fmt(real_n) if "," in raw else str(real_n)
     return f"{out}{m.group(2)}"
+
+
+def resolve_script(name):
+    """按「源码树优先」定位脚本：scripts/ → 根 → migration-package/。
+
+    表里同时有 `judges/seat_check.py`（源树内相对路径）与 `precheck.py（包内）`
+    （只在包里存在）两种写法，按此顺序解析能同时命中。
+    """
+    for base in (ROOT / "scripts", ROOT, ROOT / "migration-package"):
+        p = base / name
+        if p.is_file():
+            return p
+    return None
+
+
+def sync_code_rows():
+    """把 `| `xxx.py` | NNN |` 的行数同步为实际行数。
+
+    2026-10-23 实测：ARCHITECTURE 的这张表 28 行里 16 行与实际不符
+    （`check_docs_consistency` 差 119 行、`snapshot_sources` 差 164 行）。
+    表是给人「这文件多大、改它值不值得」用的，数字错了等于给错依据。
+    """
+    changes, stale = [], []
+    for name in STATUS_DOCS:
+        p = ROOT / name
+        if not p.is_file():
+            continue
+        lines = p.read_text(encoding="utf-8").splitlines(keepends=True)
+        out, touched = [], False
+        for ln in lines:
+            m = CODE_ROW_PAT.match(ln)
+            target = resolve_script(m.group(2)) if m else None
+            if m and target is not None:
+                real = len(target.read_text(encoding="utf-8", errors="replace").splitlines())
+                if int(m.group(3)) != real:
+                    ln = f"{m.group(1)}{real}{m.group(4)}"
+                    stale.append(f"{name}: {m.group(2)} {m.group(3)} → {real}")
+                    touched = True
+            out.append(ln)
+        if touched:
+            changes.append((p, out))
+    return changes, stale
 
 
 def main():
@@ -113,13 +160,17 @@ def main():
         if touched:
             changes.append((p, out))
 
+    arch_changes, arch_stale = sync_code_rows()
+    changes += arch_changes
+    stale += arch_stale
+
     if not changes:
-        print(f"[PASS] 全部一致（当前 {fmt(real_n)} 条 / {fmt(real_b)} 字节）")
+        print(f"[PASS] 全部一致（当前 {fmt(real_n)} 条 / {fmt(real_b)} 字节；代码行数表一致）")
         return 0
 
     if args.check:
-        print(f"[FAIL] {len(stale)} 处过期（当前应为 {fmt(real_b)} 字节）：", file=sys.stderr)
-        for s in stale[:10]:
+        print(f"[FAIL] {len(stale)} 处过期（字节数当前应为 {fmt(real_b)}）：", file=sys.stderr)
+        for s in stale[:12]:
             print(f"  {s}", file=sys.stderr)
         print("\n修复：python3 scripts/sync_doc_numbers.py", file=sys.stderr)
         return 1
@@ -132,7 +183,7 @@ def main():
 
     for p, out in changes:
         p.write_text("".join(out), encoding="utf-8", newline="\n")
-    print(f"[OK] 已同步 {len(changes)} 份文档 → {fmt(real_b)} 字节")
+    print(f"[OK] 已同步 {len(changes)} 份文档 → {fmt(real_b)} 字节；代码行数表 {len(arch_stale)} 处")
     return 0
 
 

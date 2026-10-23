@@ -141,6 +141,29 @@ def check_index_line_counts(problems):
                 problems.append(
                     ("B", f"{p.name}: {name.strip()} 声明 {declared} 行",
                      f"实际 {actual} 行"))
+
+    # 代码行数表：状态文档里的 `| `x.py` | NNN |`（没有 markdown 链接，写法不同、性质相同）。
+    # 2026-10-23 实测 ARCHITECTURE 的这张表 28 行里 16 行与实际不符，最大差 164 行。
+    code_re = re.compile(r"^\|\s*`([\w./]+\.py)`[^|]*\|\s*(\d+)\s*\|")
+    for name in STATUS_DOCS:
+        doc = ROOT / name
+        if not doc.exists():
+            continue
+        for lineno, line in enumerate(doc.read_text(encoding="utf-8").splitlines(), 1):
+            m = code_re.match(line)
+            if not m:
+                continue
+            target = next((b / m.group(1) for b in (ROOT / "scripts", ROOT, ROOT / "migration-package")
+                           if (b / m.group(1)).is_file()), None)
+            if target is None:
+                problems.append(("B", f"{name}:{lineno} 引用了不存在的 {m.group(1)}", "文件缺失"))
+                continue
+            actual = len(target.read_text(encoding="utf-8", errors="replace").splitlines())
+            checked += 1
+            if int(m.group(2)) != actual:
+                problems.append(
+                    ("B", f"{name}:{lineno} {m.group(1)} 声明 {m.group(2)} 行",
+                     f"实际 {actual} 行"))
     return checked
 
 
