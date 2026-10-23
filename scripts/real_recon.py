@@ -213,11 +213,6 @@ def main():
         def badd(cid, name, expect, actual, ok, note=""):
             add(cid, name, expect, actual, ok, note)
 
-        pairs = {
-            "B1": ("可用资金", summ.get("cash_available"), bs.get("cash_available")),
-            "B2": ("总市值", summ.get("total_market_value"), bs.get("total_market_value")),
-            "B3": "总资产",
-        }
         # 简单三类逐项核（显式展开，避免过度抽象）
         badd("B1", "可用资金", D(bs.get("cash_available")), D(summ.get("cash_available")),
              D(bs.get("cash_available")) == D(summ.get("cash_available")), "券商可用 vs 账本 cash_available")

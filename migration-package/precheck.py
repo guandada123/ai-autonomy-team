@@ -15,7 +15,6 @@ precheck.py —— 目标机（Mac mini M4 / macOS）环境自检
 
 import argparse
 import json
-import os
 import platform
 import shutil
 import subprocess

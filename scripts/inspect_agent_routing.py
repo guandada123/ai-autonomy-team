@@ -20,7 +20,6 @@ inspect_agent_routing.py —— 子代理模型路由核验器
 import argparse
 import json
 import os
-import re
 import sys
 from pathlib import Path
 

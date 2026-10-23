@@ -21,7 +21,11 @@
 
 ## 检查项
 
-  A. MANIFEST 数字：文档里出现的 `file_count` / `total_bytes` 是否等于 `MANIFEST.json#stats`
+  A. MANIFEST 字节数：文档里出现的 `total_bytes`（形如 7,883,426）是否等于 `MANIFEST.json#stats`
+     ⚠️ `file_count` **不在本项校验范围内**：下面的正则只匹配 7 位带千分位的字节数，
+        4 位文件数（如 1099）永远命不中。原文写作「`file_count` / `total_bytes`」，
+        但 file_count 从未实现校验 —— 2026-10-23 审计发现，此处如实收窄声明，
+        不假装已覆盖。要补需另写一条只匹配文件数的规则。
   B. 索引行数：`docs/*.md` 中被 `| NNN |` 引用的行数是否等于该文件实际行数
   C. 契约版本：文档里的 `vX.Y` 声明是否与 `config/params.json` 一致
 
@@ -60,7 +64,7 @@ def check_manifest_numbers(problems):
         problems.append(("A", "MANIFEST.json 缺失或结构异常", "无法校验"))
         return 0
     st = m["stats"]
-    fc, tb = st["file_count"], st["total_bytes"]
+    tb = st["total_bytes"]
     checked = 0
     num_re = re.compile(r"7,\d{3},\d{3}")          # 形如 7,883,426
     for p in sorted(DOCS.glob("*.md")):

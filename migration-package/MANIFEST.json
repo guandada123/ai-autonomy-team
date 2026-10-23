@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-10-22T19:51:02+08:00",
+  "generated_at": "2026-10-23T17:53:59+08:00",
   "root": "migration-package/",
   "note": "sha256 用于跨机完整性校验。newline=MIXED 的文本文件会导致证据链跨平台断裂，须修正。",
   "stats": {
     "file_count": 1099,
-    "total_bytes": 7926891,
+    "total_bytes": 7926792,
     "mixed_newline_files": []
   },
   "files": [
@@ -1480,8 +1480,8 @@
     },
     {
       "path": "inspect_agent_routing.py",
-      "size": 7779,
-      "sha256": "7c833aed6c4e439ec4f2ad5fcc240d8426aa60bbe042e2deccbf7245c21a1c3b",
+      "size": 7769,
+      "sha256": "23df35834b0e5aa663209957ad9753fafc06075e0bc3e04aa2020c082c5724b6",
       "newline": "LF"
     },
     {
@@ -1522,20 +1522,20 @@
     },
     {
       "path": "metrics.py",
-      "size": 33342,
-      "sha256": "e51f522bcb74232c40aa4b6ee0eceef77ea42e6d8264db67b7e053b24a0a65c9",
+      "size": 33277,
+      "sha256": "4efa70dbdd117f04b9a91090dd1fc5862d597f5f93b44ad3b5803ae11011c4d2",
       "newline": "LF"
     },
     {
       "path": "new_round.py",
-      "size": 55749,
-      "sha256": "d9bc366207f9df9b8836e29d36ff5c3e89d985e97245f036dc5ccd8aba30b85a",
+      "size": 55735,
+      "sha256": "1171f681ac9b1d9c28a8323358379500e2408a423a49cb8852c097b2a4e63da7",
       "newline": "LF"
     },
     {
       "path": "precheck.py",
-      "size": 11537,
-      "sha256": "caa910ca896a9508dcce9b9b36f4b4288b65ac07add93a062570c73649f470d8",
+      "size": 11527,
+      "sha256": "44a5bd8d23a58bcdcdb49929c4b3e946092201eaee35457844e0fcf200a9094b",
       "newline": "LF"
     },
     {

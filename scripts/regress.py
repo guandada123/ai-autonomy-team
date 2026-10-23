@@ -21,7 +21,6 @@ regress.py —— 全量回归验收套件
 import argparse
 import hashlib
 import json
-import re
 import shutil
 import subprocess
 import sys

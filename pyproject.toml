@@ -7,27 +7,29 @@
 # 依赖见 DEPENDENCIES.md：零第三方依赖，只用 Python 标准库。
 
 # ── ruff ──────────────────────────────────────────────────────────────
-# 与 Claw 项目同一套规则，便于两个项目之间搬代码时行为一致。
+# 与 Claw 项目同一套工具，便于两个项目之间搬代码时行为一致。
 [tool.ruff]
 target-version = "py39"
-line-length = 100
+line-length = 100          # 只对 `ruff format` 生效；check 阶段不查行长
 exclude = [
     "_trash",
     "_archive",
+    "snapshots",           # 快照是历史副本，不该当源码检查（2026-10-23 审计补）
     "migration-package/runs",
     "__pycache__",
 ]
 
 [tool.ruff.lint]
-select = ["E", "F", "W", "I", "UP", "B", "C4", "SIM", "ARG", "PTH"]
-ignore = [
-    "E501",  # 行长由 formatter 管；中文注释按显示宽度算会误报
-    "B008",  # 允许函数默认值里调 Path()（本项目 locates 用）
-    "SIM108",# 三元表达式可读性不如 if/else 的分支
-]
-
-[tool.ruff.lint.per-file-ignores]
-# 回归套件与夹具生成器里有大量"故意写错"的样本，以及为可读性展开的长函数
-"scripts/regress.py" = ["ARG", "SIM"]
-"scripts/make_*.py" = ["ARG"]
-"scripts/judges/*.py" = ["ARG"]
+# 只开「真错误」，不开风格类。
+#
+# 2026-10-23 审计修正：初版开了 E/W/I/UP/B/C4/SIM/ARG/PTH 十组，落地即红 472 个
+# （scripts 122 + snapshots 278 + 其余 72），而项目里没有任何地方执行 ruff ——
+# 于是它既是红的、又没人看见，只能让下一个人误以为"规范已就位"。
+#
+# 判断：对一个 12,574 行、已稳定跑过 33 轮的存量项目，风格类规则（UP 现代化 /
+# PTH pathlib 化 / ARG 未用参数）大面积命中是必然的，收益远小于噪音。
+# 先让 `ruff check` 能绿，这份配置才有资格被称作规范；风格类等接了 CI 再逐步加。
+#
+# F  = Pyflakes（未定义名、未使用 import、重复定义…，都是真错误）
+# E9 = 语法错误
+select = ["F", "E9"]

@@ -72,7 +72,10 @@ def main():
         return 2
     real_b, real_n = int(st["total_bytes"]), int(st["file_count"])
     valid_bytes = {fmt(real_b)}
-    valid_counts = {fmt(real_n), str(real_n)}   # 文件数可能写成 1095 或 1,095
+    # 文件数的白名单原为 valid_counts = {fmt(real_n), str(real_n)}，构造后从未使用
+    # —— 即「文件数」从未被本脚本同步过，只有字节数被同步。
+    # 2026-10-23 审计发现。此处删除死变量但**不假装已实现**；补实现会改写文档数字，
+    # 需单独评估，见审计报告。
 
     changes, stale = [], []
     for p in sorted(DOCS.glob("*.md")):

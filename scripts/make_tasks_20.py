@@ -296,8 +296,6 @@ def build_task(seed, idx):
     g2_ids = sorted(set(g2_ids))
     day += 2
 
-    inv_ids = []
-
     # 排序（ledger/bill 按出现序即可；真值按 key 聚合）
     def agg(rows, idx_amount, idx_fee, idx_shares, idx_date):
         out = {}

@@ -30,18 +30,16 @@ metrics.py —— 轮次指标采集器
 """
 
 import argparse
-import hashlib
 import json
 import math
 import sys
-from datetime import datetime, timezone, timedelta
+from datetime import timezone, timedelta
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent / "judges"))
 
 from seat_check import (  # noqa: E402
-    build_axis_registry, derive_stance, declared_stance, load_json, resolve,
-    sha256_of, lint_params, now_iso, _MISSING, normalize_pointer, _pkg_root,
+    build_axis_registry, derive_stance, load_json, sha256_of, lint_params, now_iso, normalize_pointer, _pkg_root,
     evaluate_budget, POINTER_ID_DEFINITION,
 )
 

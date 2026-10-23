@@ -558,7 +558,6 @@ def do_summary(target):
         return EXIT_SCHEMA
 
     angles = meta.get("angles") or []
-    names = {a["no"]: a["name"] for a in angles}
     grid = {(r["angle"], r["criterion"]): r for r in results}
 
     # 矩阵：行=角，列=判据

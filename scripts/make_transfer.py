@@ -19,7 +19,6 @@
 
 import argparse
 import hashlib
-import re
 import subprocess
 import sys
 import zipfile
@@ -43,7 +42,9 @@ INCLUDE_DIRS = [
 
 INCLUDE_FILES = [
     "M4-接续指南.md",
-    "_build_xlsx.py",
+    # "_build_xlsx.py" 已于 2026-10-23 移出：它 import openpyxl（违反零第三方依赖），
+    # 且 OUT 写死 Windows 路径 C:/Users/Administrator/...，在本机不可运行。
+    # 已归档到 _archive/one-off/，需要时从 git 历史取。
 ]
 
 # ★ 回归第 8 项依赖它：truth.json 与冻结基线逐字节比对。
