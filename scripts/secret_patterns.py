@@ -50,6 +50,15 @@ SECRET_PATTERNS = [
      "私钥块（表头+正文）"),
     (re.compile(r"\bBearer\s+[A-Za-z0-9\-_.]{20,}"), "Bearer token"),
 
+    # ---- 2026-10-23 补（代码审查 C-3）----
+    # OpenAI 项目/服务账号密钥形如 `sk-proj-…`，前缀后有连字符，
+    # 原 `sk-[A-Za-z0-9]{20,}` 数不到 20 位就断，**整类漏检**（实测未命中）。
+    (re.compile(r"\bsk-(?:proj|svcacct|admin)-[A-Za-z0-9_-]{20,}"), "OpenAI 项目密钥 sk-proj-…"),
+    (re.compile(r"(?i)\baws_secret_access_key\s*[:=]\s*[\"']?[A-Za-z0-9/+=]{40}"),
+     "AWS Secret Access Key 赋值"),
+    (re.compile(r"https://hooks\.slack\.com/services/[A-Za-z0-9/]{20,}"), "Slack Incoming Webhook"),
+    (re.compile(r"\beyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\b"), "JWT"),
+
     # ---- 代码托管 / 云厂商令牌（2026-10-23 新增：原盲区）----
     # 只收带固定前缀的高置信度形态；不做「长 hex」宽匹配（会命中 commit sha）。
     (re.compile(r"\b(?:ghp|gho|ghu|ghs|ghr)_[A-Za-z0-9]{30,}\b"), "GitHub token ghp_/gho_…"),

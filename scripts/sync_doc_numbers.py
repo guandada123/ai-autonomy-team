@@ -40,7 +40,9 @@ MANIFEST = ROOT / "migration-package" / "MANIFEST.json"
 
 # 出现这些词的行，其数字视为「历史值」，不改
 HIST_MARKERS = ("原始", "原为", "审计时", "对齐前", "此前", "当时", "→")
-NUM_PAT = re.compile(r"7,\d{3},\d{3}")
+# ★ 2026-10-23 修（C-2）：原写死 `7,` 前缀，包体过 8 MB 后同步静默失效。
+#   改为任意千分位大数 + 同行上下文（字节/MANIFEST）限定，避免误改 token 总量。
+NUM_PAT = re.compile(r"\b\d{1,3}(?:,\d{3}){2,}\b")
 # 文件数（形如「1095 条」）。只在**本行含当前字节数**时才改 ——
 # 字节数是"当前值"的天然锚点：历史行的字节数不是当前值，所以文件数也不会被误改。
 # 这条规则是 N2 缺口的补实现（2026-10-23）：此前只有字节数被同步，
@@ -51,6 +53,21 @@ FILE_COUNT_PAT = re.compile(r"(\d[\d,]*)(\s*条)")
 # ARCHITECTURE 里还有「谁依赖谁」的表，第二格是文件列表，不是行数。
 CODE_ROW_PAT = re.compile(r"^(\|\s*`([\w./]+\.py)`[^|]*\|\s*)(\d+)(\s*\|)")
 STATUS_DOCS = ("ARCHITECTURE.md", "README.md", "DEPENDENCIES.md")
+
+
+def _near_manifest(line, hit):
+    """数字是否在「包体声明」的近旁。
+
+    只看同行会把「MANIFEST … 字节；token 总量 54,730,833」里的 token 数误判成包体，
+    故用不对称窗口：前面 10 字符找「字节/包体/MANIFEST」，后面 6 字符找「字节 / B」。
+    """
+    i = line.find(hit)
+    if i < 0:
+        return False
+    head = line[max(0, i - 10):i]
+    tail = line[i + len(hit):i + len(hit) + 6]
+    return ("字节" in head or "包体" in head or "MANIFEST" in head
+            or bool(re.match(r"\s*(?:字节|B\b)", tail)))
 
 
 def fmt(n):
@@ -149,6 +166,8 @@ def main():
                 continue
             new = ln
             for hit in set(NUM_PAT.findall(ln)):
+                if not _near_manifest(ln, hit):
+                    continue
                 if hit not in valid_bytes:
                     new = new.replace(hit, fmt(real_b))
             if fmt(real_b) in new:

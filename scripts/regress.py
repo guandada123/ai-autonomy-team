@@ -166,6 +166,7 @@ def main():
     prev = TMP / "nr1"
     shutil.copytree(TMP_FIXT / "roundA", prev, dirs_exist_ok=True)
     nr_args = ["new_round.py", "--root", "..", "--runs-dir", "../_trash/tmp-regress",
+             "--preflight", "off",
                "--round", "nr2", "--role", "revision_round", "--from", "nr1", "--emit-prompts"]
     rc1, out1 = run(nr_args, PKG)
     rc2, out2 = run(nr_args, PKG)
@@ -175,6 +176,7 @@ def main():
 
     # 13 目录 schema
     rc, out = run(["new_round.py", "--root", "..", "--runs-dir", "../_trash/tmp-regress",
+             "--preflight", "off",
                    "--check", "nr2"], PKG)
     s.expect(13, "新轮次目录 schema 完整", rc, out, 0, "结构完整")
 
@@ -783,6 +785,7 @@ def main():
     #   按任务改写提示词的「你的读取域」。若有人改回全局直拼，席位会拿到两个任务的
     #   输入清单而校验不报警 —— 这条就是把那次事故（D-0010 审计发现）固化成回归。
     rc, out = run(["new_round.py", "--root", "..", "--runs-dir", "../_trash/tmp-regress",
+             "--preflight", "off",
                    "--round", "t002p", "--role", "evidence_round", "--task", "002",
                    "--emit-prompts"], PKG)
     _p002 = (ROOT / "_trash/tmp-regress/t002p/prompts/EX-01.md").read_text(
@@ -804,6 +807,7 @@ def main():
     # ★ 防回归：任务参数化不得改变历史轮次的行为。缺省时提示词必须仍是根 fixtures/，
     #   且 002 的文件不得出现在 allow 段（deny 段出现属正常 —— 全局禁读清单）。
     rc, out = run(["new_round.py", "--root", "..", "--runs-dir", "../_trash/tmp-regress",
+             "--preflight", "off",
                    "--round", "t001p", "--role", "evidence_round", "--emit-prompts"], PKG)
     _p001 = (ROOT / "_trash/tmp-regress/t001p/prompts/EX-01.md").read_text(
         encoding="utf-8") if rc == 0 else ""

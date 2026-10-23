@@ -90,7 +90,7 @@
 
 ### 一个反直觉的设计：进程级组合，不是库组合
 
-26 个脚本里，**只有 2 个被 `import`**：
+29 个脚本里，**只有 2 个被 `import`**：
 
 | 模块 | 被谁 import | 为什么必须 import |
 |---|---|---|
@@ -114,9 +114,7 @@
 | 模块 | 行数 | 职责 | **明确不负责** |
 |---|---|---|---|
 | `judges/seat_check.py` | 2364 | 校验席位输出是否满足契约（字段、类型、枚举）；聚合时防伪造（同家族票数、cross_family 标记） | 不判断结论对错；不生成输出 |
-| `judges/verify.py` | 1223 | 硬裁判 JD-01：按 spec 逐字段比对期望值，输出 verdict | 不解释"为什么错"；不做模糊匹配 |
-| `inspect_agent_routing.py` | 237 || `migration-package/config/params.json` | 25 KB | 契约参数：`contract_version`、`seat_contract.families`、三轨指标定义 | 不是运行时状态；改它等于改判据口径，必须重跑回归 |
-| `migration-package/config/read_domains.json` / `write_domains.json` | 9 KB / 1.3 KB | 声明每个脚本能读哪些域、能写哪些域 | 不是访问控制（文本约束，不是物理屏障） |
+| `judges/verify.py` | 1234 || `migration-package/config/read_domains.json` / `write_domains.json` | 9 KB / 1.3 KB | 声明每个脚本能读哪些域、能写哪些域 | 不是访问控制（文本约束，不是物理屏障） |
 
 > `inspect_agent_routing.py` 的输出会写回 `params.json` 的 `seat_contract.families`，是 `new_round` 开轮闸门的**唯一数据来源**：家族未实测则拒绝开轮（除非显式 `--allow-unverified-families` 并留痕）。
 
@@ -126,21 +124,17 @@
 
 | 模块 | 行数 | 职责 | **明确不负责** |
 |---|---|---|---|
-| `new_round.py` | 1154 || `premise_probe.py` | 174 | 三条探针做前提审查（成本、可逆性、度量） | 不替代人的判断；命中只报不阻断（阻断由 `new_round` 的闸门做） |
-| `octagon.py` | 951 |
+| `new_round.py` | 1178 || `octagon.py` | 951 |
 ### L2 度量层
 
 | 模块 | 行数 | 职责 | **明确不负责** |
 |---|---|---|---|
-| `metrics.py` | 733 || `team_metrics.py` | 293 | 三轨看板：错误决策数（分推翻/更正）、返工率、金额偏差 | 不做趋势预测；`no_data` 不等于 0（刻意区分"不知道"与"没有"） |
-
+| `metrics.py` | 732 |
 ### L3 验收层
 
 | 模块 | 行数 | 检查什么 | 何时跑 |
 |---|---|---|---|
-| `regress.py` | 885 || `pre_release_check.py` | 275 || `check_consistency.py` | 373 | 声明与算术产出是否自洽（如 manifest 声明 1095 条，实际是否 1095） | 改产物结构后 |
-| `check_docs_consistency.py` | 307 || `verify_handover.py` | 224 || `precheck.py`（包内） | 244 |
-**A–H 门禁清单**（`make check`）：
+| `regress.py` | 889 || `check_docs_consistency.py` | 328 |**A–H 门禁清单**（`make check`）：
 
 | 项 | 检查 | 失败的典型原因 |
 |---|---|---|
@@ -167,8 +161,7 @@
 
 | 模块 | 行数 | 职责 |
 |---|---|---|
-| `build_package.py` | 217 || `gen_manifest.py`（包内） | 254 | 生成 `MANIFEST.json`（每文件 sha256 + 总字节） |
-| `make_transfer.py` | 213 |
+| `build_package.py` | 218 || `make_transfer.py` | 213 |
 > **`migration-package/` 的定位**：它是**构建产物**，不是第二个源码树。判据：`build_package.py --check` 能把它从 `scripts/` 完全重建。
 
 ### L6 运维工具
@@ -177,8 +170,7 @@
 |---|---|---|
 | `snapshot_sources.py` | 381 || `secret_patterns.py` | 91 || `redact_report.py` | 248 || `field_provenance.py` | 177 | 字段溯源：这个字段谁在写 |
 | `canon.py` | 174 | 标识与词表规范化 |
-| `sync_doc_numbers.py` | 191 || `real_recon.py` | 316 |
----
+| `sync_doc_numbers.py` | 210 |---
 
 ## 四、目录结构
 
@@ -371,13 +363,13 @@ ai-autonomy-team/
 |---|---|
 | 支持非 LLM 评审者（人类专家、规则引擎）混编 | 契约层已抽象（`seat_contract`），但"家族独立性"概念只对模型有意义 |
 | 做成可发布的开源框架 | **不建议现在就做**：`docs/` 里有大量个人投资语境，脱敏成本高于收益 |
-| Web UI | 不建议：26 个脚本的 CLI 组合已经够用，UI 会增加一层需要同步维护的接口 |
+| Web UI | 不建议：29 个脚本的 CLI 组合已经够用，UI 会增加一层需要同步维护的接口 |
 
 ---
 
 ## 十、如果你只读一段
 
-**这套东西的价值不在代码量（约 13,000 行），在三条约束**：
+**这套东西的价值不在代码量（约 13,900 行），在三条约束**：
 
 1. 每个结论背后都有可复现的轮次目录（`runs/roundN/`），不是聊天记录；
 2. 每处改动都要过 50 项回归 + 8 项门禁，而不是"我觉得没问题"；

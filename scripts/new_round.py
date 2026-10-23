@@ -37,6 +37,8 @@ import sys
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 
+from fsutil import write_text_atomic
+
 # ★ 读取域（F5）的装载与占位符展开复用 seat_check，避免 X3 式重复实现。
 #   两者永远同处一个目录（源：scripts/new_round.py + scripts/judges/；
 #   包：migration-package/new_round.py + migration-package/judges/）。
@@ -119,7 +121,11 @@ def load_json(path):
 
 
 def write_text(path, text):
-    """写盘统一 utf-8 + LF。内容未变则不重写（幂等）。"""
+    """写盘统一 utf-8 + LF。内容未变则不重写（幂等）。
+
+    ★ 2026-10-23（代码审查 B3）：改为原子写（临时文件 + os.replace）。
+      原实现直接 open(...,"w")，中断会留下截断的 JSON，下一次读取报解析失败。
+    """
     p = Path(path)
     p.parent.mkdir(parents=True, exist_ok=True)
     data = text if text.endswith("\n") else text + "\n"
@@ -129,8 +135,7 @@ def write_text(path, text):
                 return "unchanged"
         except OSError:
             pass
-    with open(p, "w", encoding="utf-8", newline="\n") as f:
-        f.write(data)
+    write_text_atomic(p, data)
     return "written"
 
 
@@ -829,8 +834,11 @@ def preflight_gate(root, params_path, card_path, allow_unverified,
 
 def main():
     ap = argparse.ArgumentParser(description="开轮器（约束层）")
-    ap.add_argument("--root", default="..", help="工作区根（默认 ..，即从 migration-package/ 上跳）")
-    ap.add_argument("--runs-dir", default="runs")
+    ap.add_argument("--root", default=None,
+                    help="工作区根（默认：由脚本位置推断，即仓库根）")
+    ap.add_argument("--runs-dir", default=None,
+                    help="轮次目录（默认 <root>/migration-package/runs；相对路径按 "
+                         "<root>/migration-package 解析）")
     ap.add_argument("--round", required=False, help="轮次号（如 2）")
     ap.add_argument("--role", default="revision_round",
                     choices=["evidence_round", "revision_round", "devils_advocate_round"])
@@ -856,10 +864,19 @@ def main():
     if args.self_test:
         return self_test()
 
-    root = Path(args.root).resolve()
-    runs = Path(args.runs_dir)
-    if not runs.is_absolute():
-        runs = Path.cwd() / runs
+    # ★ 2026-10-23 修（代码审查 C-1）：原默认 `--root ".."` 依赖"在包内执行"。
+    #   README 教的是从仓库根跑 → root 变成仓库的父目录、runs 写进仓库根，
+    #   而 auto 判定 runs != root/runs 就把闸门**静默降级为 off**（实测 exit 0）。
+    #   现在 root 由脚本位置推断（scripts/ 与 migration-package/ 都是仓库下一层），
+    #   runs 相对路径按 <root>/migration-package 解析 —— 两个 cwd 都落到同一处。
+    root = Path(args.root).resolve() if args.root else Path(__file__).resolve().parents[1]
+    std_runs = (root / "migration-package" / "runs").resolve()
+    if args.runs_dir:
+        runs = Path(args.runs_dir)
+        if not runs.is_absolute():
+            runs = root / "migration-package" / runs
+    else:
+        runs = std_runs
 
     if args.check:
         c = args.check
@@ -879,10 +896,17 @@ def main():
 
     _pf = args.preflight
     if _pf == "auto":
-        try:
-            _pf = "on" if runs.resolve() == (root / "runs").resolve() else "off"
-        except OSError:
-            _pf = "off"
+        # ★ 2026-10-23 修（C-1）：原来"目录不匹配就 off"是静默降级 —— 闸门消失而 rc=0。
+        #   改为 fail-closed：只有标准轮次目录才自动开闸；其他目录必须显式声明 on/off。
+        if runs.resolve() != std_runs:
+            print(
+                f"[ERR] --preflight auto 只在轮次目录为 {std_runs} 时自动开闸。\n"
+                f"      当前轮次目录：{runs.resolve()}\n"
+                f"      显式选择：--preflight on（在被审工作区跑）或 --preflight off（测试/临时目录）",
+                file=sys.stderr,
+            )
+            return EXIT_ERROR
+        _pf = "on"
     if _pf == "on":
         params_path = Path(args.params)
         if not params_path.is_absolute():

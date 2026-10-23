@@ -35,11 +35,13 @@
     退出码：0 全通过 / 1 有失败 / 2 环境错误（不是工作区根）
 """
 import argparse
+import importlib.util
 import json
 import os
 import re
 import subprocess
 import sys
+import sysconfig
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -47,7 +49,26 @@ PKG = ROOT / "migration-package"
 PY = sys.executable
 
 # 本项目声称"零第三方依赖"，用它来自证：这些包若被 import，说明有外部依赖混进来
-THIRD_PARTY = ("requests", "pandas", "numpy", "yaml", "openpyxl", "pytest")
+# ★ 2026-10-23 修（代码审查 C-4）：原来是一份 6 个包名的黑名单，
+#   注入 `import httpx` 实测仍然返回「第三方依赖命中 0」。改为**标准库白名单**判定。
+def _is_stdlib(name):
+    """3.10+ 用 sys.stdlib_module_names；3.9 回退查 find_spec 的 origin 是否在 stdlib 下。"""
+    if hasattr(sys, "stdlib_module_names"):
+        return name in sys.stdlib_module_names
+    try:
+        spec = importlib.util.find_spec(name)
+    except (ImportError, ValueError):
+        return False
+    if spec is None:
+        return False
+    if spec.origin in (None, "built-in", "frozen"):
+        return True
+    try:
+        origin = Path(spec.origin).resolve()
+        return origin.is_relative_to(Path(sysconfig.get_paths()["stdlib"]).resolve()) \
+            and "site-packages" not in spec.origin
+    except (OSError, ValueError):
+        return False
 
 
 def sh(cmd, cwd=None, timeout=300):
@@ -60,6 +81,7 @@ def chk_runtime():
     ok_ver = (v.major, v.minor) >= (3, 9)
     # 扫一遍包内 import，确认没有第三方依赖混进来
     hits = set()
+    local = {p.stem for p in PKG.rglob("*.py")}      # 包内互 import 不算外部依赖
     pat = re.compile(r"^\s*(?:import|from)\s+([A-Za-z_][\w]*)", re.M)
     for p in PKG.rglob("*.py"):
         try:
@@ -67,11 +89,13 @@ def chk_runtime():
         except OSError:
             continue
         for m in pat.finditer(src):
-            name = m.group(1)
-            if name.split(".")[0] in THIRD_PARTY:
-                hits.add(name)
+            top = m.group(1).split(".")[0]
+            if top in local:
+                continue
+            if not _is_stdlib(top):
+                hits.add(top)
     return (ok_ver and not hits,
-            f"python {v.major}.{v.minor}.{v.micro}；第三方依赖命中 {len(hits)}"
+            f"python {v.major}.{v.minor}.{v.micro}；非标准库 import 命中 {len(hits)}"
             + (f"：{sorted(hits)}" if hits else "（符合标准库承诺）"))
 
 

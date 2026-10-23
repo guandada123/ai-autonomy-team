@@ -36,6 +36,8 @@ import sys
 from datetime import timezone, timedelta
 from pathlib import Path
 
+from fsutil import write_json_atomic
+
 sys.path.insert(0, str(Path(__file__).resolve().parent / "judges"))
 
 from seat_check import (  # noqa: E402
@@ -561,10 +563,7 @@ def main():
 
     result["axis_registry_sha256"] = sha256_of(args.spec)
     out = Path(args.out) if args.out else Path(args.round_dir) / "metrics.json"
-    out.parent.mkdir(parents=True, exist_ok=True)
-    with open(out, "w", encoding="utf-8", newline="\n") as f:
-        json.dump(result, f, ensure_ascii=False, indent=2)
-        f.write("\n")
+    write_json_atomic(out, result)          # 2026-10-23（B3）：原子写，避免截断 JSON
 
     if args.json:
         print(json.dumps(result, ensure_ascii=False, indent=2))
