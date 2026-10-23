@@ -67,21 +67,23 @@ def git_facts(repo):
 
 
 def verify_bundle(path, expect):
-    """clone 到临时目录，比对三项。返回 (ok, 说明)。"""
-    tmp = Path(tempfile.mkdtemp(prefix="bundle-verify-"))
-    try:
-        rc, _ = _run(["git", "clone", "-q", str(path), str(tmp / "c")])
+    """clone 到临时目录，比对三项。返回 (ok, 说明)。
+
+    ★ 临时目录用 `TemporaryDirectory` 上下文管理器回收，**不写 shutil.rmtree** ——
+      本仓回归第 20 项对 scripts/ 做破坏性调用的静态扫描（rmtree/unlink/os.remove），
+      2026-10-23 写这个函数时当场被它抓到一次。规则本身是对的：备份工具不该带删能力。
+    """
+    with tempfile.TemporaryDirectory(prefix="bundle-verify-") as td:
+        dst = Path(td) / "c"
+        rc, _ = _run(["git", "clone", "-q", str(path), str(dst)])
         if rc != 0:
             return False, "clone 失败"
-        got = git_facts(tmp / "c")
+        got = git_facts(dst)
         if not got:
             return False, "clone 产物不可读"
         if got != expect:
             return False, f"不一致：源 {expect} ≠ 还原 {got}"
         return True, f"HEAD {got[0]} / 提交 {got[1]} / 文件 {got[2]} 三项一致"
-    finally:
-        import shutil
-        shutil.rmtree(tmp, ignore_errors=True)
 
 
 def verify_tar(path, src_file_count):

@@ -1,6 +1,6 @@
 {
- "created_at": "2026-10-23T19:26:22",
- "label": "make backup 固化",
+ "created_at": "2026-10-23T19:29:37",
+ "label": "N/N 声明纳入门禁",
  "file_count": 90,
  "files": {
   "scripts/build_package.py": {
@@ -16,8 +16,8 @@
    "bytes": 15106
   },
   "scripts/check_docs_consistency.py": {
-   "sha256": "af8ea532791014dac26ee9988d02b123c6d41a3ebaf5259a5a9ccf448977dd86",
-   "bytes": 9698
+   "sha256": "3878ef442fb35a6b4bb6b030f684a94a856d2d59784df26f6ace965465686f94",
+   "bytes": 12466
   },
   "scripts/field_provenance.py": {
    "sha256": "7926bba3821fd39f01e9045238f33b72a1550250f25a7c694165e656050b9b1c",
@@ -52,8 +52,8 @@
    "bytes": 41768
   },
   "scripts/make_backup.py": {
-   "sha256": "530d21378509d4dc2782b9dfc8bf0678ff0d90b6fe771733547dba96be568c42",
-   "bytes": 9797
+   "sha256": "dc967613b63007dafc4718b6dca5cdb9125e17e22bb9d8d2961efdd5a174bac6",
+   "bytes": 10071
   },
   "scripts/make_fixtures.py": {
    "sha256": "1f7329d2cc180b6e9bfe982b65b9f519bfb31c513444f5207359faaae4cdff2e",
@@ -92,8 +92,8 @@
    "bytes": 10152
   },
   "scripts/pre_release_check.py": {
-   "sha256": "61a6cd63def32eb97cb8bd47ab727a9fb4782371872024c996d9ad8caf7c2f4d",
-   "bytes": 10152
+   "sha256": "e7dc198a54678ebc0f3df66f7baee3b6b68561a26250a837c35d63068acc1f03",
+   "bytes": 11977
   },
   "scripts/premise_probe.py": {
    "sha256": "a4e112a8ac9dc7f04529a9693e3a798aaa00b9625854cf880f77dc92a34d2245",
@@ -332,8 +332,8 @@
    "bytes": 2906
   },
   "docs/decisions/D-0045-仓库整库私有.md": {
-   "sha256": "7f25d220179cba05c0a656cd4e2912ffccdbce6dcd914bf2fc208c1fda381ce0",
-   "bytes": 6976
+   "sha256": "e5b0d5eaee123f005f235c65bf59d2eeb27f2c00e9ef695f6ed6be035ac60b36",
+   "bytes": 7487
   },
   "docs/decisions/TEMPLATE.md": {
    "sha256": "0bbc33940a540ae0e983817d9b1cf6daf6502ff233074d5023a3466511867e6e",
