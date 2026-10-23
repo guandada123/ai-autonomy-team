@@ -1,5 +1,5 @@
 {
-  "_note": "L3 前提探针标注集。正例取自 33 轮真实教训，负例取自 2026-10-22 已完成的真实工作；每条 note 说明标注依据。",
+  "_note": "L3 前提探针标注集（n=36）。T=正例（应报警，取自 33 轮真实教训），N=负例（应放过，取自 2026-10-22 已完成的真实工作）；每条 note 说明标注依据。\n2026-10-23 补 T11–T18 / N11–N18（+16），补的是四类空白：\n  ① 字段类型错误与键缺失——旧样本只有『空字符串』一种形态，数组/空白/缺键未覆盖；\n  ② 阈值边界——旧负例去泛称后最短 6 字，3–5 区间无任何样本，故 P-01 的『3–6 全稳定』在旧数据上无法被推翻（补上后实测：**只有 5** 使 F1=1.00）；\n  ③ 负例的 do_nothing_cost 10 条仅 2 种取值，成本探针的『放过』能力从未被真正检验；\n  ④ 修 T01/T02/T04/T06/T07 把 metric 写成字符串 \"{}\" 的笔误（改为空对象，判定结果不变）。\n已知局限：标注者与判据实现者为同一人，本集只能证明『判据与标注一致』，不能证明『判据与真实价值一致』——见 D-0052。",
   "cases": [
     {
       "id": "T01",
@@ -7,7 +7,7 @@
       "note": "D-0028 定位参考实现，无外部使用者",
       "card": {
         "beneficiary": "我们团队自己用",
-        "metric": "{}"
+        "metric": {}
       }
     },
     {
@@ -16,7 +16,7 @@
       "note": "33 轮机制从未有使用者（历史原话）",
       "card": {
         "beneficiary": "机制本身",
-        "metric": "{}"
+        "metric": {}
       }
     },
     {
@@ -38,7 +38,7 @@
       "note": "MANIFEST 数字对齐这类维护任务，无指标基线",
       "card": {
         "beneficiary": "维护者",
-        "metric": "{}"
+        "metric": {}
       }
     },
     {
@@ -64,7 +64,7 @@
       "note": "改配色，答不出具体受损方",
       "card": {
         "beneficiary": "大家",
-        "metric": "{}"
+        "metric": {}
       }
     },
     {
@@ -73,7 +73,7 @@
       "note": "只写提升效率，属泛称",
       "card": {
         "beneficiary": "系统",
-        "metric": "{}"
+        "metric": {}
       }
     },
     {
@@ -289,6 +289,284 @@
         },
         "do_nothing_cost": {
           "description": "不修则仪表盘继续显示 0，按 0 做判断",
+          "comparable": true
+        }
+      }
+    },
+    {
+      "id": "T11",
+      "should_hit": true,
+      "note": "典型场景：表单把『谁会受损』填成多选数组，字段类型不是字符串",
+      "card": {
+        "beneficiary": [
+          "我",
+          "团队"
+        ],
+        "metric": {
+          "name": "错误决策数",
+          "baseline": 0,
+          "method": "每月从 decisions/ 统计被推翻条数"
+        },
+        "do_nothing_cost": {
+          "description": "不修则仪表盘继续显示 0，按 0 做判断",
+          "comparable": true
+        }
+      }
+    },
+    {
+      "id": "T12",
+      "should_hit": true,
+      "note": "典型场景：填了空格占位。去空白后为空，等于没答",
+      "card": {
+        "beneficiary": "   ",
+        "metric": {
+          "name": "错误决策数",
+          "baseline": 0,
+          "method": "每月从 decisions/ 统计被推翻条数"
+        },
+        "do_nothing_cost": {
+          "description": "不修则仪表盘继续显示 0，按 0 做判断",
+          "comparable": true
+        }
+      }
+    },
+    {
+      "id": "T13",
+      "should_hit": true,
+      "note": "典型场景：前提卡直接漏掉 beneficiary 键（旧样本只有空字符串一种形态）",
+      "card": {
+        "metric": {
+          "name": "错误决策数",
+          "baseline": 0,
+          "method": "每月从 decisions/ 统计被推翻条数"
+        },
+        "do_nothing_cost": {
+          "description": "不修则仪表盘继续显示 0，按 0 做判断",
+          "comparable": true
+        }
+      }
+    },
+    {
+      "id": "T14",
+      "should_hit": true,
+      "note": "边界：去泛称后仅 4 字（<5）——『发布值班』不构成具体受损方",
+      "card": {
+        "beneficiary": "团队发布值班",
+        "metric": {
+          "name": "错误决策数",
+          "baseline": 0,
+          "method": "每月从 decisions/ 统计被推翻条数"
+        },
+        "do_nothing_cost": {
+          "description": "不修则仪表盘继续显示 0，按 0 做判断",
+          "comparable": true
+        }
+      }
+    },
+    {
+      "id": "T15",
+      "should_hit": true,
+      "note": "边界：原长 2 字，命中『过短(<4)』这条独立规则（旧样本最短是 3 字）",
+      "card": {
+        "beneficiary": "老张",
+        "metric": {
+          "name": "错误决策数",
+          "baseline": 0,
+          "method": "每月从 decisions/ 统计被推翻条数"
+        },
+        "do_nothing_cost": {
+          "description": "不修则仪表盘继续显示 0，按 0 做判断",
+          "comparable": true
+        }
+      }
+    },
+    {
+      "id": "T16",
+      "should_hit": true,
+      "note": "典型场景：指标三要素里 method 填了空串，等于说不出怎么测",
+      "card": {
+        "beneficiary": "负责夜间发布的值班同学",
+        "metric": {
+          "name": "发布耗时",
+          "baseline": 0,
+          "method": ""
+        },
+        "do_nothing_cost": {
+          "description": "不修则仪表盘继续显示 0，按 0 做判断",
+          "comparable": true
+        }
+      }
+    },
+    {
+      "id": "T17",
+      "should_hit": true,
+      "note": "真值陷阱：comparable 填字符串 \"true\"（真值但类型不是布尔）",
+      "card": {
+        "beneficiary": "负责夜间发布的值班同学",
+        "metric": {
+          "name": "错误决策数",
+          "baseline": 0,
+          "method": "每月从 decisions/ 统计被推翻条数"
+        },
+        "do_nothing_cost": {
+          "description": "每月约两次手工返工",
+          "comparable": "true"
+        }
+      }
+    },
+    {
+      "id": "T18",
+      "should_hit": true,
+      "note": "真值陷阱 2：comparable 填整数 1（1 == True 但 1 is not True）",
+      "card": {
+        "beneficiary": "负责夜间发布的值班同学",
+        "metric": {
+          "name": "错误决策数",
+          "baseline": 0,
+          "method": "每月从 decisions/ 统计被推翻条数"
+        },
+        "do_nothing_cost": {
+          "description": "每月约两次手工返工",
+          "comparable": 1
+        }
+      }
+    },
+    {
+      "id": "N11",
+      "should_hit": false,
+      "note": "边界：去泛称后恰好 5 字，落在通过侧（旧负例最短 6 字，故旧『3–6 全稳定』无法被推翻；本条在 th=6 时翻转为误报，是钉住阈值的样本）",
+      "card": {
+        "beneficiary": "团队发布值班人",
+        "metric": {
+          "name": "夜间发布失败次数",
+          "baseline": 0,
+          "method": "CI 失败记录"
+        },
+        "do_nothing_cost": {
+          "description": "每晚多花 20 分钟手工核对",
+          "comparable": true
+        }
+      }
+    },
+    {
+      "id": "N12",
+      "should_hit": false,
+      "note": "边界：含黑名单词『公司』但去词后 6 字仍具体",
+      "card": {
+        "beneficiary": "公司财务岗的会计",
+        "metric": {
+          "name": "对账残差",
+          "baseline": 33.09,
+          "method": "逐仓残差"
+        },
+        "do_nothing_cost": {
+          "description": "月末对账才发现，返工 2 小时",
+          "comparable": true
+        }
+      }
+    },
+    {
+      "id": "N13",
+      "should_hit": false,
+      "note": "典型场景：受损方是英文角色名（外部使用者是岗位而非人名）",
+      "card": {
+        "beneficiary": "SRE on-call（夜间值班）",
+        "metric": {
+          "name": "告警响应时长",
+          "baseline": "15 分钟",
+          "method": "飞书告警时间戳"
+        },
+        "do_nothing_cost": {
+          "description": "告警无人处理，故障持续到次日",
+          "comparable": true
+        }
+      }
+    },
+    {
+      "id": "N14",
+      "should_hit": false,
+      "note": "典型场景：基线是带单位的字符串，不是数字也算有基线",
+      "card": {
+        "beneficiary": "核对账本的人",
+        "metric": {
+          "name": "周返工次数",
+          "baseline": "0 次/周",
+          "method": "CI 失败记录"
+        },
+        "do_nothing_cost": {
+          "description": "每次返工约半天",
+          "comparable": true
+        }
+      }
+    },
+    {
+      "id": "N15",
+      "should_hit": false,
+      "note": "典型场景：代价描述很长但可比较（旧负例只有 2 种 cost 取值）",
+      "card": {
+        "beneficiary": "误删真源的人",
+        "metric": {
+          "name": "可恢复文件数",
+          "baseline": 69,
+          "method": "snapshot_sources --verify"
+        },
+        "do_nothing_cost": {
+          "description": "误删后没有快照就只能重写，按 2026-10-23 实测一个快照 7,900 文件、约 30MB",
+          "comparable": true
+        }
+      }
+    },
+    {
+      "id": "N16",
+      "should_hit": false,
+      "note": "边界：代价含额外键 unit/since，只校验必备键存在不应误报",
+      "card": {
+        "beneficiary": "要选型的人",
+        "metric": {
+          "name": "候选维护活跃度",
+          "baseline": "issue 中位 9.4 天",
+          "method": "GitHub API 实取"
+        },
+        "do_nothing_cost": {
+          "description": "选错框架要返工两周",
+          "comparable": true,
+          "unit": "人日",
+          "since": "2026-10"
+        }
+      }
+    },
+    {
+      "id": "N17",
+      "should_hit": false,
+      "note": "边界：指标含额外键 source/owner，额外字段不应被判为缺失",
+      "card": {
+        "beneficiary": "接手此仓库的人",
+        "metric": {
+          "name": "覆盖率",
+          "baseline": 73,
+          "method": "tools/coverage_run.sh",
+          "source": "51 项回归",
+          "owner": "接手人"
+        },
+        "do_nothing_cost": {
+          "description": "覆盖率无法测量，测试空洞只能靠猜",
+          "comparable": true
+        }
+      }
+    },
+    {
+      "id": "N18",
+      "should_hit": false,
+      "note": "典型场景：跨项目复用——受损方是另一个项目的接手者，不是本项目作者",
+      "card": {
+        "beneficiary": "下一个接入这套评审协议的项目，它的接手者",
+        "metric": {
+          "name": "跨项目复用需要改的字段数",
+          "baseline": 6,
+          "method": "逐个项目试挂载"
+        },
+        "do_nothing_cost": {
+          "description": "不复用则每个项目各自造一套门禁，规则逐渐分叉",
           "comparable": true
         }
       }

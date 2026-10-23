@@ -28,7 +28,7 @@ python3 scripts/verify_handover.py      # 5 项环境自检，一条命令回答
 | 1 | 运行时与依赖 | Python 版本；非标准库 import 必须为 0（按标准库白名单判定，不是包名黑名单） |
 | 2 | 包自检 | 包内 `precheck.py` 能否跑通（1 项跨家族路由需人工实跑，会明示而不是假绿） |
 | 3 | 判据自检 | 判据用例自检（27/27） |
-| 4 | 全量回归 | 调用 `regress.py`（51/51） |
+| 4 | 全量回归 | 调用 `regress.py`（52/52） |
 | 5 | 包完整性 | `MANIFEST.json` 声明条数/字节 vs 实际 |
 
 ---
@@ -141,7 +141,7 @@ python3 scripts/verify_handover.py     # 期望：5/6 —— 第 6 项红是正�
 make hooks                             # 钩子不入库（D-0045），新机器必须先跑这条
 python3 scripts/verify_handover.py     # 期望：6/6
 python3 scripts/pre_release_check.py   # 期望：8/8
-python3 scripts/regress.py             # 期望：51/51
+python3 scripts/regress.py             # 期望：52/52
 
 # 2) 断网跑（证明无网络依赖）
 # 3) 断开外置盘后跑（证明无外部挂载依赖）
@@ -160,7 +160,7 @@ python3 scripts/regress.py             # 期望：51/51
 | 交接自检（首跑） | **5/6** | 第 6 项「推送钩子未安装」——新 clone 的必然状态，不是缺陷 |
 | 交接自检（`make hooks` 后） | **6/6** | 钩子装好后全绿 |
 | 发布门禁 | **8/8 通过** | 含 H 真源快照（快照已入库） |
-| 全量回归 | **51/51 通过** | 含第 8 项冻结基线逐字节比对 |
+| 全量回归 | **52/52 通过** | 含第 8 项冻结基线逐字节比对 |
 | 目录体积 | 27 MB | 原工作区 127 MB（含 `_trash` 98 MB）；其中 `.git` 9.4 MB、`snapshots/` 3.3 MB |
 
 **这条验证抓到并修掉了一个真缺口**：原先 A–H 的 **H 项（真源快照）依赖 `_trash/snapshots/`**，而 `_trash` 不入库 → 新 clone 的仓库 H 项必红，即"门禁无法在干净环境全过"。已把快照目录迁到顶层 `snapshots/`，并同步改 `snapshot_sources.py` 与 `pre_release_check.py` 的路径。

@@ -1,7 +1,7 @@
 {
- "created_at": "2026-10-23T22:21:52",
- "label": "C批记录",
- "file_count": 96,
+ "created_at": "2026-10-23T23:28:02",
+ "label": "校准集扩样36",
+ "file_count": 98,
  "files": {
   "scripts/build_package.py": {
    "sha256": "9f82fb185416585e575971eed14e1d41eec9c5ac1ac37c373e42b400c3939b65",
@@ -112,8 +112,8 @@
    "bytes": 11300
   },
   "scripts/regress.py": {
-   "sha256": "da633867f92664fca42fd3048d98f34172e5aa9268af1f2ae00fbc02dc65482c",
-   "bytes": 54146
+   "sha256": "2b98c505768ac84a973eeee768850cfe03de4da0eb9db9d3fa5c7d642505840d",
+   "bytes": 56940
   },
   "scripts/secret_patterns.py": {
    "sha256": "c77c883691005f530cff2444c7acb0470dfadf595ae1c15dbc98b34857b56ef1",
@@ -358,6 +358,14 @@
   "docs/decisions/D-0050-审查C批与C4不做.md": {
    "sha256": "c795315eaccb0b10afba70734b22bfeb85e9f1c7b20308381189801b96748cc1",
    "bytes": 3242
+  },
+  "docs/decisions/D-0051-覆盖率基线与L3回归.md": {
+   "sha256": "05a44f51458f27b992a72849d2f154fe0856e1247e2a6694114fe28ba5fa835f",
+   "bytes": 3369
+  },
+  "docs/decisions/D-0052-L3校准集扩样与阈值结论推翻.md": {
+   "sha256": "16c890641f3e64ee7145d1cee1c861118a9806aabe0c4e11ee5c1632cf7fc0c0",
+   "bytes": 5251
   },
   "docs/decisions/TEMPLATE.md": {
    "sha256": "0bbc33940a540ae0e983817d9b1cf6daf6502ff233074d5023a3466511867e6e",

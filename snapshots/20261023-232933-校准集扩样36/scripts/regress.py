@@ -879,7 +879,7 @@ def main():
     # ★ 扩样（D-0012/扩样草案）：make_tasks_20.py 生成的每组夹具必须能被硬裁判加载
     #   （算术 10/10 + 判断层 pending）。生成器改动或夹具损坏在此拦截。
     #   自检过程会在包内临时写 _selfcheck-* 文件并在结束前删除；若中途崩溃留下
-    #   残留，第 50 项（幂等守门）会红 —— 这是特性。
+    #   残留，第 52 项（幂等守门）会红 —— 这是特性。
     rc_sc, out_sc = run(["scripts/make_tasks_20.py", "--out", "migration-package/fixtures/tasks",
                          "--self-check"], ROOT)
     s.check(49, "20 条留出任务批自检（生成器 + 每组 算术10/10 + pending）",
@@ -909,13 +909,29 @@ def main():
             f"坏卡 rc={rc_b} 命中3={'命中 3 条' in out_b} / "
             f"好卡 rc={rc_g} 命中0={'命中 0 条' in out_g}")
 
-    # ==================== 第 51 项：回归幂等守门 ====================
+    # ==================== 第 51 项：L3 校准集未退化 ====================
+    # ★ 2026-10-23（D-0052）：校准集是三条探针唯一可证伪的依据。防三件事——
+    #   ① 样本被删 → n 变小；② 判据回归 → accuracy 掉下 1；
+    #   ③ 钉住阈值的边界样本被删 → th=6 不再误报，敏感性分析退化成空测。
+    rc_c, out_c = run(["scripts/premise_probe.py", "--calibrate", "--json"])
+    rc_6, out_6 = run(["scripts/premise_probe.py", "--calibrate", "--th", "6", "--json"])
+    try:
+        cj, cj6 = json.loads(out_c), json.loads(out_6)
+    except json.JSONDecodeError as e:
+        cj, cj6 = {}, {}
+        print(f"[ERR] 校准输出解析失败：{e}", file=sys.stderr)
+    s.check(51, "L3 校准集未退化（n≥36 且零误判；th=6 仍被边界样本推翻）",
+            cj.get("n", 0) >= 36 and cj.get("accuracy") == 1.0
+            and cj6.get("fp", 0) >= 1,
+            f"n={cj.get('n')} accuracy={cj.get('accuracy')} / th=6 fp={cj6.get('fp')}")
+
+    # ==================== 第 52 项：回归幂等守门 ====================
     # ★ F11 的守门项。全部夹具项都已在上面跑完；若任何一项把机器产出写回了
     #   包内（而非 _trash/ 工作副本），包内 sha256 就会变，此条立刻变红。
     #   它把「回归套件是否自污染」从「靠人记得先重建 MANIFEST」变成可自动判定。
     rc, out = run(["gen_manifest.py", "--root", ".", "--check", "MANIFEST.json"], PKG)
-    # 第 50 项只写 _trash，故「包内是否被污染」的判定仍可放在最后
-    s.expect(51, "回归幂等（跑完后包内仍与 MANIFEST 一致）", rc, out, 0, "完全一致")
+    # 第 50/51 项只写 _trash，故「包内是否被污染」的判定仍可放在最后
+    s.expect(52, "回归幂等（跑完后包内仍与 MANIFEST 一致）", rc, out, 0, "完全一致")
 
     ok_all = all(i["ok"] for i in s.items)
     npass = sum(1 for i in s.items if i["ok"])
