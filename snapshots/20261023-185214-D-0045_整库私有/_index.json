@@ -1,7 +1,7 @@
 {
- "created_at": "2026-10-23T18:33:40",
- "label": "脱敏修复与计数门禁",
- "file_count": 87,
+ "created_at": "2026-10-23T18:52:14",
+ "label": "D-0045 整库私有",
+ "file_count": 88,
  "files": {
   "scripts/build_package.py": {
    "sha256": "daf1b81acac029e89b419dbc07d904bdef993e988a1b7117f4629939ec114556",
@@ -76,8 +76,8 @@
    "bytes": 33277
   },
   "scripts/new_round.py": {
-   "sha256": "1171f681ac9b1d9c28a8323358379500e2408a423a49cb8852c097b2a4e63da7",
-   "bytes": 55735
+   "sha256": "e3638743b6088bfe42d6160534453616577e2c6800eb58d7e35ba1dfc9ba31e7",
+   "bytes": 57936
   },
   "scripts/octagon.py": {
    "sha256": "86e6ceb3d0f0579b09dad8097ab39f7f0011ece06f19ac4c7c204a47c19aab76",
@@ -322,6 +322,10 @@
   "docs/decisions/D-0044-计划前置.md": {
    "sha256": "a5d396c5567ac35fe2d2e5e636233f7e395e90ddcf6ecae1dffe0848de159f4e",
    "bytes": 2906
+  },
+  "docs/decisions/D-0045-仓库整库私有.md": {
+   "sha256": "338748e333c30569795b2d67756847bc31d4c0f2b9e59ad856a30d93c619370b",
+   "bytes": 3071
   },
   "docs/decisions/TEMPLATE.md": {
    "sha256": "0bbc33940a540ae0e983817d9b1cf6daf6502ff233074d5023a3466511867e6e",
