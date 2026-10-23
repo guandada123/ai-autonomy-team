@@ -19,7 +19,7 @@ help:
 	@echo "ai-autonomy-team —— 自治团队评审框架"
 	@echo ""
 	@echo "  首次接手先跑："
-	@echo "    make handover      这套东西在本机能不能用（5 项环境自检）"
+	@echo "    make handover      这套东西在本机能不能用（6 项环境自检，含推送钩子）"
 	@echo "    make check         发布前全量门禁（A–H，8 项）"
 	@echo ""
 	@echo "  日常："

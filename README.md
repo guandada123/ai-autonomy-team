@@ -11,11 +11,11 @@
 
 | 指标 | 值 |
 |---|---|
-| 交接自检 | 5 项通过（`verify_handover.py`） |
+| 交接自检 | 6 项通过（`verify_handover.py`） |
 | 发布门禁 | A–H 全过（8/8） |
 | 全量回归 | 50/50 |
 | 源码规模 | 26 个脚本（`scripts/` 24 + `judges/` 2）/ 约 12,600 行 |
-| 已有资产 | 33 轮运行记录 · 44 份决策 · 13 条经验教训 · 7 份协议 |
+| 已有资产 | 33 轮运行记录 · 45 份决策 · 14 条经验教训 · 7 份协议 |
 
 ---
 
@@ -26,6 +26,8 @@ cd ai-autonomy-team
 
 # 1) 这套东西在你这台机器上能用吗
 python3 scripts/verify_handover.py
+#    全新 clone 首跑会红在第 6 项（推送钩子是本地文件、不入库）：
+make hooks        # 装完再跑一次即 6/6
 
 # 2) 全量门禁（发版前必须过）
 make check          # 等价于 python3 scripts/pre_release_check.py
@@ -65,7 +67,7 @@ make test           # 等价于 python3 scripts/regress.py
 | 想知道**为什么这样设计**、模块边界在哪 | [ARCHITECTURE.md](./ARCHITECTURE.md) |
 | 想知道**依赖与环境**、怎么迁移 | [DEPENDENCIES.md](./DEPENDENCIES.md) |
 | 想知道**判据口径**（什么算合格） | `docs/protocol/` 7 份协议，先读 `05-工作协议.md` |
-| 想知道**某个决定为什么这么定** | `docs/decisions/` 44 份，按编号搜 |
+| 想知道**某个决定为什么这么定** | `docs/decisions/` 45 份，按编号搜 |
 | 想知道**踩过什么坑** | `.learnings/` 12 条，`grep -r "关键词" .learnings/` |
 | 想知道**评审框架整体方案** | `docs/自治团队-最终方案-20261022.md` |
 
@@ -77,8 +79,8 @@ make test           # 等价于 python3 scripts/regress.py
 scripts/               ★ 唯一源码树（24 个脚本 + judges/ 2 个）
 migration-package/config/  契约参数（★ 在包内，工作区根没有；改这个 = 改判据口径）
 docs/protocol/         7 份工作协议
-docs/decisions/        44 份决策记录（编号到 D-0045；D-0017 未建，以文件数为准）
-.learnings/            13 条经验教训（L-XXXX）
+docs/decisions/        45 份决策记录（编号到 D-0046；D-0017 未建，以文件数为准）
+.learnings/            14 条经验教训（L-XXXX）
 templates/             席位提示词模板
 fixtures/frozen/       冻结基线（回归第 8 项依赖，不可删）
 migration-package/     ⚠️ 构建产物（--check 可验证），其中 runs/ 是 33 轮真实记录

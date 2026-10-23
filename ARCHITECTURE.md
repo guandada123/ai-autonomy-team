@@ -146,7 +146,7 @@
 | `pre_release_check.py` | 234 | A–H 8 项门禁（见下） | 发版前 |
 | `check_consistency.py` | 373 | 声明与算术产出是否自洽（如 manifest 声明 1095 条，实际是否 1095） | 改产物结构后 |
 | `check_docs_consistency.py` | 165 | `docs/*.md` 里的数字与磁盘实际是否一致 | 改文档后 |
-| `verify_handover.py` | 179 | 接手验收：5 项环境自检，一条命令回答"在你机器上能用吗" | 首次接手 |
+| `verify_handover.py` | 216 | 接手验收：6 项环境自检（第 6 项查推送钩子是否已装），一条命令回答"在你机器上能用吗" | 首次接手 |
 | `precheck.py`（包内） | 245 | 目标机环境自检（Python 版本、路径可写、夹具完整） | 迁移到新机后 |
 
 **A–H 门禁清单**（`make check`）：
@@ -224,9 +224,9 @@ ai-autonomy-team/
 ├── (无根 config/)             ← 契约参数物理在 migration-package/config/，勿在根找
 ├── docs/
 │   ├── protocol/              ← 7 份工作协议（规范正文）
-│   ├── decisions/             ← 44 份决策记录（编号到 D-0045；D-0017 未建）
+│   ├── decisions/             ← 45 份决策记录（编号到 D-0046；D-0017 未建）
 │   └── *.md                   ← 32 份分析/审计/复盘（历史存档）
-├── .learnings/                ← 13 条经验教训（L-XXXX，跨项目通用）
+├── .learnings/                ← 14 条经验教训（L-XXXX，跨项目通用）
 ├── templates/                 ← 席位提示词模板（new_round 渲染用）
 ├── fixtures/frozen/           ← ★ 冻结基线（regress 第 8 项依赖，必须入库）
 ├── snapshots/                 ← ★ 真源快照（H 项依赖；默认留最近 3 个，超出自动归档）
@@ -350,6 +350,16 @@ ai-autonomy-team/
 不在远端里，故本地另备一份 —— `make backup`，每份产物都做还原验证（见 `D-0045`）。
 另：误把仓库设成 public 是**不可完全撤回**的操作 —— 推之前先扫密钥。
 
+**两道检测，职责不同（`D-0046`）**：
+
+| 层 | 时机 | 只它拦得住 | 拦不住的 |
+|---|---|---|---|
+| git 钩子（`make hooks`，**不入库**） | push **之前** | 密钥泄漏、远端被误设 public | 干净环境能否跑（本机有一切残留） |
+| CI（`.github/workflows/selftest.yml`） | push **之后** | 干净机器上「只拿仓库能不能跑」 | 密钥（推出去时数据已经离开本机） |
+
+钩子不入库意味着换机后它**静默消失**，所以 `verify_handover` 第 6 项专门检查它是否已装：
+防线 fail-open，就必须有一条 fail-closed 的检查看着它（`L-0014`）。
+
 ---
 
 ## 九、扩展方向
@@ -360,7 +370,7 @@ ai-autonomy-team/
 
 | 方向 | 做什么 | 为什么值 |
 |---|---|---|
-| **CI 接入** | GitHub Actions 跑 `make check` + `make test` | 问题 2 的直接解药。当前所有验收都是"人记得跑" |
+| **CI 补 macOS 矩阵**（可选） | 在现有 ubuntu job 之外加 `macos-14` | 本机是 macOS、CI 是 Linux；macOS 侧目前仍只有本机自检。私有仓库 macOS 分钟按 10 倍计费 |
 | **`.learnings` 索引** | 生成 `LEARNINGS.md`：按主题（判据/流程/验收/工具）归类全部条目 | 经验教训只有被检索到才有价值 |
 | **docs 归档** | 32 份分成 `docs/{active,archive}/` | 降低新人负担 |
 

@@ -8,7 +8,7 @@
 也就是「凭它能在另一台机器重建并继续开发」。但接手者面对的是 4 份入口文档
 （README / M4-接续指南 / 评审手册 / 交接文档），不知道该信哪份、跑到什么算通过。
 
-本脚本把人读文档才能判断的事压成**可执行的验收**：5 项，逐项 PASS/FAIL，一条命令出结论。
+本脚本把人读文档才能判断的事压成**可执行的验收**：6 项，逐项 PASS/FAIL，一条命令出结论。
 
 ## 它检查什么（对应 G1–G4）
 
@@ -19,6 +19,12 @@
 | 3 | 判据自检 | G2 | `judges/verify.py --self-test` = 27/27 |
 | 4 | 全量回归 | G4 | `scripts/regress.py` = 50/50（**须在整棵工作区**，单包跑不了） |
 | 5 | 包完整性 | G4 | MANIFEST 声明条数/字节 = 实际 |
+| 6 | 推送钩子 | D-0045 | `.git/hooks/pre-push` 已装且指向 `scripts/pre_push_scan.py` |
+
+**为什么第 6 项要在这里**：钩子是本地文件、**不入库**，而它正是「推前扫密钥 + 核对远端
+是否 private」的唯一拦截层。换机 clone 后没有钩子时，`make pre-push` 只能靠人记得跑，
+等于这条防线不存在。把它做成接手验收的失败项，新机器的第一条命令就会红并给出修复命令。
+⚠️ 因此全新 clone 上首次跑本脚本会**红在第 6 项**，这不是缺陷：跑一次 `make hooks` 即转绿。
 
 **刻意不做的**：不检查跨家族路由（G1）——它依赖本机会话缓存与账号，换机必失效，
 只能人工跑 `inspect_agent_routing.py`（脚本会把它列为「需人工」而不是假绿）。
@@ -30,6 +36,7 @@
 """
 import argparse
 import json
+import os
 import re
 import subprocess
 import sys
@@ -117,12 +124,42 @@ def chk_manifest():
     return ok, detail
 
 
+def chk_hook():
+    """6 推送钩子：D-0045 的推前闸门是**本地文件、不入库**，换机后必须重装。
+
+    三条全满足才算装好：
+      1. 在 git 认定的位置找到 `pre-push`（走 `git rev-parse --git-path`，尊重 core.hooksPath，
+         不硬编码 `.git/hooks`——硬编码会在设了 hooksPath 的机器上假红/假绿）；
+      2. 可执行；
+      3. 内容调的是本仓 `scripts/pre_push_scan.py`——装了别的钩子不算装好。
+    """
+    try:
+        rc, out = sh(["git", "rev-parse", "--git-path", "hooks/pre-push"], cwd=ROOT, timeout=30)
+    except (OSError, subprocess.TimeoutExpired) as e:
+        return False, f"git 不可用（{type(e).__name__}），无法确认钩子"
+    if rc != 0:
+        return False, "不是 git 仓库——钩子装不上（make hooks 也会失败）"
+    rel = (out.strip().splitlines() or [""])[-1].strip()
+    hook = ROOT / rel if rel else ROOT / ".git" / "hooks" / "pre-push"
+    shown = hook.relative_to(ROOT) if hook.is_relative_to(ROOT) else hook
+    if not hook.is_file():
+        return False, f"未安装（{shown}）→ 跑 make hooks"
+    if not os.access(hook, os.X_OK):
+        return False, f"不可执行（{shown}）→ 跑 make hooks"
+    if "pre_push_scan.py" not in hook.read_text(encoding="utf-8", errors="replace"):
+        return False, f"钩子未调用 pre_push_scan.py（{shown}）→ 跑 make hooks 覆盖"
+    if not (ROOT / "scripts" / "pre_push_scan.py").is_file():
+        return False, "钩子指向的 scripts/pre_push_scan.py 不存在"
+    return True, f"已装且指向 pre_push_scan.py（{shown}）"
+
+
 CHECKS = [
     ("1 运行时与依赖", chk_runtime),
     ("2 包自检", chk_precheck),
     ("3 判据自检", chk_selftest),
     ("4 全量回归", chk_regress),
     ("5 包完整性", chk_manifest),
+    ("6 推送钩子", chk_hook),
 ]
 
 READING = """\
