@@ -1,7 +1,7 @@
 {
- "created_at": "2026-10-23T19:29:37",
- "label": "N/N 声明纳入门禁",
- "file_count": 90,
+ "created_at": "2026-10-23T20:53:52",
+ "label": "CI首跑修正",
+ "file_count": 91,
  "files": {
   "scripts/build_package.py": {
    "sha256": "daf1b81acac029e89b419dbc07d904bdef993e988a1b7117f4629939ec114556",
@@ -16,8 +16,8 @@
    "bytes": 15106
   },
   "scripts/check_docs_consistency.py": {
-   "sha256": "3878ef442fb35a6b4bb6b030f684a94a856d2d59784df26f6ace965465686f94",
-   "bytes": 12466
+   "sha256": "50a4ce58e6447ba876d72a5f1e67e58854b94d4ab976a9b17c35cfdabd9fff17",
+   "bytes": 12670
   },
   "scripts/field_provenance.py": {
    "sha256": "7926bba3821fd39f01e9045238f33b72a1550250f25a7c694165e656050b9b1c",
@@ -52,8 +52,8 @@
    "bytes": 41768
   },
   "scripts/make_backup.py": {
-   "sha256": "dc967613b63007dafc4718b6dca5cdb9125e17e22bb9d8d2961efdd5a174bac6",
-   "bytes": 10071
+   "sha256": "4e9c7ef5d9fc0efbbc2a90e82c1b92b431615e5c5561eaacfe70852658b550b6",
+   "bytes": 10871
   },
   "scripts/make_fixtures.py": {
    "sha256": "1f7329d2cc180b6e9bfe982b65b9f519bfb31c513444f5207359faaae4cdff2e",
@@ -128,8 +128,8 @@
    "bytes": 13505
   },
   "scripts/verify_handover.py": {
-   "sha256": "7df384a9f6e7eed8dfe52efe4d537f57b5c75bcfaa7ab726e8e36bbc2044e991",
-   "bytes": 7262
+   "sha256": "a076376b525c868adc5a354c462b490df43c5eaafbbe78424008a4f456458e87",
+   "bytes": 9533
   },
   "docs/protocol/01-架构.md": {
    "sha256": "dce409a542fe35608195486c86bbed3d8037817a90cac348d45275f93e268e1c",
@@ -334,6 +334,10 @@
   "docs/decisions/D-0045-仓库整库私有.md": {
    "sha256": "e5b0d5eaee123f005f235c65bf59d2eeb27f2c00e9ef695f6ed6be035ac60b36",
    "bytes": 7487
+  },
+  "docs/decisions/D-0046-接最小CI与钩子检查.md": {
+   "sha256": "086373411d700b8a07f02f3b31d83788bb70c2f525bb40d62bc8872d91f8e390",
+   "bytes": 5264
   },
   "docs/decisions/TEMPLATE.md": {
    "sha256": "0bbc33940a540ae0e983817d9b1cf6daf6502ff233074d5023a3466511867e6e",

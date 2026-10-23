@@ -184,6 +184,17 @@ def main():
     ap.add_argument("--self-test", action="store_true", help="只验证「验证逻辑」本身")
     args = ap.parse_args()
 
+    # 浅克隆绝不能当备份源：Git 允许在 shallow 仓库里 `bundle create --all`，
+    # 但产出的 bundle **不可还原**（缺历史边界对象），而"能还原"正是本工具的全部价值。
+    # 2026-10-23 CI 实测：actions/checkout 默认 --depth 1，本工具自检 4 项挂第 1 项。
+    # 与其产一个看起来成功、实际还原不了的包，不如前置拒绝并说清怎么修。
+    if not args.list:
+        rc, out = _run(["git", "rev-parse", "--is-shallow-repository"])
+        if rc == 0 and out.strip() == "true":
+            print("[ERR] 当前是浅克隆（shallow）—— bundle 无法还原，拒绝生成。\n"
+                  "      修：git fetch --unshallow（或改用完整 clone）后重跑", file=sys.stderr)
+            return ERR
+
     if args.self_test:
         return self_test()
 
