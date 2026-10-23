@@ -44,7 +44,10 @@ SECRET_PATTERNS = [
     # ---- 令牌前缀 / 私钥 ----
     (re.compile(r"sk-[A-Za-z0-9]{20,}"), "OpenAI 风格密钥 sk-…"),
     (re.compile(r"AKIA[0-9A-Z]{16}"), "AWS Access Key"),
-    (re.compile(r"-----BEGIN [A-Z ]*PRIVATE KEY-----"), "私钥块"),
+    # 2026-10-23 收紧：只认「表头 + ≥100 字符正文」。裸表头不含任何密钥material，
+    # 却会被快照/测试数据误命中（实测：本仓一个历史快照因此被拦推）。
+    (re.compile(r"-----BEGIN [A-Z ]*PRIVATE KEY-----[\r\n]+[A-Za-z0-9+/=\r\n]{100,}"),
+     "私钥块（表头+正文）"),
     (re.compile(r"\bBearer\s+[A-Za-z0-9\-_.]{20,}"), "Bearer token"),
 
     # ---- 代码托管 / 云厂商令牌（2026-10-23 新增：原盲区）----

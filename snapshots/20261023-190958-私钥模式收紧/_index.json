@@ -1,7 +1,7 @@
 {
- "created_at": "2026-10-23T19:04:37",
- "label": "D-0045 推送验收",
- "file_count": 88,
+ "created_at": "2026-10-23T19:09:58",
+ "label": "私钥模式收紧",
+ "file_count": 89,
  "files": {
   "scripts/build_package.py": {
    "sha256": "daf1b81acac029e89b419dbc07d904bdef993e988a1b7117f4629939ec114556",
@@ -83,6 +83,10 @@
    "sha256": "86e6ceb3d0f0579b09dad8097ab39f7f0011ece06f19ac4c7c204a47c19aab76",
    "bytes": 47373
   },
+  "scripts/pre_push_scan.py": {
+   "sha256": "04c754a0fd7653bca7e3e4268669dc21a9aa5973da043195ca4b475dcc5ba24e",
+   "bytes": 10152
+  },
   "scripts/pre_release_check.py": {
    "sha256": "61a6cd63def32eb97cb8bd47ab727a9fb4782371872024c996d9ad8caf7c2f4d",
    "bytes": 10152
@@ -104,8 +108,8 @@
    "bytes": 52744
   },
   "scripts/secret_patterns.py": {
-   "sha256": "be86eab8de985b79bc99ca26ba3ca810d2832c03afa12bbe077139ab195af9af",
-   "bytes": 4042
+   "sha256": "1b1592a480b1682d85a931add613e1c21e73d6378bd607ac5a296fe988aa4352",
+   "bytes": 4306
   },
   "scripts/snapshot_sources.py": {
    "sha256": "cb2c2b228b42b5b5b1e4ef2d3cc7c45463637dca0bfdad064877bda91a5e4873",
@@ -324,8 +328,8 @@
    "bytes": 2906
   },
   "docs/decisions/D-0045-仓库整库私有.md": {
-   "sha256": "b755b401b4b8a6cac3b09a465c7c2e0b0c3173969936d88c20860cdf9bf3fa10",
-   "bytes": 5258
+   "sha256": "a708e68b3ffe6180d9c03f0d9cc1bdf689aef213541ec0de2ce4e0581a05cb7a",
+   "bytes": 6288
   },
   "docs/decisions/TEMPLATE.md": {
    "sha256": "0bbc33940a540ae0e983817d9b1cf6daf6502ff233074d5023a3466511867e6e",
