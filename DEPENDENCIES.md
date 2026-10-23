@@ -18,10 +18,18 @@
 
 ```bash
 python3 -V                              # 必须 ≥ 3.9
-python3 scripts/verify_handover.py      # 8 项环境自检，一条命令回答"能用吗"
+python3 scripts/verify_handover.py      # 5 项环境自检，一条命令回答"能用吗"
 ```
 
-`verify_handover.py` 会检查：Python 版本、关键脚本存在、config 可读、`runs/` 可写、夹具完整性、冻结基线、MANIFEST 可校验、退出码语义。
+`verify_handover.py` 的 5 项是：
+
+| # | 检查项 | 查什么 |
+|---|---|---|
+| 1 | 运行时与依赖 | Python 版本；第三方依赖命中数必须为 0 |
+| 2 | 包自检 | 包内 `precheck.py` 能否跑通（1 项跨家族路由需人工实跑，会明示而不是假绿） |
+| 3 | 判据自检 | 判据用例自检（27/27） |
+| 4 | 全量回归 | 调用 `regress.py`（50/50） |
+| 5 | 包完整性 | `MANIFEST.json` 声明条数/字节 vs 实际 |
 
 ---
 
@@ -126,7 +134,7 @@ rsync -a --exclude=_trash --exclude=_archive --exclude=.git \
       ai-autonomy-team/ /tmp/aiteam-clean/
 
 cd /tmp/aiteam-clean
-python3 scripts/verify_handover.py     # 期望：8 项通过
+python3 scripts/verify_handover.py     # 期望：5/5 通过
 python3 scripts/pre_release_check.py   # 期望：8/8
 python3 scripts/regress.py             # 期望：50/50
 
@@ -134,7 +142,20 @@ python3 scripts/regress.py             # 期望：50/50
 # 3) 断开外置盘后跑（证明无外部挂载依赖）
 ```
 
-2026-10-23 实测结果见 `docs/独立化验证-20261023.md`。
+### 2026-10-23 实测结果
+
+在 `/tmp/aiteam-clean`（`_trash` 与 `_archive` 均不存在）跑的：
+
+| 检查 | 结果 | 说明 |
+|---|---|---|
+| 交接自检 | **5/5 通过** | 含"第三方依赖命中 0" |
+| 发布门禁 | **8/8 通过** | 含 H 真源快照（快照已入库） |
+| 全量回归 | **50/50 通过** | 含第 8 项冻结基线逐字节比对 |
+| 目录体积 | 16 MB | 原工作区 96 MB（含 `_trash` 71 MB） |
+
+**这条验证抓到并修掉了一个真缺口**：原先 A–H 的 **H 项（真源快照）依赖 `_trash/snapshots/`**，而 `_trash` 不入库 → 新 clone 的仓库 H 项必红，即"门禁无法在干净环境全过"。已把快照目录迁到顶层 `snapshots/`（最近 2 个入库，历史 77 个留在 `_trash/snapshots-archive/`），并同步改 `snapshot_sources.py` 与 `pre_release_check.py` 的路径。
+
+这与 `L-0009`「验收套件依赖必须是交付物的一部分」是同一条教训的**第二个实例**（第一个是冻结基线）。两次都是"依赖住在名为 `_trash` 的目录里"。
 
 ---
 

@@ -3,6 +3,17 @@
 > 本文回答三个问题：这套东西**是什么、为什么这样切、哪些地方不能随便动**。
 > 上手命令见 [README.md](./README.md)；依赖与环境见 [DEPENDENCIES.md](./DEPENDENCIES.md)。
 
+## 先分清两份"架构"
+
+项目里有两份都叫架构的文档，**层次不同，不要混读**：
+
+| 文档 | 讲什么 | 谁是权威 |
+|---|---|---|
+| `docs/protocol/01-架构.md` | **评审机制本身**：读并行 / 写单线程 / 双裁判 / 分歧守恒。附证据（Cognition、Anthropic、MAST、鞅分析） | **它是定义源**。它的原文写着「任何席位提示词、脚本、审计清单都不得与本文件冲突；若冲突，以本文件为准」 |
+| 本文 | **代码怎么组织**：分层、模块职责边界、依赖方向、目录布局、验收链路 | 工程结构以本文为准，但不得与 01 的机制冲突 |
+
+本文**不重复** 01 的内容。想知道"为什么硬裁判必须非 LLM"，去读 01 §1；想知道"哪个脚本负责硬裁判、它依赖谁"，读本文。
+
 ---
 
 ## 一、定位与目标
@@ -135,7 +146,7 @@
 | `pre_release_check.py` | 234 | A–H 8 项门禁（见下） | 发版前 |
 | `check_consistency.py` | 373 | 声明与算术产出是否自洽（如 manifest 声明 1095 条，实际是否 1095） | 改产物结构后 |
 | `check_docs_consistency.py` | 165 | `docs/*.md` 里的数字与磁盘实际是否一致 | 改文档后 |
-| `verify_handover.py` | 179 | 接手验收：8 项环境自检，一条命令回答"在你机器上能用吗" | 首次接手 |
+| `verify_handover.py` | 179 | 接手验收：5 项环境自检，一条命令回答"在你机器上能用吗" | 首次接手 |
 | `precheck.py`（包内） | 245 | 目标机环境自检（Python 版本、路径可写、夹具完整） | 迁移到新机后 |
 
 **A–H 门禁清单**（`make check`）：
@@ -218,6 +229,7 @@ ai-autonomy-team/
 ├── .learnings/                ← 12 条经验教训（L-XXXX，跨项目通用）
 ├── templates/                 ← 席位提示词模板（new_round 渲染用）
 ├── fixtures/frozen/           ← ★ 冻结基线（regress 第 8 项依赖，必须入库）
+├── snapshots/                 ← ★ 真源快照（H 项依赖；只留最近 2 个入库）
 │
 ├── migration-package/         ← ⚠️ 构建产物（build_package.py 生成）
 │   ├── MANIFEST.json          逐文件 sha256
@@ -243,6 +255,11 @@ ai-autonomy-team/
 | 源码树 | `scripts/` `config/` `templates/` | ✅ 改完必须跑 `make check` | ❌ |
 | 构建产物 | `migration-package/`（除 `runs/`） | ❌ 改完会被 `--check` 判漂移 | ✅ 可重建 |
 | 运行证据 | `migration-package/runs/` `reviews/` `real-runs/` | ❌ 是物证 | ❌ |
+
+### 关于 `snapshots/` 的两点容易误解
+
+1. **它覆盖什么**：`SOURCES = ["scripts", "docs/protocol", "docs/decisions", "templates"]`——只有这 4 个目录。**根目录的 README/ARCHITECTURE/DEPENDENCIES 不在快照范围**，改它们不会让 H 项变红，也不会被备份。理由是它们讲"怎么用这个项目"，不是判据口径的载体。
+2. **为什么只留 2 个**：`H` 项只需要"最近一个快照与真源一致"。**历史回滚由 git 承担**，快照不再是唯一回滚来源（这正是 2026-10-23 建 git 之后职责的重新划分）。更早的 79 个快照在 `_trash/snapshots-archive/`，不入库但本机仍可查。
 
 ---
 
