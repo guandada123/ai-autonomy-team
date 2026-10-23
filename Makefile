@@ -12,7 +12,7 @@ PKG     := migration-package
 
 .DEFAULT_GOAL := help
 .PHONY: help check test selftest handover metrics review package-check \
-        package-apply snapshot sync-docs clean
+        package-apply snapshot sync-docs pre-push hooks clean
 
 # ── 帮助 ──────────────────────────────────────────────────────────────
 help:
@@ -24,7 +24,9 @@ help:
 	@echo ""
 	@echo "  日常："
 	@echo "    make test          全量回归（项数见输出，不在此写死）"
-	@echo "    make selftest      各脚本内置自检（闸门/开轮/八角/脱敏）"
+	@echo "    make selftest      各脚本内置自检（闸门/开轮/八角/脱敏/推送）"
+	@echo "    make pre-push      推之前自查（历史密钥 + 远端是否 private）"
+	@echo "    make hooks         安装 git pre-push 钩子（本地文件，换机需重装）"
 	@echo "    make metrics       三轨指标看板"
 	@echo "    make review DECISION='...'  八角审查（生成 8 份提示词）"
 	@echo ""
@@ -57,6 +59,9 @@ selftest:
 	@echo "── 脱敏（对外版生成器）──"
 	$(PY) $(SCRIPTS)/redact_report.py --self-test
 	@echo ""
+	@echo "── 推送闸门（检测器正样本自检）──"
+	$(PY) $(SCRIPTS)/pre_push_scan.py --self-test
+	@echo ""
 	@echo "── 判据自检 + 全量门禁（内含全量回归，约 60 秒）──"
 	$(PY) $(SCRIPTS)/pre_release_check.py
 
@@ -68,6 +73,15 @@ review:
 	@if [ -z "$(DECISION)" ]; then \
 		echo "用法: make review DECISION='要审查的决定' [FACTS=材料.md]"; exit 2; fi
 	$(PY) $(SCRIPTS)/octagon.py --decision "$(DECISION)" $(if $(FACTS),--facts "$(FACTS)",)
+
+# ── 推送 ──────────────────────────────────────────────────────────────
+# 推之前扫全部可达历史（不是只看工作区）+ 核对远端是否 private。
+# hook 是本地文件、不入库：换机 clone 后要重跑 make hooks。
+pre-push:
+	$(PY) $(SCRIPTS)/pre_push_scan.py
+
+hooks:
+	$(PY) $(SCRIPTS)/pre_push_scan.py --install-hook
 
 # ── 交付 ──────────────────────────────────────────────────────────────
 package-check:

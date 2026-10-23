@@ -1,7 +1,7 @@
 {
- "created_at": "2026-10-23T19:03:37",
- "label": "D-0045 改推私有远端",
- "file_count": 88,
+ "created_at": "2026-10-23T19:09:01",
+ "label": "pre-push 自检样本",
+ "file_count": 89,
  "files": {
   "scripts/build_package.py": {
    "sha256": "daf1b81acac029e89b419dbc07d904bdef993e988a1b7117f4629939ec114556",
@@ -82,6 +82,10 @@
   "scripts/octagon.py": {
    "sha256": "86e6ceb3d0f0579b09dad8097ab39f7f0011ece06f19ac4c7c204a47c19aab76",
    "bytes": 47373
+  },
+  "scripts/pre_push_scan.py": {
+   "sha256": "5d79c813cf26a96c974958f0198d3f3d7d19a6effeb2069ef1aad8d4e1323280",
+   "bytes": 9831
   },
   "scripts/pre_release_check.py": {
    "sha256": "61a6cd63def32eb97cb8bd47ab727a9fb4782371872024c996d9ad8caf7c2f4d",
@@ -324,8 +328,8 @@
    "bytes": 2906
   },
   "docs/decisions/D-0045-仓库整库私有.md": {
-   "sha256": "5f32cc5c08840422deef028ec1033d937aed07d4bbb3bf971421e9c4caeb00e5",
-   "bytes": 4649
+   "sha256": "a708e68b3ffe6180d9c03f0d9cc1bdf689aef213541ec0de2ce4e0581a05cb7a",
+   "bytes": 6288
   },
   "docs/decisions/TEMPLATE.md": {
    "sha256": "0bbc33940a540ae0e983817d9b1cf6daf6502ff233074d5023a3466511867e6e",

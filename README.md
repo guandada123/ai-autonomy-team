@@ -48,6 +48,8 @@ make test           # 等价于 python3 scripts/regress.py
 | 看三轨指标 | `make metrics` |
 | 开一轮评审 | `python3 scripts/new_round.py --round 34 --params migration-package/config/params.json` |
 | 八角审查一个决定 | `make review DECISION='要不要把 X 接进发版门禁'` |
+| 推远端前 | `make pre-push`（历史密钥 + 远端是否 private） |
+| 装推送钩子（换机后） | `make hooks` |
 | 改完源码同步到包 | `make package-apply` |
 | 打真源快照 | `make snapshot LABEL='改口径'` |
 | 全部入口 | `make help` |

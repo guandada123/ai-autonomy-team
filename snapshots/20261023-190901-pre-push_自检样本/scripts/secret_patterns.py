@@ -15,6 +15,17 @@
 | YAML / ENV | `api_key: …` / `API_KEY=…` | **2026-10-21 新增**（原盲区） |
 | 口令类 | `secret: "…"` / `password: "…"` | 新增 |
 | 令牌前缀 | `Bearer …` / `sk-…` / `AKIA…` / 私钥块 | 原始覆盖 |
+| **代码托管/云厂商令牌** | `ghp_…` / `github_pat_…` / `glpat-…` / `xox?-…` / `AKID…` / `LTAI…` | **2026-10-23 新增**（原盲区，见下） |
+
+## 为什么补「代码托管令牌」（2026-10-23）
+
+要往私有远端推仓库前，按「0 命中须先反证」做正样本测试：
+拿 `ghp_` + 36 个字符去撞，**8 条模式一条都不命中**。也就是说
+「历史扫描 0 命中」并不构成证明 —— 检测器连 GitHub PAT 都认不出。
+
+补了 GitHub（classic / fine-grained）、GitLab、Slack、腾讯云（`AKID`）、
+阿里云（`LTAI`）五类前缀。仍只收**高置信度前缀**：不做「32 位 hex」这类
+宽匹配，否则会把 git 的 40 位 commit sha 全报成密钥。
 
 ## 刻意不匹配
 
@@ -35,6 +46,15 @@ SECRET_PATTERNS = [
     (re.compile(r"AKIA[0-9A-Z]{16}"), "AWS Access Key"),
     (re.compile(r"-----BEGIN [A-Z ]*PRIVATE KEY-----"), "私钥块"),
     (re.compile(r"\bBearer\s+[A-Za-z0-9\-_.]{20,}"), "Bearer token"),
+
+    # ---- 代码托管 / 云厂商令牌（2026-10-23 新增：原盲区）----
+    # 只收带固定前缀的高置信度形态；不做「长 hex」宽匹配（会命中 commit sha）。
+    (re.compile(r"\b(?:ghp|gho|ghu|ghs|ghr)_[A-Za-z0-9]{30,}\b"), "GitHub token ghp_/gho_…"),
+    (re.compile(r"\bgithub_pat_[A-Za-z0-9_]{40,}\b"), "GitHub fine-grained PAT"),
+    (re.compile(r"\bglpat-[A-Za-z0-9_\-]{20,}\b"), "GitLab PAT glpat-"),
+    (re.compile(r"\bxox[baprs]-[A-Za-z0-9\-]{10,}\b"), "Slack token xox?-"),
+    (re.compile(r"\bAKID[A-Za-z0-9]{13,}\b"), "腾讯云 SecretId AKID…"),
+    (re.compile(r"\bLTAI[A-Za-z0-9]{12,}\b"), "阿里云 AccessKey LTAI…"),
 
     # ---- JSON 风格 ----
     (re.compile(r'"apiKey"\s*:\s*"[^"]{12,}"'), "apiKey（JSON）"),
