@@ -1,7 +1,7 @@
 {
- "created_at": "2026-10-24T00:42:21",
- "label": "单agent基线",
- "file_count": 102,
+ "created_at": "2026-10-24T06:39:39",
+ "label": "审阅清单",
+ "file_count": 103,
  "files": {
   "scripts/build_package.py": {
    "sha256": "b2dad8c4b0adc07c8cc367c51c292263c2789cf6501a0a7481c80260de23f494",
@@ -56,8 +56,8 @@
    "bytes": 41768
   },
   "scripts/make_backup.py": {
-   "sha256": "9b6b3f48b2e7336a62d4247d56a32ecfa663206e35b63b53c7492a8628218c70",
-   "bytes": 11374
+   "sha256": "93f138e429a9d0ae5176163464f097ed8f63d3c515b862feda033b23c0a07897",
+   "bytes": 13052
   },
   "scripts/make_fixtures.py": {
    "sha256": "1f7329d2cc180b6e9bfe982b65b9f519bfb31c513444f5207359faaae4cdff2e",
@@ -380,8 +380,12 @@
    "bytes": 6780
   },
   "docs/decisions/D-0055-单agent基线首次实测.md": {
-   "sha256": "c3af97d420e28d1b13d6a7153778f0468f49125356c58be64cbf8c4f637d47ca",
-   "bytes": 3773
+   "sha256": "eea6057d967a15d1c80f6d2a32d0455e4d36820da867a64d8f84063a597c89ca",
+   "bytes": 3984
+  },
+  "docs/decisions/D-0056-基线扩样暴露题集敏感性.md": {
+   "sha256": "bfab2266b02ec23f82bd2e12614e3b9b0dde242fd4ad0a93fb32ccd9a7d312cd",
+   "bytes": 4475
   },
   "docs/decisions/TEMPLATE.md": {
    "sha256": "0bbc33940a540ae0e983817d9b1cf6daf6502ff233074d5023a3466511867e6e",
