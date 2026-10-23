@@ -1,0 +1,18 @@
+{
+  "round": 34,
+  "verdict": "hold_then_proceed",
+  "checks": {
+    "P-01-value": "pass",
+    "P-02-metric": "pass",
+    "P-03-cost": "pass"
+  },
+  "conclusion": "清 1925/2056，保留 2113 与 2348；待用户确认后执行",
+  "evidence": [
+    "bundle 祖先三条全过",
+    "tar comm -23 独有 0/0/0",
+    "2348 还原 9197 文件"
+  ],
+  "human_veto": null,
+  "veto_deadline": "2026-10-25T00:29:35",
+  "ts": "2026-10-24T00:29:35"
+}

@@ -1,0 +1,23 @@
+{
+  "seat": "EX-01",
+  "round": 34,
+  "task": "本地备份从 4 组清到 2 组：1925/2056/2113 已被 2348 完全覆盖，删除可释放约 95MB",
+  "role": "证据席",
+  "decision": "覆盖关系成立，三组旧备份无独有内容",
+  "basis": [
+    "bundle 祖先：从 2348.bundle clone 出 bare 仓（HEAD 317a6e9），再拉三个旧 bundle；git merge-base --is-ancestor 全部通过：6353ce9 ⊂ 317a6e9、5bba8c2 ⊂ 317a6e9、972cefe ⊂ 317a6e9",
+    "tar 条目：2348 的条目清单与三个旧 tar 做 comm -23，独有条目均为 0",
+    "2348 自身通过还原验证：tar 9,197 个文件，抽样 sha256 一致；bundle 35 提交 / 1,634 文件"
+  ],
+  "alternatives_rejected": [
+    "只比文件数不比内容：同名不同内容会漏判，故用 comm 逐条目比"
+  ],
+  "risk": "bundle 是完整历史而非增量，故祖先成立即等于内容覆盖；tar 同理逐条目",
+  "diff_preserved": "无",
+  "self_doubt": "只验了条目名一致，未逐文件比对 2348 与旧组的内容差异（快照归档为同一真源的不同时点，2348 是最新时点，内容更新即覆盖）",
+  "next": "结论交裁决",
+  "reads": [
+    "~/Backups/ai-autonomy-team/",
+    "make backup-list 输出"
+  ]
+}

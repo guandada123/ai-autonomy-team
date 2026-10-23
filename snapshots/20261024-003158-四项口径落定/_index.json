@@ -1,11 +1,11 @@
 {
- "created_at": "2026-10-23T23:36:27",
- "label": "方案订正",
- "file_count": 98,
+ "created_at": "2026-10-24T00:31:58",
+ "label": "四项口径落定",
+ "file_count": 101,
  "files": {
   "scripts/build_package.py": {
-   "sha256": "9f82fb185416585e575971eed14e1d41eec9c5ac1ac37c373e42b400c3939b65",
-   "bytes": 8779
+   "sha256": "b2dad8c4b0adc07c8cc367c51c292263c2789cf6501a0a7481c80260de23f494",
+   "bytes": 9141
   },
   "scripts/canon.py": {
    "sha256": "94c365bc6caa6935a4ba2e2d27087032c8104388f76b0a178778648cc4512dbd",
@@ -96,12 +96,12 @@
    "bytes": 11650
   },
   "scripts/pre_release_check.py": {
-   "sha256": "371adf93dfca4f77b85165873128ae0ecf064a98a6c07cd4f9c8be62247dc566",
-   "bytes": 12268
+   "sha256": "b4dd557f1dd7d241f58a5256345d2736942831141dabb8a51b52335e022685a7",
+   "bytes": 13212
   },
   "scripts/premise_probe.py": {
-   "sha256": "a4e112a8ac9dc7f04529a9693e3a798aaa00b9625854cf880f77dc92a34d2245",
-   "bytes": 6961
+   "sha256": "3b5baee8172840c15a21a47cfa0297ca9ba3049869e0550da1f1177bbba250e9",
+   "bytes": 7522
   },
   "scripts/real_recon.py": {
    "sha256": "e49c00f5d980cda67c15123fb2ae4f0f6dccdacd745d9fb2dc1ae681fb4080eb",
@@ -112,8 +112,8 @@
    "bytes": 11300
   },
   "scripts/regress.py": {
-   "sha256": "2b98c505768ac84a973eeee768850cfe03de4da0eb9db9d3fa5c7d642505840d",
-   "bytes": 56940
+   "sha256": "7041b274e57ba993bc1679480bc70271f74a3dbea819e0c4f38e3454fc59efa9",
+   "bytes": 58298
   },
   "scripts/secret_patterns.py": {
    "sha256": "c77c883691005f530cff2444c7acb0470dfadf595ae1c15dbc98b34857b56ef1",
@@ -134,6 +134,10 @@
   "scripts/verify_handover.py": {
    "sha256": "918f84980694b1178662a1d03ed42ba8954ba4df726eec737657025d219f46ca",
    "bytes": 10989
+  },
+  "scripts/veto_sweep.py": {
+   "sha256": "72e0f40cf7e3b4f0c46f04ccc3580b1af6a3baba153cb82d21c783b05437ee34",
+   "bytes": 8816
   },
   "docs/protocol/01-架构.md": {
    "sha256": "dce409a542fe35608195486c86bbed3d8037817a90cac348d45275f93e268e1c",
@@ -366,6 +370,14 @@
   "docs/decisions/D-0052-L3校准集扩样与阈值结论推翻.md": {
    "sha256": "16c890641f3e64ee7145d1cee1c861118a9806aabe0c4e11ee5c1632cf7fc0c0",
    "bytes": 5251
+  },
+  "docs/decisions/D-0053-决策编号检查覆盖根级文档.md": {
+   "sha256": "57fb288ebbc229cd4eb56d6b80485078afb59b202ef7d27754ec2b21cac285a7",
+   "bytes": 3458
+  },
+  "docs/decisions/D-0054-四项口径落定.md": {
+   "sha256": "881ce284343af8508193b65c6eb033843979b46f6be4bc7ef99792d818531514",
+   "bytes": 6780
   },
   "docs/decisions/TEMPLATE.md": {
    "sha256": "0bbc33940a540ae0e983817d9b1cf6daf6502ff233074d5023a3466511867e6e",

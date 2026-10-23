@@ -1,0 +1,175 @@
+{
+  "_note": "L3 前提探针**留出集**（n=10）。2026-10-24 建，标注者仍是实现者本人，但标注依据是**用户历史会话的真实结果**，不是实现者的判断。\n\n用途：calibration.json（36 条）是开发集，用来选阈值；本集只用来**量**探针在真实事项上的表现，不参与任何调参。\n\n标注规则：标签不是\"这事该不该做\"，而是\"历史上这三条前提是否成立\"——\n  ① 有没有具体受损方（历史记录里有谁真在用/谁受损）；\n  ② 有没有可测指标与基线（历史记录里有没有实测数字）；\n  ③ 不做的代价能不能比较（历史记录里有没有说清代价）。\n三条都成立 → 应放过；任一条历史上答不出 → 应命中（命中不等于\"该不做\"，P-02/P-03 的动作是\"暂缓补基线/补比较\"）。\n\n卡片是**按历史记录重构**的：历史上没有人真的填过前提卡，所以受益方/指标的具体措辞由实现者按记录补写，依据逐条写在 note 里，可回溯到具体会话与日期。\n\n已知局限：重构措辞的人仍是实现者；要彻底消除这一层，需要用户直接填写原始卡（未做）。",
+  "cases": [
+    {
+      "id": "H01",
+      "should_hit": false,
+      "note": "2026-10-18 会话《Claw基础设施审查与改造》：切研报到免费源已落地，Wind 调用实测降至约 7 次/日，保留 Wind 作抽检基准。三条前提历史均成立",
+      "card": {
+        "beneficiary": "每天读研报做投资判断的我，Wind 额度用尽后就读不到新研报",
+        "metric": {
+          "name": "Wind 调用次数/日",
+          "baseline": "约 7 次/日",
+          "method": "调用日志逐日统计"
+        },
+        "do_nothing_cost": {
+          "description": "不切源则继续走 Wind 超额，需充值或停读",
+          "comparable": true
+        }
+      }
+    },
+    {
+      "id": "H02",
+      "should_hit": false,
+      "note": "2026-10-18 会话《折叠露营车当移动茶台·桌布选型》：用户给出实测台面 70.5×50.5cm，四轮修订后定 90×70 主方案。非技术领域真实事项，用来测跨领域泛化",
+      "card": {
+        "beneficiary": "把折叠露营车顶面当移动茶台用的我，桌布尺寸不合会被风吹起或盖不住台面",
+        "metric": {
+          "name": "桌布对台面的覆盖与四边垂长",
+          "baseline": "台面 70.5×50.5cm，当前无桌布",
+          "method": "现场实测尺寸比对"
+        },
+        "do_nothing_cost": {
+          "description": "买错尺寸要退货重买，来回约一周，期间风一吹茶具就移位",
+          "comparable": true
+        }
+      }
+    },
+    {
+      "id": "H03",
+      "should_hit": false,
+      "note": "2026-10-18 会话《佶迦酒店亲友攻略》：已交付腾讯文档+长图+二维码+H5，服务对象是 10/24–25 入住的亲友，真实使用者与时间窗都很具体",
+      "card": {
+        "beneficiary": "10 月 24–25 日入住佶迦酒店的亲友，他们不知道周边吃什么、怎么走",
+        "metric": {
+          "name": "亲友现场被问路的次数",
+          "baseline": "0（没有攻略页，全靠口头问）",
+          "method": "亲友提问与反馈记录"
+        },
+        "do_nothing_cost": {
+          "description": "亲友到了现场自己找路，可能走错或错过饭点",
+          "comparable": true
+        }
+      }
+    },
+    {
+      "id": "H04",
+      "should_hit": false,
+      "note": "2026-10-18 会话《Claw基础设施审查与改造》：净值快照断档 28 天无检测的问题被修掉，断档天数是实测数字。三条前提历史均成立",
+      "card": {
+        "beneficiary": "看净值曲线做判断的我，断档会让曲线看起来假连续",
+        "metric": {
+          "name": "未检出的快照断档天数",
+          "baseline": "28 天",
+          "method": "snapshot 逐日比对"
+        },
+        "do_nothing_cost": {
+          "description": "断档期间按旧值展示，看不出数据已停",
+          "comparable": true
+        }
+      }
+    },
+    {
+      "id": "H05",
+      "should_hit": false,
+      "note": "2026-10-18 会话《WorkBuddy/Claw 多轮自主维护》：发现 trading_memory 被测试污染（3435→840 条）并清理。三条前提历史均成立",
+      "card": {
+        "beneficiary": "做回测与信号复盘的我，脏数据会把结论带偏",
+        "metric": {
+          "name": "交易记忆记录条数",
+          "baseline": "3435 条（被污染时）",
+          "method": "直接计数"
+        },
+        "do_nothing_cost": {
+          "description": "回测样本被测试数据放大，胜率与均值失真",
+          "comparable": true
+        }
+      }
+    },
+    {
+      "id": "H06",
+      "should_hit": true,
+      "note": "2026-10-16 验证报告：单 agent 基线 14/14 全过；D-0002/C1/C2 已把\"多席位更准\"作为卖点否证。历史上这条主张说不出对比基线，也讲不出不做的代价",
+      "card": {
+        "beneficiary": "希望结论更准的人",
+        "metric": {
+          "name": "结论准确率",
+          "baseline": null,
+          "method": null
+        },
+        "do_nothing_cost": {
+          "description": "不用多智能体，结论可能不够好",
+          "comparable": false
+        }
+      }
+    },
+    {
+      "id": "H07",
+      "should_hit": true,
+      "note": "2026-10-18 会话：用户说\"你来判断剩下做什么\"后 AI 自行启动跨项目 ops 健康扫描。历史记录里没有它产出过被任何外部使用者引用的结论",
+      "card": {
+        "beneficiary": "我们团队",
+        "metric": {
+          "name": "扫出来的问题数",
+          "baseline": null,
+          "method": null
+        },
+        "do_nothing_cost": {
+          "description": "不扫就发现不了问题",
+          "comparable": false
+        }
+      }
+    },
+    {
+      "id": "H08",
+      "should_hit": true,
+      "note": "D-0002/D-0005/D-0006/D-0010 四份决策反复把\"扩样 20 条留出任务\"列入待办，自 2026-10-16 至今未做；历史记录里没有基线、没有可比较代价",
+      "card": {
+        "beneficiary": "以后要用这些结论的人",
+        "metric": {
+          "name": "结论可信度",
+          "baseline": null,
+          "method": null
+        },
+        "do_nothing_cost": {
+          "description": "不扩样，结论说服力不足",
+          "comparable": false
+        }
+      }
+    },
+    {
+      "id": "H09",
+      "should_hit": true,
+      "note": "2026-10-18 会话《CatRouter域名切换》待办：接入免费外部 dead-man-switch 监测 Mac 失联并经飞书告警。历史记录里有具体受损方，但**没有实测过检出时长**，代价也未量化——P-02/P-03 该 hold",
+      "card": {
+        "beneficiary": "Mac 不在身边的我，失联了要等回到机器前才发现",
+        "metric": {
+          "name": "从失联到发现的时间",
+          "baseline": null,
+          "method": null
+        },
+        "do_nothing_cost": {
+          "description": "Mac 掉线无人知，定时任务可能静默停摆",
+          "comparable": false
+        }
+      }
+    },
+    {
+      "id": "H10",
+      "should_hit": true,
+      "note": "2026-10-18 会话待办：观察 /v1/chat/completions 恢复并评估 gpt-4o-mini 适配。历史记录里有具体受损方（Claw 的批量调用），但没有失败率基线，也没有说不做的可比较代价",
+      "card": {
+        "beneficiary": "在 Claw 里批量调用模型的我，接口 503 时任务会静默失败",
+        "metric": {
+          "name": "接口请求失败率",
+          "baseline": null,
+          "method": null
+        },
+        "do_nothing_cost": {
+          "description": "接口不稳时任务失败，日志里看不出原因",
+          "comparable": false
+        }
+      }
+    }
+  ]
+}

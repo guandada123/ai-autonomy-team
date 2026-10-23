@@ -1,0 +1,33 @@
+{
+  "task_id": "round34",
+  "verdict": "hold_then_proceed",
+  "judge": "AD-01",
+  "judge_impl": "scripts/judges/verify.py",
+  "spec_layer": "L3-premise",
+  "summary": "三条前提成立；证据席给出可复现的覆盖证明；反对席提出降低单点风险，被采纳",
+  "checks": [
+    {
+      "id": "P-01-value",
+      "result": "pass"
+    },
+    {
+      "id": "P-02-metric",
+      "result": "pass"
+    },
+    {
+      "id": "P-03-cost",
+      "result": "pass"
+    }
+  ],
+  "pending": [
+    "用户确认后执行（删除是不可逆动作，须人工）"
+  ],
+  "adjudication_source": "EX-01/EX-02/EX-03 三席",
+  "carries_undeclared_judgment": false,
+  "evidence": [
+    "bundle 祖先关系三条全过",
+    "tar comm -23 独有条目 0/0/0",
+    "2348 还原验证 9197 文件"
+  ],
+  "ts": "2026-10-24T00:29:35"
+}

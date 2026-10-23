@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-10-23T23:29:33+08:00",
+  "generated_at": "2026-10-24T00:30:37+08:00",
   "root": "migration-package/",
   "note": "sha256 用于跨机完整性校验。newline=MIXED 的文本文件会导致证据链跨平台断裂，须修正。",
   "stats": {
-    "file_count": 1100,
-    "total_bytes": 7945602,
+    "file_count": 1117,
+    "total_bytes": 7979928,
     "mixed_newline_files": []
   },
   "files": [
@@ -36,6 +36,12 @@
       "path": "audit/probes/premise/calibration.json",
       "size": 17552,
       "sha256": "bf46f53668ed290ed58ce70adfd9ae8a84113b07b83df5e53e9c002319f7eeac",
+      "newline": "LF"
+    },
+    {
+      "path": "audit/probes/premise/heldout.json",
+      "size": 8003,
+      "sha256": "9e6175f015b2891fc89a6f13421102308e4e5da84891788d464dba0ea1ed8eb5",
       "newline": "LF"
     },
     {
@@ -1542,6 +1548,12 @@
       "path": "precheck.py",
       "size": 11527,
       "sha256": "44a5bd8d23a58bcdcdb49929c4b3e946092201eaee35457844e0fcf200a9094b",
+      "newline": "LF"
+    },
+    {
+      "path": "premise_probe.py",
+      "size": 7522,
+      "sha256": "3b5baee8172840c15a21a47cfa0297ca9ba3049869e0550da1f1177bbba250e9",
       "newline": "LF"
     },
     {
@@ -5727,6 +5739,90 @@
       "newline": "LF"
     },
     {
+      "path": "runs/round34/EX-01.json",
+      "size": 1244,
+      "sha256": "8e2ddb39e9811c26b1ae5b586003670f42333b531cadb4a2e118a51b81920b43",
+      "newline": "LF"
+    },
+    {
+      "path": "runs/round34/EX-02.json",
+      "size": 805,
+      "sha256": "d89f8871202d32ebbe37ca9e32059b6a6d1df5662339278917d23890a0445af0",
+      "newline": "LF"
+    },
+    {
+      "path": "runs/round34/EX-03.json",
+      "size": 944,
+      "sha256": "644d90f92b51bc9cf731406ec639e4b4eced02c351523ea5a0d34afbff300a91",
+      "newline": "LF"
+    },
+    {
+      "path": "runs/round34/PM-01.json",
+      "size": 1235,
+      "sha256": "be0d5451856438e07a45e4a292370f1bc224d3f7743b810986a0dfcee5d94424",
+      "newline": "LF"
+    },
+    {
+      "path": "runs/round34/adjudicated.json",
+      "size": 741,
+      "sha256": "4f81b28fcc9a0fcde9a0ec2f513e57ad5a386649a4768e84cc2c81f95ead78c0",
+      "newline": "LF"
+    },
+    {
+      "path": "runs/round34/adjudication-record.json",
+      "size": 833,
+      "sha256": "97614b0882cdcb646d04128ed2ff723f27eed059434b9af2f22488c8ea2a5d1e",
+      "newline": "LF"
+    },
+    {
+      "path": "runs/round34/answer-final.json",
+      "size": 778,
+      "sha256": "1a1a22ba5e5837ff5a56852a5fb2e2e6c9432cc71ca017cfdbda9688d9fb8ffb",
+      "newline": "LF"
+    },
+    {
+      "path": "runs/round34/answer-status.json",
+      "size": 147,
+      "sha256": "712fd747e5b73dda39884041475463ce25a0b93cd3305dc7b6dd35f6f62858af",
+      "newline": "LF"
+    },
+    {
+      "path": "runs/round34/presentation/anon-map.json",
+      "size": 105,
+      "sha256": "94c4c9a0059f617df3d8451c17c919a63b8441bbfe919934d2807285c54f0595",
+      "newline": "LF"
+    },
+    {
+      "path": "runs/round34/presentation/order.json",
+      "size": 155,
+      "sha256": "b41a7134e5844f348f003b5515c9fc9d01661606767f88128a12d6133b2f0650",
+      "newline": "LF"
+    },
+    {
+      "path": "runs/round34/presentation/redaction.json",
+      "size": 871,
+      "sha256": "6ae1ce06f39a3566f261c1fa023a1643aa72dd59cc742e2596bd177d846fbe00",
+      "newline": "LF"
+    },
+    {
+      "path": "runs/round34/round-manifest.json",
+      "size": 1169,
+      "sha256": "537f1a4b0dfc32fe7858373f162b006c8a781984753d6812cae3792d40bf2e66",
+      "newline": "LF"
+    },
+    {
+      "path": "runs/round34/verdict-final.json",
+      "size": 443,
+      "sha256": "c041de5aab4b9f4c2cb3f3b899f0326c46be86abaffc8f7d4ff5655bf30637b3",
+      "newline": "LF"
+    },
+    {
+      "path": "runs/round34/verdict-layered.json",
+      "size": 515,
+      "sha256": "495c1b51fdf5fe126e619c5b5ba11f38c4db008db129b998f8639112aa35fcde",
+      "newline": "LF"
+    },
+    {
       "path": "runs/round4/AD-01.json",
       "size": 11143,
       "sha256": "442a085e39838990a41b1239f0e756d295b40dd05ce8d5763c2e8b0ec6d551db",
@@ -6606,6 +6702,12 @@
       "path": "runs/round9/wd-baseline.json",
       "size": 49324,
       "sha256": "3de01e9b53d679d7930f64bf7573a6324c27dee09b39b05dd645f0f2c896bf54",
+      "newline": "LF"
+    },
+    {
+      "path": "veto_sweep.py",
+      "size": 8816,
+      "sha256": "72e0f40cf7e3b4f0c46f04ccc3580b1af6a3baba153cb82d21c783b05437ee34",
       "newline": "LF"
     }
   ]

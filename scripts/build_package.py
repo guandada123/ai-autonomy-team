@@ -53,6 +53,10 @@ FIXED_MAPPING = [
     ("scripts/inspect_agent_routing.py", "migration-package/inspect_agent_routing.py"),
     ("scripts/new_round.py", "migration-package/new_round.py"),
     ("scripts/fsutil.py", "migration-package/fsutil.py"),
+    # ★ 2026-10-24 补（D-0054）：包里一直带着 audit/probes/premise/*.json（探针定义）
+    #   却没带 premise_probe.py（探针本体）——目标机上 L3 无从执行，闸门在干净包里必红。
+    ("scripts/premise_probe.py", "migration-package/premise_probe.py"),
+    ("scripts/veto_sweep.py", "migration-package/veto_sweep.py"),
     ("scripts/metrics.py", "migration-package/metrics.py"),
 ]
 # 注：`scripts/regress.py` **刻意不入包** —— 它依赖 `fixtures/frozen/` 下的冻结基线

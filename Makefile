@@ -12,7 +12,7 @@ PKG     := migration-package
 
 .DEFAULT_GOAL := help
 .PHONY: help check test selftest handover metrics review package-check \
-        package-apply snapshot sync-docs pre-push hooks backup backup-list coverage clean
+        package-apply snapshot sync-docs pre-push hooks backup backup-list veto-list coverage clean
 
 # ── 帮助 ──────────────────────────────────────────────────────────────
 help:
@@ -38,6 +38,7 @@ help:
 	@echo "    make snapshot       真源快照（改口径前先打）"
 	@echo "    make sync-docs      把文档里的数字同步为实际值"
 	@echo "    make coverage       覆盖率基线（开发期，需装 coverage；见 tools/README.md）"
+	@echo "    make veto-list      列出 24h 否决窗口内待裁的结论（人工否决权入口）"
 	@echo ""
 	@echo "  清理："
 	@echo "    make clean          清 _trash 下的 scratch（不动冻结基线）"
@@ -112,6 +113,10 @@ snapshot:
 
 sync-docs:
 	$(PY) $(SCRIPTS)/sync_doc_numbers.py
+
+# ── 否决窗口（人工否决权；无需调度器，想看时跑）──────────────────────────
+veto-list:
+	$(PY) $(SCRIPTS)/veto_sweep.py --list
 
 # ── 覆盖率（开发期，非产品依赖）────────────────────────────────────────
 # 需要装好 coverage 的解释器；子进程记账靠 tools/sitecustomize.py

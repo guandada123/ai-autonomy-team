@@ -21,6 +21,7 @@
 """
 import argparse
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -93,13 +94,20 @@ def run_card(card, min_chars=None, probes=None):
     return hits
 
 
-def calibrate(min_chars=None):
+def load_set(set_name):
+    """读一个标注集。set_name 只允许小写字母与连字符（防目录穿越）。"""
+    if not re.fullmatch(r"[a-z][a-z-]{0,20}", set_name):
+        raise ValueError(f"非法标注集名：{set_name!r}")
+    path = PROBE_DIR / f"{set_name}.json"
+    return path, json.loads(path.read_text(encoding="utf-8"))
+
+
+def calibrate(min_chars=None, set_name="calibration"):
     """内置标注集：样本取自真实文档（正=该报警，负=不该报警）。
 
     标注依据写在每条 note 里，可逐条复核；不是我凭感觉打的分。
     """
-    path = PROBE_DIR / "calibration.json"
-    data = json.loads(path.read_text(encoding="utf-8"))
+    path, data = load_set(set_name)
     tp = fp = tn = fn = 0
     rows = []
     for case in data["cases"]:
@@ -131,6 +139,8 @@ def main():
     ap.add_argument("--calibrate", action="store_true", help="跑内置标注集算 P/R")
     ap.add_argument("--th", type=int, default=None, help="覆盖 min_chars 阈值做敏感性分析")
     ap.add_argument("--json", action="store_true")
+    ap.add_argument("--set", default="calibration", dest="set_name",
+                    help="标注集名（默认 calibration；heldout 为留出集，不参与调参）")
     args = ap.parse_args()
 
     if args.card:
@@ -151,11 +161,12 @@ def main():
         return 1 if hits else 0
 
     if args.calibrate:
-        r = calibrate(min_chars=args.th)
+        r = calibrate(min_chars=args.th, set_name=args.set_name)
         if args.json:
             print(json.dumps({k: v for k, v in r.items() if k != "rows"}, ensure_ascii=False, indent=2))
         else:
-            print(f"[calibrate] n={r['n']}  min_chars={r['min_chars'] or '按探针默认'}")
+            print(f"[calibrate] 集={args.set_name} n={r['n']}  "
+                  f"min_chars={r['min_chars'] or '按探针默认'}")
             print(f"  TP={r['tp']} FP={r['fp']} TN={r['tn']} FN={r['fn']}")
             print(f"  precision={r['precision']:.2f} recall={r['recall']:.2f} "
                   f"f1={r['f1']:.2f} accuracy={r['accuracy']:.2f}")
