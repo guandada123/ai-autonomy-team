@@ -52,6 +52,7 @@ FIXED_MAPPING = [
     ("scripts/make_fixtures.py", "migration-package/make_fixtures.py"),
     ("scripts/inspect_agent_routing.py", "migration-package/inspect_agent_routing.py"),
     ("scripts/new_round.py", "migration-package/new_round.py"),
+    ("scripts/fsutil.py", "migration-package/fsutil.py"),
     ("scripts/metrics.py", "migration-package/metrics.py"),
 ]
 # 注：`scripts/regress.py` **刻意不入包** —— 它依赖 `fixtures/frozen/` 下的冻结基线

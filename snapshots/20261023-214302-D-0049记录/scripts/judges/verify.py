@@ -48,6 +48,7 @@ verify.py —— 硬裁判 JD-01
 import argparse
 import hashlib
 import json
+import os
 import re
 import sys
 from datetime import datetime, timezone, timedelta
@@ -1036,8 +1037,18 @@ def self_test():
 def _emit(result, out, quiet=False):
     payload = json.dumps(result, ensure_ascii=False, indent=2, default=_jsonable)
     if out:
-        with open(out, "w", encoding="utf-8", newline="\n") as f:
+        # ★ 2026-10-23（代码审查 B3）：原子写。verdict 是下游所有判定的输入，
+        #   截断的 JSON 会让「读不到就回退」的分支把结论变成默认值。
+        #   judges/ 子目录不能 import 包根 fsutil，故此处内联同样三步。
+        # 固定临时名（单写多读前提）；失败不清理 —— 本项目禁止删除，见 regress 第 20 项
+        p = Path(out)
+        p.parent.mkdir(parents=True, exist_ok=True)
+        tmp = p.with_name(f".{p.name}.tmp")
+        with open(tmp, "w", encoding="utf-8", newline="\n") as f:
             f.write(payload + "\n")
+            f.flush()
+            os.fsync(f.fileno())
+        os.replace(tmp, p)
         if not quiet:
             print(f"[JD-01] verdict={result['verdict']}  "
                   f"passed={result['summary']['passed']}/{result['summary']['total']}  "

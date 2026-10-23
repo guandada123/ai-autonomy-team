@@ -93,6 +93,21 @@ def fmt(n):
     return f"{n:,}"
 
 
+def _near_manifest(line, hit):
+    """数字是否在「包体声明」的近旁。
+
+    只看同行会把「MANIFEST … 字节；token 总量 54,730,833」里的 token 数误判成包体，
+    故用不对称窗口：前面 10 字符找「字节/包体/MANIFEST」，后面 6 字符找「字节 / B」。
+    """
+    i = line.find(hit)
+    if i < 0:
+        return False
+    head = line[max(0, i - 10):i]
+    tail = line[i + len(hit):i + len(hit) + 6]
+    return ("字节" in head or "包体" in head or "MANIFEST" in head
+            or bool(re.match(r"\s*(?:字节|B\b)", tail)))
+
+
 def check_manifest_numbers(problems):
     """A. 文档中的 MANIFEST 数字 vs 实际 stats。"""
     m = load_json(PKG / "MANIFEST.json")
@@ -102,15 +117,21 @@ def check_manifest_numbers(problems):
     st = m["stats"]
     tb = st["total_bytes"]
     checked = 0
-    num_re = re.compile(r"7,\d{3},\d{3}")          # 形如 7,883,426
+    # ★ 2026-10-23 修（代码审查 C-2）：原正则写死 `7,\d{3},\d{3}`，包体一旦过 8 MB
+    #   就一个也匹配不到 —— 校验点数掉到 0 却仍然 PASS（实测注入 8,123,456 未被看见）。
+    #   改为「任意千分位大数」，再用同行上下文（字节/MANIFEST）限定为包体声明；
+    #   否则会把 token 总量（如 54,730,833）误当成 MANIFEST。
+    num_re = re.compile(r"\b\d{1,3}(?:,\d{3}){2,}\b")
     for p in sorted(DOCS.glob("*.md")):
         text = p.read_text(encoding="utf-8")
         for hit in set(num_re.findall(text)):
+            line = next((ln for ln in text.splitlines() if hit in ln), "")
+            if not _near_manifest(line, hit):
+                continue
             val = int(hit.replace(",", ""))
             checked += 1
             if val != tb:
                 # 允许历史值出现，但要求同行带"原始为/前"等限定词
-                line = next((ln for ln in text.splitlines() if hit in ln), "")
                 # 历史标记：与 sync_doc_numbers.HIST_MARKERS 保持一致。
                 # 旧规则含 `为 \d`，会把「| 当前值 | ... 原始为 X |」这类行整体跳过，
                 # 而该行前半部分正是需要校验的当前值 —— 属漏检缺陷（2026-10-21 修）。

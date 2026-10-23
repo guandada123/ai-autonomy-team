@@ -51,6 +51,11 @@ PROBES = {
     "AWS Access Key": "AKIA" + "A1B2C3D4E5F6G7H8",
     "私钥块（表头+正文）": "-----BEGIN RSA " + "PRIVATE KEY-----\n" + "A" * 120,
     "Bearer token": "Authorization: Bearer " + "a" * 24,
+    # 2026-10-23 补（C-3）：项目密钥/云厂商 secret/webhook/JWT 四类新模式的样本
+    "OpenAI 项目密钥 sk-proj-…": "sk-proj-" + "a" * 32,
+    "AWS Secret Access Key 赋值": "aws_secret_access_key = " + "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
+    "Slack Incoming Webhook": "https://hooks.slack.com/services/" + "T00000000/B00000000/" + "a" * 24,
+    "JWT": "eyJ" + "a" * 20 + "." + "b" * 20 + "." + "c" * 20,
     "apiKey（JSON）": '{"apiKey": "' + "a" * 16 + '"}',
     "api_key（JSON）": '{"api_key": "' + "a" * 16 + '"}',
     "api_key 赋值（YAML/ENV/通用）": "api_key: " + "a" * 20,
@@ -126,15 +131,38 @@ def reachable_blobs():
 
 
 def scan_history():
-    """扫描全部可达 blob。返回 [(path, label, 片段前 12 字符)]。"""
+    """扫描全部可达 blob。返回 [(path, label, 片段前 12 字符)]。
+
+    ★ 2026-10-23 修（代码审查 C-5）：原实现对每个 blob 起一次 `git cat-file -p`，
+      1,724 个对象实测 17.3 s —— 每次 push 都要等这么久，历史越长越慢。
+      改用单进程 `--batch` 流式读取（同一历史 <2 s），语义不变。
+    """
     hits = []
-    for oid, path in reachable_blobs().items():
-        text = _git_bytes("cat-file", "-p", oid).decode("utf-8", "ignore")
-        for rx, label in SECRET_PATTERNS:
-            m = rx.search(text)
-            if m:
-                hits.append((path, label, m.group(0)[:12]))
-                break
+    objs = reachable_blobs()
+    proc = subprocess.Popen(["git", "cat-file", "--batch"], cwd=str(ROOT),
+                            stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+    try:
+        for oid, path in objs.items():
+            proc.stdin.write((oid + "\n").encode())
+            proc.stdin.flush()
+            header = proc.stdout.readline().split()
+            if len(header) < 3:            # "<oid> missing" 之类
+                continue
+            kind, size = header[1], int(header[2])
+            data = proc.stdout.read(size)
+            proc.stdout.read(1)            # 每条记录末尾的换行
+            if kind != b"blob":            # commit / tree 不含文件内容
+                continue
+            text = data.decode("utf-8", "ignore")
+            for rx, label in SECRET_PATTERNS:
+                m = rx.search(text)
+                if m:
+                    hits.append((path, label, m.group(0)[:12]))
+                    break
+    finally:
+        if proc.stdin:
+            proc.stdin.close()
+        proc.wait()
     return hits
 
 
