@@ -371,6 +371,26 @@ def _():
         assert abs(got - exp) < 1e-9, (arm, got, exp)
 
 
+# ── 组五：同步脚本（防"静默 no-op"，见 L-0027） ──────────────────────────
+
+@check("sync_score.sh: 目标全部不存在 → 必须 exit 1（不能冒充成功）")
+def _():
+    import subprocess, shutil, tempfile
+    tmp = Path(tempfile.mkdtemp())
+    try:
+        kitdir = tmp / "audit" / "kit"
+        kitdir.mkdir(parents=True)
+        shutil.copy(str(HERE / "score.py"), str(kitdir / "score.py"))
+        shutil.copy(str(HERE / "sync_score.sh"), str(kitdir / "sync_score.sh"))
+        r = subprocess.run(["bash", str(kitdir / "sync_score.sh")],
+                           capture_output=True, text=True)
+        out = r.stdout + r.stderr
+        assert r.returncode == 1, f"退出码应为 1，实为 {r.returncode}\n{out}"
+        assert "成功同步 0 个" in out, out
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
+
+
 # ── 运行器 ───────────────────────────────────────────────────────────────
 
 def main() -> int:
