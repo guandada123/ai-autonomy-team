@@ -27,10 +27,12 @@ fi
 COMMIT="$(cd "$REPO_ROOT" && git rev-parse --short HEAD 2>/dev/null || echo unknown)"
 TS="$(date +%Y-%m-%dT%H:%M:%S)"
 
-# 默认目标：Claw/StockInsight 在 WorkBuddy/ 下，ai-autonomy-team 在 WorkBuddy/<日期>/ 下多嵌一层
+# 默认目标：Claw/StockInsight/QTS 在 WorkBuddy/ 下，ai-autonomy-team 在 WorkBuddy/<日期>/ 下多嵌一层
+# QTS = QuantTradingSystem（2026-10-25 定案：git remote = QuantTradingSystem.git）
 DEFAULT_TARGETS=(
   "$REPO_ROOT/../../Claw"
   "$REPO_ROOT/../../StockInsight"
+  "$REPO_ROOT/../../QuantTradingSystem"
 )
 TARGETS=("${DEFAULT_TARGETS[@]}" "$@")
 

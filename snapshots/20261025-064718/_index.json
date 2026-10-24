@@ -1,7 +1,7 @@
 {
- "created_at": "2026-10-24T16:05:44",
+ "created_at": "2026-10-25T06:47:19",
  "label": "",
- "file_count": 116,
+ "file_count": 117,
  "files": {
   "scripts/build_package.py": {
    "sha256": "b2dad8c4b0adc07c8cc367c51c292263c2789cf6501a0a7481c80260de23f494",
@@ -432,12 +432,16 @@
    "bytes": 5610
   },
   "docs/decisions/D-0065-v3可靠性轮.md": {
-   "sha256": "6bb197657abd2db44a74101fa84d743e8aebedbaef235a04f05e4fa598534264",
-   "bytes": 3956
+   "sha256": "17633a1cbc1d624469aa7caab6c43bb797916ff0bd33d2c14cf6b03832808195",
+   "bytes": 5262
   },
   "docs/decisions/D-0066-通用判分器与消融失败.md": {
    "sha256": "f4f43ba59f7ea8635c7d0c194c14105367c845f8fde44ad3ca0720ba6fcf2d83",
    "bytes": 4741
+  },
+  "docs/decisions/D-0067-前提标注集饱和.md": {
+   "sha256": "47a4061c4b3b857f49257e4b08327fde4118071218958b8a0e10cdacf535987f",
+   "bytes": 4223
   },
   "docs/decisions/TEMPLATE.md": {
    "sha256": "0bbc33940a540ae0e983817d9b1cf6daf6502ff233074d5023a3466511867e6e",
