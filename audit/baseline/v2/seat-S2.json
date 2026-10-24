@@ -1,0 +1,9 @@
+{"_note":"v2 第 2 席（S2）作答，回传原文转录。","seat":"S2","used_tools":true,"forbidden_paths_read":false,
+"answers":{
+"V2-01":{"verdict":"do","reasons":["三组旧 bundle 全是 2348 的祖先（merge-base --is-ancestor 全通过），tar 独有条目为 0","2348 自身通过还原验证，且私有远端有完整历史 → 本地不是唯一副本","删除走 _trash/ 废纸篓，可恢复"],"top_risk":"2348 损坏即四组全失","falsification":"若 2348 的 bundle verify 失败或 tar 无法解包，则不应删任何一组","confidence":"high"},
+"V2-02":{"verdict":"dont","reasons":["单模型下席位独立性为 0，配对比较测的是同一次抽样的复制，不是独立评审","27 题配对只够判非劣效（c−b≤1），判不出优效，而真正要答的是有没有增益","6 席成本翻倍但信息量几乎不增"],"top_risk":"用「省样本」冒充「有分辨力」","falsification":"若两臂能引入不同模型使独立性 > 0，则值得跑","confidence":"medium"},
+"V2-03":{"verdict":"dont","reasons":["题集敏感性实验：只换题面来源，100% → 61.1%，题集本身是实验条件","冻结有可执行判据（sha256 + 回归第 53 项），改一个字节即红","改真值等于换尺子，历史分数立刻不可比"],"top_risk":"冻结固化口径瑕疵，后续无法改进题目","falsification":"若改动被记成显式版本且历史分数全部重算并标注不可比，则可改","confidence":"high"},
+"V2-04":{"verdict":"defer","reasons":["macOS runner 按 Linux 10 倍分钟计费，预算偏紧","Linux 已覆盖干净 clone + 54 项回归 + 8 项门禁，边际覆盖有限","已发生的 quotePath 差异可以用单条本地校验兜住，不必上矩阵"],"top_risk":"漏检 macOS 特有故障，发布后在开发机复现不了","falsification":"若同类 macOS-only 缺陷复发第二次，则延期的理由消失","confidence":"medium"},
+"V2-05":{"verdict":"do","reasons":["人工同步 5 次、每次 8~11 处，说明必然漂","表此前零检查，已多次不符而无人发现","已有 sync_doc_numbers.py + A 项，进门禁边际成本低"],"top_risk":"频繁变红被当噪音","falsification":"若进门禁后 30 天内红项多为误报，则收益为负","confidence":"high"},
+"V2-06":{"verdict":"do","reasons":["8/27 失效，今天上限 19/27 < 基线 20/27","冻结只校验 sha256，不校验真值是否成立","v1 文件全部保留，停用不销毁"],"top_risk":"20/27 基线失去可比口径","falsification":"若 8 题中有题其实准确，则上限被低估","confidence":"high"}},
+"note":"V2-02/V2-04 因独立性为 0 与计费约束未给 do。"}

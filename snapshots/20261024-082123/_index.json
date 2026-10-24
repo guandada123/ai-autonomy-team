@@ -1,7 +1,7 @@
 {
- "created_at": "2026-10-24T07:50:33",
+ "created_at": "2026-10-24T08:21:23",
  "label": "",
- "file_count": 107,
+ "file_count": 108,
  "files": {
   "scripts/build_package.py": {
    "sha256": "b2dad8c4b0adc07c8cc367c51c292263c2789cf6501a0a7481c80260de23f494",
@@ -400,8 +400,12 @@
    "bytes": 4327
   },
   "docs/decisions/D-0060-题库重锚与v2立项.md": {
-   "sha256": "0873bbc1432f29a7b662e2f23c540a80a651c93aa3213263c32d6e166810b284",
-   "bytes": 4371
+   "sha256": "7089dab6d95fa29755482f45ddd4e3c284be91aff29c84e89f0798569400cfd4",
+   "bytes": 5617
+  },
+  "docs/decisions/D-0061-v2判断类首轮.md": {
+   "sha256": "326a64c5838782d08430d1594e00cc2f41bbb6ccbd072b83a135bbd62a04b6c1",
+   "bytes": 3086
   },
   "docs/decisions/TEMPLATE.md": {
    "sha256": "0bbc33940a540ae0e983817d9b1cf6daf6502ff233074d5023a3466511867e6e",
