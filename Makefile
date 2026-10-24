@@ -12,7 +12,7 @@ PKG     := migration-package
 
 .DEFAULT_GOAL := help
 .PHONY: help check test selftest handover metrics review package-check \
-        recompute v11-compare item-gate \
+        recompute v11-compare item-gate score brief-lint \
         package-apply snapshot sync-docs pre-push hooks backup backup-list veto-list coverage clean
 
 # ── 帮助 ──────────────────────────────────────────────────────────────
@@ -42,6 +42,8 @@ help:
 	@echo "    make veto-list      列出 24h 否决窗口内待裁的结论（人工否决权入口）"
 	@echo "    make recompute      题库 v1.1 真值重算检查（漂移即红，先跑它再出分）"
 	@echo "    make item-gate      题目准入闸（饱和/常数胜出/全错；当前应 FAIL）"
+	@echo "    make score          通用判分器（题集无关，含 pass^k 与 Fleiss κ）"
+	@echo "    make brief-lint     题面准入检查（情形段含结论/引用编号；当前应 FAIL）"
 	@echo ""
 	@echo "  清理："
 	@echo "    make clean          清 _trash 下的 scratch（不动冻结基线）"
@@ -132,6 +134,24 @@ item-gate:
 		--adjudication audit/baseline/v3/adjudication-v3.json \
 		--arm single=audit/baseline/v3/arm-M1.json \
 		--arm seats=audit/baseline/v3/seat-S1.json,audit/baseline/v3/seat-S2.json,audit/baseline/v3/seat-S3.json
+
+# 通用判分器（题集无关）：Q10 用户裁 C 的落地件。
+# 与 score_v2 的差别：标签不限、理由/风险字段可选、支持重复跑算 pass^k、附带 Fleiss κ。
+# 验收标准是「复现历史数字」：v2 第四轮 26/26、v3 首轮 单席 5/10 与多席 5/9。
+# 带 k=3 的三次重复（数据已在库，直接跑即得 pass^1 / pass^3 / 自稳）。
+score:
+	$(PY) audit/kit/score.py --items audit/baseline/v3/adjudication-v3.json \
+		--arm "M1=audit/baseline/v3/arm-M1.json,audit/baseline/v3/r2-M1.json,audit/baseline/v3/r3-M1.json" \
+		--arm "S1=audit/baseline/v3/seat-S1.json,audit/baseline/v3/r2-S1.json,audit/baseline/v3/r3-S1.json" \
+		--arm "S2=audit/baseline/v3/seat-S2.json,audit/baseline/v3/r2-S2.json,audit/baseline/v3/r3-S2.json" \
+		--arm "S3=audit/baseline/v3/seat-S3.json,audit/baseline/v3/r2-S3.json,audit/baseline/v3/r3-S3.json"
+
+# 题面准入：查「题面里有没有写着答案」（情形段含结论、引用编号、选项描述不对称）。
+# 与 item-gate 分工：lint 查题面是否干净，item_gate 查题是否还有区分度。两道都过才可入库。
+# ★ 当前对 v3 十份必然 FAIL（情形段有 4 处锚点）——这是如实报告，不是脚本坏了。
+#   若你决定按 lint 重写 brief，改成 v3.1 后此目标自然转 PASS。
+brief-lint:
+	$(PY) audit/kit/brief_lint.py audit/baseline/v3/materials
 
 # 两臂须同条件（同一份提示词、同一套访问权限）；单臂与多臂都必须重跑
 v11-compare:

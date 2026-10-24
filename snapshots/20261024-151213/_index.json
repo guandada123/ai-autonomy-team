@@ -1,7 +1,7 @@
 {
- "created_at": "2026-10-24T11:00:11",
+ "created_at": "2026-10-24T15:12:13",
  "label": "",
- "file_count": 114,
+ "file_count": 116,
  "files": {
   "scripts/build_package.py": {
    "sha256": "b2dad8c4b0adc07c8cc367c51c292263c2789cf6501a0a7481c80260de23f494",
@@ -32,8 +32,8 @@
    "bytes": 7769
   },
   "scripts/install_launchd.sh": {
-   "sha256": "9d4d7dcbd6b722cb082a507fd6b34cdc7ea64c3fcd2d182f61738f26c713b87e",
-   "bytes": 1209
+   "sha256": "3a082afc1b708f04f0bd31325b7ac85cd42d7fe425605a5d2491da4e6f08d60e",
+   "bytes": 1822
   },
   "scripts/judges/README.md": {
    "sha256": "73e1a4524d724402bf5f0340f6fc5fcf16856d6661f4ec1748c5a0ea106b7370",
@@ -60,8 +60,8 @@
    "bytes": 41768
   },
   "scripts/launchd/com.guan.aiteam.recompute.plist.tmpl": {
-   "sha256": "53cf5490d8f5d76244353adb2f8198a88b8f7ae3d408aeb716c80278e667a836",
-   "bytes": 1617
+   "sha256": "4b2b56f01b097bbf92361d3b7d025ab1c21b7d7e5d695de03de0204d3da32df7",
+   "bytes": 1750
   },
   "scripts/make_backup.py": {
    "sha256": "93f138e429a9d0ae5176163464f097ed8f63d3c515b862feda033b23c0a07897",
@@ -116,8 +116,8 @@
    "bytes": 17283
   },
   "scripts/recompute_watch.py": {
-   "sha256": "089c3fa2fc3e9e7115e4cce73bc6045dc59083d45983d937169bf5b67fc18cc1",
-   "bytes": 4043
+   "sha256": "e78a14472ae7d4ce313b97a063a2db45acd3510f51b1328e5662e7e8e5216de0",
+   "bytes": 4039
   },
   "scripts/redact_report.py": {
    "sha256": "b0557dfa5ba2659b0f9da12495a4deabbcbb29664a5620a160b3e5c913a9b2dc",
@@ -430,6 +430,14 @@
   "docs/decisions/D-0064-v3首轮席位低于常数基准.md": {
    "sha256": "bab6c45357a9614dd29bb393186aa0fd8eb670be944154331d602ecb6bba7168",
    "bytes": 5610
+  },
+  "docs/decisions/D-0065-v3可靠性轮.md": {
+   "sha256": "6bb197657abd2db44a74101fa84d743e8aebedbaef235a04f05e4fa598534264",
+   "bytes": 3956
+  },
+  "docs/decisions/D-0066-通用判分器与消融失败.md": {
+   "sha256": "f4f43ba59f7ea8635c7d0c194c14105367c845f8fde44ad3ca0720ba6fcf2d83",
+   "bytes": 4741
   },
   "docs/decisions/TEMPLATE.md": {
    "sha256": "0bbc33940a540ae0e983817d9b1cf6daf6502ff233074d5023a3466511867e6e",
