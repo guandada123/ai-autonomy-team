@@ -47,6 +47,7 @@ sys.path.insert(0, str(HERE))
 sys.path.insert(0, str(ROOT / "audit/baseline/v2"))
 
 import brief_lint  # noqa: E402
+import label_saturation  # noqa: E402
 import score  # noqa: E402
 import score_v2  # noqa: E402  历史脚本，仅用于交叉验证
 
@@ -240,6 +241,29 @@ def _():
          "## 选项\n- `A` 很长很长的方案说明文字\n- `B` 短\n")
     lv = {i["rule"]: i["level"] for i in _lint(t)}
     assert lv.get("R5") == "WARN", lv
+
+
+@check("label_saturation: invariant_run 数出最长「连续同值」段")
+def _():
+    ths = [1, 2, 3, 4, 5]
+    # 1.0,1.0,0.9,0.9,1.0 → 最长 2
+    assert label_saturation.invariant_run(
+        {1: 1.0, 2: 1.0, 3: 0.9, 4: 0.9, 5: 1.0}, ths) == 2
+    # 每点都不同 → 1
+    assert label_saturation.invariant_run(
+        {1: 1.0, 2: 0.9, 3: 0.8, 4: 0.7, 5: 0.6}, ths) == 1
+    # 全程不变 → 5（这正是 heldout 的实测形态）
+    assert label_saturation.invariant_run(
+        {t: 1.0 for t in ths}, ths) == 5
+
+
+@check("label_saturation: 当前前提标注集判定为饱和（S1/S2 命中）")
+def _():
+    # 钉住当前状态：若哪天标签被独立标注替换、或规则改动，这条会变，
+    # 届时须有意更新，而不是让「1.00 全对」悄悄继续被当成有效性证据。
+    grid = label_saturation.sweep(["calibration", "heldout"], [3, 5, 20])
+    assert grid["calibration"][5] == 1.0, grid
+    assert grid["heldout"][3] == grid["heldout"][20] == 1.0, grid
 
 
 # ── 组五：交叉验证（关键）────────────────────────────────────────────────

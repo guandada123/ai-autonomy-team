@@ -12,7 +12,7 @@ PKG     := migration-package
 
 .DEFAULT_GOAL := help
 .PHONY: help check test selftest handover metrics review package-check \
-        recompute v11-compare item-gate score brief-lint kit-test \
+        recompute v11-compare item-gate score brief-lint kit-test label-audit \
         package-apply snapshot sync-docs pre-push hooks backup backup-list veto-list coverage clean
 
 # ── 帮助 ──────────────────────────────────────────────────────────────
@@ -44,7 +44,8 @@ help:
 	@echo "    make item-gate      题目准入闸（饱和/常数胜出/全错；当前应 FAIL）"
 	@echo "    make score          通用判分器（题集无关，含 pass^k 与 Fleiss κ）"
 	@echo "    make brief-lint     题面准入检查（情形段含结论/引用编号；当前应 FAIL）"
-	@echo "    make kit-test       判定工具自检（28 项，含与历史判分器的交叉验证）"
+	@echo "    make kit-test       判定工具自检（30 项，含与历史判分器的交叉验证）"
+	@echo "    make label-audit    标注集饱和检查（满分/阈值不敏感；当前应命中）"
 	@echo ""
 	@echo "  清理："
 	@echo "    make clean          清 _trash 下的 scratch（不动冻结基线）"
@@ -162,6 +163,12 @@ brief-lint:
 # 含与历史 score_v2.py 的交叉验证——两处多数票实现若走偏，这里立刻红。
 kit-test:
 	$(PY) audit/kit/test_kit.py
+
+# 标注集饱和检查：一套标注能不能验证规则（满分/阈值不敏感/两集同源三条判据）。
+# 与 item-gate、brief-lint 并列，三者分工：题面能否入库 / 题有无区分度 / 标注能否验规则。
+# ★ 当前必然命中（校准集与留出集都 1.00，留出集 9 个阈值点不变）——如实报告。
+label-audit:
+	$(PY) audit/kit/label_saturation.py
 
 # 两臂须同条件（同一份提示词、同一套访问权限）；单臂与多臂都必须重跑
 v11-compare:
