@@ -1,7 +1,7 @@
 {
- "created_at": "2026-10-24T08:45:03",
+ "created_at": "2026-10-24T11:00:11",
  "label": "",
- "file_count": 110,
+ "file_count": 114,
  "files": {
   "scripts/build_package.py": {
    "sha256": "b2dad8c4b0adc07c8cc367c51c292263c2789cf6501a0a7481c80260de23f494",
@@ -31,6 +31,10 @@
    "sha256": "23df35834b0e5aa663209957ad9753fafc06075e0bc3e04aa2020c082c5724b6",
    "bytes": 7769
   },
+  "scripts/install_launchd.sh": {
+   "sha256": "9d4d7dcbd6b722cb082a507fd6b34cdc7ea64c3fcd2d182f61738f26c713b87e",
+   "bytes": 1209
+  },
   "scripts/judges/README.md": {
    "sha256": "73e1a4524d724402bf5f0340f6fc5fcf16856d6661f4ec1748c5a0ea106b7370",
    "bytes": 3919
@@ -54,6 +58,10 @@
   "scripts/judges/verify.py.bak-20261020-2200": {
    "sha256": "4479ffe8902acc1051c9d3c3ee75dc8c9427e4f6ae8dfb68bbb9d63ce4fd6c37",
    "bytes": 41768
+  },
+  "scripts/launchd/com.guan.aiteam.recompute.plist.tmpl": {
+   "sha256": "53cf5490d8f5d76244353adb2f8198a88b8f7ae3d408aeb716c80278e667a836",
+   "bytes": 1617
   },
   "scripts/make_backup.py": {
    "sha256": "93f138e429a9d0ae5176163464f097ed8f63d3c515b862feda033b23c0a07897",
@@ -96,8 +104,8 @@
    "bytes": 11650
   },
   "scripts/pre_release_check.py": {
-   "sha256": "b4dd557f1dd7d241f58a5256345d2736942831141dabb8a51b52335e022685a7",
-   "bytes": 13212
+   "sha256": "6ca5e93d7bfa4c4af0c424e06c3f471502e8648a7d609ea846ed3e814e221e6b",
+   "bytes": 13990
   },
   "scripts/premise_probe.py": {
    "sha256": "3b5baee8172840c15a21a47cfa0297ca9ba3049869e0550da1f1177bbba250e9",
@@ -106,6 +114,10 @@
   "scripts/real_recon.py": {
    "sha256": "e49c00f5d980cda67c15123fb2ae4f0f6dccdacd745d9fb2dc1ae681fb4080eb",
    "bytes": 17283
+  },
+  "scripts/recompute_watch.py": {
+   "sha256": "089c3fa2fc3e9e7115e4cce73bc6045dc59083d45983d937169bf5b67fc18cc1",
+   "bytes": 4043
   },
   "scripts/redact_report.py": {
    "sha256": "b0557dfa5ba2659b0f9da12495a4deabbcbb29664a5620a160b3e5c913a9b2dc",
@@ -414,6 +426,10 @@
   "docs/decisions/D-0063-v2停止扩张.md": {
    "sha256": "6be31c67c31876caaee9dc0a29fd821019a273fbcaa5a603914a2a8a3aa93d8d",
    "bytes": 3172
+  },
+  "docs/decisions/D-0064-v3首轮席位低于常数基准.md": {
+   "sha256": "bab6c45357a9614dd29bb393186aa0fd8eb670be944154331d602ecb6bba7168",
+   "bytes": 5610
   },
   "docs/decisions/TEMPLATE.md": {
    "sha256": "0bbc33940a540ae0e983817d9b1cf6daf6502ff233074d5023a3466511867e6e",

@@ -12,7 +12,7 @@ PKG     := migration-package
 
 .DEFAULT_GOAL := help
 .PHONY: help check test selftest handover metrics review package-check \
-        recompute v11-compare \
+        recompute v11-compare item-gate \
         package-apply snapshot sync-docs pre-push hooks backup backup-list veto-list coverage clean
 
 # ── 帮助 ──────────────────────────────────────────────────────────────
@@ -41,6 +41,7 @@ help:
 	@echo "    make coverage       覆盖率基线（开发期，需装 coverage；见 tools/README.md）"
 	@echo "    make veto-list      列出 24h 否决窗口内待裁的结论（人工否决权入口）"
 	@echo "    make recompute      题库 v1.1 真值重算检查（漂移即红，先跑它再出分）"
+	@echo "    make item-gate      题目准入闸（饱和/常数胜出/全错；当前应 FAIL）"
 	@echo ""
 	@echo "  清理："
 	@echo "    make clean          清 _trash 下的 scratch（不动冻结基线）"
@@ -120,6 +121,17 @@ sync-docs:
 # 为什么单独：v1 的教训是「冻结只校验哈希，证明不了还对」。v1.1 必须先重算再出分。
 recompute:
 	$(PY) audit/baseline/v1.1/recompute_truth.py
+
+# 题目准入闸：出分之前先判「题还有没有区分度」（饱和 / 常数胜出 / 全错）
+# 为什么在 Makefile 里：v2、v3 两次事故都是跳过这一步直接算分造成的。
+# ★ 当前它一定 FAIL —— 因为 v3 这批题本身没过准入（常数基准 0.700 高过所有臂）。
+#   这不是脚本坏了，是它如实报告了题目不合格。修题后自然转 PASS。
+#   故不列入 selftest，避免把「题不合格」和「代码坏了」混成同一个红灯。
+item-gate:
+	$(PY) audit/kit/item_gate.py \
+		--adjudication audit/baseline/v3/adjudication-v3.json \
+		--arm single=audit/baseline/v3/arm-M1.json \
+		--arm seats=audit/baseline/v3/seat-S1.json,audit/baseline/v3/seat-S2.json,audit/baseline/v3/seat-S3.json
 
 # 两臂须同条件（同一份提示词、同一套访问权限）；单臂与多臂都必须重跑
 v11-compare:
