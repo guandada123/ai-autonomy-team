@@ -7,13 +7,14 @@
 <plist version="1.0">
 <dict>
   <key>Label</key><string>com.guan.aiteam.recompute</string>
-  <!-- 用 sh 先判存在性再调用：仓库在外置卷上，卷未挂载时 python 脚本本身就不存在，
-       直接 exec 会得到一行难读的 "no such file"，而那句 exit 2 根本执行不到。
-       这里保证「卷没挂」这件事会以 ALERT 字样落进日志。 -->
+  <!-- 守卫必须"真读一个字节"，不能只判存在：
+       launchd 上下文受 TCC 限制时，`test -f` 与 `test -r` 都返回 yes，
+       只有真正 open/read 才报 EPERM（2026-10-24 实测：-f yes / -r yes / head -c1 no / python open 失败）。
+       用 -f 当守卫等于没有守卫，会一路走到 exec 才炸在难读的 traceback 上。 -->
   <key>ProgramArguments</key>
   <array>
     <string>/bin/sh</string><string>-c</string>
-    <string>if [ -f "__REPO__/scripts/recompute_watch.py" ]; then exec /usr/bin/env python3 "__REPO__/scripts/recompute_watch.py"; else echo "ALERT 仓库不可用（外置卷未挂载？）：__REPO__"; exit 2; fi</string>
+    <string>if head -c 1 "__REPO__/scripts/recompute_watch.py" >/dev/null 2>&1; then exec /usr/bin/env python3 "__REPO__/scripts/recompute_watch.py"; else echo "ALERT 仓库不可读（外置卷未挂载，或未授予完全磁盘访问权限）：__REPO__"; exit 2; fi</string>
   </array>
   <key>StartCalendarInterval</key>
   <dict><key>Hour</key><integer>9</integer><key>Minute</key><integer>10</integer></dict>

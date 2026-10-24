@@ -91,7 +91,11 @@ def main() -> int:
             if args.as_repeat and len(votes) > 1:
                 hits = [v == gold for v in votes]
                 per_repeat[name] = {"pass^1": round(sum(hits) / len(hits), 3),
-                                    "pass^k": 1.0 if all(hits) else 0.0}
+                                    "pass^k": 1.0 if all(hits) else 0.0,
+                                    # 自己跟自己不一致 = 题目在它眼里有歧义，
+                                    # 与「答对没答对」是两件事，必须单独记。
+                                    "stable": len({v for v in votes if v}) <= 1,
+                                    "votes": "".join(v.upper() for v in votes)}
                 per[name] = per_repeat[name]["pass^k"]
                 continue
             counted = [v for v in votes if v in valid_labels]
@@ -105,6 +109,7 @@ def main() -> int:
         vals = [v for v in per.values() if v is not None]
         rows[q] = {"gold": gold, "per_arm": per, "pass": per_repeat,
                    "ambiguous": any(v is None for v in per.values()),
+                   "unstable": any(not pr["stable"] for pr in per_repeat.values()),
                    "saturated": bool(vals) and all(v == 1.0 for v in vals),
                    "all_wrong": bool(vals) and all(v == 0.0 for v in vals)}
 
@@ -147,6 +152,13 @@ def main() -> int:
         print(f"✅ 最好的臂 {best_arm} {best_acc:.3f} 高于常数基准 {const_acc:.3f}")
     if sat:
         print(f"🟡 有 {len(sat)} 道饱和题，应从计分中剔除或加难度后再跑")
+    flip = [q for q, r in rows.items() if r["unstable"]]
+    if flip:
+        print(f"🟡 有 {len(flip)} 道题同一臂重复运行答案会变（题目有歧义，应先改题面）：")
+        for q in flip:
+            tags = " ｜ ".join(f"{k}:{v['votes']}" for k, v in rows[q]["pass"].items()
+                               if not v["stable"])
+            print(f"    {q}: {tags}")
     if dead:
         print(f"🔴 有 {len(dead)} 道题所有臂都错，先查题面与真值（不要归因为模型差）")
 
@@ -164,7 +176,7 @@ def main() -> int:
         Path(args.json_out).write_text(json.dumps(
             {"n": n, "distribution": dict(dist), "constant": {"label": const_label, "acc": const_acc},
              "best_arm": {"name": best_arm, "acc": best_acc}, "constant_wins": constant_wins,
-             "saturated": sat, "all_wrong": dead, "rows": rows},
+             "saturated": sat, "all_wrong": dead, "unstable": flip, "rows": rows},
             ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
         print(f"\n明细：{args.json_out}")
 
