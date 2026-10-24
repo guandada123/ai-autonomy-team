@@ -1,0 +1,79 @@
+{
+  "_note": "v3 十题 S1 作答，回传转录。参考裁决来自用户，本臂作答时未见。",
+  "seat": "S1",
+  "used_tools": true,
+  "forbidden_paths_read": false,
+  "answers": {
+    "Q01": {
+      "verdict": "A",
+      "reasons": [
+        "3份仅3.7MB、H项只比最近1份、超出份数只移到_trash不删除，另有git全量历史+远端+bundle备份，改动无收益"
+      ],
+      "confidence": "high"
+    },
+    "Q02": {
+      "verdict": "C",
+      "reasons": [
+        "8天8/27说明「准备出分时才跑」触发太晚，但项目非常驻服务、加定时要新增调度/告警/重试/日志四项，写进待办成本与风险相称"
+      ],
+      "confidence": "high"
+    },
+    "Q03": {
+      "verdict": "A",
+      "reasons": [
+        "D-0052写明标注者=实现者；换模型底座相同消不掉同源偏差，只有你本人逐条标注才拿到独立判据，36条是一次性成本"
+      ],
+      "confidence": "medium"
+    },
+    "Q04": {
+      "verdict": "C",
+      "reasons": [
+        "材料已含端口/路径/计费/权限细节且已入库，移_trash并不能消除暴露；真正风险是「测不出差异」被误引为正面证据，需双处标注仅档案"
+      ],
+      "confidence": "medium"
+    },
+    "Q05": {
+      "verdict": "C",
+      "reasons": [
+        "audit脚本不进生产链路，lint收益低且拖慢门禁；但make_label_swap.py会覆盖brief，一条py_compile就能拦住语法级损坏"
+      ],
+      "confidence": "medium"
+    },
+    "Q06": {
+      "verdict": "C",
+      "reasons": [
+        "抽库要先答谁改/怎么引/怎么同步/冲突四项而现在都没答案；单向月度导出不引入同步机制却能止住纯人工复制"
+      ],
+      "confidence": "medium"
+    },
+    "Q07": {
+      "verdict": "B",
+      "reasons": [
+        "四臂26/26零分歧、独立性按0计，且判据/探针/审计流程都不依赖席位；保留成本是每轮4—8个agent"
+      ],
+      "confidence": "medium"
+    },
+    "Q08": {
+      "verdict": "A",
+      "reasons": [
+        "报告是唯一可复算凭据，逐题表占一半但三份里两份中间数字被修正过正说明它有用；可读性已由聊天摘要承担"
+      ],
+      "confidence": "medium"
+    },
+    "Q09": {
+      "verdict": "A",
+      "reasons": [
+        "你裁决=参考值与出题人分离，是唯一已知能打破天花板的方式；只做一次下轮就回来，成本仅每轮几分钟"
+      ],
+      "confidence": "high"
+    },
+    "Q10": {
+      "verdict": "C",
+      "reasons": [
+        "指标可复用但判分器强绑key_reasons；推广意味着三份新出题+裁决，且Q06已明确跨项目共享要先答清谁改/怎么引/怎么同步"
+      ],
+      "confidence": "high"
+    }
+  },
+  "note": "十题仅读对应 brief；成本-收益权衡题标 medium，其余按材料直接事实标 high。"
+}

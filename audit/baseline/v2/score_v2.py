@@ -55,15 +55,26 @@ def grade_one(ans, ref):
                 "coverage": 0.0, "falsifiable": False, "covered": []}
     verdict = str(ans.get("verdict", "")).strip().lower()
     reasons = " ".join(map(str, ans.get("reasons") or []))
+    krs = ref.get("key_reasons") or []
     risk = str(ans.get("top_risk") or "")
     fals = str(ans.get("falsification") or "").strip()
+    require_fals = bool(krs or (ref.get("top_risk") or {}).get("kw"))
 
-    covered = [kr["r"] for kr in ref["key_reasons"] if hits(kr["kw"], reasons)]
-    coverage = len(covered) / len(ref["key_reasons"]) if ref["key_reasons"] else 0.0
-    match = verdict == ref["verdict"]
-    danger = (not match) and (not hits(ref["top_risk"]["kw"], risk))
+    covered = [kr["r"] for kr in krs if hits(kr["kw"], reasons)]
+    # 裁决表没有理由（v3 用户只给字母）时，覆盖率记为 None 而不是 0——
+    # 把「没测」记成「0 分」是拿缺数据当坏结果，会压低整臂均值。
+    coverage = round(len(covered) / len(krs), 3) if krs else None
+    # 两侧都归一化再比：席位常写小写 a，裁决表写 A。只在取 verdict 时降一侧，
+    # 会得到「26 题全错」这种离谱结果（v3 首跑实测）。
+    match = verdict == str(ref["verdict"]).strip().lower()
+    tr = ref.get("top_risk") or {}
+    danger = (not match) and bool(tr.get("kw")) and (not hits(tr["kw"], risk))
+    # 裁决表没有理由/风险（v3：用户只给字母）时，本轮不测「可裁决性」，
+    # 不能因为席位没写 falsification 就把整题判成未作答（否则 n=0，分母消失）。
+    if not require_fals and not fals:
+        fals = "（本轮不测可裁决性）"
     return {"answered": True, "verdict": verdict, "match": match, "danger": danger,
-            "coverage": round(coverage, 3), "covered": covered,
+            "coverage": coverage, "covered": covered,
             "falsifiable": bool(fals), "risk_text": risk}
 
 
@@ -78,7 +89,8 @@ def summarize(name, arm, refs):
             ok += 1
         if r["danger"]:
             danger.append(q)
-        cov.append(r["coverage"])
+        if r["coverage"] is not None:
+            cov.append(r["coverage"])
         fals += 1
     n = fals
     missing = [q for q in refs if q not in arm]
@@ -181,12 +193,17 @@ def main():
         _mc, _mn = _cnt.most_common(1)[0]
         print(f"  多数类基准线：全答 {_mc} = {_mn}/{sum(_cnt.values())} = {_mn/sum(_cnt.values()):.3f}"
               f"（分布 {dict(_cnt)}）—— raw 准确率须与它对比才有意义，平衡准确率下它恒为 0.50")
+        if diff is None:
+            print("  差值 无法计算（无有效题）——本轮不出结论")
+            return 1
         print(f"  差值 {diff:+.3f} → **{verdict}**（判据：≥+0.10 增益 / |差值|<0.10 无差异 / ≤−0.10 更差）")
         print("  逐题（verdict：单席 / 多席 / 参考）：")
         for q in refs:
             s, m = S["rows"][q], M["rows"][q]
+            # coverage 可能是 None（裁决表没有理由时本轮不测覆盖率），不能直接 .2f
+            _f = lambda c: "—" if c is None else f"{c:.2f}"
             print(f"    {q}: {s.get('verdict', '—'):5s} / {m.get('verdict', '—'):5s} / "
-                  f"{refs[q]['verdict']:5s}  覆盖 {s['coverage']:.2f} vs {m['coverage']:.2f}"
+                  f"{str(refs[q]['verdict']):5s}  覆盖 {_f(s['coverage'])} vs {_f(m['coverage'])}"
                   f"{'  ⚠️危险失误' if m['danger'] else ''}")
         print(f"\n  逐席一致数：{[(p['arm'], p['agree'], p['n']) for p in per]}")
         _n = len(refs)

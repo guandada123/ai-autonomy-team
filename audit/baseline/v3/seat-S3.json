@@ -1,0 +1,79 @@
+{
+  "_note": "v3 十题 S3 作答，回传转录。参考裁决来自用户，本臂作答时未见。",
+  "seat": "S3",
+  "used_tools": true,
+  "forbidden_paths_read": false,
+  "answers": {
+    "Q01": {
+      "verdict": "A",
+      "reasons": [
+        "门禁H项只需1份、3份合计仅3.7MB，砍到2份只省1.2MB却少一档历史回看"
+      ],
+      "confidence": "high"
+    },
+    "Q02": {
+      "verdict": "C",
+      "reasons": [
+        "项目无常驻服务、加定时要新增调度/告警/重试/日志四件套，写进待办零成本且能兜住漂移"
+      ],
+      "confidence": "medium"
+    },
+    "Q03": {
+      "verdict": "A",
+      "reasons": [
+        "D-0052已自认标注者=实现者，只有你自标才能拿到独立判据，换模型仍有同源偏差"
+      ],
+      "confidence": "medium"
+    },
+    "Q04": {
+      "verdict": "C",
+      "reasons": [
+        "材料含端口/路径/计费/权限真实细节，且结论易被误引为正面证据，故移archive并在两处标注"
+      ],
+      "confidence": "high"
+    },
+    "Q05": {
+      "verdict": "C",
+      "reasons": [
+        "make_label_swap.py会覆盖写brief，语法错就能毁材料，py_compile成本近零又不拖慢门禁"
+      ],
+      "confidence": "medium"
+    },
+    "Q06": {
+      "verdict": "C",
+      "reasons": [
+        "21条里仅约1/3跨项目通用，抽库要解版本/引用/同步/冲突，每月导出快照是低成本折中"
+      ],
+      "confidence": "medium"
+    },
+    "Q07": {
+      "verdict": "B",
+      "reasons": [
+        "四臂全26/26零分歧、独立性按0计，而判据/探针/审计流程并不依赖席位"
+      ],
+      "confidence": "high"
+    },
+    "Q08": {
+      "verdict": "C",
+      "reasons": [
+        "逐题表确有修正价值，但正文只需约20行结论，故正文精简+详尽版进附录"
+      ],
+      "confidence": "high"
+    },
+    "Q09": {
+      "verdict": "A",
+      "reasons": [
+        "换人裁决是唯一已知能打破天花板的方式，10题几分钟，仅做一次下轮天花板就回来"
+      ],
+      "confidence": "medium"
+    },
+    "Q10": {
+      "verdict": "C",
+      "reasons": [
+        "判分器依赖key_reasons与题集强绑定，只有指标可复用，先解耦题集格式再谈推广"
+      ],
+      "confidence": "high"
+    }
+  },
+  "note": "十题按材料事实独立判断，成本-收益权衡题（Q02/Q03/Q06/Q09）把握度较低。"
+}

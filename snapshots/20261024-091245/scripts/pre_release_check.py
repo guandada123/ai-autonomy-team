@@ -96,6 +96,19 @@ def chk_regress():
 
 
 def chk_selftest():
+    # v3 Q05（用户裁 C）：audit/ 下的判定脚本此前不在任何检查里，而 make_label_swap.py
+    # 会覆盖写 materials 下的 brief —— 一个语法错就能毁材料。这里只做**语法检查**，
+    # 不做 lint。并入 C 项而不是新增第 9 项：8/8 是本文件自己声明的基线契约
+    # （见 main() 的说明），加第 9 项等于改契约，超出「只纳入语法检查」的原意。
+    bad = []
+    for sp in sorted(ROOT.glob("audit/**/*.py")):
+        try:
+            compile(sp.read_text(encoding="utf-8"), str(sp), "exec")
+        except SyntaxError as e:
+            bad.append(f"{sp.relative_to(ROOT)}:{e.lineno}")
+    if bad:
+        return False, f"audit 脚本语法错误 {len(bad)} 处：{', '.join(bad[:3])}"
+
     rc, out = sh([PY, str(PKG / "judges" / "verify.py"), "--self-test"])
     m = re.search(r"(\d+)/(\d+) 项", out)
     if not m:

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- v3 Q02（用户裁 A）：每日 09:10 重算 v1.1 真值。
+     ★ 需要手动安装，agent 不代为 load（load 是系统级动作）：
+       cp scripts/launchd/com.guan.aiteam.recompute.plist ~/Library/LaunchAgents/
+       launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.guan.aiteam.recompute.plist
+     ★ 仓库在外置卷：卷没挂载时脚本 exit 2 并写日志，不会静默成功。
+     ★ 告警通道走环境变量 FEISHU_WEBHOOK；不设则只写 outputs/recompute-watch.log。 -->
+<plist version="1.0">
+<dict>
+  <key>Label</key><string>com.guan.aiteam.recompute</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/usr/bin/env</string><string>python3</string>
+    <string>/Volumes/ZHITAI/WorkBuddy/2026-10-19-22-33-38/ai-autonomy-team/scripts/recompute_watch.py</string>
+  </array>
+  <key>StartCalendarInterval</key>
+  <dict><key>Hour</key><integer>9</integer><key>Minute</key><integer>10</integer></dict>
+  <key>StandardOutPath</key><string>/tmp/aiteam-recompute.out</string>
+  <key>StandardErrorPath</key><string>/tmp/aiteam-recompute.err</string>
+  <key>RunAtLoad</key><false/>
+</dict>
+</plist>
