@@ -1,0 +1,154 @@
+{
+  "source": "migration-package/audit/probes/premise/calibration.json",
+  "note": "参考标签来自 premise_probe 校准集 should_hit；True=拦/报警，False=过/放过。与盲标表 36 id 一一对应。冻结以便复现（非哈希冻结，可随校准集重算）。",
+  "counts": {
+    "拦": 18,
+    "过": 18
+  },
+  "labels": {
+    "T01": {
+      "label": "拦",
+      "should_hit": true
+    },
+    "T02": {
+      "label": "拦",
+      "should_hit": true
+    },
+    "T03": {
+      "label": "拦",
+      "should_hit": true
+    },
+    "T04": {
+      "label": "拦",
+      "should_hit": true
+    },
+    "T05": {
+      "label": "拦",
+      "should_hit": true
+    },
+    "T06": {
+      "label": "拦",
+      "should_hit": true
+    },
+    "T07": {
+      "label": "拦",
+      "should_hit": true
+    },
+    "T08": {
+      "label": "拦",
+      "should_hit": true
+    },
+    "T09": {
+      "label": "拦",
+      "should_hit": true
+    },
+    "T10": {
+      "label": "拦",
+      "should_hit": true
+    },
+    "N01": {
+      "label": "过",
+      "should_hit": false
+    },
+    "N02": {
+      "label": "过",
+      "should_hit": false
+    },
+    "N03": {
+      "label": "过",
+      "should_hit": false
+    },
+    "N04": {
+      "label": "过",
+      "should_hit": false
+    },
+    "N05": {
+      "label": "过",
+      "should_hit": false
+    },
+    "N06": {
+      "label": "过",
+      "should_hit": false
+    },
+    "N07": {
+      "label": "过",
+      "should_hit": false
+    },
+    "N08": {
+      "label": "过",
+      "should_hit": false
+    },
+    "N09": {
+      "label": "过",
+      "should_hit": false
+    },
+    "N10": {
+      "label": "过",
+      "should_hit": false
+    },
+    "T11": {
+      "label": "拦",
+      "should_hit": true
+    },
+    "T12": {
+      "label": "拦",
+      "should_hit": true
+    },
+    "T13": {
+      "label": "拦",
+      "should_hit": true
+    },
+    "T14": {
+      "label": "拦",
+      "should_hit": true
+    },
+    "T15": {
+      "label": "拦",
+      "should_hit": true
+    },
+    "T16": {
+      "label": "拦",
+      "should_hit": true
+    },
+    "T17": {
+      "label": "拦",
+      "should_hit": true
+    },
+    "T18": {
+      "label": "拦",
+      "should_hit": true
+    },
+    "N11": {
+      "label": "过",
+      "should_hit": false
+    },
+    "N12": {
+      "label": "过",
+      "should_hit": false
+    },
+    "N13": {
+      "label": "过",
+      "should_hit": false
+    },
+    "N14": {
+      "label": "过",
+      "should_hit": false
+    },
+    "N15": {
+      "label": "过",
+      "should_hit": false
+    },
+    "N16": {
+      "label": "过",
+      "should_hit": false
+    },
+    "N17": {
+      "label": "过",
+      "should_hit": false
+    },
+    "N18": {
+      "label": "过",
+      "should_hit": false
+    }
+  }
+}

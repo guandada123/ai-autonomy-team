@@ -194,6 +194,49 @@ def _():
     assert abs(k - (-1 / 3)) < 0.002, k
 
 
+# ── 组四：盲标 Kappa 工具链（破「标注集只能验实现」） ──────────────────────
+
+@check("kappa_labels: 完全一致 → Cohen κ = 1.0")
+def _():
+    import kappa_labels as kl
+    a = [1, 0, 1, 1, 0, 0]
+    b = [1, 0, 1, 1, 0, 0]
+    assert abs(kl.cohen_kappa(a, b) - 1.0) < 1e-9
+
+
+@check("kappa_labels: 已知例子 P≈0.5,Pe≈0.5 → κ≈0（碰巧一致）")
+def _():
+    import kappa_labels as kl
+    # 参考全 1，标注者 3 个对 3 个错（恰好一半），完全随机水平
+    a = [1, 1, 1, 1]
+    b = [1, 0, 1, 0]
+    # Po=0.5; pa1=1.0, pb1=0.5 → Pe=0.5+0.5*0? 重新算: Pe=1*0.5 + 0*0.5=0.5
+    assert abs(kl.cohen_kappa(a, b) - 0.0) < 1e-9, kl.cohen_kappa(a, b)
+
+
+@check("kappa_labels: CLI 对示例文件跑出 κ=1.000 且退出 0")
+def _():
+    import subprocess
+    ex = str(V3 / "labels-user.example.txt")
+    r = subprocess.run([sys.executable, str(HERE / "kappa_labels.py"),
+                        "--labels", ex], capture_output=True, text=True)
+    assert r.returncode == 0, r.stderr
+    assert "1.000" in r.stdout, r.stdout
+    assert "站得住" in r.stdout, r.stdout
+
+
+@check("kappa_labels: 解析显式 id 格式 T01拦 N01过")
+def _():
+    import kappa_labels as kl
+    from pathlib import Path
+    import tempfile
+    tf = Path(tempfile.mktemp(suffix=".txt"))
+    tf.write_text("T01拦 N01过 T02过", encoding="utf-8")
+    got = kl.parse_labels(tf)
+    tf.unlink()
+    assert got == {"T01": 1, "N01": 0, "T02": 0}, got
+
+
 # ── 组四：题面 lint ──────────────────────────────────────────────────────
 
 def _lint(text: str):
