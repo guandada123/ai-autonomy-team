@@ -12,7 +12,7 @@ PKG     := migration-package
 
 .DEFAULT_GOAL := help
 .PHONY: help check test selftest handover metrics review package-check \
-        recompute v11-compare item-gate score brief-lint \
+        recompute v11-compare item-gate score brief-lint kit-test \
         package-apply snapshot sync-docs pre-push hooks backup backup-list veto-list coverage clean
 
 # ── 帮助 ──────────────────────────────────────────────────────────────
@@ -44,6 +44,7 @@ help:
 	@echo "    make item-gate      题目准入闸（饱和/常数胜出/全错；当前应 FAIL）"
 	@echo "    make score          通用判分器（题集无关，含 pass^k 与 Fleiss κ）"
 	@echo "    make brief-lint     题面准入检查（情形段含结论/引用编号；当前应 FAIL）"
+	@echo "    make kit-test       判定工具自检（28 项，含与历史判分器的交叉验证）"
 	@echo ""
 	@echo "  清理："
 	@echo "    make clean          清 _trash 下的 scratch（不动冻结基线）"
@@ -73,6 +74,9 @@ selftest:
 	@echo ""
 	@echo "── 备份验证逻辑自检 ──"
 	$(PY) $(SCRIPTS)/make_backup.py --self-test
+	@echo ""
+	@echo "── 判定工具自检（多数票边界 / 覆盖率语义 / κ 已知值 / 与 score_v2 交叉）──"
+	$(PY) audit/kit/test_kit.py
 	@echo ""
 	@echo "── 判据自检 + 全量门禁（内含全量回归，约 60 秒）──"
 	$(PY) $(SCRIPTS)/pre_release_check.py
@@ -152,6 +156,12 @@ score:
 #   若你决定按 lint 重写 brief，改成 v3.1 后此目标自然转 PASS。
 brief-lint:
 	$(PY) audit/kit/brief_lint.py audit/baseline/v3/materials
+
+# 判定工具自检。这三个脚本产出的是决策级数字（进决策记录 / 决定题能不能用），
+# 此前零测试：brief_lint 误报过 10 份、item_gate 的单席路径被改崩过（0.500→0.000）。
+# 含与历史 score_v2.py 的交叉验证——两处多数票实现若走偏，这里立刻红。
+kit-test:
+	$(PY) audit/kit/test_kit.py
 
 # 两臂须同条件（同一份提示词、同一套访问权限）；单臂与多臂都必须重跑
 v11-compare:

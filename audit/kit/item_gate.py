@@ -42,6 +42,11 @@ import sys
 from collections import Counter
 from pathlib import Path
 
+# 同目录导入：多数票的唯一实现在 score.py。此前 item_gate 内联了一份，
+# 两处各写一遍同样的规则 → 改动时只改一处就静默分叉（本项目老毛病）。
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from score import resolve  # noqa: E402
+
 
 def load_answers(path: str) -> dict:
     d = json.loads(Path(path).read_text(encoding="utf-8"))
@@ -98,14 +103,10 @@ def main() -> int:
                                     "votes": "".join(v.upper() for v in votes)}
                 per[name] = per_repeat[name]["pass^k"]
                 continue
-            counted = [v for v in votes if v in valid_labels]
-            if len(counted) > 1:
-                top, cn = Counter(counted).most_common(1)[0]
-                # 与 score_v2 同口径：至少 2 票且过半，否则判未成票
-                per[name] = (1.0 if top == gold else 0.0) if (len(counted) >= 2 and cn * 2 > len(counted)) else None
-            else:
-                per[name] = 1.0 if counted and counted[0] == gold else (
-                    0.0 if counted else None)
+            # 口径统一走 score.resolve：单票直接采用，多票走多数制。
+            # 三处各写一遍同样的规则，是本项目反复吃亏的「两口径」结构。
+            win = resolve(votes, valid_labels)
+            per[name] = None if win is None else (1.0 if win == gold else 0.0)
         vals = [v for v in per.values() if v is not None]
         rows[q] = {"gold": gold, "per_arm": per, "pass": per_repeat,
                    "ambiguous": any(v is None for v in per.values()),

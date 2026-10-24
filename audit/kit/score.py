@@ -192,6 +192,43 @@ def summarize_repeat(name: str, runs: list[dict], refs: dict) -> dict:
             "per_run": [{k: v for k, v in x.items() if k != "rows"} for x in per_run]}
 
 
+def decide(votes: list[str], valid: set[str]) -> str | None:
+    """把一组票裁决成一个标签：**≥2 票且严格过半**，否则返回 None（未成票）。
+
+    这是全项目**唯一**的多数票实现。`score.py` 与 `item_gate.py` 都调它。
+    历史上的 `baseline/v2/score_v2.py` 保留自己那一份——它是产出过被引用数字的
+    历史脚本，改它会让那些数字失去可复现性；改由 `test_kit.py` 的交叉验证
+    保证两者口径一致（任何一处改了规则，交叉验证立刻红）。
+
+    「未成票」必须与「答错」分开：2 席各投 1 票不构成多数，按答错计会凭空
+    制造一次失败，也会让分母悄悄变大。
+    """
+    counted = [v for v in votes if v in valid]
+    if len(counted) < 2:
+        return None
+    top, cn = Counter(counted).most_common(1)[0]
+    return top if cn * 2 > len(counted) else None
+
+
+def resolve(votes: list[str], valid: set[str]) -> str | None:
+    """把一组票解析成一个标签：**单票直接采用，多票走多数制**。
+
+    与 `decide` 的区别只在「1 票」这个边界：
+      · `decide` 是纯多数函数，1 票返回 None（多数制在 1 票上没有意义）
+      · `resolve` 是「一个臂给出答案」的语义，1 票就是那个答案
+
+    为什么必须分开：`item_gate` 允许只给一个文件的臂（单席），
+    若也走多数制，单席会每道题都判「未成票」→ 分数直接变 0。
+    实测踩过：重构时把单席误接到决定多数上，单席从 0.500 掉到 0.000。
+    """
+    counted = [v for v in votes if v in valid]
+    if not counted:
+        return None
+    if len(counted) == 1:
+        return counted[0]
+    return decide(votes, valid)
+
+
 def majority_arms(arms: list[dict], qids, valid: set[str]):
     """跨臂多数票：≥2 票且过半才成票，否则记为未成票（不计分母）。
 
@@ -201,15 +238,12 @@ def majority_arms(arms: list[dict], qids, valid: set[str]):
     for q in qids:
         votes = [label_of(a.get(q)) for a in arms]
         counted = [v for v in votes if v in valid]
-        if len(counted) < 2:
-            amb[q] = f"有效票 {len(counted)} 席（<2）"
+        win = decide(votes, valid)
+        if win is None:
+            amb[q] = (f"有效票 {len(counted)} 席（<2）" if len(counted) < 2
+                      else f"无过半：{dict(Counter(counted))}")
             continue
-        cnt = Counter(counted)
-        top, cn = cnt.most_common(1)[0]
-        if cn * 2 <= len(counted):
-            amb[q] = f"无过半：{dict(cnt)}"
-            continue
-        out[q] = max((a[q] for a in arms if label_of(a.get(q)) == top),
+        out[q] = max((a[q] for a in arms if label_of(a.get(q)) == win),
                      key=lambda x: len(x.get("reasons") or []))
     return out, amb
 
