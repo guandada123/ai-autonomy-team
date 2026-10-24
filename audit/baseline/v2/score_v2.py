@@ -82,7 +82,21 @@ def summarize(name, arm, refs):
         fals += 1
     n = fals
     missing = [q for q in refs if q not in arm]
+    # 平衡准确率：各类召回的均值。裁决分布偏斜时，raw 准确率会被多数类绑架，
+    # 「全答多数类」按构造只能拿 0.50，这样才有可比性。
+    by_cls = {}
+    for q, r in rows.items():
+        if not r["falsifiable"]:
+            continue
+        c = refs[q]["verdict"]
+        by_cls.setdefault(c, [0, 0])
+        by_cls[c][1] += 1
+        if r["match"]:
+            by_cls[c][0] += 1
+    recalls = {c: (v[0] / v[1]) for c, v in by_cls.items() if v[1]}
+    bal = round(sum(recalls.values()) / len(recalls), 3) if recalls else None
     return {"arm": name, "n": n, "agree": ok, "missing": missing,
+            "balanced": bal, "recalls": recalls,
             "agree_rate": round(ok / n, 3) if n else None,
             "danger": danger,
             "coverage": round(sum(cov) / len(cov), 3) if cov else None,
@@ -147,13 +161,18 @@ def main():
     else:
         print(f"[v2] 题数 {len(refs)} ｜ 参考裁决来源：用户 2026-10-24 确认")
         print(f"  单席   一致 {S['agree']}/{S['n']} = {S['agree_rate']}  "
-              f"理由覆盖 {S['coverage']}  危险失误 {S['danger'] or '无'}"
+              f"平衡 {S['balanced']}  理由覆盖 {S['coverage']}  危险失误 {S['danger'] or '无'}"
               + (f"  ⚠️ 缺答 {S['missing']}" if S['missing'] else ""))
         print(f"  多席   一致 {M['agree']}/{M['n']} = {M['agree_rate']}  "
-              f"理由覆盖 {M['coverage']}  危险失误 {M['danger'] or '无'}"
+              f"平衡 {M['balanced']}  理由覆盖 {M['coverage']}  危险失误 {M['danger'] or '无'}"
               + (f"  ⚠️ 缺答 {M['missing']}" if M['missing'] else ""))
         for q, why in amb.items():
             print(f"  ⚠️ {q} 未成票：{why}")
+        from collections import Counter as _C
+        _cnt = _C(r["verdict"] for r in refs.values())
+        _mc, _mn = _cnt.most_common(1)[0]
+        print(f"  多数类基准线：全答 {_mc} = {_mn}/{sum(_cnt.values())} = {_mn/sum(_cnt.values()):.3f}"
+              f"（分布 {dict(_cnt)}）—— raw 准确率须与它对比才有意义，平衡准确率下它恒为 0.50")
         print(f"  差值 {diff:+.3f} → **{verdict}**（判据：≥+0.10 增益 / |差值|<0.10 无差异 / ≤−0.10 更差）")
         print("  逐题（verdict：单席 / 多席 / 参考）：")
         for q in refs:
