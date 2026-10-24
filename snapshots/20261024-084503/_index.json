@@ -1,7 +1,7 @@
 {
- "created_at": "2026-10-24T08:21:23",
+ "created_at": "2026-10-24T08:45:03",
  "label": "",
- "file_count": 108,
+ "file_count": 110,
  "files": {
   "scripts/build_package.py": {
    "sha256": "b2dad8c4b0adc07c8cc367c51c292263c2789cf6501a0a7481c80260de23f494",
@@ -406,6 +406,14 @@
   "docs/decisions/D-0061-v2判断类首轮.md": {
    "sha256": "326a64c5838782d08430d1594e00cc2f41bbb6ccbd072b83a135bbd62a04b6c1",
    "bytes": 3086
+  },
+  "docs/decisions/D-0062-v2扩到十二题.md": {
+   "sha256": "4ebfb9bb158513250654d70b25a3e5454a864261b85555f3da973a2e932440dd",
+   "bytes": 3587
+  },
+  "docs/decisions/D-0063-v2停止扩张.md": {
+   "sha256": "6be31c67c31876caaee9dc0a29fd821019a273fbcaa5a603914a2a8a3aa93d8d",
+   "bytes": 3172
   },
   "docs/decisions/TEMPLATE.md": {
    "sha256": "0bbc33940a540ae0e983817d9b1cf6daf6502ff233074d5023a3466511867e6e",

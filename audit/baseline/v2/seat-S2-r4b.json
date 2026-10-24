@@ -1,0 +1,127 @@
+{
+  "_note": "v2 第四轮（A/B 分批）B 批第 2 席 S2，回传转录（reasons 保留要点）。",
+  "seat": "S2",
+  "batch": "B",
+  "used_tools": true,
+  "forbidden_paths_read": false,
+  "answers": {
+    "V2-03": {
+      "verdict": "dont",
+      "reasons": [
+        "sha256锚+回归第53项逐字节比对；题面来源一换100%→61.1%；只准新增批次已有出口"
+      ],
+      "top_risk": "真值失真被长期固化",
+      "falsification": "若错误真值会被新批次继承则dont错",
+      "confidence": "high"
+    },
+    "V2-06": {
+      "verdict": "dont",
+      "reasons": [
+        "上限19/27<20/27；只校验sha256不校验真值；v1文件全留可并存"
+      ],
+      "top_risk": "把19/27当模型退步证据",
+      "falsification": "若重锚真值无法复现则降级为整批作废",
+      "confidence": "high"
+    },
+    "V2-07": {
+      "verdict": "dont",
+      "reasons": [
+        "只测过一次无稳定性证据；采集靠特制机制本身未验证；覆盖率与有效性无关"
+      ],
+      "top_risk": "把不稳定的73%当质量线",
+      "falsification": "若≥3次波动在±2%内且有回归对应，则不设过保守",
+      "confidence": "high"
+    },
+    "V2-11": {
+      "verdict": "dont",
+      "reasons": [
+        "钩子缺失无一处会红；CI拦不住密钥；新机器必然没有，纳入即红正是要暴露的"
+      ],
+      "top_risk": "handover在只读场景频繁调用，红成噪音",
+      "falsification": "若绝大多数调用不推送，则降级为WARN",
+      "confidence": "medium"
+    },
+    "V2-13": {
+      "verdict": "dont",
+      "reasons": [
+        "静默off与通过不可区分；同类已多次属模式性缺陷；显式指定一个参数即可满足"
+      ],
+      "top_risk": "使用者统一加跳过开关，实际检查更少",
+      "falsification": "若改造后实际执行率下降则本裁断错",
+      "confidence": "high"
+    },
+    "V2-15": {
+      "verdict": "do",
+      "reasons": [
+        "使用者明确要求人保留终裁；不可逆动作复盘无法回滚；判断类事项超出判据能力"
+      ],
+      "top_risk": "待裁队列积压，可逆事项也被卡",
+      "falsification": "若可逆类等待时间超人工成本，则应再下放",
+      "confidence": "high"
+    },
+    "V2-17": {
+      "verdict": "do",
+      "reasons": [
+        "目标机python3无三方库；否决权部件不能赌可安装；两者约束不同不该同规则"
+      ],
+      "top_risk": "业务侧供应链债不可见地累积",
+      "falsification": "若目标机普遍预装或可vendored携带，则零依赖收益不足",
+      "confidence": "high"
+    },
+    "V2-18": {
+      "verdict": "do",
+      "reasons": [
+        "自由文本阈值不可证伪；结构化判错能定位到字段；前提是后续判断的输入须先可检验"
+      ],
+      "top_risk": "敷衍填卡，字段齐备但内容不实",
+      "falsification": "若大量字段齐全而前提不成立，则退化为形式主义",
+      "confidence": "medium"
+    },
+    "V2-20": {
+      "verdict": "do",
+      "reasons": [
+        "只有单模型，跨族独立性不可得；同质辩论期望不变；判据与探针不依赖多模型"
+      ],
+      "top_risk": "过度收缩，把多视角的方差收益一并否定",
+      "falsification": "若同模型多席稳定优于单席则低估",
+      "confidence": "high"
+    },
+    "V2-22": {
+      "verdict": "do",
+      "reasons": [
+        "不存在的模型名照样返回；自报可复述；路由记录读不到；Self-MoA可验证"
+      ],
+      "top_risk": "把无法证明当成确实没生效",
+      "falsification": "若计费/响应体/网关日志能读到真实模型名，则前提不成立",
+      "confidence": "high"
+    },
+    "V2-24": {
+      "verdict": "dont",
+      "reasons": [
+        "使用者明确要求第一步先计划再审计；验收判据缺位是已知失败类；方向错只能靠事前审计拦"
+      ],
+      "top_risk": "小任务走完整流程被跳过",
+      "falsification": "若多数任务极小且流程耗时超返工节省，则应按规模分级",
+      "confidence": "high"
+    },
+    "V2-26": {
+      "verdict": "do",
+      "reasons": [
+        "根级四份引用6编号全在盲区；同一句docs红README不红说明取决于位置；豁免带格式约束可收窄"
+      ],
+      "top_risk": "扩范围后历史缺号长期红被整体豁免",
+      "falsification": "若缺号超出可修复范围导致F项停用，则扩范围摧毁门禁",
+      "confidence": "medium"
+    },
+    "V2-27": {
+      "verdict": "do",
+      "reasons": [
+        "14/14或理论值当参照则非劣效必然成立；参照取100%无法区分真不劣与样本太小；实测成本不高"
+      ],
+      "top_risk": "14题样本小置信区间宽",
+      "falsification": "若实测基线轮间波动极大，则须扩题量或改配对设计",
+      "confidence": "high"
+    }
+  },
+  "note": "13 题按括号标签作答；自报 V2-11/V2-13/V2-24 标签与直觉相反，已按题干处理。"
+}

@@ -129,9 +129,12 @@ def main():
     ap.add_argument("--single", required=True)
     ap.add_argument("--seats", nargs="+", required=True)
     ap.add_argument("--json", action="store_true")
+    # 第四轮起裁决表可切换：标签对调后参考裁决翻面，但材料与事实不变
+    ap.add_argument("--adjudication", default="adjudication.json",
+                    help="裁决表文件名（相对 audit/baseline/v2/）")
     args = ap.parse_args()
 
-    _doc = json.loads((HERE / "adjudication.json").read_text(encoding="utf-8"))
+    _doc = json.loads((HERE / args.adjudication).read_text(encoding="utf-8"))
     # 撤下的题不计分（V2-02：参考裁决本身待重裁）
     refs = {k: v for k, v in _doc["items"].items() if not v.get("withdrawn")}
     single = load(args.single)

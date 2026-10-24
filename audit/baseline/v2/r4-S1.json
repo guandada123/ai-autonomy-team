@@ -1,0 +1,243 @@
+{
+  "_note": "v2 第四轮 S1 整轮作答（A/B 两批合并，26 题）。批次信息保留在 note。",
+  "seat": "S1",
+  "used_tools": true,
+  "forbidden_paths_read": false,
+  "answers": {
+    "V2-01": {
+      "verdict": "do",
+      "reasons": [
+        "merge-base 三条全通过；2348 还原验证 + 私有远端双兜底；删除走 _trash 可逆"
+      ],
+      "top_risk": "旧 tar 只比条目名不比内容",
+      "falsification": "若旧 tar 有内容不同条目则错",
+      "confidence": "medium"
+    },
+    "V2-04": {
+      "verdict": "dont",
+      "reasons": [
+        "10 倍计费且预算紧；Linux 覆盖的是脚本确定性行为；quotePath 可用配置在现有 job 定死"
+      ],
+      "top_risk": "macOS 独有路径/大小写/换行差异会流到发布",
+      "falsification": "若出现 Linux 全绿 macOS 必现的发布级缺陷，则不该省",
+      "confidence": "medium"
+    },
+    "V2-05": {
+      "verdict": "dont",
+      "reasons": [
+        "人工同步 5 次是量化重复劳动；零检查已多次失真；工具现成"
+      ],
+      "top_risk": "硬失败会把每次提交卡住，门禁变噪音",
+      "falsification": "若失败次数远高于拦下的真实问题，则应改为构建时生成",
+      "confidence": "medium"
+    },
+    "V2-08": {
+      "verdict": "dont",
+      "reasons": [
+        "20→36 近翻倍，原置信区间不足；新增专挑边界；标注口径已变"
+      ],
+      "top_risk": "把扩样当走过场验证",
+      "falsification": "若重跑后阈值位置与分离度几乎一致，则沿用也不错",
+      "confidence": "high"
+    },
+    "V2-09": {
+      "verdict": "do",
+      "reasons": [
+        "三态不可区分等于把失败伪装成通过；记一行不拦人；内部摩擦可接受"
+      ],
+      "top_risk": "缺文件硬失败被当麻烦而整体绕过",
+      "falsification": "若 --skip-premise 频率接近 100%，则只是明示跳过",
+      "confidence": "high"
+    },
+    "V2-10": {
+      "verdict": "dont",
+      "reasons": [
+        "四处都在门禁路径；已有冻结件抽取的前车之鉴；Decimal 语义会被耦合"
+      ],
+      "top_risk": "四处长期各自漂移，重复反成负担",
+      "falsification": "若同一 bug 需重复修三次以上，则重复成本超合并风险",
+      "confidence": "high"
+    },
+    "V2-12": {
+      "verdict": "dont",
+      "reasons": [
+        "时长翻倍理由不成立：项数是常量；门禁已有 8 项边际近零；人工核对实际没人核"
+      ],
+      "top_risk": "常量与 CHECKS 脱钩，得到永远为真的假绿灯",
+      "falsification": "若该项从未失败且无人改 CHECKS，则只是抄了常量",
+      "confidence": "high"
+    },
+    "V2-14": {
+      "verdict": "do",
+      "reasons": [
+        "合成任务已无可增信息；机制与口径可独立使用；可收缩形态不必丢弃资产"
+      ],
+      "top_risk": "参考实现变成一句话免责",
+      "falsification": "若判据/探针因缺少真实反馈而停止演进，则只保存了壳",
+      "confidence": "high"
+    },
+    "V2-16": {
+      "verdict": "do",
+      "reasons": [
+        "三条覆盖三个层次；第 2 条最贴近真实成本不该砍；no_data 让数据源缺口可见"
+      ],
+      "top_risk": "两条长期 no_data 使看板失去信任",
+      "falsification": "若半年后仍无数据源且整块被忽略，则应先做实有数据指标",
+      "confidence": "medium"
+    },
+    "V2-19": {
+      "verdict": "dont",
+      "reasons": [
+        "没做与通过不可区分，与 V2-09 同型；配置写着不等于实测；两项检查成本固定可预估"
+      ],
+      "top_risk": "拒绝开轮把调试挡住后被绕过",
+      "falsification": "若被卡次数远多于拦下的无效开轮，则应降级为警告",
+      "confidence": "high"
+    },
+    "V2-21": {
+      "verdict": "do",
+      "reasons": [
+        "官方文档写明可指定；原判据是观测手段不足；先写回配置再等实测"
+      ],
+      "top_risk": "配置写回后阈值一并升高，产出虚假独立性",
+      "falsification": "若实测指定被静默忽略，则应回退",
+      "confidence": "high"
+    },
+    "V2-23": {
+      "verdict": "do",
+      "reasons": [
+        "能验证处单席就过；需要它的地方分歧无法裁定；列分歧有独立价值"
+      ],
+      "top_risk": "缺少可检验产出标准，退化成无人用的清单",
+      "falsification": "若分歧从未被证伪或采纳，则应进一步收缩",
+      "confidence": "high"
+    },
+    "V2-25": {
+      "verdict": "dont",
+      "reasons": [
+        "裁剪让备份与审计同时失真；远端可 PRIVATE 且无密钥；防线应加在扫描与钩子"
+      ],
+      "top_risk": "把 PRIVATE+无密钥当充分条件，忽略业务敏感性",
+      "falsification": "若 real-runs 含可识别业务数据，则须先脱敏",
+      "confidence": "medium"
+    },
+    "V2-03": {
+      "verdict": "dont",
+      "reasons": [
+        "题面来源一换分数 100%→61.1%，改旧题等于换卷；sha256 锚改一字节即红；新批次可承接真值更新"
+      ],
+      "top_risk": "旧题真值持续腐化，v1 最终只剩考古价值",
+      "falsification": "若存在改题后仍维持跨批次可比的机制，则不准改是多余的",
+      "confidence": "high"
+    },
+    "V2-06": {
+      "verdict": "dont",
+      "reasons": [
+        "上限 19/27 < 20/27，任何臂都必然低于基线；偏差来自仓库变化不是模型退化；只校验 sha256"
+      ],
+      "top_risk": "重锚版几小时内同样腐化，只是把问题推迟",
+      "falsification": "若部分题真值变化不影响判分，则上限论证不成立",
+      "confidence": "high"
+    },
+    "V2-07": {
+      "verdict": "dont",
+      "reasons": [
+        "只测过一次没有方差；覆盖率与测试有效性无关，会奖励刷覆盖；采集机制本身脆弱易假红"
+      ],
+      "top_risk": "无门禁则覆盖率静默下滑",
+      "falsification": "若拿到 3 次以上稳定基线且有制衡指标，则设阈值成立",
+      "confidence": "high"
+    },
+    "V2-11": {
+      "verdict": "dont",
+      "reasons": [
+        "钩子缺失时无一处会红，而 CI 在推送后才跑；接手验收正是本机可用性入口；与 CI 互补不冲突"
+      ],
+      "top_risk": "只查文件存在，内容过期的钩子照样通过",
+      "falsification": "若钩子内容无入库基准 hash，则收益接近零",
+      "confidence": "high"
+    },
+    "V2-13": {
+      "verdict": "dont",
+      "reasons": [
+        "静默 off 与通过不可区分，是最危险的一类失败；同类已多次属系统性缺陷；内部改契约成本低"
+      ],
+      "top_risk": "非标准目录调用占多数时大面积中断，退化为形式主义",
+      "falsification": "若统计显示非标准目录占大多数，则应退到显式 WARNING",
+      "confidence": "high"
+    },
+    "V2-15": {
+      "verdict": "do",
+      "reasons": [
+        "使用者明确要求人保留终裁；不可逆事项事后复盘在定义上无效；三级划分同时解两个失效模式"
+      ],
+      "top_risk": "可逆边界划错，把实际不可逆的判成可逆",
+      "falsification": "若待裁队列否决率近 0 且处理极短，则退化为纯瓶颈",
+      "confidence": "high"
+    },
+    "V2-17": {
+      "verdict": "do",
+      "reasons": [
+        "目标机 python3 无三方库；否决权部件跑不起来整个交付失效；一律零依赖是让所有项目为一个付费"
+      ],
+      "top_risk": "业务侧放开使供应链面不受控",
+      "falsification": "若该部件现状已零依赖，则迁移包这条约束空转",
+      "confidence": "high"
+    },
+    "V2-18": {
+      "verdict": "do",
+      "reasons": [
+        "自由文本阈值靠感觉且不可证伪；结构化可定位可复现；填卡是一次性成本"
+      ],
+      "top_risk": "填卡形式化，字段齐但内容空",
+      "falsification": "若结构化卡「合规但前提被推翻」比例显著更高，则只是把负担前移",
+      "confidence": "high"
+    },
+    "V2-20": {
+      "verdict": "do",
+      "reasons": [
+        "跨族在默认环境不可得是环境事实；同质辩论期望不变；判据与探针不依赖多模型"
+      ],
+      "top_risk": "把独立性 0 过度推广成多席位无价值",
+      "falsification": "若同模型多席实测降低方差，则应改称独立性低但不为零",
+      "confidence": "high"
+    },
+    "V2-22": {
+      "verdict": "do",
+      "reasons": [
+        "不存在的模型名照样返回，是决定性证据；路由记录读不到；Self-MoA 可验证"
+      ],
+      "top_risk": "静默回退意味着此前多模型结论全部作废",
+      "falsification": "若某环境能读到路由或非法模型名会报错，则前提消失",
+      "confidence": "high"
+    },
+    "V2-24": {
+      "verdict": "dont",
+      "reasons": [
+        "两类失败（判据没定义、方向错）在执行阶段无法补救；使用者明确要求；审计计划正是为纠错而设"
+      ],
+      "top_risk": "小任务 overhead 过重被普遍跳过",
+      "falsification": "若小改动占多数且延迟显著上升，则应按改动面分级",
+      "confidence": "high"
+    },
+    "V2-26": {
+      "verdict": "do",
+      "reasons": [
+        "根级四份引用 6 编号从未被扫，同一句话 README 不红 docs 红；当前门禁在惩罚诚实；带格式的豁免可压滥用面"
+      ],
+      "top_risk": "豁免句式被复制粘贴使 F 项退化",
+      "falsification": "若扩范围后历史欠账无法清偿导致长期红，则应分批",
+      "confidence": "medium"
+    },
+    "V2-27": {
+      "verdict": "do",
+      "reasons": [
+        "14/14 当参照使非劣效必然成立；重跑成本远低于得出不可证伪结论；理论值口径都对不上"
+      ],
+      "top_risk": "14 题样本太小，置信区间极宽",
+      "falsification": "若重跑后基线仍近 100%，则应改用绝对差值+置信区间",
+      "confidence": "medium"
+    }
+  },
+  "note": "A批：13 题按题干括号标签作答；两处门禁题（V2-09/V2-19）同判 fail-closed。 ／ B批：13 题均按各题末尾标签语义作答（V2-11/V2-13/V2-24 的 do 是维持现状，故取 dont）。"
+}
