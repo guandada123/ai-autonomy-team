@@ -75,39 +75,58 @@ def main() -> int:
         groups[name] = [load_answers(p) for p in paths.split(",") if p]
 
     # ── 逐题判定 ────────────────────────────────────────────────────────────
+    # 两种多文件语义必须分开，混用会得出相反的结论（首版就混了）：
+    #   · 缺省 = 多个**席位** → 取多数票（≥2 席成票且过半）；凑不出多数记 None（不计分）
+    #   · --as-repeat = 同一臂**重复运行** → pass^1 取均值、pass^k 要求 k 次全对
+    # 首版把席位当重复运行，再用「全部答对才算 1」统计，等价于「三席全对才得分」，
+    # 于是三个席位被按 unanimity 计分（v3 报 0.500，真实多数票是 5/9=0.556），
+    # 且这个偏差方向恰好是**低估席位** → 更容易判出「常数胜出」。已修。
+    valid_labels = {str(r["verdict"]).strip().lower() for r in refs.values()}
     rows = {}
     for q, ref in refs.items():
         gold = str(ref["verdict"]).strip().lower()
         per, per_repeat = {}, {}
         for name, runs in groups.items():
-            hits = [verdict_of(r.get(q)) == gold for r in runs]
-            if args.as_repeat and len(hits) > 1:
+            votes = [verdict_of(r.get(q)) for r in runs]
+            if args.as_repeat and len(votes) > 1:
+                hits = [v == gold for v in votes]
                 per_repeat[name] = {"pass^1": round(sum(hits) / len(hits), 3),
                                     "pass^k": 1.0 if all(hits) else 0.0}
-                per[name] = sum(hits) / len(hits)          # 平均，供饱和判定
+                per[name] = per_repeat[name]["pass^k"]
+                continue
+            counted = [v for v in votes if v in valid_labels]
+            if len(counted) > 1:
+                top, cn = Counter(counted).most_common(1)[0]
+                # 与 score_v2 同口径：至少 2 票且过半，否则判未成票
+                per[name] = (1.0 if top == gold else 0.0) if (len(counted) >= 2 and cn * 2 > len(counted)) else None
             else:
-                per[name] = 1.0 if all(hits) else (sum(hits) / len(hits))
+                per[name] = 1.0 if counted and counted[0] == gold else (
+                    0.0 if counted else None)
         vals = [v for v in per.values() if v is not None]
         rows[q] = {"gold": gold, "per_arm": per, "pass": per_repeat,
+                   "ambiguous": any(v is None for v in per.values()),
                    "saturated": bool(vals) and all(v == 1.0 for v in vals),
                    "all_wrong": bool(vals) and all(v == 0.0 for v in vals)}
+
+    def acc_of(name: str) -> float:
+        """把每题 0/1 平均；未成票的题不计入分母（与 score_v2 一致）。"""
+        got = [rows[q]["per_arm"][name] for q in refs if rows[q]["per_arm"][name] is not None]
+        return sum(got) / len(got) if got else 0.0
 
     # ── 常数基准：不看材料、永远答同一个标签 ────────────────────────────────
     n = len(refs)
     dist = Counter(r["verdict"].strip().lower() for r in refs.values())
     const_label, const_hits = dist.most_common(1)[0]
     const_acc = const_hits / n
-    best_arm, best_acc = None, -1.0
-    for name in groups:
-        acc = sum(1 for q in refs if rows[q]["per_arm"][name] == 1.0) / n
-        if acc > best_acc:
-            best_arm, best_acc = name, acc
+    arm_acc = {name: acc_of(name) for name in groups}
+    best_arm = max(arm_acc, key=lambda k: arm_acc[k]) if arm_acc else None
+    best_acc = arm_acc.get(best_arm, 0.0)
 
     print(f"题数 {n} ｜ 参考分布 {dict(dist)}")
     print(f"常数基准：全答 {const_label} = {const_hits}/{n} = {const_acc:.3f}")
     for name in groups:
-        acc = sum(1 for q in refs if rows[q]["per_arm"][name] == 1.0) / n
-        print(f"  {name:<10} {acc:.3f}")
+        amb = sum(1 for q in refs if rows[q]["per_arm"][name] is None)
+        print(f"  {name:<10} {arm_acc[name]:.3f}" + (f"  （未成票 {amb} 题，不计分母）" if amb else ""))
 
     sat = [q for q, r in rows.items() if r["saturated"]]
     dead = [q for q, r in rows.items() if r["all_wrong"]]

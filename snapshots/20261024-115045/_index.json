@@ -1,7 +1,7 @@
 {
- "created_at": "2026-10-24T09:12:45",
+ "created_at": "2026-10-24T11:50:45",
  "label": "",
- "file_count": 113,
+ "file_count": 114,
  "files": {
   "scripts/build_package.py": {
    "sha256": "b2dad8c4b0adc07c8cc367c51c292263c2789cf6501a0a7481c80260de23f494",
@@ -31,6 +31,10 @@
    "sha256": "23df35834b0e5aa663209957ad9753fafc06075e0bc3e04aa2020c082c5724b6",
    "bytes": 7769
   },
+  "scripts/install_launchd.sh": {
+   "sha256": "3a082afc1b708f04f0bd31325b7ac85cd42d7fe425605a5d2491da4e6f08d60e",
+   "bytes": 1822
+  },
   "scripts/judges/README.md": {
    "sha256": "73e1a4524d724402bf5f0340f6fc5fcf16856d6661f4ec1748c5a0ea106b7370",
    "bytes": 3919
@@ -55,9 +59,9 @@
    "sha256": "4479ffe8902acc1051c9d3c3ee75dc8c9427e4f6ae8dfb68bbb9d63ce4fd6c37",
    "bytes": 41768
   },
-  "scripts/launchd/com.guan.aiteam.recompute.plist": {
-   "sha256": "b0c4f73dfb1dfb9729c6eda8d578e0dbdcb0beba0fb34045d34aceca5a7fb6c7",
-   "bytes": 1192
+  "scripts/launchd/com.guan.aiteam.recompute.plist.tmpl": {
+   "sha256": "4b2b56f01b097bbf92361d3b7d025ab1c21b7d7e5d695de03de0204d3da32df7",
+   "bytes": 1750
   },
   "scripts/make_backup.py": {
    "sha256": "93f138e429a9d0ae5176163464f097ed8f63d3c515b862feda033b23c0a07897",
@@ -112,8 +116,8 @@
    "bytes": 17283
   },
   "scripts/recompute_watch.py": {
-   "sha256": "dd4465bd44c55fd71f0987f5cc493347914daa2b536c22e6a653aa942044a764",
-   "bytes": 3279
+   "sha256": "e78a14472ae7d4ce313b97a063a2db45acd3510f51b1328e5662e7e8e5216de0",
+   "bytes": 4039
   },
   "scripts/redact_report.py": {
    "sha256": "b0557dfa5ba2659b0f9da12495a4deabbcbb29664a5620a160b3e5c913a9b2dc",
@@ -424,8 +428,8 @@
    "bytes": 3172
   },
   "docs/decisions/D-0064-v3首轮席位低于常数基准.md": {
-   "sha256": "54057045442c7f35cf1d074e8277aac94deec5cc5101a351576a189388fadbc1",
-   "bytes": 3733
+   "sha256": "bab6c45357a9614dd29bb393186aa0fd8eb670be944154331d602ecb6bba7168",
+   "bytes": 5610
   },
   "docs/decisions/TEMPLATE.md": {
    "sha256": "0bbc33940a540ae0e983817d9b1cf6daf6502ff233074d5023a3466511867e6e",

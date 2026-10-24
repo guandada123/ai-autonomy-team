@@ -8,7 +8,7 @@ v1.1 的 26 道事实题靠锚点定真值，`make recompute` 能重算但要手
 
 ## 设计上的两个坎
 
-1. **仓库在外置卷上**：仓库路径是 `/Volumes/ZHITAI/...`。卷没挂载时，脚本自己都
+1. **仓库在外置卷上**（形如 `/Volumes/<卷名>/...`）。卷没挂载时，脚本自己都
    读不到，launchd 会静默失败。所以第一件事是检查根目录在不在，不在就**大声报错**，
    而不是安静退出 —— 静默失败正是本项目最忌讳的失败模式。
 2. **告警通道**：仓库里不存 webhook。设了环境变量 `FEISHU_WEBHOOK` 才发消息，
@@ -39,10 +39,17 @@ LOG = ROOT / "outputs" / "recompute-watch.log"
 
 
 def log(msg: str) -> None:
-    LOG.parent.mkdir(parents=True, exist_ok=True)
     line = f"{datetime.now():%Y-%m-%d %H:%M:%S} {msg}"
-    with LOG.open("a", encoding="utf-8") as f:
-        f.write(line + "\n")
+    # 外置卷卸载时 ROOT 不存在，写 ROOT/outputs 会抛异常 —— 那不是「静默失败」，
+    # 但会变成一段没人看的 traceback。退到 /tmp 保证「卷没挂」这件事被记下来。
+    for target in (LOG, Path("/tmp/aiteam-recompute.log")):
+        try:
+            target.parent.mkdir(parents=True, exist_ok=True)
+            with target.open("a", encoding="utf-8") as f:
+                f.write(line + "\n")
+            break
+        except OSError:
+            continue
     print(line)
 
 
@@ -73,8 +80,12 @@ def main() -> int:
 
     rc = subprocess.run([sys.executable, str(ROOT / "audit/baseline/v1.1/recompute_truth.py")],
                         cwd=ROOT, capture_output=True, text=True)
-    tail = (rc.stdout or rc.stderr).strip().splitlines()
-    summary = tail[-1] if tail else "无输出"
+    # 汇总行是中间的 [PASS]/[FAIL] 那行，不是末行——末行是「不可重算」明细清单。
+    # 首版取 tail[-1]，结果把「T06 ← docs/...」当成结论写进日志（实测踩到）。
+    lines = ((rc.stdout or "") + "\n" + (rc.stderr or "")).strip().splitlines()
+    summary = next((ln.strip() for ln in reversed(lines)
+                    if ln.strip().startswith(("[PASS]", "[FAIL]"))),
+                   lines[-1].strip() if lines else "无输出")
     if rc.returncode != 0:
         log(f"❌ 真值漂移或重算失败（EXIT={rc.returncode}）：{summary}")
         alert(f"v1.1 真值重算未通过：{summary}")

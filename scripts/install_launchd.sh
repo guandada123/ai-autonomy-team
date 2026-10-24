@@ -31,3 +31,11 @@ launchctl enable "gui/$UID_N/$LABEL"
 echo "已安装：$DST"
 echo "仓库路径：$REPO"
 launchctl print "gui/$UID_N/$LABEL" 2>/dev/null | grep -E "state|program|runs" | head -5 || true
+
+# "装上了"不等于"跑得起来"：外置卷 + 未授予完全磁盘访问权限时，任务会以 ALERT 退出。
+# 本脚本不做 kickstart（那会立刻真跑一次），但必须把这个前提说清楚。
+echo
+echo "⚠️  装好 ≠ 能跑。请先验证一次："
+echo "    launchctl kickstart -k gui/\$(id -u)/$LABEL && sleep 3 && tail -3 /tmp/aiteam-recompute.err"
+echo "    若出现 ALERT 或 Operation not permitted → 说明解释器缺「完全磁盘访问权限」，"
+echo "    去 系统设置 › 隐私与安全性 › 完全磁盘访问权限 里加上 /usr/bin/python3 后再试。"

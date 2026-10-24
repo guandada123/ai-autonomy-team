@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- v3 Q02（用户裁 A）：每日 09:10 重算 v1.1 真值，漂移即告警。
+     ★ 本文件是**模板**，不写死路径：__REPO__ 由 scripts/install_launchd.sh 在安装时
+       替换成实际仓库路径。仓库换位置/换机器后重跑安装脚本即可，不必改这个文件。
+     ★ 仓库在外置卷：卷未挂载时脚本 exit 2 并把日志退到 /tmp，不会静默成功。
+     ★ 告警通道走环境变量 FEISHU_WEBHOOK；不设则只写日志。 -->
+<plist version="1.0">
+<dict>
+  <key>Label</key><string>com.guan.aiteam.recompute</string>
+  <!-- 守卫必须"真读一个字节"，不能只判存在：
+       launchd 上下文受 TCC 限制时，`test -f` 与 `test -r` 都返回 yes，
+       只有真正 open/read 才报 EPERM（2026-10-24 实测：-f yes / -r yes / head -c1 no / python open 失败）。
+       用 -f 当守卫等于没有守卫，会一路走到 exec 才炸在难读的 traceback 上。 -->
+  <key>ProgramArguments</key>
+  <array>
+    <string>/bin/sh</string><string>-c</string>
+    <string>if head -c 1 "__REPO__/scripts/recompute_watch.py" >/dev/null 2>&1; then exec /usr/bin/env python3 "__REPO__/scripts/recompute_watch.py"; else echo "ALERT 仓库不可读（外置卷未挂载，或未授予完全磁盘访问权限）：__REPO__"; exit 2; fi</string>
+  </array>
+  <key>StartCalendarInterval</key>
+  <dict><key>Hour</key><integer>9</integer><key>Minute</key><integer>10</integer></dict>
+  <key>WorkingDirectory</key><string>__REPO__</string>
+  <key>StandardOutPath</key><string>/tmp/aiteam-recompute.out</string>
+  <key>StandardErrorPath</key><string>/tmp/aiteam-recompute.err</string>
+  <key>RunAtLoad</key><false/>
+</dict>
+</plist>
