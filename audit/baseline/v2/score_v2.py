@@ -81,7 +81,8 @@ def summarize(name, arm, refs):
         cov.append(r["coverage"])
         fals += 1
     n = fals
-    return {"arm": name, "n": n, "agree": ok,
+    missing = [q for q in refs if q not in arm]
+    return {"arm": name, "n": n, "agree": ok, "missing": missing,
             "agree_rate": round(ok / n, 3) if n else None,
             "danger": danger,
             "coverage": round(sum(cov) / len(cov), 3) if cov else None,
@@ -116,7 +117,9 @@ def main():
     ap.add_argument("--json", action="store_true")
     args = ap.parse_args()
 
-    refs = json.loads((HERE / "adjudication.json").read_text(encoding="utf-8"))["items"]
+    _doc = json.loads((HERE / "adjudication.json").read_text(encoding="utf-8"))
+    # 撤下的题不计分（V2-02：参考裁决本身待重裁）
+    refs = {k: v for k, v in _doc["items"].items() if not v.get("withdrawn")}
     single = load(args.single)
     seats = [load(p) for p in args.seats]
     multi, amb = majority(seats, list(refs))
@@ -144,9 +147,11 @@ def main():
     else:
         print(f"[v2] 题数 {len(refs)} ｜ 参考裁决来源：用户 2026-10-24 确认")
         print(f"  单席   一致 {S['agree']}/{S['n']} = {S['agree_rate']}  "
-              f"理由覆盖 {S['coverage']}  危险失误 {S['danger'] or '无'}")
+              f"理由覆盖 {S['coverage']}  危险失误 {S['danger'] or '无'}"
+              + (f"  ⚠️ 缺答 {S['missing']}" if S['missing'] else ""))
         print(f"  多席   一致 {M['agree']}/{M['n']} = {M['agree_rate']}  "
-              f"理由覆盖 {M['coverage']}  危险失误 {M['danger'] or '无'}")
+              f"理由覆盖 {M['coverage']}  危险失误 {M['danger'] or '无'}"
+              + (f"  ⚠️ 缺答 {M['missing']}" if M['missing'] else ""))
         for q, why in amb.items():
             print(f"  ⚠️ {q} 未成票：{why}")
         print(f"  差值 {diff:+.3f} → **{verdict}**（判据：≥+0.10 增益 / |差值|<0.10 无差异 / ≤−0.10 更差）")
@@ -157,7 +162,10 @@ def main():
                   f"{refs[q]['verdict']:5s}  覆盖 {s['coverage']:.2f} vs {m['coverage']:.2f}"
                   f"{'  ⚠️危险失误' if m['danger'] else ''}")
         print(f"\n  逐席一致数：{[(p['arm'], p['agree'], p['n']) for p in per]}")
-        print("  ⚠️ 6 题只能看方向，不能判显著：单题 = 16.7pp，容不下 10pp 的判据")
+        _n = len(refs)
+        _pp = 100.0 / _n
+        _tail = "容不下" if _pp > 10 else "需 2 题净差才够"
+        print(f"  ⚠️ {_n} 题只能看方向，不能判显著：单题 = {_pp:.1f}pp，{_tail} 10pp 的判据")
     return 0
 
 

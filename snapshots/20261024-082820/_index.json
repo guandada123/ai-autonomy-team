@@ -1,7 +1,7 @@
 {
- "created_at": "2026-10-24T08:14:41",
+ "created_at": "2026-10-24T08:28:20",
  "label": "",
- "file_count": 107,
+ "file_count": 109,
  "files": {
   "scripts/build_package.py": {
    "sha256": "b2dad8c4b0adc07c8cc367c51c292263c2789cf6501a0a7481c80260de23f494",
@@ -400,8 +400,16 @@
    "bytes": 4327
   },
   "docs/decisions/D-0060-题库重锚与v2立项.md": {
-   "sha256": "2abed4bf05ba336211322161a8052a0f54130b9f610c458788ca077d3de26f17",
-   "bytes": 5465
+   "sha256": "7089dab6d95fa29755482f45ddd4e3c284be91aff29c84e89f0798569400cfd4",
+   "bytes": 5617
+  },
+  "docs/decisions/D-0061-v2判断类首轮.md": {
+   "sha256": "326a64c5838782d08430d1594e00cc2f41bbb6ccbd072b83a135bbd62a04b6c1",
+   "bytes": 3086
+  },
+  "docs/decisions/D-0062-v2扩到十二题.md": {
+   "sha256": "67204d9f51a787fd68c61c33fb70e0fb33b21fc52ca2259e594424c093d6beac",
+   "bytes": 2660
   },
   "docs/decisions/TEMPLATE.md": {
    "sha256": "0bbc33940a540ae0e983817d9b1cf6daf6502ff233074d5023a3466511867e6e",
