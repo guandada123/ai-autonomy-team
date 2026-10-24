@@ -103,12 +103,16 @@ def summarize(name, arm, refs):
             "rows": rows}
 
 
-def majority(seats, qids):
-    """按 verdict 多数票：≥2 席成票，且须占有效票过半。"""
+def majority(seats, qids, valid):
+    """按 verdict 多数票：≥2 席成票，且须占有效票过半。
+
+    valid：裁决表里实际出现的标签集合。**不硬编码 do/dont/defer**——
+    v3 起用 A/B/C 中性标签，避免「do=做」这种字面联想干扰作答。
+    """
     out, amb = {}, {}
     for q in qids:
         votes = [str((s.get(q) or {}).get("verdict", "")).strip().lower() for s in seats]
-        votes = [v for v in votes if v in ("do", "dont", "defer")]
+        votes = [v for v in votes if v in valid]
         cnt = Counter(votes)
         if len(votes) < 2:
             amb[q] = f"有效票 {len(votes)} 席（<2）"
@@ -139,7 +143,8 @@ def main():
     refs = {k: v for k, v in _doc["items"].items() if not v.get("withdrawn")}
     single = load(args.single)
     seats = [load(p) for p in args.seats]
-    multi, amb = majority(seats, list(refs))
+    _valid = {str(v["verdict"]).strip().lower() for v in refs.values()}
+    multi, amb = majority(seats, list(refs), _valid)
 
     S = summarize("单席", single, refs)
     M = summarize(f"多席多数票（{len(seats)} 席）", multi, refs)
