@@ -24,6 +24,12 @@
     python3 scripts/snapshot_sources.py --prune-keep 2   # 改保留数为 2
     python3 scripts/snapshot_sources.py --self-test      # 自检 prune 逻辑（用临时目录）
 
+## 调用者痕迹
+
+每个快照的 `_index.json` 带 `caller` 字段（pid / ppid / 父进程命令行）。
+2026-10-25 曾出现来源不明的快照且无法归因（平台不落 automation 日志），
+故加此痕迹：明日若再现来源不明的快照，可当场对出是谁。
+
 ## 保留策略
 
 `snapshots/` 入库，所以不能无限增长：每打一次快照约 +1.0MB / 87 文件。
@@ -35,8 +41,10 @@
 import argparse
 import hashlib
 import json
+import os
 import re
 import shutil
+import subprocess
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -94,6 +102,27 @@ def safe_label(label):
     return cleaned.replace("/", "_").replace("\\", "_").strip("._") or ""
 
 
+def caller_info() -> dict:
+    """记录谁打了这个快照（pid / ppid / 父进程命令行）。
+
+    2026-10-25 实测： snapshots/ 里出现过一次来源不明的快照（08:24 生成、
+    后被 prune 归档），而两个清晨自动化的 prompt 都声明「不修改任何文件」。
+    因无调用者痕迹、且 WorkBuddy 侧不落 automation 执行日志，无法归因，
+    只能登记待观察。快照生成时把来源写进 _index.json，让「下一个 08:24」
+    有据可查。拿不到父进程信息时不阻断打快照（fail-safe：痕迹是附加价值，
+    不是快照的前提）。
+    """
+    info = {"pid": os.getpid(), "ppid": os.getppid(), "parent_cmd": None}
+    try:
+        out = subprocess.run(["ps", "-o", "command=", "-p", str(info["ppid"])],
+                             capture_output=True, text=True, timeout=5)
+        cmd = (out.stdout or "").strip()
+        info["parent_cmd"] = cmd[:200] if cmd else None
+    except Exception:
+        pass
+    return info
+
+
 def snapshot(label=""):
     ts = datetime.now().strftime("%Y%m%d-%H%M%S")
     safe = safe_label(label)
@@ -108,7 +137,8 @@ def snapshot(label=""):
         index[rel] = {"sha256": sha256_of(p), "bytes": p.stat().st_size}
     (dst / "_index.json").write_text(
         json.dumps({"created_at": datetime.now().isoformat(timespec="seconds"),
-                    "label": label, "file_count": len(index), "files": index},
+                    "label": label, "file_count": len(index), "files": index,
+                    "caller": caller_info()},
                    ensure_ascii=False, indent=1), encoding="utf-8")
     print(f"[OK] 快照 {name}：{len(index)} 个文件 → {dst.relative_to(ROOT)}")
     return dst

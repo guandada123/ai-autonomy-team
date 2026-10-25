@@ -159,7 +159,7 @@
 
 | 模块 | 行数 | 职责 |
 |---|---|---|
-| `snapshot_sources.py` | 381 || `secret_patterns.py` | 91 || `redact_report.py` | 248 || `field_provenance.py` | 177 | 字段溯源：这个字段谁在写 |
+| `snapshot_sources.py` | 411 || `secret_patterns.py` | 91 || `redact_report.py` | 248 || `field_provenance.py` | 177 | 字段溯源：这个字段谁在写 |
 | `canon.py` | 174 | 标识与词表规范化 |
 | `sync_doc_numbers.py` | 210 |---
 
