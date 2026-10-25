@@ -1,5 +1,5 @@
 {
- "created_at": "2026-10-25T08:40:31",
+ "created_at": "2026-10-25T08:45:24",
  "label": "",
  "file_count": 118,
  "files": {
@@ -136,8 +136,8 @@
    "bytes": 4979
   },
   "scripts/snapshot_sources.py": {
-   "sha256": "cb2c2b228b42b5b5b1e4ef2d3cc7c45463637dca0bfdad064877bda91a5e4873",
-   "bytes": 15825
+   "sha256": "c6ef8cbb6459bd7f88e1c6d2005c6e1535ebaa99e222767172abf0077833cb8a",
+   "bytes": 17209
   },
   "scripts/sync_doc_numbers.py": {
    "sha256": "fcd64cab03e783a322d7b8f4f2800d9f8a69a31f65188930b5ad6a473eb3644a",
@@ -475,5 +475,10 @@
    "sha256": "3607ee1859b558c763e36f4b57332d8de467c96d869582746822255215c29a85",
    "bytes": 3791
   }
+ },
+ "caller": {
+  "pid": 90383,
+  "ppid": 90375,
+  "parent_cmd": "/bin/zsh -c . '/Users/guan/.workbuddy/shell-snapshots/snapshot-zsh-1792888100186-yaj1bn.sh' && if [ -n \"${CODEBUDDY_SAFE_DELETE_BIN_DIR:-}\" ]; then unalias rm unlink rmdir 2>/dev/null || true; unset -"
  }
 }
