@@ -959,13 +959,31 @@ def main():
     s.check(53, f"题库 v1 未漂移（{len(man['files'])} 个文件 sha256 逐个比对）",
             not drift, "一致" if not drift else "；".join(drift[:3]))
 
-    # ==================== 第 54 项：回归幂等守门 ====================
+    # ==================== 第 54 项：巡检产出元核对（阳性/阴性双样本）============
+    # ★ 2026-10-25：08:05「看板巡检」prompt 规定「无异常不落文件」，于是
+    #   inspection-{D}.md 缺失有两种解释（真无异常 / 未跑）。单看文件在不在
+    #   无法区分——先复检昨日报告已列异常条件是否仍在（round8/9/10 终态、
+    #   round13 S8-1、翻边率阈值），条件仍在而报告缺失才判「疑似未跑」。
+    #   踩过的坑：aggregation_blocked 是 dict 列表，`"EX-03" in blocked` 恒 False，
+    #   会把 STILL 误判成 CONTRADICTION——退出码都是 2，只看退出码发现不了，
+    #   故阳性必须同时断言分支关键词（可证伪：判据坏了阳性会翻绿或换分支）。
+    r_pos, o_pos = run(["scripts/inspection_watch.py", "--date", "2099-01-01",
+                        "--dry-list"])
+    r_neg, o_neg = run(["scripts/inspection_watch.py", "--date", "2026-10-24",
+                        "--dry-list"])
+    s.check(54, "巡检元核对：阳性(报告必缺+条件仍在)exit2且命中STILL / 阴性(报告在)exit0",
+            r_pos == 2 and "STILL" in o_pos and "FAIL" in o_pos
+            and r_neg == 0 and "PASS" in o_neg,
+            f"阳性 rc={r_pos} 含STILL={'STILL' in o_pos} / 阴性 rc={r_neg}")
+
+    # ==================== 第 55 项：回归幂等守门 ====================
     # ★ F11 的守门项。全部夹具项都已在上面跑完；若任何一项把机器产出写回了
     #   包内（而非 _trash/ 工作副本），包内 sha256 就会变，此条立刻变红。
     #   它把「回归套件是否自污染」从「靠人记得先重建 MANIFEST」变成可自动判定。
+    #   2026-10-25：第 54 项插入后，本守门从 54 顺延为 55（沿用 D-0057 先例）。
     rc, out = run(["gen_manifest.py", "--root", ".", "--check", "MANIFEST.json"], PKG)
-    # 第 50/51 项只写 _trash，故「包内是否被污染」的判定仍可放在最后
-    s.expect(54, "回归幂等（跑完后包内仍与 MANIFEST 一致）", rc, out, 0, "完全一致")
+    # 第 50/51/54 项只读或只写 _trash，故「包内是否被污染」的判定仍可放在最后
+    s.expect(55, "回归幂等（跑完后包内仍与 MANIFEST 一致）", rc, out, 0, "完全一致")
 
     ok_all = all(i["ok"] for i in s.items)
     npass = sum(1 for i in s.items if i["ok"])

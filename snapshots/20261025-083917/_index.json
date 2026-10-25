@@ -1,7 +1,7 @@
 {
- "created_at": "2026-10-25T08:24:39",
+ "created_at": "2026-10-25T08:39:17",
  "label": "",
- "file_count": 117,
+ "file_count": 118,
  "files": {
   "scripts/build_package.py": {
    "sha256": "b2dad8c4b0adc07c8cc367c51c292263c2789cf6501a0a7481c80260de23f494",
@@ -30,6 +30,10 @@
   "scripts/inspect_agent_routing.py": {
    "sha256": "23df35834b0e5aa663209957ad9753fafc06075e0bc3e04aa2020c082c5724b6",
    "bytes": 7769
+  },
+  "scripts/inspection_watch.py": {
+   "sha256": "9d9bd17a8904fcdcf9364e9c1ae167d114b03a18efede880e7de1e8736a25897",
+   "bytes": 10800
   },
   "scripts/install_launchd.sh": {
    "sha256": "3a082afc1b708f04f0bd31325b7ac85cd42d7fe425605a5d2491da4e6f08d60e",
@@ -124,8 +128,8 @@
    "bytes": 11300
   },
   "scripts/regress.py": {
-   "sha256": "8dddca0d17825e86514aaf1bd2c6784ade3c479b3c72dd2f2f3c040f52a6fb2b",
-   "bytes": 59121
+   "sha256": "1748e77d34cfa1413659d450562ac031f0d553fade1fa5c2e3000acdc0852919",
+   "bytes": 60585
   },
   "scripts/secret_patterns.py": {
    "sha256": "c77c883691005f530cff2444c7acb0470dfadf595ae1c15dbc98b34857b56ef1",
