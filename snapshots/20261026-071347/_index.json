@@ -1,7 +1,7 @@
 {
- "created_at": "2026-10-25T08:45:24",
+ "created_at": "2026-10-26T07:13:47",
  "label": "",
- "file_count": 118,
+ "file_count": 119,
  "files": {
   "scripts/build_package.py": {
    "sha256": "b2dad8c4b0adc07c8cc367c51c292263c2789cf6501a0a7481c80260de23f494",
@@ -447,6 +447,10 @@
    "sha256": "47a4061c4b3b857f49257e4b08327fde4118071218958b8a0e10cdacf535987f",
    "bytes": 4223
   },
+  "docs/decisions/D-0068-ReasonNetwork适用性评估-no-go.md": {
+   "sha256": "197b7367f415548e88943f08e5c7f3084a55dc2d387b6a38f66021851f51a2d1",
+   "bytes": 5143
+  },
   "docs/decisions/TEMPLATE.md": {
    "sha256": "0bbc33940a540ae0e983817d9b1cf6daf6502ff233074d5023a3466511867e6e",
    "bytes": 856
@@ -477,8 +481,8 @@
   }
  },
  "caller": {
-  "pid": 90383,
-  "ppid": 90375,
-  "parent_cmd": "/bin/zsh -c . '/Users/guan/.workbuddy/shell-snapshots/snapshot-zsh-1792888100186-yaj1bn.sh' && if [ -n \"${CODEBUDDY_SAFE_DELETE_BIN_DIR:-}\" ]; then unalias rm unlink rmdir 2>/dev/null || true; unset -"
+  "pid": 66057,
+  "ppid": 66055,
+  "parent_cmd": "/bin/zsh -c . '/Users/guan/.workbuddy/shell-snapshots/snapshot-zsh-1792969813861-h3rtlc.sh' && if [ -n \"${CODEBUDDY_SAFE_DELETE_BIN_DIR:-}\" ]; then unalias rm unlink rmdir 2>/dev/null || true; unset -"
  }
 }
