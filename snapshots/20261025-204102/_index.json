@@ -1,6 +1,6 @@
 {
- "created_at": "2026-10-25T08:44:22",
- "label": "caller-痕迹实测",
+ "created_at": "2026-10-25T20:41:02",
+ "label": "",
  "file_count": 118,
  "files": {
   "scripts/build_package.py": {
@@ -477,8 +477,8 @@
   }
  },
  "caller": {
-  "pid": 89515,
-  "ppid": 89513,
-  "parent_cmd": "/bin/zsh -c . '/Users/guan/.workbuddy/shell-snapshots/snapshot-zsh-1792888100186-yaj1bn.sh' && if [ -n \"${CODEBUDDY_SAFE_DELETE_BIN_DIR:-}\" ]; then unalias rm unlink rmdir 2>/dev/null || true; unset -"
+  "pid": 96400,
+  "ppid": 96398,
+  "parent_cmd": "/bin/zsh -c . '/Users/guan/.workbuddy/shell-snapshots/snapshot-zsh-1792931924779-lr2820.sh' && if [ -n \"${CODEBUDDY_SAFE_DELETE_BIN_DIR:-}\" ]; then unalias rm unlink rmdir 2>/dev/null || true; unset -"
  }
 }
