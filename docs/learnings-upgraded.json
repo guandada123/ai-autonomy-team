@@ -1,5 +1,7 @@
 {
-  "_README": "★ 升级候选 → 跨项目规则层的台账。口径见 scripts/upgrade_status.py docstring：一条记『已升级』必须同时有 rule_line（能在用户级 MEMORY.md 逐字 grep 到）+ verified_at（人工核对日期），缺一即记未升级。空数组 = 目前无法证明任何一条从本仓库升级成功过（2026-10-26 核对：MEMORY.md 里 L- 编号出现 0 次）。",
+  "_README": "★ 升级候选 → 跨项目规则层的台账。口径见 scripts/upgrade_status.py docstring：一条记『已升级』必须同时有 rule_line（能在用户级 MEMORY.md 逐字 grep 到）+ verified_at（人工核对日期），缺一即记未升级。空数组 = 目前没有任何一条从本仓库升级成功（2026-10-26 定案双重不匹配：① 本仓不在 automation-1786439069962 的 6 个扫描路径里；② 它读 .learnings/LEARNINGS.md 汇总文件，本仓是一课一文件 L-*.md，汇总文件数为 0。该链路对其余 6 项目健康，只是从未覆盖本仓）。",
+  "_为什么存在": "不能靠『周度自动化会捞走』这类未验证声称。2026-10-26 实测：23 条 ★、0 条 provenance、5 条超期 10 天。",
+  "_怎么补": "升级是判断题不是机械动作：先在 MEMORY.md 铁律区落地规则句，再把该句逐字填进 rule_line 并记 verified_at。切勿先填台账后补规则（那就是台账造假）。",
   "rule_layer": "~/.workbuddy/user-24688a34-03ff-4299-8736-08d5a6585c6b-personal/MEMORY.md",
   "upgraded": []
 }
