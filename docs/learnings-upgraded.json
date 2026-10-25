@@ -1,0 +1,5 @@
+{
+  "_README": "★ 升级候选 → 跨项目规则层的台账。口径见 scripts/upgrade_status.py docstring：一条记『已升级』必须同时有 rule_line（能在用户级 MEMORY.md 逐字 grep 到）+ verified_at（人工核对日期），缺一即记未升级。空数组 = 目前无法证明任何一条从本仓库升级成功过（2026-10-26 核对：MEMORY.md 里 L- 编号出现 0 次）。",
+  "rule_layer": "~/.workbuddy/user-24688a34-03ff-4299-8736-08d5a6585c6b-personal/MEMORY.md",
+  "upgraded": []
+}

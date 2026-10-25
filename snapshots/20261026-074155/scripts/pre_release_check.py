@@ -249,6 +249,29 @@ def chk_consistency_info():
     return f"{total} 份：{ok} 通过 / {bad} 不自洽（历史产出不回溯改判；见复核报告 §六）"
 
 
+def chk_upgrade_info():
+    """附加信息（**非门禁**）：★ 升级候选的台账缺口。
+
+    2026-10-26 发现：`🔄 跨项目经验升级(周日 23:57)` 被当作"会自动把 ★ 经验捞进
+    跨项目规则层"的既定事实，但用户级 MEMORY.md 里 `L-` 编号出现 **0 次**，
+    即升级链路**从未留下 provenance**；同批周日自动化全部留痕，说明不是平台故障。
+
+    刻意不进门禁：
+      - 「有 ★ 未升级」是常态（人工核对天然滞后），卡它 = 每天一条假告警；
+      - 保持「8/8」基线契约不被打破。
+    只打印，永不影响退出码；要卡用 `upgrade_status.py --strict`。
+    """
+    try:
+        rc, out = sh([PY, str(SCRIPTS / "upgrade_status.py"), "--json"], timeout=60)
+        d = json.loads(out)
+    except Exception as e:                       # 信息项异常不拖垮整体
+        return f"（核对异常：{type(e).__name__}，不影响门禁）"
+    if not d.get("rule_layer_exists"):
+        return "🔴 规则层文件不存在——升级链路必然空转"
+    return (f"{d['star']} 条 ★ / 已登记升级 {d['upgraded']} / 未升级 {d['pending'].__len__()}"
+            f"（超期 {len(d['stale'])} 条；台账 docs/learnings-upgraded.json）")
+
+
 def main():
     ap = argparse.ArgumentParser(description="发布前一键检查（只读）")
     ap.add_argument("-q", "--quiet", action="store_true")
@@ -290,6 +313,7 @@ def main():
         print()
         # 附加信息不参与判定，仅让「每轮跑一次自洽检查」被动可见
         print(f"  ℹ️  {'I 自洽扫描（非门禁）':<12} {chk_consistency_info()}")
+        print(f"  ℹ️  {'J ★升级台账（非门禁）':<12} {chk_upgrade_info()}")
         print()
 
     if failed:

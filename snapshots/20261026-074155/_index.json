@@ -1,7 +1,7 @@
 {
- "created_at": "2026-10-25T20:41:02",
+ "created_at": "2026-10-26T07:41:55",
  "label": "",
- "file_count": 118,
+ "file_count": 120,
  "files": {
   "scripts/build_package.py": {
    "sha256": "b2dad8c4b0adc07c8cc367c51c292263c2789cf6501a0a7481c80260de23f494",
@@ -108,8 +108,8 @@
    "bytes": 11650
   },
   "scripts/pre_release_check.py": {
-   "sha256": "6ca5e93d7bfa4c4af0c424e06c3f471502e8648a7d609ea846ed3e814e221e6b",
-   "bytes": 13990
+   "sha256": "3c0039f9b385ec30d2e0cd0c69c5f382812c2d15925e3816ee3166c7fe6493eb",
+   "bytes": 15368
   },
   "scripts/premise_probe.py": {
    "sha256": "3b5baee8172840c15a21a47cfa0297ca9ba3049869e0550da1f1177bbba250e9",
@@ -146,6 +146,10 @@
   "scripts/team_metrics.py": {
    "sha256": "65607e125e4966898b120291a45b438d129663ace21048bafa8d77ebc11fb094",
    "bytes": 13505
+  },
+  "scripts/upgrade_status.py": {
+   "sha256": "62380f0a69cddf0b52ed64018338ee74827384439fa54e8c24f183505cec99e0",
+   "bytes": 6700
   },
   "scripts/verify_handover.py": {
    "sha256": "918f84980694b1178662a1d03ed42ba8954ba4df726eec737657025d219f46ca",
@@ -447,6 +451,10 @@
    "sha256": "47a4061c4b3b857f49257e4b08327fde4118071218958b8a0e10cdacf535987f",
    "bytes": 4223
   },
+  "docs/decisions/D-0068-ReasonNetwork适用性评估-no-go.md": {
+   "sha256": "197b7367f415548e88943f08e5c7f3084a55dc2d387b6a38f66021851f51a2d1",
+   "bytes": 5143
+  },
   "docs/decisions/TEMPLATE.md": {
    "sha256": "0bbc33940a540ae0e983817d9b1cf6daf6502ff233074d5023a3466511867e6e",
    "bytes": 856
@@ -477,8 +485,8 @@
   }
  },
  "caller": {
-  "pid": 96400,
-  "ppid": 96398,
-  "parent_cmd": "/bin/zsh -c . '/Users/guan/.workbuddy/shell-snapshots/snapshot-zsh-1792931924779-lr2820.sh' && if [ -n \"${CODEBUDDY_SAFE_DELETE_BIN_DIR:-}\" ]; then unalias rm unlink rmdir 2>/dev/null || true; unset -"
+  "pid": 82274,
+  "ppid": 82266,
+  "parent_cmd": "/bin/zsh -c . '/Users/guan/.workbuddy/shell-snapshots/snapshot-zsh-1792971573348-j9nzj2.sh' && if [ -n \"${CODEBUDDY_SAFE_DELETE_BIN_DIR:-}\" ]; then unalias rm unlink rmdir 2>/dev/null || true; unset -"
  }
 }

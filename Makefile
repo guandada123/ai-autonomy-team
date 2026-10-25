@@ -60,6 +60,9 @@ check:
 test:
 	$(PY) $(SCRIPTS)/regress.py
 
+upgrade-status:
+	$(PY) $(SCRIPTS)/upgrade_status.py
+
 selftest:
 	@echo "── 开轮器（含 preflight 闸门）──"
 	cd $(PKG) && $(PY) new_round.py --self-test
