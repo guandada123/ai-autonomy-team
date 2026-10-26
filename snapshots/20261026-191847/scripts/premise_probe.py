@@ -91,6 +91,49 @@ def run_card(card, min_chars=None, probes=None):
         hit, why = judge(p, card, min_chars=min_chars)
         if hit:
             hits.append({"id": p["id"], "action": p["hit_action"], "severity": p["severity"], "reason": why})
+    return _apply_person_exemption(card, hits, probes, min_chars)
+
+
+def _apply_person_exemption(card, hits, probes, min_chars):
+    """「短但具体」豁免：2–4 字的**具体人名**不应仅因字数被判泛称。
+
+    ## 为什么（D-0071 盲区清单第 1 类）
+
+    P-01 用「去掉泛称词后剩余字数」代理"受益方是否具体"。该代理在 2–4 字的人名上**误报**：
+    `老张`（2 字）、`王工`（2 字）都是具体到人的答案，却被判「无具体受损方」。
+    2026-10-26 的表述无关性检验中，用户对这两类卡明确判「批」。
+
+    ## 豁免条件（三重，全部满足才放行）
+
+    1. P-01 是**唯一**命中项 —— 即 P-02（指标三键）、P-03（后果可比）都合规。
+       读作："答不出谁受损"仍成立时，给一次"字数虽短但指标与后果都齐"的机会；
+    2. 去掉泛称词后的剩余串匹配 `rules.person_pattern`（人名/角色尊称的形态）；
+    3. 命中长度区间 `rules.person_exempt_len`（默认 2–4 字）。
+
+    ## 刻意保守
+
+    只认形态**明确**的写法（老张/小王/王工/李总/张老师/赵经理），
+    不认 `维护者`、`运维同学` 这类**角色名**——它们不是具体的人，仍应判拦。
+    宁可漏放（继续误报），也不放宽到角色词（那会让"维护者"过关）。
+
+    pattern 由 P-01 的 JSON 提供，不在代码里硬编码；缺该字段时本函数原样返回。
+    """
+    p01 = next((p for p in probes if p["id"] == "P-01-value"), None)
+    if not p01:
+        return hits
+    rules = p01.get("rules", {})
+    pat, span = rules.get("person_pattern"), rules.get("person_exempt_len") or [2, 4]
+    if not pat or len(hits) != 1 or hits[0]["id"] != "P-01-value":
+        return hits
+
+    s = _text(card.get(p01["field"]))
+    stripped = s
+    for w in rules.get("generic_blacklist") or []:
+        stripped = stripped.replace(w, "")
+    stripped = stripped.strip()
+    lo, hi = span
+    if lo <= len(stripped) <= hi and re.fullmatch(pat, stripped):
+        return []          # 豁免：唯一命中是字数，且形态是人名 → 不拦
     return hits
 
 

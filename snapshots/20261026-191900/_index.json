@@ -1,7 +1,7 @@
 {
- "created_at": "2026-10-26T19:05:21",
+ "created_at": "2026-10-26T19:19:00",
  "label": "",
- "file_count": 123,
+ "file_count": 125,
  "files": {
   "scripts/build_package.py": {
    "sha256": "b2dad8c4b0adc07c8cc367c51c292263c2789cf6501a0a7481c80260de23f494",
@@ -116,8 +116,8 @@
    "bytes": 15464
   },
   "scripts/premise_probe.py": {
-   "sha256": "3b5baee8172840c15a21a47cfa0297ca9ba3049869e0550da1f1177bbba250e9",
-   "bytes": 7522
+   "sha256": "80b7312d4ebb3049afe46ee757cdefc907a620a060b2c3b159a2447a796e19f7",
+   "bytes": 9686
   },
   "scripts/real_recon.py": {
    "sha256": "e49c00f5d980cda67c15123fb2ae4f0f6dccdacd745d9fb2dc1ae681fb4080eb",
@@ -132,8 +132,8 @@
    "bytes": 11300
   },
   "scripts/regress.py": {
-   "sha256": "1748e77d34cfa1413659d450562ac031f0d553fade1fa5c2e3000acdc0852919",
-   "bytes": 60585
+   "sha256": "e5aef0da2ca5fd58a0d0a4485af461e4152b201b81e54336aeb78fa5ed9265bb",
+   "bytes": 61327
   },
   "scripts/secret_patterns.py": {
    "sha256": "c77c883691005f530cff2444c7acb0470dfadf595ae1c15dbc98b34857b56ef1",
@@ -142,6 +142,10 @@
   "scripts/snapshot_sources.py": {
    "sha256": "c6ef8cbb6459bd7f88e1c6d2005c6e1535ebaa99e222767172abf0077833cb8a",
    "bytes": 17209
+  },
+  "scripts/spec_conformance.py": {
+   "sha256": "689c30623c485830755308fccf673034d43b00e47af91d2ea5f62c94f8e0fdec",
+   "bytes": 4193
   },
   "scripts/sync_doc_numbers.py": {
    "sha256": "fcd64cab03e783a322d7b8f4f2800d9f8a69a31f65188930b5ad6a473eb3644a",
@@ -467,6 +471,10 @@
    "sha256": "ff2d0ede188d1f0d616616dbeec1bea8a6fc6a0783366a727278652d410815d0",
    "bytes": 3911
   },
+  "docs/decisions/D-0071-规格符合性套件落地.md": {
+   "sha256": "bb819f125895ac7f6b223815af8647ad383c303930a37a1736a6f57ec428ac28",
+   "bytes": 4693
+  },
   "docs/decisions/TEMPLATE.md": {
    "sha256": "0bbc33940a540ae0e983817d9b1cf6daf6502ff233074d5023a3466511867e6e",
    "bytes": 856
@@ -497,8 +505,8 @@
   }
  },
  "caller": {
-  "pid": 58588,
-  "ppid": 58585,
-  "parent_cmd": "/bin/zsh -c . '/Users/guan/.workbuddy/shell-snapshots/snapshot-zsh-1793012597910-bsl1jr.sh' && if [ -n \"${CODEBUDDY_SAFE_DELETE_BIN_DIR:-}\" ]; then unalias rm unlink rmdir 2>/dev/null || true; unset -"
+  "pid": 68570,
+  "ppid": 68567,
+  "parent_cmd": "/bin/zsh -c . '/Users/guan/.workbuddy/shell-snapshots/snapshot-zsh-1793013328182-p22383.sh' && if [ -n \"${CODEBUDDY_SAFE_DELETE_BIN_DIR:-}\" ]; then unalias rm unlink rmdir 2>/dev/null || true; unset -"
  }
 }
