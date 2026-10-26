@@ -1,5 +1,5 @@
 {
- "created_at": "2026-10-26T08:38:13",
+ "created_at": "2026-10-26T11:16:12",
  "label": "",
  "file_count": 122,
  "files": {
@@ -112,8 +112,8 @@
    "bytes": 11650
   },
   "scripts/pre_release_check.py": {
-   "sha256": "3c0039f9b385ec30d2e0cd0c69c5f382812c2d15925e3816ee3166c7fe6493eb",
-   "bytes": 15368
+   "sha256": "c1f721aa584189c9dbbcf38fb4acd0de9a4560a1624a7c562f410f9189d74a3e",
+   "bytes": 15402
   },
   "scripts/premise_probe.py": {
    "sha256": "3b5baee8172840c15a21a47cfa0297ca9ba3049869e0550da1f1177bbba250e9",
@@ -152,8 +152,8 @@
    "bytes": 13505
   },
   "scripts/upgrade_status.py": {
-   "sha256": "70715f3113e111804f9495ed99f6736ac4c17f105ed82cac9f7581db505a004c",
-   "bytes": 7126
+   "sha256": "feadc0516950c2e9ac8c5cede37c30071a6998f65d3f6cac722615e7699600b4",
+   "bytes": 7677
   },
   "scripts/verify_handover.py": {
    "sha256": "918f84980694b1178662a1d03ed42ba8954ba4df726eec737657025d219f46ca",
@@ -493,8 +493,8 @@
   }
  },
  "caller": {
-  "pid": 19312,
-  "ppid": 19309,
-  "parent_cmd": "/bin/zsh -c . '/Users/guan/.workbuddy/shell-snapshots/snapshot-zsh-1792974928389-tue62x.sh' && if [ -n \"${CODEBUDDY_SAFE_DELETE_BIN_DIR:-}\" ]; then unalias rm unlink rmdir 2>/dev/null || true; unset -"
+  "pid": 14949,
+  "ppid": 14947,
+  "parent_cmd": "/bin/zsh -c . '/Users/guan/.workbuddy/shell-snapshots/snapshot-zsh-1792984463262-ni7xd3.sh' && if [ -n \"${CODEBUDDY_SAFE_DELETE_BIN_DIR:-}\" ]; then unalias rm unlink rmdir 2>/dev/null || true; unset -"
  }
 }

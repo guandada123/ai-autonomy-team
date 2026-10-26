@@ -105,6 +105,9 @@ def check_ledger(ledger: dict, rule_text: str) -> list:
             bad.append((e.get("id", "?"), f"rule_line 在规则层 grep 不到：{line[:40]}…"))
         elif not e.get("verified_at"):
             bad.append((e.get("id", "?"), "缺 verified_at"))
+    for e in ledger.get("covered_locally", []):
+        if not (e.get("reason") or "").strip():
+            bad.append((e.get("id", "?"), "covered_locally 缺 reason（须指出执行体）"))
     return bad
 
 
@@ -123,21 +126,25 @@ def main() -> int:
     ledger = load_ledger()
     rule_text = RULE_LAYER.read_text(encoding="utf-8", errors="replace") if RULE_LAYER.exists() else ""
     done = {e.get("id") for e in ledger.get("upgraded", [])}
+    local = {e.get("id") for e in ledger.get("covered_locally", [])}
     today = date.today()
 
     rows = []
     for it in lessons:
         age = (today - date.fromisoformat(it["date"])).days
-        rows.append({**it, "age_days": age, "upgraded": it["id"] in done})
+        rows.append({**it, "age_days": age,
+                     "upgraded": it["id"] in done, "covered_locally": it["id"] in local})
 
     stars = [r for r in rows if r["star"]]
-    pending = [r for r in stars if not r["upgraded"]]
+    # 待处置 = 既没升级、也没有本地强制机制兜着
+    pending = [r for r in stars if not r["upgraded"] and not r["covered_locally"]]
     stale = [r for r in pending if r["age_days"] > a.max_age]
     bad = check_ledger(ledger, rule_text)
 
     if a.json:
         print(json.dumps({
-            "total": len(rows), "star": len(stars), "upgraded": len(stars) - len(pending),
+            "total": len(rows), "star": len(stars), "upgraded": len(done),
+            "covered_locally": len(local),
             "pending": [r["id"] for r in pending], "stale": [r["id"] for r in stale],
             "ledger_errors": [{"id": i, "why": w} for i, w in bad],
             "rule_layer": str(RULE_LAYER), "rule_layer_exists": RULE_LAYER.exists(),
@@ -146,7 +153,8 @@ def main() -> int:
 
     print(f"规则层：{RULE_LAYER}")
     print(f"          {'存在' if RULE_LAYER.exists() else '❌ 不存在（升级链路必然空转）'}")
-    print(f"经验总数 {len(rows)}｜★ 候选 {len(stars)}｜已登记升级 {len(stars) - len(pending)}｜未升级 {len(pending)}")
+    print(f"经验总数 {len(rows)}｜★ 候选 {len(stars)}｜已升级 {len(done)}｜"
+          f"本地强制 {len(local)}｜待处置 {len(pending)}")
     print()
     if bad:
         print("🔴 台账自身不一致（登记的 rule_line 在规则层找不到）：")
@@ -154,15 +162,15 @@ def main() -> int:
             print(f"   {i}: {w}")
         print()
     if pending:
-        print("未升级的 ★ 候选（按龄降序）：")
+        print("待处置的 ★ 候选（按龄降序；已升级与本地强制的不列入）：")
         for r in sorted(pending, key=lambda x: -x["age_days"]):
             flag = "🔴超期" if r["age_days"] > a.max_age else "  "
             print(f"   {flag} {r['id']}  {r['age_days']:>3}天  {r['title'][:52]}")
     else:
-        print("✅ 全部 ★ 候选均已登记升级。")
+        print("✅ 全部 ★ 候选均已升级或已有本地强制机制兜底。")
 
     if a.strict and stale:
-        print(f"\n[FAIL] {len(stale)} 条 ★ 超过 {a.max_age} 天未升级")
+        print(f"\n[FAIL] {len(stale)} 条 ★ 超过 {a.max_age} 天既未升级也无本地兜底")
         return 1
     return 0
 
