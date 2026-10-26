@@ -1,5 +1,5 @@
 {
- "created_at": "2026-10-26T19:19:00",
+ "created_at": "2026-10-26T19:41:51",
  "label": "",
  "file_count": 125,
  "files": {
@@ -472,8 +472,8 @@
    "bytes": 3911
   },
   "docs/decisions/D-0071-规格符合性套件落地.md": {
-   "sha256": "bb819f125895ac7f6b223815af8647ad383c303930a37a1736a6f57ec428ac28",
-   "bytes": 4693
+   "sha256": "8de8e9331c7ebd548ab03f0b6a56a1760f12488f85db6fdc19a3f596b97d0a6e",
+   "bytes": 8673
   },
   "docs/decisions/TEMPLATE.md": {
    "sha256": "0bbc33940a540ae0e983817d9b1cf6daf6502ff233074d5023a3466511867e6e",
@@ -505,8 +505,8 @@
   }
  },
  "caller": {
-  "pid": 68570,
-  "ppid": 68567,
-  "parent_cmd": "/bin/zsh -c . '/Users/guan/.workbuddy/shell-snapshots/snapshot-zsh-1793013328182-p22383.sh' && if [ -n \"${CODEBUDDY_SAFE_DELETE_BIN_DIR:-}\" ]; then unalias rm unlink rmdir 2>/dev/null || true; unset -"
+  "pid": 82251,
+  "ppid": 82248,
+  "parent_cmd": "/bin/zsh -c . '/Users/guan/.workbuddy/shell-snapshots/snapshot-zsh-1793014855426-v8ef9n.sh' && if [ -n \"${CODEBUDDY_SAFE_DELETE_BIN_DIR:-}\" ]; then unalias rm unlink rmdir 2>/dev/null || true; unset -"
  }
 }

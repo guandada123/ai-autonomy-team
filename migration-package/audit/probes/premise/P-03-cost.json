@@ -7,8 +7,13 @@
   "severity": "medium",
   "rules": {
     "type": "comparable_cost",
-    "required_keys": ["description", "comparable"],
-    "must_be_true": ["comparable"]
+    "required_keys": [
+      "description",
+      "comparable"
+    ],
+    "must_be_true": [
+      "comparable"
+    ]
   },
-  "why": "只讲『做了有什么好处』不讲『不做会怎样』，就无法判断投入是否值得。"
+  "why": "只讲『做了有什么好处』不讲『不做会怎样』，就无法判断投入是否值得。【边界（2026-10-26，D-0071）】P-03 通过 = description 非空且 comparable 为真，**不等于后果真的可比**：description 写『可能出问题』也能过，只要 comparable 标 true。另注意校准集里 do_nothing_cost 存在**批量复制**（不同任务共用同一句『仪表盘继续显示 0』，选型类任务也照抄），该字段在那些卡上等于失效。后果是否真的可比须由人判；本探针只保证『没有明说不可比』。"
 }

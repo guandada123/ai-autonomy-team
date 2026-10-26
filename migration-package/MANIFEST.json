@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-10-26T19:17:47+08:00",
+  "generated_at": "2026-10-26T19:41:12+08:00",
   "root": "migration-package/",
   "note": "sha256 用于跨机完整性校验。newline=MIXED 的文本文件会导致证据链跨平台断裂，须修正。",
   "stats": {
     "file_count": 1117,
-    "total_bytes": 7984660,
+    "total_bytes": 7985803,
     "mixed_newline_files": []
   },
   "files": [
@@ -22,14 +22,14 @@
     },
     {
       "path": "audit/probes/premise/P-02-metric.json",
-      "size": 434,
-      "sha256": "22d6ea53887ce13b280057d58f538e8e909d85699e218f36d3657cdfb56a0c4c",
+      "size": 1065,
+      "sha256": "01661fdba9d37092cf4c4e259deffe999eac651afaf50b2f26010b0d714e3fc4",
       "newline": "LF"
     },
     {
       "path": "audit/probes/premise/P-03-cost.json",
-      "size": 486,
-      "sha256": "456711ffef26b29258f6e8159a3ac85ab1bd58b0f2a400d75fd07ea2a460efc8",
+      "size": 998,
+      "sha256": "794940b55f80bf3632d98cb8fda6da1a8ca0c0fe681bc1d2a5fbad04a5ae6716",
       "newline": "LF"
     },
     {

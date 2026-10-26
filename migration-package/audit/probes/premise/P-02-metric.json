@@ -7,8 +7,12 @@
   "severity": "high",
   "rules": {
     "type": "baseline_present",
-    "required_keys": ["name", "baseline", "method"],
+    "required_keys": [
+      "name",
+      "baseline",
+      "method"
+    ],
     "null_means_missing": true
   },
-  "why": "没有基线的指标不算指标。D1 价值闸门的全部内容。"
+  "why": "没有基线的指标不算指标。D1 价值闸门的全部内容。【边界（2026-10-26，D-0071）】P-02 通过 = name/baseline/method **三键齐全**，**不等于指标切题**。规格符合性套件里三张反例：① name=稳定性 / baseline=0 / method=看情况 → 三键齐全但无信息量；② name=发布耗时 / baseline=0 → 量纲荒谬（0 秒不可能），本探针不查合理性；③ name=更准 → baseline 与 method 为 null 才会被拦，写成字符串即可绕过。切题性与量纲合理性须在**人判层（L4）**解决；不要在 L3 加语义判断，那会摧毁本层『可复现、阈值有物理含义』的全部价值。"
 }
