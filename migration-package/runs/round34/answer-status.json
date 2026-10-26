@@ -1,6 +1,19 @@
 {
   "round": 34,
-  "status": "awaiting_human_confirm",
-  "blocking": "删除是不可逆动作，须用户确认",
-  "ts": "2026-10-24T00:29:35"
+  "status": "resolved_by_human",
+  "blocking": null,
+  "blocking_history": "删除是不可逆动作，须用户确认",
+  "ts": "2026-10-24T00:29:35",
+  "resolution": {
+    "by": "human:guan",
+    "via": "会话内明确指示「关闭」（2026-10-26T08:35:29+08:00）",
+    "at": "2026-10-26T08:36:04+08:00",
+    "decision": "不执行删除。任务已由人工完成，无需重复动作。",
+    "evidence": [
+      "~/Backups/ai-autonomy-team 现存 2 组（20261024-0044 / 20261024-0633），已达 round34 目标状态「清到 2 组」",
+      "round34 点名的 1925/2056/2113/2348 四组，连同 1852/1853 共 12 个文件在 ~/.Trash（6 bundle + 6 tar）",
+      "备份目录含 .DS_Store、目录 mtime 2026-10-24 06:37 → Finder 手工删除，方式为废纸篓（可恢复），符合 EX-02 条件"
+    ],
+    "decision_record": "docs/decisions/D-0069-round34闸门已人工完成.md"
+  }
 }

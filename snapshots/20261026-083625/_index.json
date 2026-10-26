@@ -1,7 +1,7 @@
 {
- "created_at": "2026-10-26T07:42:38",
+ "created_at": "2026-10-26T08:36:25",
  "label": "",
- "file_count": 120,
+ "file_count": 122,
  "files": {
   "scripts/build_package.py": {
    "sha256": "b2dad8c4b0adc07c8cc367c51c292263c2789cf6501a0a7481c80260de23f494",
@@ -30,6 +30,10 @@
   "scripts/inspect_agent_routing.py": {
    "sha256": "23df35834b0e5aa663209957ad9753fafc06075e0bc3e04aa2020c082c5724b6",
    "bytes": 7769
+  },
+  "scripts/inspect_status.py": {
+   "sha256": "6abbbe73f84851ea901871c8cfeef429702c0a72187e626e9c99e1a430f38251",
+   "bytes": 7715
   },
   "scripts/inspection_watch.py": {
    "sha256": "9d9bd17a8904fcdcf9364e9c1ae167d114b03a18efede880e7de1e8736a25897",
@@ -455,6 +459,10 @@
    "sha256": "197b7367f415548e88943f08e5c7f3084a55dc2d387b6a38f66021851f51a2d1",
    "bytes": 5143
   },
+  "docs/decisions/D-0069-round34闸门已人工完成.md": {
+   "sha256": "9cb21d823750114d74b6d7476048a1f2f0fe25c666bd424399a4bf80c5cf8c9d",
+   "bytes": 3212
+  },
   "docs/decisions/TEMPLATE.md": {
    "sha256": "0bbc33940a540ae0e983817d9b1cf6daf6502ff233074d5023a3466511867e6e",
    "bytes": 856
@@ -485,8 +493,8 @@
   }
  },
  "caller": {
-  "pid": 82859,
-  "ppid": 82855,
-  "parent_cmd": "/bin/zsh -c . '/Users/guan/.workbuddy/shell-snapshots/snapshot-zsh-1792971573348-j9nzj2.sh' && if [ -n \"${CODEBUDDY_SAFE_DELETE_BIN_DIR:-}\" ]; then unalias rm unlink rmdir 2>/dev/null || true; unset -"
+  "pid": 17432,
+  "ppid": 17429,
+  "parent_cmd": "/bin/zsh -c . '/Users/guan/.workbuddy/shell-snapshots/snapshot-zsh-1792974928389-tue62x.sh' && if [ -n \"${CODEBUDDY_SAFE_DELETE_BIN_DIR:-}\" ]; then unalias rm unlink rmdir 2>/dev/null || true; unset -"
  }
 }
