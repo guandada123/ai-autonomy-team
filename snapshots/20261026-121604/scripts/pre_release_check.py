@@ -269,7 +269,8 @@ def chk_upgrade_info():
     if not d.get("rule_layer_exists"):
         return "🔴 规则层文件不存在——升级链路必然空转"
     return (f"{d['star']} 条 ★ / 已升级 {d['upgraded']} / 本地强制 {d.get('covered_locally', 0)}"
-            f" / 待处置 {len(d['pending'])}（超期 {len(d['stale'])} 条；台账 docs/learnings-upgraded.json）")
+            f" / 待升(预算阻塞) {d.get('deferred', 0)} / 待处置 {len(d['pending'])}"
+            f"（超期 {len(d['stale'])} 条；台账 docs/learnings-upgraded.json）")
 
 
 def main():
