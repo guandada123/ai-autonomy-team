@@ -131,7 +131,7 @@
 
 | 模块 | 行数 | 检查什么 | 何时跑 |
 |---|---|---|---|
-| `regress.py` | 1008 || B 全量回归 | 调用 `regress.py` 55 项 | 改代码后没跑测试 |
+| `regress.py` | 1016 || B 全量回归 | 调用 `regress.py` 55 项 | 改代码后没跑测试 |
 | C 判据自检 | 判据用例自检 | 改了判据逻辑 |
 | D 包完整性 | `MANIFEST.json` 与包内逐字节一致 | 改了 `scripts/` 却没 `make package-apply` |
 | E 密钥扫描 | 用 `secret_patterns.py` 扫全仓 | 硬编码了 token |

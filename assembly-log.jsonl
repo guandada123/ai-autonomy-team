@@ -61,3 +61,4 @@
 {"ts": "2026-10-23T15:29:32.833467+00:00", "actor": "build_package.py(--apply)", "written": 0, "unchanged": 23, "changed_files": []}
 {"ts": "2026-10-23T16:30:37.474239+00:00", "actor": "build_package.py(--apply)", "written": 2, "unchanged": 23, "changed_files": ["scripts/premise_probe.py", "scripts/veto_sweep.py"]}
 {"ts": "2026-10-23T23:37:43.235389+00:00", "actor": "build_package.py(--apply)", "written": 0, "unchanged": 25, "changed_files": []}
+{"ts": "2026-10-26T11:17:47.396200+00:00", "actor": "build_package.py(--apply)", "written": 1, "unchanged": 24, "changed_files": ["scripts/premise_probe.py"]}
