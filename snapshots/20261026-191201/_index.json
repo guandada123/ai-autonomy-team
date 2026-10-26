@@ -1,7 +1,7 @@
 {
- "created_at": "2026-10-26T18:53:40",
+ "created_at": "2026-10-26T19:12:01",
  "label": "",
- "file_count": 122,
+ "file_count": 125,
  "files": {
   "scripts/build_package.py": {
    "sha256": "b2dad8c4b0adc07c8cc367c51c292263c2789cf6501a0a7481c80260de23f494",
@@ -142,6 +142,10 @@
   "scripts/snapshot_sources.py": {
    "sha256": "c6ef8cbb6459bd7f88e1c6d2005c6e1535ebaa99e222767172abf0077833cb8a",
    "bytes": 17209
+  },
+  "scripts/spec_conformance.py": {
+   "sha256": "689c30623c485830755308fccf673034d43b00e47af91d2ea5f62c94f8e0fdec",
+   "bytes": 4193
   },
   "scripts/sync_doc_numbers.py": {
    "sha256": "fcd64cab03e783a322d7b8f4f2800d9f8a69a31f65188930b5ad6a473eb3644a",
@@ -463,6 +467,14 @@
    "sha256": "e7c19e0c1e7b34e70afe75244e20a09c79dd1b0626daf61a45f059e598168692",
    "bytes": 4044
   },
+  "docs/decisions/D-0070-P01校准集无区分力.md": {
+   "sha256": "ff2d0ede188d1f0d616616dbeec1bea8a6fc6a0783366a727278652d410815d0",
+   "bytes": 3911
+  },
+  "docs/decisions/D-0071-规格符合性套件落地.md": {
+   "sha256": "bb819f125895ac7f6b223815af8647ad383c303930a37a1736a6f57ec428ac28",
+   "bytes": 4693
+  },
   "docs/decisions/TEMPLATE.md": {
    "sha256": "0bbc33940a540ae0e983817d9b1cf6daf6502ff233074d5023a3466511867e6e",
    "bytes": 856
@@ -493,8 +505,8 @@
   }
  },
  "caller": {
-  "pid": 48308,
-  "ppid": 48306,
-  "parent_cmd": "/bin/zsh -c . '/Users/guan/.workbuddy/shell-snapshots/snapshot-zsh-1793009838089-jvjws1.sh' && if [ -n \"${CODEBUDDY_SAFE_DELETE_BIN_DIR:-}\" ]; then unalias rm unlink rmdir 2>/dev/null || true; unset -"
+  "pid": 63096,
+  "ppid": 63085,
+  "parent_cmd": "/bin/zsh -c . '/Users/guan/.workbuddy/shell-snapshots/snapshot-zsh-1793012597910-bsl1jr.sh' && if [ -n \"${CODEBUDDY_SAFE_DELETE_BIN_DIR:-}\" ]; then unalias rm unlink rmdir 2>/dev/null || true; unset -"
  }
 }

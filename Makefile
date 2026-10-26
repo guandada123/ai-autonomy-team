@@ -63,6 +63,9 @@ test:
 upgrade-status:
 	$(PY) $(SCRIPTS)/upgrade_status.py
 
+spec-check:
+	$(PY) $(SCRIPTS)/spec_conformance.py
+
 selftest:
 	@echo "── 开轮器（含 preflight 闸门）──"
 	cd $(PKG) && $(PY) new_round.py --self-test
