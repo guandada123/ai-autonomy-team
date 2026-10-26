@@ -1,5 +1,5 @@
 {
- "created_at": "2026-10-26T11:29:34",
+ "created_at": "2026-10-26T18:48:20",
  "label": "",
  "file_count": 122,
  "files": {
@@ -493,8 +493,8 @@
   }
  },
  "caller": {
-  "pid": 22926,
-  "ppid": 22921,
-  "parent_cmd": "/bin/zsh -c . '/Users/guan/.workbuddy/shell-snapshots/snapshot-zsh-1792985294862-c3verh.sh' && if [ -n \"${CODEBUDDY_SAFE_DELETE_BIN_DIR:-}\" ]; then unalias rm unlink rmdir 2>/dev/null || true; unset -"
+  "pid": 43735,
+  "ppid": 43732,
+  "parent_cmd": "/bin/zsh -c . '/Users/guan/.workbuddy/shell-snapshots/snapshot-zsh-1793009838089-jvjws1.sh' && if [ -n \"${CODEBUDDY_SAFE_DELETE_BIN_DIR:-}\" ]; then unalias rm unlink rmdir 2>/dev/null || true; unset -"
  }
 }
