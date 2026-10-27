@@ -1,7 +1,7 @@
 {
- "created_at": "2026-10-26T19:41:51",
+ "created_at": "2026-10-27T08:15:06",
  "label": "",
- "file_count": 125,
+ "file_count": 126,
  "files": {
   "scripts/build_package.py": {
    "sha256": "b2dad8c4b0adc07c8cc367c51c292263c2789cf6501a0a7481c80260de23f494",
@@ -475,6 +475,10 @@
    "sha256": "8de8e9331c7ebd548ab03f0b6a56a1760f12488f85db6fdc19a3f596b97d0a6e",
    "bytes": 8673
   },
+  "docs/decisions/D-0072-规则层扩容与19条经验升入.md": {
+   "sha256": "e767796abe02dfbc3a5630d1f74c93bdbc3abe8295894afa04ccc3a4886679cd",
+   "bytes": 3689
+  },
   "docs/decisions/TEMPLATE.md": {
    "sha256": "0bbc33940a540ae0e983817d9b1cf6daf6502ff233074d5023a3466511867e6e",
    "bytes": 856
@@ -505,8 +509,8 @@
   }
  },
  "caller": {
-  "pid": 82251,
-  "ppid": 82248,
-  "parent_cmd": "/bin/zsh -c . '/Users/guan/.workbuddy/shell-snapshots/snapshot-zsh-1793014855426-v8ef9n.sh' && if [ -n \"${CODEBUDDY_SAFE_DELETE_BIN_DIR:-}\" ]; then unalias rm unlink rmdir 2>/dev/null || true; unset -"
+  "pid": 12441,
+  "ppid": 12439,
+  "parent_cmd": "/bin/zsh -c . '/Users/guan/.workbuddy/shell-snapshots/snapshot-zsh-1793060030368-lg2jvn.sh' && if [ -n \"${CODEBUDDY_SAFE_DELETE_BIN_DIR:-}\" ]; then unalias rm unlink rmdir 2>/dev/null || true; unset -"
  }
 }
