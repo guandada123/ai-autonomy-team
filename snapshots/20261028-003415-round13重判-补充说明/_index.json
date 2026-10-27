@@ -1,7 +1,7 @@
 {
- "created_at": "2026-10-27T23:51:11",
- "label": "round13两席重跑-ARCH同步",
- "file_count": 127,
+ "created_at": "2026-10-28T00:34:16",
+ "label": "round13重判-补充说明",
+ "file_count": 129,
  "files": {
   "scripts/build_package.py": {
    "sha256": "b2dad8c4b0adc07c8cc367c51c292263c2789cf6501a0a7481c80260de23f494",
@@ -124,8 +124,8 @@
    "bytes": 17283
   },
   "scripts/recompute_watch.py": {
-   "sha256": "58e1348ebbe3840ba35c069c82731dc0002351d96c85d945990460b981db8e6b",
-   "bytes": 5046
+   "sha256": "4ff4634873ec8fc01edaee5f8f673fa79514625351a762c1e7de371b3e303340",
+   "bytes": 5424
   },
   "scripts/redact_report.py": {
    "sha256": "b0557dfa5ba2659b0f9da12495a4deabbcbb29664a5620a160b3e5c913a9b2dc",
@@ -483,6 +483,14 @@
    "sha256": "fa28392f345c43f09228112a1f21576c91f6a31ed2023fd903b086e0f79ca4dc",
    "bytes": 5090
   },
+  "docs/decisions/D-0074-题库v1.2并入.md": {
+   "sha256": "00f4a5a3cc06152a58b986c8de98807ba358cd581428caae5699b4e27445c157",
+   "bytes": 4215
+  },
+  "docs/decisions/D-0075-round13重判与哈希链重建.md": {
+   "sha256": "ba6e112edc3863769db75549bce463d6bb5f5d93d733fb5290a7ada0f0640e08",
+   "bytes": 4339
+  },
   "docs/decisions/TEMPLATE.md": {
    "sha256": "0bbc33940a540ae0e983817d9b1cf6daf6502ff233074d5023a3466511867e6e",
    "bytes": 856
@@ -513,8 +521,8 @@
   }
  },
  "caller": {
-  "pid": 43930,
-  "ppid": 43927,
-  "parent_cmd": "/bin/zsh -c . '/Users/guan/.workbuddy/shell-snapshots/snapshot-zsh-1793113815031-b6byx5.sh' && if [ -n \"${CODEBUDDY_SAFE_DELETE_BIN_DIR:-}\" ]; then unalias rm unlink rmdir 2>/dev/null || true; unset -"
+  "pid": 71415,
+  "ppid": 71383,
+  "parent_cmd": "/bin/zsh -c . '/Users/guan/.workbuddy/shell-snapshots/snapshot-zsh-1793118597678-jrwsje.sh' && if [ -n \"${CODEBUDDY_SAFE_DELETE_BIN_DIR:-}\" ]; then unalias rm unlink rmdir 2>/dev/null || true; unset -"
  }
 }

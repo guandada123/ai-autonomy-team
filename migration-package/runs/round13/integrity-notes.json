@@ -7,11 +7,13 @@
   {
    "id": "S8-1-LEAK",
    "severity": "P1",
-   "status": "open",
+   "status": "closed",
    "summary": "EX-03 被 seat-check 判 invalid 并列入 aggregation_blocked，但 answer-final.json 的 aggregation_inputs[] 仍含该席位且标 seat_check_status=valid",
    "evidence": {
     "seat-check.json → results[EX-03].status": "invalid",
-    "seat-check.json → results[EX-03].errors": ["E_READ_DOMAIN_VIOLATION"],
+    "seat-check.json → results[EX-03].errors": [
+     "E_READ_DOMAIN_VIOLATION"
+    ],
     "seat-check.json → aggregation_blocked[EX-03].sha256": "ed2befbd66a66d221fa57ff284a3d4784c060f4f6b3aed14dab1424ce65dd583",
     "answer-final.json → aggregation_inputs[EX-03].sha256": "ed2befbd66a66d221fa57ff284a3d4784c060f4f6b3aed14dab1424ce65dd583",
     "判读": "同一 sha256 在一处被判无效、另一处被标 valid —— 数据自相矛盾，不是口径差异"
@@ -42,7 +44,7 @@
   {
    "id": "HASH-CHAIN-BROKEN",
    "severity": "P1",
-   "status": "open",
+   "status": "closed",
    "summary": "answer-status.json 里记录的产物 sha256 与实际文件不符（answer + spec 两处），record 一致",
    "evidence": {
     "answer-status.answer.sha256 记录": "85b5d03a63344e4a194e4766b5a13c56…",
@@ -61,7 +63,28 @@
     "B 保持 answer-status 原样，仅在文档中声明「该轮哈希链已失效，判分可用、完整性不可用」",
     "C 用 git 回退 answer-final 与 spec 到 10-20 版本再校验（会与 10-23 的独立化改动冲突）"
    ],
-   "disposition": "B（当前：声明失效，不重判）"
+   "disposition": "A（2026-10-28 00:31 执行完毕，用户拍板；原 B 已废止，保留原文不改以存史）",
+   "resolution": {
+    "at": "2026-10-28T00:31:17+08:00",
+    "decided_by": "用户（关）：方案 A —— 重跑 verify.py 重建状态（= 重判该轮）",
+    "command": "cd migration-package && python3 judges/verify.py --spec-dir fixtures/tasks/T-06/spec --record runs/round13/adjudication-record.json --answer runs/round13/answer-final.json --out runs/round13/adjudicated.json --status-out runs/round13/answer-status.json --status-provenance post_hoc_derived",
+    "result": "verdict=adjudicated，passed=14/14（原 13/13）",
+    "new_answer_status": {
+     "answer.sha256": "7cadd3fd4aee2ef7364759dbe5aad874cd8beb6088cbe6bae13aa41938903772（= 两席重跑后的实际值 ✅）",
+     "spec.sha256": "c8362da0e6c791794a16df449f7e5349281f23229c60951e519aa77fa09c2ee9（= 当前实际值 ✅）",
+     "record.sha256": "98ca79d0ab73e958ebc468674c31d0cf7c990058fc0058e5984b8fc355c2190a（未变 ✅）",
+     "provenance": "post_hoc_derived（★ 刻意不写 native：本次是事后重建，不是轮内原生产物；写 native 等于撒谎）",
+     "ts": "2026-10-28T00:31:17+08:00"
+    },
+    "old_artifacts_sha256": {
+     "answer-status.json（文件本身，已被覆盖）": "1b68dfdc14101bba43ab0c4f9f6339f7b7c0d75d976fc53af8fe51bbe25b72a3",
+     "adjudicated.json（13/13 版，已被 14/14 版覆盖）": "4c1c8e922615c70de4eeb9438af346c168ae1b63ada484c7ca369f7c5cd4783d",
+     "取回方式": "git show ac1e0c0:migration-package/runs/round13/<文件名>"
+    },
+    "cost_of_rerunning": "★ 重判用的是**当前 spec**（c8362da0），不是 10-20 那版（4ffe598c）：判据从 13 项变 14 项（新增「ADJ-001 → summary.fee_diff_total」），且第 8 项判据改名为「必须声明排除类别**或说明为何为空**」。故 14/14 与当时的 13/13 **不可比** —— 这正是选项 A 的代价，也是此前把它列为「换尺子」的原因。",
+    "warnings": "W_CATEGORY_NOT_ENUM：excluded_categories 里的「仅费用不符」「股数不符(送转未登记)」不在契约 3.0 枚举内（枚举为 单侧缺失/日期口径差/股数不符/费用差/重复单号/金额不符）。是 warning 不是 fail，但会影响聚合统计的枚举一致性 —— 记入后续待办，本轮未改题面。",
+    "verification": "python3 judges/seat_check.py --params config/params.json --round-dir runs/round13 --verify-final → [OK] answer-status 自洽 + [PASS] 聚合防伪（2 席全 valid）。round13 的两项 open 缺陷至此全部关闭。"
+   }
   }
  ],
  "rerun_2026_10_27": {
@@ -72,15 +95,25 @@
   ],
   "file_overwritten": "runs/round13/answer-final.json（旧版已复制留存，git 亦可回滚）",
   "conclusion": "两席聚合与三席旧版数值逐字段全等 → EX-03 的泄漏是来源层（引用被否席位）缺陷，未污染数值；本轮结论可用于判分的前提是「接受 ADJ-001=count 的人类裁决」。",
-  "next_blocker": "修好泄漏后，--verify-final 的下一条 FAIL 是 HASH-CHAIN-BROKEN（answer-status.json 的 answer.sha256 记 85b5d03a…，现实际 7cadd3fd…；spec.sha256 同样失配）。该条处置仍为 B，需用户单独决策，本轮未动。",
+  "next_blocker": "已于 2026-10-28 解除：用户拍板 HASH-CHAIN-BROKEN 方案 A，重跑 verify.py 后 --verify-final 全绿（[OK] answer-status 自洽 + [PASS] 聚合防伪）。round13 的两项 open 缺陷（S8-1-LEAK / HASH-CHAIN-BROKEN）至此全部关闭。",
+  "status_2026_10_28": "两项 open 缺陷均已关闭。剩余非阻塞项：W_CATEGORY_NOT_ENUM（类别名不在契约 3.0 枚举内，warning 级）。",
   "not_touched": [
-   "answer-status.json",
    "adjudication-record.json",
-   "adjudicated.json",
    "seat-check.json",
    "PM-01.json",
    "EX-01.json / EX-02.json / EX-03.json"
+  ],
+  "touched_2026_10_28": [
+   "answer-status.json（重建，旧版见 resolution.old_artifacts_sha256）",
+   "adjudicated.json（重判 14/14，旧版 13/13 见同上）"
   ]
  },
- "how_to_recheck": "python3 - <<'PY'\nimport json,hashlib,pathlib\nrd=pathlib.Path('migration-package/runs/round13')\nst=json.loads((rd/'answer-status.json').read_text())\nfor k in ('answer','spec','record'):\n    r=st.get(k) or {}; p=r.get('path'); w=r.get('sha256')\n    if not p: continue\n    f=pathlib.Path('migration-package')/p\n    g=hashlib.sha256(f.read_bytes()).hexdigest() if f.exists() else 'MISSING'\n    print(k, 'OK' if g==w else 'MISMATCH')\nPY"
+ "how_to_recheck": "python3 - <<'PY'\nimport json,hashlib,pathlib\nrd=pathlib.Path('migration-package/runs/round13')\nst=json.loads((rd/'answer-status.json').read_text())\nfor k in ('answer','spec','record'):\n    r=st.get(k) or {}; p=r.get('path'); w=r.get('sha256')\n    if not p: continue\n    f=pathlib.Path('migration-package')/p\n    g=hashlib.sha256(f.read_bytes()).hexdigest() if f.exists() else 'MISSING'\n    print(k, 'OK' if g==w else 'MISMATCH')\nPY",
+ "display_caveat": {
+  "现象": "inspect_status.py 仍把 round13 显示成 verdict=pending_adjudication / pending=2",
+  "原因": "它读的是 runs/round13/verdict-layered.json 与 pending-adjudication.json —— 这两份是 2026-10-20T14:19:53 的【裁决前】产物（人类裁决发生在 15:05），属历史产物，不是当前状态",
+  "当前状态以谁为准": "answer-status.json（adjudication_state=adjudicated）与 adjudicated.json（14/14）",
+  "为什么不覆盖这两份": "覆盖等于把「当时还有什么待裁」改写成事后产物，历史信息就没了。它们不是错的，只是旧。",
+  "影响": "08:05 看板巡检若直接引用 inspect_status 的 verdict 行，会把已裁决的 round13 当未裁决 —— 已在此声明，处理动作应看 answer-status.json"
+ }
 }

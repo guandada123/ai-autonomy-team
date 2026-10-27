@@ -12,11 +12,11 @@
   "verdict": "adjudicated",
   "answer": {
     "path": "runs/round13/answer-final.json",
-    "sha256": "85b5d03a63344e4a194e4766b5a13c562478fcdd424cb5680e930d28b4f81b6e"
+    "sha256": "7cadd3fd4aee2ef7364759dbe5aad874cd8beb6088cbe6bae13aa41938903772"
   },
   "spec": {
     "path": "fixtures/tasks/T-06/spec/adjudication.json",
-    "sha256": "4ffe598c112d3312c70d13cc7dc3b2a40fb6f840a539fe55c6be3ae2700c0732"
+    "sha256": "c8362da0e6c791794a16df449f7e5349281f23229c60951e519aa77fa09c2ee9"
   },
   "record": {
     "path": "runs/round13/adjudication-record.json",
@@ -24,6 +24,6 @@
   },
   "source_verdict": null,
   "generated_by": "judges/verify.py",
-  "provenance": "native",
-  "ts": "2026-10-20T15:15:28+08:00"
+  "provenance": "post_hoc_derived",
+  "ts": "2026-10-28T00:31:17+08:00"
 }
