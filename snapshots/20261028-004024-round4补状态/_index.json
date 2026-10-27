@@ -1,7 +1,7 @@
 {
- "created_at": "2026-10-28T00:28:35",
- "label": "题库v1.2并入",
- "file_count": 128,
+ "created_at": "2026-10-28T00:40:24",
+ "label": "round4补状态",
+ "file_count": 129,
  "files": {
   "scripts/build_package.py": {
    "sha256": "b2dad8c4b0adc07c8cc367c51c292263c2789cf6501a0a7481c80260de23f494",
@@ -487,6 +487,10 @@
    "sha256": "00f4a5a3cc06152a58b986c8de98807ba358cd581428caae5699b4e27445c157",
    "bytes": 4215
   },
+  "docs/decisions/D-0075-round13重判与哈希链重建.md": {
+   "sha256": "ba6e112edc3863769db75549bce463d6bb5f5d93d733fb5290a7ada0f0640e08",
+   "bytes": 4339
+  },
   "docs/decisions/TEMPLATE.md": {
    "sha256": "0bbc33940a540ae0e983817d9b1cf6daf6502ff233074d5023a3466511867e6e",
    "bytes": 856
@@ -517,8 +521,8 @@
   }
  },
  "caller": {
-  "pid": 67918,
-  "ppid": 67915,
-  "parent_cmd": "/bin/zsh -c . '/Users/guan/.workbuddy/shell-snapshots/snapshot-zsh-1793113815031-b6byx5.sh' && if [ -n \"${CODEBUDDY_SAFE_DELETE_BIN_DIR:-}\" ]; then unalias rm unlink rmdir 2>/dev/null || true; unset -"
+  "pid": 74992,
+  "ppid": 74988,
+  "parent_cmd": "/bin/zsh -c . '/Users/guan/.workbuddy/shell-snapshots/snapshot-zsh-1793118597678-jrwsje.sh' && if [ -n \"${CODEBUDDY_SAFE_DELETE_BIN_DIR:-}\" ]; then unalias rm unlink rmdir 2>/dev/null || true; unset -"
  }
 }
