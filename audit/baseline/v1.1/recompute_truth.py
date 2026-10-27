@@ -176,11 +176,22 @@ def do_tar_bytes_mb(spec):
                 raise ValueError(f"{f.name} sha256 不符")
         elif not got.startswith(want):
             raise ValueError(f"{f.name} sha256 前缀不符")
-    # 也把目录里现存的其他 tar 一并纳入检查：数量变了就是漂移
+    # ★ 2026-10-27（T03 口径修正，理由见 v1.2 草案 §五）：
+    #   原实现 `if len(present) != len(files): raise` —— 目录里 tar 数量一变就判漂移。
+    #   问题：本题问的是**锚定这 N 份 tar 的总字节**，无关文件增减并不改变该值。
+    #   把「环境变化」当成「题目漂移」，会让「定期补备份」这个正确动作每次都触发假红。
+    #   实测代价：10-26 08:50 与 10-27 08:15 各补一次备份，tar 从 2 份增至 4 份，
+    #   08-20 的自检连续判 FAIL → 有效题数从 23 掉到 22 → 「不许出分」。
+    #   保护不变：锚定文件缺失、sha256 不符，上面的循环仍然 raise。
+    #   只把「未锚定文件的增减」从**判定条件**降级为**提示**。
     pat = str(files[0].parent / "snapshots-archive-*.tar.gz")
     present = sorted(glob.glob(pat))
     if len(present) != len(files):
-        raise ValueError(f"tar 数量变了：锚定 {len(files)} 份，现存 {len(present)} 份")
+        print(
+            f"[note] 目录内 tar 数量与锚定不同（锚定 {len(files)} 份 / 现存 {len(present)} 份）"
+            f"——本题按锚定份的字节计算，未锚定的不参与，不影响判定",
+            file=sys.stderr,
+        )
     return round(sum(f.stat().st_size for f in files) / 1048576, 1)
 
 

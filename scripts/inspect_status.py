@@ -163,7 +163,17 @@ print("LEAK SUMMARY:")
 for rn in sorted(results):
     leak = detect_leak(results[rn])
     if leak:
-        print(f"  {rn}: {leak}")
+        # ★ 2026-10-27：若该轮已在 answer-final 里留痕（integrity_notes），
+        #   在此显式标出，避免每日巡检把同一个已定性的问题反复当"新缺陷"上报。
+        #   只加标注，不改判定：leak 照样列出，处置状态由人看。
+        af = results[rn].get("answer_final")
+        notes = (af.get("integrity_notes") if isinstance(af, dict) else None) or []
+        tag = ""
+        if notes:
+            disp = notes[0].get("current_disposition", "?")
+            sev = notes[0].get("severity", "?")
+            tag = f"  ← 已留痕({sev}/disposition={disp})，见 answer-final.integrity_notes"
+        print(f"  {rn}: {leak}{tag}")
 
 print("\nMISSING aggregation_inputs (item ③):")
 for rn in sorted(results):
