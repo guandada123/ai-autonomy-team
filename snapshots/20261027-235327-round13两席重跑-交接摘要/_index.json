@@ -1,6 +1,6 @@
 {
- "created_at": "2026-10-27T23:50:26",
- "label": "round13两席重跑-README同步",
+ "created_at": "2026-10-27T23:53:27",
+ "label": "round13两席重跑-交接摘要",
  "file_count": 127,
  "files": {
   "scripts/build_package.py": {
@@ -513,8 +513,8 @@
   }
  },
  "caller": {
-  "pid": 43195,
-  "ppid": 43192,
+  "pid": 45560,
+  "ppid": 45558,
   "parent_cmd": "/bin/zsh -c . '/Users/guan/.workbuddy/shell-snapshots/snapshot-zsh-1793113815031-b6byx5.sh' && if [ -n \"${CODEBUDDY_SAFE_DELETE_BIN_DIR:-}\" ]; then unalias rm unlink rmdir 2>/dev/null || true; unset -"
  }
 }
