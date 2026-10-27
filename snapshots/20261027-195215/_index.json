@@ -1,5 +1,5 @@
 {
- "created_at": "2026-10-27T16:16:32",
+ "created_at": "2026-10-27T19:52:15",
  "label": "",
  "file_count": 126,
  "files": {
@@ -32,8 +32,8 @@
    "bytes": 7769
   },
   "scripts/inspect_status.py": {
-   "sha256": "b4f43f3678607a9667d3af8454f45cfa262cd9e7399383e321badedc32962d6d",
-   "bytes": 8378
+   "sha256": "cccfdc745a1da4687c590f183290460bf3d71d6329bff04edac2e7b2ac637da4",
+   "bytes": 9047
   },
   "scripts/inspection_watch.py": {
    "sha256": "9d9bd17a8904fcdcf9364e9c1ae167d114b03a18efede880e7de1e8736a25897",
@@ -124,8 +124,8 @@
    "bytes": 17283
   },
   "scripts/recompute_watch.py": {
-   "sha256": "5019b98a5c6b1727966d5c6e893bfd9fb49304723f1bff751a43158d0fa6bc8e",
-   "bytes": 4825
+   "sha256": "58e1348ebbe3840ba35c069c82731dc0002351d96c85d945990460b981db8e6b",
+   "bytes": 5046
   },
   "scripts/redact_report.py": {
    "sha256": "b0557dfa5ba2659b0f9da12495a4deabbcbb29664a5620a160b3e5c913a9b2dc",
@@ -509,8 +509,8 @@
   }
  },
  "caller": {
-  "pid": 86351,
-  "ppid": 86348,
+  "pid": 7299,
+  "ppid": 7297,
   "parent_cmd": "/bin/zsh -c . '/Users/guan/.workbuddy/shell-snapshots/snapshot-zsh-1793088781734-x80ksk.sh' && if [ -n \"${CODEBUDDY_SAFE_DELETE_BIN_DIR:-}\" ]; then unalias rm unlink rmdir 2>/dev/null || true; unset -"
  }
 }
