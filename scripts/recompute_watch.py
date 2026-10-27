@@ -1,9 +1,15 @@
 #!/usr/bin/env python3
-"""每日重算 v1.1 真值，漂移即告警（v3 Q02 用户裁 A）。
+"""每日重算 v1.2 真值，漂移即告警（v3 Q02 用户裁 A）。
+
+## 2026-10-27（D-0074）：题库切到 v1.2
+
+v1.2 = v1.1 的 26 题回补 Q17/Q25/Q26（各写死唯一口径）、移出 Q31（盘上无源）后的 25 题，
+重算覆盖从 16 项升到 18 项（新增 `doc_line_num`：验文件 sha256 后按行取数）。
+v1.1 的目录保持原样，只是**不再是每日自检的对象**；两版分数不得混算（`D-0057`）。
 
 ## 为什么要有它
 
-v1.1 的 26 道事实题靠锚点定真值，`make recompute` 能重算但要手动跑。
+v1.2 的 25 道事实题靠锚点定真值，`make recompute` 能重算但要手动跑。
 手动跑的触发点只有「准备出分时」——那时已经晚了：8 天内实测漂过 8/27。
 
 ## 设计上的两个坎
@@ -88,7 +94,7 @@ def main() -> int:
             log("🔴 本条同样无人收到 —— 需人工确认外置卷挂载状态")
         return 2
 
-    rc = subprocess.run([sys.executable, str(ROOT / "audit/baseline/v1.1/recompute_truth.py")],
+    rc = subprocess.run([sys.executable, str(ROOT / "audit/baseline/v1.2/recompute_truth.py")],
                         cwd=ROOT, capture_output=True, text=True)
     # 汇总行是中间的 [PASS]/[FAIL] 那行，不是末行——末行是「不可重算」明细清单。
     # 首版取 tail[-1]，结果把「T06 ← docs/...」当成结论写进日志（实测踩到）。
@@ -98,7 +104,7 @@ def main() -> int:
                    lines[-1].strip() if lines else "无输出")
     if rc.returncode != 0:
         log(f"❌ 真值漂移或重算失败（EXIT={rc.returncode}）：{summary}")
-        delivered = alert(f"v1.1 真值重算未通过：{summary}")
+        delivered = alert(f"v1.2 真值重算未通过：{summary}")
         if not delivered:
             # 这一行是给「事后翻日志的人」看的：不必再猜告警是否发出去过。
             log("🔴 本次失败**无人收到通知** —— 需人工介入，或配置 FEISHU_WEBHOOK")

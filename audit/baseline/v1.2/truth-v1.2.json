@@ -1,0 +1,275 @@
+{
+  "_note": "题库 v1.2 真源（口径定稿版）。相对 v1.1：回补 Q17/Q25/Q26 三题（各带可重算锚点，不再作废）、Q31 移出至「记忆型」题库、T03 口径写进题面。每个值都带 anchor：要么可被 recompute_truth.py 重算，要么标 attested 并写清来源。改动任何一项 = 换卷，须开 v1.3。",
+  "as_of": "2026-10-27T23:55+08:00",
+  "anchor_ref": "156d33d",
+  "anchor_note": "git 类题目一律锚到提交 156d33d（v1.1 落盘前最后一个提交），因此可永久重算；工作区后续增长不影响真值。",
+  "items_total": 25,
+  "retired": {
+    "T10": "三个旧 bundle（1925/2056/2113）已被 round34 清理，测量对象不存在；无法重算，不进入 v1.1。v1 中的真值仅作历史记录。"
+  },
+  "items": {
+    "T02": {
+      "v": 39,
+      "recompute": {
+        "kind": "bundle_count",
+        "path": "~/Backups/ai-autonomy-team/ai-autonomy-team-20261024-0633.bundle",
+        "sha256": "3e7e703dec88fe8eeacd3a9747c80efae52e565b6dc059a122abd7702840df6f"
+      },
+      "basis": "git clone --bare <bundle> && git rev-list --count HEAD"
+    },
+    "T03": {
+      "v": 73.7,
+      "recompute": {
+        "kind": "tar_bytes_mb",
+        "paths": [
+          "~/Backups/ai-autonomy-team/snapshots-archive-20261024-0044.tar.gz",
+          "~/Backups/ai-autonomy-team/snapshots-archive-20261024-0633.tar.gz"
+        ],
+        "sha256s": [
+          "f4ab7c3e3dca0e71",
+          "cdd64802b01884e5"
+        ],
+        "sha256_full_required": false
+      },
+      "basis": "两份 tar 字节和 /1048576，一位小数。v1.2 起题面写死这两份文件名——「目录里恰好只有两份」是易变事实，不该当口径；未锚定 tar 的增减不影响本题判定。"
+    },
+    "T04": {
+      "v": 58,
+      "recompute": {
+        "kind": "git_ls_count",
+        "ref": "156d33d",
+        "path": "docs/decisions",
+        "include": ".md",
+        "exclude": "TEMPLATE"
+      },
+      "basis": "git ls-tree 156d33d -- docs/decisions"
+    },
+    "T05": {
+      "v": 54,
+      "recompute": {
+        "kind": "attested",
+        "source": "实跑 python3 scripts/regress.py（末行 N/N）"
+      },
+      "basis": "v1.1 落盘时实跑 54/54"
+    },
+    "T06": {
+      "v": [
+        73,
+        6049
+      ],
+      "recompute": {
+        "kind": "attested",
+        "source": "docs/decisions/D-0051-覆盖率基线与L3回归.md"
+      },
+      "basis": "D-0051 记录的工具实测基线"
+    },
+    "T07": {
+      "v": [
+        36,
+        18
+      ],
+      "recompute": {
+        "kind": "json_calibration",
+        "path": "migration-package/audit/probes/premise/calibration.json",
+        "sha256": "bf46f53668ed290ed58ce70adfd9ae8a84113b07b83df5e53e9c002319f7eeac"
+      },
+      "basis": "calibration.json 的 cases 总数 / should_hit 数"
+    },
+    "T08": {
+      "v": 9.75,
+      "recompute": {
+        "kind": "arithmetic",
+        "expr": "(90-70.5)/2"
+      },
+      "basis": "题干自带数据"
+    },
+    "T09": {
+      "v": 10.9,
+      "recompute": {
+        "kind": "arithmetic",
+        "expr": "(-5.44)-(-16.34)"
+      },
+      "basis": "题干自带数据"
+    },
+    "Q14": {
+      "v": 18,
+      "recompute": {
+        "kind": "git_ls_count",
+        "ref": "156d33d",
+        "path": ".learnings",
+        "include": "/L-",
+        "exclude": null
+      },
+      "basis": "git ls-tree 156d33d -- .learnings"
+    },
+    "Q15": {
+      "v": 34,
+      "recompute": {
+        "kind": "git_dir_count",
+        "ref": "156d33d",
+        "path": "migration-package/runs",
+        "prefix": "round"
+      },
+      "basis": "git ls-tree 156d33d -- migration-package/runs"
+    },
+    "Q11": {
+      "v": "D-0059",
+      "recompute": {
+        "kind": "git_last_dec",
+        "ref": "156d33d",
+        "path": "docs/decisions"
+      },
+      "basis": "最后一份决策文件名前缀"
+    },
+    "Q12": {
+      "v": 7,
+      "recompute": {
+        "kind": "git_ls_count",
+        "ref": "156d33d",
+        "path": "migration-package/protocol",
+        "include": ".md",
+        "exclude": null
+      },
+      "basis": "git ls-tree 156d33d -- migration-package/protocol"
+    },
+    "Q13": {
+      "v": 20,
+      "recompute": {
+        "kind": "git_dir_count",
+        "ref": "156d33d",
+        "path": "migration-package/fixtures/tasks",
+        "prefix": ""
+      },
+      "basis": "任务目录 20 个（T-01…T-20）；v1 的 21 把同目录的 tasks-manifest.json 也算成一个任务——违反出题标准第 3 条"
+    },
+    "Q16": {
+      "v": 28,
+      "recompute": {
+        "kind": "git_ls_count",
+        "ref": "156d33d",
+        "path": "scripts",
+        "include": ".py",
+        "exclude": null,
+        "max_depth": 1
+      },
+      "basis": "git ls-tree 156d33d -- scripts（仅顶层 .py）"
+    },
+    "Q17": {
+      "v": 6,
+      "recompute": {
+        "kind": "git_ls_count",
+        "ref": "156d33d",
+        "path": "scripts/judges",
+        "include": "",
+        "exclude": null,
+        "max_depth": 1
+      },
+      "basis": "git 跟踪文件 6 个（README.md / run.cmd / run.sh / seat_check.py / verify.py / verify.py.bak-20261020-2200）。v1.2 起题面写死「git 跟踪的文件（含 .bak，不含未跟踪项）」，消除「文件系统 7 / git 6 / MANIFEST 5」三读并存的歧义。"
+    },
+    "Q18": {
+      "v": 6,
+      "recompute": {
+        "kind": "git_ls_count",
+        "ref": "156d33d",
+        "path": "templates",
+        "include": "",
+        "exclude": null,
+        "max_depth": 1
+      },
+      "basis": "git ls-tree 156d33d -- templates"
+    },
+    "Q19": {
+      "v": 654,
+      "recompute": {
+        "kind": "git_md_count",
+        "ref": "156d33d"
+      },
+      "basis": "git ls-tree -r 156d33d 的 .md 总数（含 snapshots/ 副本）"
+    },
+    "Q20": {
+      "v": "2026-10-23",
+      "recompute": {
+        "kind": "git_first_date",
+        "ref": "156d33d"
+      },
+      "basis": "git log --reverse --format=%ad --date=short | head -1"
+    },
+    "Q22": {
+      "v": 4,
+      "recompute": {
+        "kind": "attested",
+        "source": "用户 2026-10-24 更正：实盘 3 + 模拟 1"
+      },
+      "basis": "实盘 3（长电600584/华天002185/科创半导体ETF华夏）+ 模拟 1（招商银行）= 4。指路：docs/decisions/D-0056 附录「用户对 5 道题真值的更正」已把 Q22 从 6 改为 4；同一文档 :50 表格里的「6 只」是当时 MEMORY.md 的快照，已作废——读旧行会答成 6。"
+    },
+    "Q23": {
+      "v": 50,
+      "recompute": {
+        "kind": "attested",
+        "source": "用户 2026-10-24 确认：建议、已同意、未执行"
+      },
+      "basis": "半导体建议上限 50%（实际 77%）"
+    },
+    "Q25": {
+      "v": 87,
+      "recompute": {
+        "kind": "doc_line_num",
+        "path": "docs/自治团队方案-审计-20261022.md",
+        "sha256": "d8b8a62e56edb385c5c8ce56d9525a18d27000c831e614e4f35f3578d564280a",
+        "line": 128,
+        "pattern": "(\\d+)\\s*自动化"
+      },
+      "basis": "该文档第 128 行 Claw 行：「**大**（87 自动化、锁语义、禁写区、群共享）」。v1.2 起题面写明时点（2026-10-22 的仓库审计）与来源文件，消除与记忆「80+」的歧义。"
+    },
+    "Q26": {
+      "v": 86,
+      "recompute": {
+        "kind": "doc_line_num",
+        "path": "docs/自治团队方案-审计-20261022.md",
+        "sha256": "d8b8a62e56edb385c5c8ce56d9525a18d27000c831e614e4f35f3578d564280a",
+        "line": 126,
+        "pattern": "覆盖率\\s*\\**\\s*(\\d+)"
+      },
+      "basis": "该文档第 126 行 StockInsight 行：「高（覆盖率 **86** 硬门槛、ruff/prettier/eslint/mypy、Playwright e2e）」。v1.2 起改问「硬门槛」而非「实测覆盖率」——后者盘上无源，任何一臂都是必错题。"
+    },
+    "Q28": {
+      "v": 3435,
+      "recompute": {
+        "kind": "attested",
+        "source": "2026-10-18 会话；migration-package/audit/probes/premise/heldout.json H05 note 亦记"
+      },
+      "basis": "trading_memory 3435→840"
+    },
+    "Q29": {
+      "v": "70.5x50.5",
+      "recompute": {
+        "kind": "attested",
+        "source": "2026-10-18 会话；heldout.json H02 note"
+      },
+      "basis": "露营车台面实测 70.5×50.5cm"
+    },
+    "Q30": {
+      "v": "90x70",
+      "recompute": {
+        "kind": "attested",
+        "source": "2026-10-18 会话；heldout.json H02 note"
+      },
+      "basis": "四轮修订后主方案"
+    }
+  },
+  "excluded": {},
+  "_excluded_note": "v1.2 无作废题：v1.1 作废的 Q17/Q25/Q26 已按唯一口径重写并回到题库。",
+  "moved_out": {
+    "Q31": {
+      "v": 867,
+      "recompute": {
+        "kind": "attested",
+        "source": "2026-10-18 会话《Claw资料库》"
+      },
+      "basis": "基于 867 笔样本模拟 −8% 止损",
+      "moved_to": "记忆型题库（草案建议 B）",
+      "why": "盘上无任何可回读来源（只在 2026-10-18 会话里），留在「有据可查」题库中对每一臂都是必错题、纯噪声。真值在此保留，不做删除。",
+      "how_to_use": "只在「记忆型」对照实验（席位凭自身记忆作答、不给检索条件）里计分；v1.2 的 25 题判分不含它。"
+    }
+  }
+}
