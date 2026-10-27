@@ -83,7 +83,9 @@ def main() -> int:
         # 外置卷没挂载时最可能走到这里：必须大声说，不能静默
         msg = f"仓库根目录不可用：{ROOT}（外置卷未挂载？）"
         log(msg)
-        alert(msg)
+        # 与其他 alert 调用点保持一致：返回值也要看，否则「发了」与「送达」又混为一谈
+        if not alert(msg):
+            log("🔴 本条同样无人收到 —— 需人工确认外置卷挂载状态")
         return 2
 
     rc = subprocess.run([sys.executable, str(ROOT / "audit/baseline/v1.1/recompute_truth.py")],

@@ -53,12 +53,18 @@ def log(msg: str) -> None:
     print(line)
 
 
-def alert(msg: str) -> None:
-    """有 webhook 就发飞书，没有就只落日志。不把凭据写进仓库。"""
+def alert(msg: str) -> bool:
+    """有 webhook 就发飞书，没有就只落日志。**返回告警是否真的送达**。
+
+    ★ 2026-10-27：原实现无返回值，调用方无从区分「发了告警」与「告警送达」。
+    实测代价：08-20 的 T03 漂移属 P1，但当时未配 FEISHU_WEBHOOK，
+    只落了一行「（未设 FEISHU_WEBHOOK，仅本地日志）」，**7 小时后才被人工发现**。
+    现在把「未送达」显式说出来，让日志本身就能回答「这件事有没有人知道」。
+    """
     hook = os.environ.get("FEISHU_WEBHOOK")
     if not hook:
-        log("（未设 FEISHU_WEBHOOK，仅本地日志）")
-        return
+        log("⚠️ 告警未送达：未配置 FEISHU_WEBHOOK —— 本条只写进本地日志，不会有人收到")
+        return False
     body = json.dumps({"msg_type": "text",
                        "content": {"text": f"[ai-autonomy] {msg}"}}).encode()
     req = urllib.request.Request(hook, data=body,
@@ -66,8 +72,10 @@ def alert(msg: str) -> None:
     try:
         urllib.request.urlopen(req, timeout=10).read()
         log("已发飞书告警")
+        return True
     except Exception as e:                      # 网络失败不能吞掉
         log(f"⚠️ 告警发送失败：{e}")
+        return False
 
 
 def main() -> int:
@@ -75,7 +83,9 @@ def main() -> int:
         # 外置卷没挂载时最可能走到这里：必须大声说，不能静默
         msg = f"仓库根目录不可用：{ROOT}（外置卷未挂载？）"
         log(msg)
-        alert(msg)
+        # 与其他 alert 调用点保持一致：返回值也要看，否则「发了」与「送达」又混为一谈
+        if not alert(msg):
+            log("🔴 本条同样无人收到 —— 需人工确认外置卷挂载状态")
         return 2
 
     rc = subprocess.run([sys.executable, str(ROOT / "audit/baseline/v1.1/recompute_truth.py")],
@@ -88,7 +98,10 @@ def main() -> int:
                    lines[-1].strip() if lines else "无输出")
     if rc.returncode != 0:
         log(f"❌ 真值漂移或重算失败（EXIT={rc.returncode}）：{summary}")
-        alert(f"v1.1 真值重算未通过：{summary}")
+        delivered = alert(f"v1.1 真值重算未通过：{summary}")
+        if not delivered:
+            # 这一行是给「事后翻日志的人」看的：不必再猜告警是否发出去过。
+            log("🔴 本次失败**无人收到通知** —— 需人工介入，或配置 FEISHU_WEBHOOK")
         return 1
     log(f"✅ 重算通过：{summary}")
     return 0

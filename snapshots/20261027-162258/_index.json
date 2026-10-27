@@ -1,5 +1,5 @@
 {
- "created_at": "2026-10-27T14:55:39",
+ "created_at": "2026-10-27T16:22:58",
  "label": "",
  "file_count": 126,
  "files": {
@@ -32,8 +32,8 @@
    "bytes": 7769
   },
   "scripts/inspect_status.py": {
-   "sha256": "6abbbe73f84851ea901871c8cfeef429702c0a72187e626e9c99e1a430f38251",
-   "bytes": 7715
+   "sha256": "cccfdc745a1da4687c590f183290460bf3d71d6329bff04edac2e7b2ac637da4",
+   "bytes": 9047
   },
   "scripts/inspection_watch.py": {
    "sha256": "9d9bd17a8904fcdcf9364e9c1ae167d114b03a18efede880e7de1e8736a25897",
@@ -124,8 +124,8 @@
    "bytes": 17283
   },
   "scripts/recompute_watch.py": {
-   "sha256": "e78a14472ae7d4ce313b97a063a2db45acd3510f51b1328e5662e7e8e5216de0",
-   "bytes": 4039
+   "sha256": "58e1348ebbe3840ba35c069c82731dc0002351d96c85d945990460b981db8e6b",
+   "bytes": 5046
   },
   "scripts/redact_report.py": {
    "sha256": "b0557dfa5ba2659b0f9da12495a4deabbcbb29664a5620a160b3e5c913a9b2dc",
@@ -509,8 +509,8 @@
   }
  },
  "caller": {
-  "pid": 39691,
-  "ppid": 39689,
-  "parent_cmd": "/bin/zsh -c . '/Users/guan/.workbuddy/shell-snapshots/snapshot-zsh-1793073798701-sj42zt.sh' && if [ -n \"${CODEBUDDY_SAFE_DELETE_BIN_DIR:-}\" ]; then unalias rm unlink rmdir 2>/dev/null || true; unset -"
+  "pid": 90267,
+  "ppid": 90234,
+  "parent_cmd": "/bin/zsh -c . '/Users/guan/.workbuddy/shell-snapshots/snapshot-zsh-1793088781734-x80ksk.sh' && if [ -n \"${CODEBUDDY_SAFE_DELETE_BIN_DIR:-}\" ]; then unalias rm unlink rmdir 2>/dev/null || true; unset -"
  }
 }

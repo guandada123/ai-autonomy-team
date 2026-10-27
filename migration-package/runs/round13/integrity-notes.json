@@ -1,0 +1,54 @@
+{
+ "round": 13,
+ "added_at": "2026-10-27T16:25:00+08:00",
+ "added_by": "2026-10-27 审计轮（用户要求「审计本轮变更」时修正）",
+ "why_this_file": "旁挂留痕，不是 round13 的产出。刻意不改 answer-final.json：它是被 answer-status.json 的 sha256 锚定的产物，为「加一条注释」而重写它会让哈希链偏离更远，且 JSON 重排会产生 297 行无关 diff，掩盖真实变更（2026-10-27 第一版曾这么做，本次已回滚，见 git 9f46252 → 本提交）。",
+ "findings": [
+  {
+   "id": "S8-1-LEAK",
+   "severity": "P1",
+   "status": "open",
+   "summary": "EX-03 被 seat-check 判 invalid 并列入 aggregation_blocked，但 answer-final.json 的 aggregation_inputs[] 仍含该席位且标 seat_check_status=valid",
+   "evidence": {
+    "seat-check.json → results[EX-03].status": "invalid",
+    "seat-check.json → results[EX-03].errors": ["E_READ_DOMAIN_VIOLATION"],
+    "seat-check.json → aggregation_blocked[EX-03].sha256": "ed2befbd66a66d221fa57ff284a3d4784c060f4f6b3aed14dab1424ce65dd583",
+    "answer-final.json → aggregation_inputs[EX-03].sha256": "ed2befbd66a66d221fa57ff284a3d4784c060f4f6b3aed14dab1424ce65dd583",
+    "判读": "同一 sha256 在一处被判无效、另一处被标 valid —— 数据自相矛盾，不是口径差异"
+   },
+   "why_not_fixed": "聚合由 PM-01（LLM 席位）产出（decision/basis/risk/next），verify.py 内无确定性聚合逻辑。单纯从 aggregation_inputs 删掉 EX-03 会让 seat_check --verify-final 变绿，而 summary/diffs 仍是三席算出的结果 —— 那是把「检测到泄漏」改成「检测不到」，比保留现状更危险",
+   "impact": "summary/diffs/categories 均按含 EX-03 的三席产出，未重算；该轮结论不可用于判分",
+   "options": [
+    "A 重跑 PM-01 用 EX-01+EX-02 两席聚合（产出新答案，与旧结果不可比，须标 v1.2 换尺子）",
+    "B 整轮作废并在 runs/ 留作废标记（损失 1 轮数据，但证据链干净）",
+    "C 保留现状 + 本留痕（当前处置：不假装修复，等 A/B 决策）"
+   ],
+   "disposition": "C"
+  },
+  {
+   "id": "HASH-CHAIN-BROKEN",
+   "severity": "P1",
+   "status": "open",
+   "summary": "answer-status.json 里记录的产物 sha256 与实际文件不符（answer + spec 两处），record 一致",
+   "evidence": {
+    "answer-status.answer.sha256 记录": "85b5d03a63344e4a194e4766b5a13c56…",
+    "answer-final.json 实际": "dfc43bb7dc971b1b47c92d1e164a9507…",
+    "answer-status.spec.sha256 记录": "4ffe598c112d3312c70d13cc7dc3b2a4…",
+    "spec/adjudication.json 实际": "c8362da0e6c791794a16df449f7e5349…",
+    "answer-status.record.sha256": "一致",
+    "时间线": "answer-status.ts=2026-10-20T15:15:28；而 answer-final 与 spec 的最后修改均为 2026-10-23（fbf0ecd「独立化为可单独开发、部署、维护的项目」）",
+    "判读": "哈希链在 2026-10-23 独立化时断裂（spec 被改、answer 被重写），此后未重跑 judges/verify.py 更新 answer-status"
+   },
+   "origin": "既有缺陷，非本轮改动引入。但本轮第一版曾修改 answer-final（indent 重排），使其 sha 从 dfc43bb7 变为 12fb2468，进一步偏离记录值 —— 该改动已回滚，answer-final 现与父提交逐字节一致",
+   "impact": "answer-status 的 sha256 不能再作为完整性依据；若有人据它校验，会把「10-23 自身改动」误判成「文件被外来篡改」。判分可继续用，但完整性主张必须降级",
+   "why_not_fixed": "重跑 verify.py 会重算 answer 并可能改变结论（等于重判第 13 轮），且 spec 已被 10-23 改动，重跑后结果与当时不可比。属须用户决策的换尺子问题，不是脚本能自愈的",
+   "options": [
+    "A 以当前磁盘文件为准，重跑 verify.py 重建 answer-status（= 重判该轮，产新结论）",
+    "B 保持 answer-status 原样，仅在文档中声明「该轮哈希链已失效，判分可用、完整性不可用」",
+    "C 用 git 回退 answer-final 与 spec 到 10-20 版本再校验（会与 10-23 的独立化改动冲突）"
+   ],
+   "disposition": "B（当前：声明失效，不重判）"
+  }
+ ],
+ "how_to_recheck": "python3 - <<'PY'\nimport json,hashlib,pathlib\nrd=pathlib.Path('migration-package/runs/round13')\nst=json.loads((rd/'answer-status.json').read_text())\nfor k in ('answer','spec','record'):\n    r=st.get(k) or {}; p=r.get('path'); w=r.get('sha256')\n    if not p: continue\n    f=pathlib.Path('migration-package')/p\n    g=hashlib.sha256(f.read_bytes()).hexdigest() if f.exists() else 'MISSING'\n    print(k, 'OK' if g==w else 'MISMATCH')\nPY"
+}

@@ -163,7 +163,30 @@ print("LEAK SUMMARY:")
 for rn in sorted(results):
     leak = detect_leak(results[rn])
     if leak:
-        print(f"  {rn}: {leak}")
+        # ★ 2026-10-27：若该轮已留痕，在此显式标出，避免每日巡检把已定性的问题反复当"新缺陷"。
+        #   留痕**优先读旁挂文件** `runs/<rn>/integrity-notes.json` —— 刻意不写进 answer-final.json，
+        #   因为那是被 answer-status.sha256 锚定的产物，为加注释而重写它会破坏哈希链
+        #   （第一版曾这么做并产生 297 行无关 diff，已回滚）。
+        #   兼容旧格式：answer-final.integrity_notes 仍会被读到。
+        #   只加标注，不改判定：leak 照样列出。
+        af = results[rn].get("answer_final")
+        notes = []
+        side = RUNS / rn / "integrity-notes.json"
+        if side.exists():
+            try:
+                notes = json.loads(side.read_text(encoding="utf-8")).get("findings") or []
+            except (OSError, json.JSONDecodeError):
+                notes = []
+        if not notes and isinstance(af, dict):
+            notes = af.get("integrity_notes") or []
+        tag = ""
+        if notes:
+            n0 = notes[0]
+            tag = (f"  ← 已留痕({n0.get('severity','?')}/{n0.get('id','?')}"
+                   f"/disposition={n0.get('disposition','?')})，见 integrity-notes.json")
+            if len(notes) > 1:
+                tag += f" 等 {len(notes)} 项"
+        print(f"  {rn}: {leak}{tag}")
 
 print("\nMISSING aggregation_inputs (item ③):")
 for rn in sorted(results):
