@@ -1,7 +1,7 @@
 {
- "created_at": "2026-10-28T00:33:26",
- "label": "round13重判",
- "file_count": 129,
+ "created_at": "2026-10-28T00:47:51",
+ "label": "遗留项定性结案",
+ "file_count": 131,
  "files": {
   "scripts/build_package.py": {
    "sha256": "b2dad8c4b0adc07c8cc367c51c292263c2789cf6501a0a7481c80260de23f494",
@@ -491,6 +491,14 @@
    "sha256": "ba6e112edc3863769db75549bce463d6bb5f5d93d733fb5290a7ada0f0640e08",
    "bytes": 4339
   },
+  "docs/decisions/D-0076-未终态轮次与AD01补跑的定性.md": {
+   "sha256": "75a730814834ec36b5846751fa322059fce069e2b11888a2f47ea3eee8a921ab",
+   "bytes": 4849
+  },
+  "docs/decisions/D-0077-36条盲标结案与两处nogo.md": {
+   "sha256": "b513d3383387c68cdccef23825d19f1cf73ff16fa43d5d22220b24b4c62aeaa8",
+   "bytes": 3508
+  },
   "docs/decisions/TEMPLATE.md": {
    "sha256": "0bbc33940a540ae0e983817d9b1cf6daf6502ff233074d5023a3466511867e6e",
    "bytes": 856
@@ -521,8 +529,8 @@
   }
  },
  "caller": {
-  "pid": 70817,
-  "ppid": 70812,
-  "parent_cmd": "/bin/zsh -c . '/Users/guan/.workbuddy/shell-snapshots/snapshot-zsh-1793118597678-jrwsje.sh' && if [ -n \"${CODEBUDDY_SAFE_DELETE_BIN_DIR:-}\" ]; then unalias rm unlink rmdir 2>/dev/null || true; unset -"
+  "pid": 79604,
+  "ppid": 79600,
+  "parent_cmd": "/bin/zsh -c . '/Users/guan/.workbuddy/shell-snapshots/snapshot-zsh-1793119505787-fcz0x1.sh' && if [ -n \"${CODEBUDDY_SAFE_DELETE_BIN_DIR:-}\" ]; then unalias rm unlink rmdir 2>/dev/null || true; unset -"
  }
 }

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-28T00:40:24+08:00",
+  "generated_at": "2026-10-28T00:47:51+08:00",
   "root": "migration-package/",
   "note": "sha256 用于跨机完整性校验。newline=MIXED 的文本文件会导致证据链跨平台断裂，须修正。",
   "stats": {
