@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-10-27T16:22:58+08:00",
+  "generated_at": "2026-10-27T23:43:04+08:00",
   "root": "migration-package/",
   "note": "sha256 用于跨机完整性校验。newline=MIXED 的文本文件会导致证据链跨平台断裂，须修正。",
   "stats": {
-    "file_count": 1118,
-    "total_bytes": 7990489,
+    "file_count": 1120,
+    "total_bytes": 8015304,
     "mixed_newline_files": []
   },
   "files": [
@@ -2247,6 +2247,12 @@
       "newline": "LF"
     },
     {
+      "path": "runs/round13/PM-01.rerun-2seat.json",
+      "size": 12908,
+      "sha256": "e651a8ee45b6f3f09b1b03af2cdbbd5f17ab9f4da3cefe45c137083a6548fe18",
+      "newline": "LF"
+    },
+    {
       "path": "runs/round13/XJ-01.json",
       "size": 12468,
       "sha256": "a1ae8022814486cff706a882be39a63b24bd3998d25077eae3e86ed1920f6545",
@@ -2271,9 +2277,15 @@
       "newline": "LF"
     },
     {
-      "path": "runs/round13/answer-final.json",
+      "path": "runs/round13/answer-final.3seat-superseded.json",
       "size": 6571,
       "sha256": "dfc43bb7dc971b1b47c92d1e164a95071afed9110fe9ce28cd504ebe61ea669f",
+      "newline": "LF"
+    },
+    {
+      "path": "runs/round13/answer-final.json",
+      "size": 9319,
+      "sha256": "7cadd3fd4aee2ef7364759dbe5aad874cd8beb6088cbe6bae13aa41938903772",
       "newline": "LF"
     },
     {
@@ -2284,8 +2296,8 @@
     },
     {
       "path": "runs/round13/integrity-notes.json",
-      "size": 4686,
-      "sha256": "a08017dff5eee8cd727eb6f6d7f09fcf155af15dcc8d3376df5aacc247d405d2",
+      "size": 7274,
+      "sha256": "8a06aaa15666d69f127c53f228457b69fdd25eee828629049818ebb62263f3ff",
       "newline": "LF"
     },
     {

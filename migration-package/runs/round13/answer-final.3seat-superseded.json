@@ -1,0 +1,143 @@
+{
+ "task_id": "T-06",
+ "round": 13,
+ "aggregated_by": "PM-01",
+ "summary": {
+  "ledger_rows": 7,
+  "bill_rows": 8,
+  "ledger_total": 304800.0,
+  "bill_total": 305180.0,
+  "raw_total_gap": 380.0,
+  "dedup_removed_txn_count": 0,
+  "dedup_amount": 0.0,
+  "diff_count": 6,
+  "amount_diff_total": 380.0,
+  "excluded_amount_total": 0.0,
+  "fee_diff_total": 0.55,
+  "excluded_categories": [
+   "仅费用不符",
+   "股数不符(送转未登记)",
+   "日期口径差"
+  ]
+ },
+ "diffs": [
+  {
+   "id": "T043",
+   "category": "金额不符"
+  },
+  {
+   "id": "T044",
+   "category": "仅费用不符"
+  },
+  {
+   "id": "T045",
+   "category": "仅费用不符"
+  },
+  {
+   "id": "T046",
+   "category": "股数不符(送转未登记)"
+  },
+  {
+   "id": "T047",
+   "category": "单边缺失(股息入账)"
+  },
+  {
+   "id": "T048",
+   "category": "日期口径差"
+  }
+ ],
+ "categories": {
+  "金额不符": [
+   "T043"
+  ],
+  "仅费用不符": [
+   "T044",
+   "T045"
+  ],
+  "股数不符(送转未登记)": [
+   "T046"
+  ],
+  "单边缺失(股息入账)": [
+   "T047"
+  ],
+  "日期口径差": [
+   "T048"
+  ]
+ },
+ "falsification": "本结论在下列任一条件下为错：①独立 Decimal 复算得 ledger_total≠304800.00 或 bill_total≠305180.00，或 raw_total_gap≠380.00；②任一 txn_id 在任一侧出现多行（则 dedup_removed_txn_count>0、dedup_amount≠0，且该单号须移出两金额字段）；③T043 两侧 amount 实际相等，或差额不等于 120.00；④T047 在 ledger 侧存在同号或对侧凭据（则该笔不是单边缺失，260.00 的归属须重算）；⑤TASK.md §D「仅单侧存在的单号亦为差异单号，差额取该单号在该侧的 amount」被成文条款覆盖为「非成交类入账不计入成交金额差异」，则 amount_diff_total 应为 120.00、excluded_amount_total 应为 260.00（少数结论即成立）；⑥diff 判定未覆盖「股数/成交金额/费用/日期」四列中的任一列，或 T048 的日期对比列应为 settle_date（若如此则 8 单全部构成日期差异，diff_count 会变 8，该口径已因与数据冲突被排除）；⑦本答案未在任何字段承载 T043/T044/T045 合计 0.55 的费用差——这是契约缺口（summary 无费用差字段），不是已解释项，若下游据此认为金额差已全覆盖，则结论被误读。",
+ "diff_preserved": [
+  {
+   "side": "多数",
+   "conclusion": "EX-01（有效产物，PM 已独立 Decimal 复算一致）：T043 价差 120.00 与 T047 单边股息 260.00 一并计入金额差异，amount_diff_total=380.00、excluded_amount_total=0.00；excluded_categories 仅承载零金额类别（仅费用不符、股数不符、日期口径差），故非空但合计为 0。转述的 EX-03 数值与本条相同但 excluded 声明不同，其原始产物缺失，未能核验。",
+   "falsification": "若 TASK.md 存在「非成交类入账不计入成交金额差异」的成文条款，或 T047 的 260.00 在 ledger/资金流水侧有对侧凭据，或复算得 120.00+260.00≠380.00，则本条为错。"
+  },
+  {
+   "side": "少数",
+   "conclusion": "EX-02（仅有 team-lead 转述，runs/round13/EX-02.json 缺失，未经核验，不进 aggregation_inputs）：T047 股息入账属权益类非成交项目，应从成交金额差异中排除，故 amount_diff_total=120.00、excluded_amount_total=260.00、excluded_categories 追加「单边缺失(股息入账)」；同时主张费用差 0.55 需单独披露。",
+   "falsification": "若 TASK.md §D 已明文要求单边单号差额计入（现文即如此，「差额取该单号在该侧的 amount」），则该切分缺少契约锚点；若人类裁决认定股息类不属成交金额，本条即转为正确而多数结论失效。"
+  },
+  {
+   "side": "少数",
+   "conclusion": "费用差合计 0.55（T043 0.03 + T044 0.26 + T045 0.26）在 summary 十一个字段中无落点：amount_diff_total/excluded_amount_total 均按 amount 列取值且明文禁止与费用相加，故 0.55 只能在 diffs 的类别名里被指出，不可进入任何金额字段。此为契约缺口，各方主张一致，但字段无法承载。",
+   "falsification": "若契约后续新增 fee_diff_total 字段，或裁决认定费用差应折入金额差字段，则「无落点」的判断失效，且 380.00 的闭合关系须重算。"
+  }
+ ],
+ "aggregation_inputs": [
+  {
+   "seat": "EX-01",
+   "sha256": "2d31dc02f362f3d47b69d34ff24c270d6238536546483e49851ed408401bd90c",
+   "seat_check_status": "valid"
+  },
+  {
+   "seat": "EX-02",
+   "sha256": "1ac5b6b4a9cf50a26489d2a59e9a211cc4bf0a19d58a0d4fef0efcb2dd2f367a",
+   "seat_check_status": "valid",
+   "provenance": "post_hoc_by_orchestrator_2026-10-20（编排方提取遗漏：席位交付在 PM 快照之后落盘；PM 当时如实登记阻塞并只计 EX-01，行为正确）"
+  },
+  {
+   "seat": "EX-03",
+   "sha256": "ed2befbd66a66d221fa57ff284a3d4784c060f4f6b3aed14dab1424ce65dd583",
+   "seat_check_status": "valid",
+   "provenance": "post_hoc_by_orchestrator_2026-10-20（编排方提取遗漏：席位交付在 PM 快照之后落盘；PM 当时如实登记阻塞并只计 EX-01，行为正确）"
+  }
+ ],
+ "reads": [
+  {
+   "path": "runs/round13/prompts/PM-01.md",
+   "purpose": "逐字核对席位硬字段、读取域、聚合规则与输出 schema"
+  },
+  {
+   "path": "fixtures/tasks/T-06/TASK.md",
+   "purpose": "字段定义、四列差异口径、重复项与金额差异算法、四条易错点"
+  },
+  {
+   "path": "fixtures/tasks/T-06/ledger.csv",
+   "purpose": "自记账 7 行原始值，独立复算 amount/fee_total/shares/date"
+  },
+  {
+   "path": "fixtures/tasks/T-06/bill.csv",
+   "purpose": "交割单 8 行原始值，独立复算 amount/fee_total/shares/trade_date/settle_date"
+  },
+  {
+   "path": "runs/round13/EX-01.json",
+   "purpose": "聚合输入：唯一落在盘上的席位原始产出，核对其 summary/diffs/categories/evidence/reads/usage"
+  },
+  {
+   "path": "runs/round13/round-manifest.json",
+   "purpose": "确认轮次类型、契约版本 2.1、expected_seats 与 termination 条件"
+  },
+  {
+   "path": "protocol/06-写入域与判据分层.md",
+   "purpose": "确认 diff_count/diffs/amount_diff_total/excluded_amount_total 属 adjudication 层，须 pending 待人类裁决"
+  },
+  {
+   "path": "runs/round13/（目录列举，未进入 presentation/）",
+   "purpose": "核实各席产出是否落盘：仅 EX-01.json 存在，EX-02/EX-03/AD-01/PM-01 均无文件"
+  }
+ ],
+ "usage": {
+  "tokens": 31000,
+  "minutes": 37,
+  "source": "self_report"
+ }
+}

@@ -42,6 +42,8 @@
     python3 scripts/inspection_watch.py              # 核对今天
     python3 scripts/inspection_watch.py --date 2026-10-24   # 核对指定日
     python3 scripts/inspection_watch.py --dry-list    # 只打印判据复检明细，不写日志
+    python3 scripts/inspection_watch.py --runs /tmp/fixture-runs --date 2099-01-01 --dry-list
+        # 阳性样本不再依赖活数据：--runs 指向合成的 round13（inputs 仍含 EX-03）
 
 ## 已知限制与误报防护（2026-10-25 实测踩到）
 
@@ -54,9 +56,12 @@
 
 ## 可证伪性
 
-- 阳性样本：`--date 2099-01-01`（报告必然缺失 + C1/C2 条件仍在）→ 必须 exit 2。
+- 阳性样本：`--runs <合成 round13（inputs 仍含 EX-03）> --date 2099-01-01`
+  （报告必然缺失 + C2=STILL）→ 必须 exit 2 且命中 STILL。
+  ★ 2026-10-27 起不再用活数据当阳性样本：round13 已修，活数据只能产出 GONE。
 - 阴性样本：`--date 2026-10-24`（报告在）→ 必须 exit 0。
-  两条路径已实测；判据若坏（如把缺失当正常），阳性样本会翻绿。
+- 修复态样本：活数据 + `--date 2099-01-01` → C2 必须判 GONE（不得是 CONTRADICTION）。
+  三条路径已实测；判据若坏（如把缺失当正常、或把已修当互撕），对应样本会翻绿或换分支。
 """
 from __future__ import annotations
 
@@ -126,11 +131,16 @@ def check_c2() -> tuple[str, str]:
     in_inputs = any((i.get("seat") if isinstance(i, dict) else i) == "EX-03" for i in inputs)
     if in_blocked and in_inputs:
         return "STILL", f"blocked={blocked} 且 inputs 含 EX-03（S8-1 违规仍在）"
-    if in_blocked != in_inputs:
-        return "CONTRADICTION", (f"seat-check 未拦但 answer-final 含 EX-03"
-                                 if in_inputs else
-                                 f"seat-check.blocked={blocked} 但 inputs 已不含 EX-03") + "——交人裁"
-    return "GONE", f"blocked={blocked}，inputs 已不含 EX-03（已修或从未违规）"
+    if in_inputs:
+        # blocked 不含 + inputs 含：seat-check 没拦却进了聚合 —— 这才是两文件互撕
+        return "CONTRADICTION", (f"seat-check 未拦（blocked={blocked}）但 answer-final "
+                                 f"聚合输入含 EX-03——交人裁")
+    # ★ 2026-10-27（D-0073）修正：blocked 含 + inputs 不含 = 【已修】，不是互撕。
+    #   原实现写的是 `if in_blocked != in_inputs: CONTRADICTION`，把修复态判成
+    #   CONTRADICTION，与本文档 §E2 预注册的语义相反 —— round13 两席重跑后
+    #   （EX-03 移出 aggregation_inputs）每天 09:10 都会误报「交人裁」。
+    return "GONE", (f"blocked={blocked}，inputs 已不含 EX-03（已修）" if in_blocked
+                    else f"blocked={blocked}，inputs 亦不含 EX-03（已修或从未违规）")
 
 
 def check_c3() -> tuple[bool, str]:
@@ -153,7 +163,17 @@ def main() -> int:
                     help="核对日期（默认今天；YYYY-MM-DD）")
     ap.add_argument("--dry-list", action="store_true",
                     help="只打印判据复检明细，不写日志、不发告警")
+    ap.add_argument("--runs", default=None, metavar="DIR",
+                    help="覆盖 runs/ 目录（仅供回归构造阳性样本；生产与定时巡检不传，"
+                         "缺省为 migration-package/runs）")
     args = ap.parse_args()
+
+    # ★ 2026-10-27（D-0073）：round13 的 S8-1 违规已修（EX-03 移出聚合输入），
+    #   活数据不再提供 STILL 阳性样本。判据必须仍能被正样本击破，故允许回归
+    #   用合成目录复现「blocked 含 + inputs 含」的违规态；不传即生产路径，行为不变。
+    global RUNS
+    if args.runs:
+        RUNS = Path(args.runs).resolve()
     d = args.date
 
     if not (ROOT / "Makefile").is_file():

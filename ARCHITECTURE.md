@@ -131,7 +131,7 @@
 
 | 模块 | 行数 | 检查什么 | 何时跑 |
 |---|---|---|---|
-| `regress.py` | 1016 || B 全量回归 | 调用 `regress.py` 55 项 | 改代码后没跑测试 |
+| `regress.py` | 1043 || B 全量回归 | 调用 `regress.py` 55 项 | 改代码后没跑测试 |
 | C 判据自检 | 判据用例自检 | 改了判据逻辑 |
 | D 包完整性 | `MANIFEST.json` 与包内逐字节一致 | 改了 `scripts/` 却没 `make package-apply` |
 | E 密钥扫描 | 用 `secret_patterns.py` 扫全仓 | 硬编码了 token |
@@ -190,9 +190,9 @@ ai-autonomy-team/
 ├── (无根 config/)             ← 契约参数物理在 migration-package/config/，勿在根找
 ├── docs/
 │   ├── protocol/              ← 7 份工作协议（规范正文）
-│   ├── decisions/             ← 71 份决策记录（编号到 D-0072；D-0017 未建）
+│   ├── decisions/             ← 72 份决策记录（编号到 D-0073；D-0017 未建）
 │   └── *.md                   ← 32 份分析/审计/复盘（历史存档）
-├── .learnings/                ← 31 条经验教训（L-XXXX，跨项目通用）
+├── .learnings/                ← 32 条经验教训（L-XXXX，跨项目通用）
 ├── templates/                 ← 席位提示词模板（new_round 渲染用）
 ├── fixtures/frozen/           ← ★ 冻结基线（regress 第 8 项依赖，必须入库）
 ├── snapshots/                 ← ★ 真源快照（H 项依赖；默认留最近 3 个，超出自动归档）

@@ -24,6 +24,7 @@ import json
 import shutil
 import subprocess
 import sys
+import tempfile
 from datetime import datetime
 from pathlib import Path
 
@@ -975,14 +976,40 @@ def main():
     #   踩过的坑：aggregation_blocked 是 dict 列表，`"EX-03" in blocked` 恒 False，
     #   会把 STILL 误判成 CONTRADICTION——退出码都是 2，只看退出码发现不了，
     #   故阳性必须同时断言分支关键词（可证伪：判据坏了阳性会翻绿或换分支）。
-    r_pos, o_pos = run(["scripts/inspection_watch.py", "--date", "2099-01-01",
-                        "--dry-list"])
+    # ★ 2026-10-27（D-0073）：round13 的 S8-1 已修（EX-03 移出聚合输入），活数据
+    #   不再提供 STILL 阳性样本。判据的可证伪性不能靠"活数据里恰好有个历史缺陷"
+    #   续命——故阳性样本改为合成 round13（seat-check 原样 + inputs 仍含 EX-03），
+    #   并新增「修复态」断言：活数据必须判 GONE，不得判 CONTRADICTION。
+    #   （原实现 `if in_blocked != in_inputs: CONTRADICTION` 会把「blocked 含 +
+    #   inputs 不含」这一修复态判成互撕，与其自述规格相反 —— 已随本次一并修正。）
+    # ★ 样本目录用 TemporaryDirectory 托管：第 20 项门禁禁止源码出现删除调用
+    #   （删除的唯一去向是改名到 _trash/），故不自写 rmtree，交给退出即清的临时目录。
+    with tempfile.TemporaryDirectory(prefix="regress54-") as _td:
+        fx_root = Path(_td)
+        fx13 = fx_root / "round13"
+        fx13.mkdir(parents=True, exist_ok=True)
+        shutil.copy(PKG / "runs" / "round13" / "seat-check.json", fx13 / "seat-check.json")
+        (fx13 / "answer-final.json").write_text(json.dumps({
+            "aggregation_inputs": [
+                {"seat": "EX-03",
+                 "sha256": "ed2befbd66a66d221fa57ff284a3d4784c060f4f6b3aed14dab1424ce65dd583",
+                 "seat_check_status": "valid"},
+                {"seat": "EX-01",
+                 "sha256": "2d31dc02f362f3d47b69d34ff24c270d6238536546483e49851ed408401bd90c",
+                 "seat_check_status": "valid"},
+            ]}), encoding="utf-8")
+        r_pos, o_pos = run(["scripts/inspection_watch.py", "--date", "2099-01-01",
+                            "--dry-list", "--runs", str(fx_root)])
     r_neg, o_neg = run(["scripts/inspection_watch.py", "--date", "2026-10-24",
                         "--dry-list"])
-    s.check(54, "巡检元核对：阳性(报告必缺+条件仍在)exit2且命中STILL / 阴性(报告在)exit0",
+    r_live, o_live = run(["scripts/inspection_watch.py", "--date", "2099-01-01",
+                          "--dry-list"])
+    s.check(54, "巡检元核对：阳性(合成样本)exit2命中STILL / 阴性(报告在)exit0 / 活数据判GONE",
             r_pos == 2 and "STILL" in o_pos and "FAIL" in o_pos
-            and r_neg == 0 and "PASS" in o_neg,
-            f"阳性 rc={r_pos} 含STILL={'STILL' in o_pos} / 阴性 rc={r_neg}")
+            and r_neg == 0 and "PASS" in o_neg
+            and "GONE" in o_live and "CONTRADICTION" not in o_live,
+            f"阳性 rc={r_pos} 含STILL={'STILL' in o_pos} / 阴性 rc={r_neg} / "
+            f"活数据={'GONE' if 'GONE' in o_live else '非GONE'}")
 
     # ==================== 第 55 项：回归幂等守门 ====================
     # ★ F11 的守门项。全部夹具项都已在上面跑完；若任何一项把机器产出写回了

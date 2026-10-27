@@ -23,7 +23,21 @@
     "B 整轮作废并在 runs/ 留作废标记（损失 1 轮数据，但证据链干净）",
     "C 保留现状 + 本留痕（当前处置：不假装修复，等 A/B 决策）"
    ],
-   "disposition": "C"
+   "disposition": "A（2026-10-27 由用户「关」拍板执行；原 C 已废止，保留原文不改以存史）",
+   "resolution": {
+    "at": "2026-10-27",
+    "decided_by": "用户（关）",
+    "action": "以 EX-01 + EX-02 两席重跑 PM-01 聚合：EX-03 移出 answer-final.json → aggregation_inputs[]，并在 excluded_seats[] 留痕",
+    "new_answer_sha256": "7cadd3fd4aee2ef7364759dbe5aad874cd8beb6088cbe6bae13aa41938903772",
+    "superseded_answer": "runs/round13/answer-final.3seat-superseded.json（sha256 dfc43bb7dc971b1b47c92d1e164a95071afed9110fe9ce28cd504ebe61ea669f，复制后已逐字节校验一致）",
+    "pm_decision_file": "runs/round13/PM-01.rerun-2seat.json（旧 PM-01.json 未覆写：其 sha256 被 seat-check.json → results[PM-01].sha256 锚定）",
+    "aggregation_inputs_now": [
+     "EX-01",
+     "EX-02"
+    ],
+    "numeric_equivalence": "与三席旧版 summary 12 项 / diffs 6 条 / categories 5 类逐字段全等 → 泄漏是来源层缺陷，未污染数值；但产物 sha256 变了，凡按 sha 取数的下游须换锚",
+    "falsifiable_check": "cd migration-package && python3 judges/seat_check.py --params config/params.json --round-dir runs/round13 --verify-final —— 现应通过聚合防伪；把 EX-03 加回 aggregation_inputs[] 即重新 FAIL（可证伪）"
+   }
   },
   {
    "id": "HASH-CHAIN-BROKEN",
@@ -32,7 +46,7 @@
    "summary": "answer-status.json 里记录的产物 sha256 与实际文件不符（answer + spec 两处），record 一致",
    "evidence": {
     "answer-status.answer.sha256 记录": "85b5d03a63344e4a194e4766b5a13c56…",
-    "answer-final.json 实际": "dfc43bb7dc971b1b47c92d1e164a9507…",
+    "answer-final.json 实际（2026-10-27 两席重跑后）": "7cadd3fd4aee2ef7364759dbe5aad874cd8beb6088cbe6bae13aa41938903772…（重跑前为 dfc43bb7dc971b1b47c92d1e164a9507…，已另存 answer-final.3seat-superseded.json）",
     "answer-status.spec.sha256 记录": "4ffe598c112d3312c70d13cc7dc3b2a4…",
     "spec/adjudication.json 实际": "c8362da0e6c791794a16df449f7e5349…",
     "answer-status.record.sha256": "一致",
@@ -50,5 +64,23 @@
    "disposition": "B（当前：声明失效，不重判）"
   }
  ],
+ "rerun_2026_10_27": {
+  "what": "S8-1-LEAK 方案 A 已执行：PM-01 以 EX-01+EX-02 两席重跑聚合",
+  "files_added": [
+   "runs/round13/answer-final.3seat-superseded.json（旧三席版，唯一留存，勿删）",
+   "runs/round13/PM-01.rerun-2seat.json（本次 PM 决策过程；旧 PM-01.json 未动）"
+  ],
+  "file_overwritten": "runs/round13/answer-final.json（旧版已复制留存，git 亦可回滚）",
+  "conclusion": "两席聚合与三席旧版数值逐字段全等 → EX-03 的泄漏是来源层（引用被否席位）缺陷，未污染数值；本轮结论可用于判分的前提是「接受 ADJ-001=count 的人类裁决」。",
+  "next_blocker": "修好泄漏后，--verify-final 的下一条 FAIL 是 HASH-CHAIN-BROKEN（answer-status.json 的 answer.sha256 记 85b5d03a…，现实际 7cadd3fd…；spec.sha256 同样失配）。该条处置仍为 B，需用户单独决策，本轮未动。",
+  "not_touched": [
+   "answer-status.json",
+   "adjudication-record.json",
+   "adjudicated.json",
+   "seat-check.json",
+   "PM-01.json",
+   "EX-01.json / EX-02.json / EX-03.json"
+  ]
+ },
  "how_to_recheck": "python3 - <<'PY'\nimport json,hashlib,pathlib\nrd=pathlib.Path('migration-package/runs/round13')\nst=json.loads((rd/'answer-status.json').read_text())\nfor k in ('answer','spec','record'):\n    r=st.get(k) or {}; p=r.get('path'); w=r.get('sha256')\n    if not p: continue\n    f=pathlib.Path('migration-package')/p\n    g=hashlib.sha256(f.read_bytes()).hexdigest() if f.exists() else 'MISSING'\n    print(k, 'OK' if g==w else 'MISMATCH')\nPY"
 }
