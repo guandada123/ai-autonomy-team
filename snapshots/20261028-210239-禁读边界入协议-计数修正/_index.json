@@ -1,7 +1,7 @@
 {
- "created_at": "2026-10-28T11:56:43",
- "label": "P3整批修复",
- "file_count": 132,
+ "created_at": "2026-10-28T21:02:39",
+ "label": "禁读边界入协议-计数修正",
+ "file_count": 134,
  "files": {
   "scripts/build_package.py": {
    "sha256": "b2dad8c4b0adc07c8cc367c51c292263c2789cf6501a0a7481c80260de23f494",
@@ -124,8 +124,8 @@
    "bytes": 17283
   },
   "scripts/recompute_watch.py": {
-   "sha256": "4ff4634873ec8fc01edaee5f8f673fa79514625351a762c1e7de371b3e303340",
-   "bytes": 5424
+   "sha256": "e2da244c2224098133a1cda05d5a5e62731e731364ac53a3c268f51b2290d99f",
+   "bytes": 5795
   },
   "scripts/redact_report.py": {
    "sha256": "b0557dfa5ba2659b0f9da12495a4deabbcbb29664a5620a160b3e5c913a9b2dc",
@@ -503,6 +503,14 @@
    "sha256": "8675dde70b391850f51932ebd35693f0dbdb57601cffde4196f46e0979bbfa47",
    "bytes": 8139
   },
+  "docs/decisions/D-0079-题库v1.3并入.md": {
+   "sha256": "054aa38237e0c18b148a280bb0eb49c24a4999471c706512f7f4de9242e69b02",
+   "bytes": 2687
+  },
+  "docs/decisions/D-0080-禁读边界固化进协议.md": {
+   "sha256": "78e62e7b9002867188f0a867d017f3023c97c53d8e0c13070569ad0c14570446",
+   "bytes": 2733
+  },
   "docs/decisions/TEMPLATE.md": {
    "sha256": "0bbc33940a540ae0e983817d9b1cf6daf6502ff233074d5023a3466511867e6e",
    "bytes": 856
@@ -533,8 +541,8 @@
   }
  },
  "caller": {
-  "pid": 62644,
-  "ppid": 62640,
-  "parent_cmd": "/bin/zsh -c . '/Users/guan/.workbuddy/shell-snapshots/snapshot-zsh-1793150459605-6vcet2.sh' && if [ -n \"${CODEBUDDY_SAFE_DELETE_BIN_DIR:-}\" ]; then unalias rm unlink rmdir 2>/dev/null || true; unset -"
+  "pid": 68652,
+  "ppid": 68649,
+  "parent_cmd": "/bin/zsh -c . '/Users/guan/.workbuddy/shell-snapshots/snapshot-zsh-1793192377750-4ybtac.sh' && if [ -n \"${CODEBUDDY_SAFE_DELETE_BIN_DIR:-}\" ]; then unalias rm unlink rmdir 2>/dev/null || true; unset -"
  }
 }

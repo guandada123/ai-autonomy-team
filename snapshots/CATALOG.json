@@ -3,9 +3,9 @@
  "_generated_by": "scripts/snapshot_sources.py --catalog",
  "count": {
   "in_git": 3,
-  "archived": 222,
+  "archived": 225,
   "missing": 0,
-  "total": 225
+  "total": 228
  },
  "snapshots": [
   {
@@ -1786,27 +1786,51 @@
   },
   {
    "name": "20261028-115643-P3整批修复",
-   "location": "snapshots",
-   "in_git": true,
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
    "label": "P3整批修复",
    "created_at": "2026-10-28T11:56:43",
    "file_count": 132
   },
   {
    "name": "20261028-170257-v1.3议题证据",
-   "location": "snapshots",
-   "in_git": true,
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
    "label": "v1.3议题证据",
    "created_at": "2026-10-28T17:02:57",
    "file_count": 132
   },
   {
    "name": "20261028-191508-题库v1.3并入",
-   "location": "snapshots",
-   "in_git": true,
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
    "label": "题库v1.3并入",
    "created_at": "2026-10-28T19:15:08",
    "file_count": 133
+  },
+  {
+   "name": "20261028-210205-禁读边界入协议",
+   "location": "snapshots",
+   "in_git": true,
+   "label": "禁读边界入协议",
+   "created_at": "2026-10-28T21:02:05",
+   "file_count": 134
+  },
+  {
+   "name": "20261028-210239-禁读边界入协议-计数修正",
+   "location": "snapshots",
+   "in_git": true,
+   "label": "禁读边界入协议-计数修正",
+   "created_at": "2026-10-28T21:02:39",
+   "file_count": 134
+  },
+  {
+   "name": "20261028-210306-计数修正2",
+   "location": "snapshots",
+   "in_git": true,
+   "label": "计数修正2",
+   "created_at": "2026-10-28T21:03:06",
+   "file_count": 134
   }
  ]
 }
