@@ -3,9 +3,9 @@
  "_generated_by": "scripts/snapshot_sources.py --catalog",
  "count": {
   "in_git": 3,
-  "archived": 227,
+  "archived": 228,
   "missing": 0,
-  "total": 230
+  "total": 231
  },
  "snapshots": [
   {
@@ -1826,8 +1826,8 @@
   },
   {
    "name": "20261028-210306-计数修正2",
-   "location": "snapshots",
-   "in_git": true,
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
    "label": "计数修正2",
    "created_at": "2026-10-28T21:03:06",
    "file_count": 134
@@ -1846,6 +1846,14 @@
    "in_git": true,
    "label": "测试体系审计",
    "created_at": "2026-10-28T23:23:50",
+   "file_count": 134
+  },
+  {
+   "name": "20261028-234713-F3三向比对",
+   "location": "snapshots",
+   "in_git": true,
+   "label": "F3三向比对",
+   "created_at": "2026-10-28T23:47:13",
    "file_count": 134
   }
  ]

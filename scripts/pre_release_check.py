@@ -203,10 +203,18 @@ def chk_snapshot():
     if not dirs:
         return False, "无快照"
     rc, out = sh([PY, str(SCRIPTS / "snapshot_sources.py"), "--verify"])
+    if rc == 2:
+        # 2026-10-28（F3）：环境错误（无可用快照）与「发现差异」必须分开说，
+        # 否则「没有基准」会被误读成「有基准但不一致」，两种处置完全不同。
+        return False, "无可用快照（--verify 返回 2：环境错误，非差异）"
     if rc != 0:
-        # 抽出「修改 N」那行，给出可操作信息
-        line = next((ln.strip() for ln in out.splitlines() if "修改" in ln or "新增" in ln), "")
-        return False, f"真源与最近快照 {dirs[-1].name} 不一致（改了未打快照）。{line}"
+        # 2026-10-28（F3）：--verify 改为三向比对，输出行改以 A/B/C/D 分类开头
+        # （A 真源改动 / B 副本缺失 / C 副本被改 / D 真源与副本互异）。
+        # 仍按旧文案找「修改/新增」会抽到空串，失败信息就没有可操作内容。
+        kinds = [ln.strip() for ln in out.splitlines()
+                 if ln.strip().startswith(("A ", "B ", "C ", "D "))]
+        tail = "；".join(kinds[:3]) or (out.strip().splitlines() or ["无详情"])[-1]
+        return False, f"与最近快照 {dirs[-1].name} 不一致（三向比对命中）。{tail}"
     return True, f"最近快照: {dirs[-1].name}，与真源一致"
 
 
