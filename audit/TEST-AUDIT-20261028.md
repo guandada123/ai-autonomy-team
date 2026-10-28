@@ -108,7 +108,9 @@ Phase 1 未逐条清点 octagon/redact_report/pre_push_scan/new_round 内部项�
 | F2 验证 | ✅ 已亲眼确认 | run **40717644766**（commit 195cb33）conclusion=**success**，逐步：检出/环境自述/`make selftest` 全 success；日志实读 kit-test **38/38**、门禁 **8/8**（B 回归 56/56）、报告段如实打印 S1 命中。非「没收到失败邮件」式推断 |
 | **F3**（P0-3） | ✅ 已实施 | `verify()` 改**三向比对**（索引 ↔ 副本实际字节 ↔ 真源，A/B/C 三类分别报告）；新增 `restore` 子命令（写前逐文件校验副本哈希、缺件/污染**整体拒绝**、默认 dry-run、`--apply` 才写、写后 readback）；verify 的裸 `cp -R` 回滚建议已删除；`pre_release_check.chk_snapshot` 适配新输出并区分 rc=2（无基准）与 rc=1（有差异）。自检 17 → **36 项** |
 | F3 假绿实证 | ✅ 已复现 | /tmp 迷你仓库四场景同场对照：干净 PASS(0)；真源改 FAIL(1)；**副本删 → 新版 1 / 旧版 0**；**副本改 → 新版 1 / 旧版 0**；三方齐改 FAIL(1)。旧版假绿属实 |
-| F7/F8/F6 | ⬜ 未动 | 按 P0→P1 顺序，F7（门禁 E/G 目录）为下一个 |
+| **F5**（P2，提前做） | ✅ 已实施 | Makefile `selftest` 收编 4 个孤儿 `--self-test`：snapshot_sources **36**（含 F3 新增 19 条）、judges/seat_check **41**、metrics **21**、check_consistency **3** = **+101 项**，实测各秒级（全量 11s）。**收编前 F3 那 19 条用例 CI 上根本不会跑**，收编后才有意义。未收编：`regress`（已由门禁 B 项跑，重复即 ×2 耗时）、`verify_handover`（人工接手验收，非回归） |
+| F7/F8/F6 | ⬜ 未动 | 按优先级，F7（门禁 E 加目录 / G 改 rglob）为下一个 |
+| 新发现计数漂移 | ⬜ 待 F6 | Makefile help 文本「kit-test（30 项）」实为 **38** 项 —— 第 5 处漂移，留给 F6 与其余 4 处统一修，不在此轮夹带 |
 
 **F1 后 CI 红灯性质的变化**：此前 `make selftest` 的 exit 2 由「标注集饱和」这一**数据事实**引起，
 与代码是否损坏无关；修复后该事实仍在报告段如实打印（heldout 三阈值全 1.000，命中 S1），

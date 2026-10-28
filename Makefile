@@ -85,6 +85,17 @@ selftest:
 	@echo "── 判定工具自检（多数票边界 / 覆盖率语义 / κ 已知值 / 与 score_v2 交叉）──"
 	$(PY) audit/kit/test_kit.py
 	@echo ""
+	@echo "── 真源快照自检（三向比对 / restore 正负样本）──"
+	$(PY) $(SCRIPTS)/snapshot_sources.py --self-test
+	@echo ""
+	@echo "── 席位检查器自检 ──"
+	$(PY) $(SCRIPTS)/judges/seat_check.py --self-test
+	@echo ""
+	@echo "── 指标脚本自检 ──"
+	$(PY) $(SCRIPTS)/metrics.py --self-test
+	@echo ""
+	@echo "── 决策链一致性自检 ──"
+	$(PY) $(SCRIPTS)/check_consistency.py --self-test
 	@echo "── 判据自检 + 全量门禁（内含全量回归，约 60 秒）──"
 	$(PY) $(SCRIPTS)/pre_release_check.py
 
