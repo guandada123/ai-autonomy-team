@@ -55,6 +55,7 @@ D-0045 定了「整库推私有远端」，但远端**不覆盖** `.gitignore` �
 """
 import argparse
 import hashlib
+import re
 import shlex
 import subprocess
 import sys
@@ -248,6 +249,25 @@ def self_test():
                       _shlex.split(trash_cmd)[1:] == [str(p_sp)]
                       and trash_cmd.startswith("trash ")))
 
+        # ★ 月份解析防呆（2026-10-28 审查 P3-5）：非日期形文件名不得凭 split
+        #   下标混进「月度锚点」——它连月份都读不出来。名字以 "0" 开头保证
+        #   字符串排序时它最旧（否则 keep_recent 会先把它留下，用例失去区分力）。
+        with tempfile.TemporaryDirectory() as td4:
+            d4 = Path(td4)
+            weird_batch = ["snapshots-archive-0legacy.tar.gz",
+                           "snapshots-archive-20261101-0001.tar.gz",
+                           "snapshots-archive-20261102-0001.tar.gz",
+                           "snapshots-archive-20261103-0001.tar.gz"]
+            for n in weird_batch:
+                (d4 / n).write_bytes(b"x" * 10)
+            rows = classify([d4 / n for n in weird_batch])
+            dec = {p.name: dec for p, dec, _, _ in rows}
+            # 区分点：0legacy 靠"月度锚点"留下（旧 split 实现）= keep → 红；
+            # 新实现读不出月份 → 只能当 candidate。1101 是"最近 3 份"的正常保留，作对照。
+            cases.append(("月份解析：非日期形文件名不得当月度锚点（split 下标实现会判红）",
+                          dec.get("snapshots-archive-0legacy.tar.gz") == "candidate"
+                          and dec.get("snapshots-archive-20261101-0001.tar.gz") == "keep"))
+
     bad_n = 0
     for name, ok in cases:
         bad_n += 0 if ok else 1
@@ -263,15 +283,21 @@ def human(n):
         n /= 1024
 
 
+def _backup_files(dest):
+    """本工具会产出的两种文件名（排除 .DS_Store 等异物）。
+
+    ★ 不用 `*.*` 通配：macOS 一进目录就写 `.DS_Store`，「最新一份」会被它抢走
+      （2026-10-23 实测）——列目录是给人做删除决策的，混入异物等于给错依据。
+    """
+    return sorted([p for pat in ("ai-autonomy-team-*.bundle", "snapshots-archive-*.tar.gz")
+                   for p in dest.glob(pat)])
+
+
 def do_list(dest):
     if not dest.is_dir():
         print(f"[ERR] 备份目录不存在：{dest}", file=sys.stderr)
         return ERR
-    # 只认本工具会产出的两种文件名。原来用 `*.*` 通配：macOS 一进目录就写
-    # `.DS_Store`，于是「最新一份」被它抢走（2026-10-23 实测）——
-    # 列目录是给人做删除决策的，把非备份文件混进来等于给错依据。
-    items = sorted([p for pat in ("ai-autonomy-team-*.bundle", "snapshots-archive-*.tar.gz")
-                    for p in dest.glob(pat)])
+    items = _backup_files(dest)
     if not items:
         print(f"[ERR] 目录里没有备份：{dest}", file=sys.stderr)
         return BAD
@@ -309,10 +335,15 @@ def classify(items):
     month_seen = set()
     month_anchor = set()
     for t in tars:
-        m = t.name.split("-")[2][:6] if len(t.name.split("-")) > 2 else "?"
-        if m not in month_seen:
-            month_seen.add(m)
-            month_anchor.add(t.name)
+        # ★ 正则而非 split 下标（审查 P3-5）：`split("-")[2][:6]` 把文件名形状
+        #   写死在第 3 段，形状一变就静默错月。非日期形文件名不参与锚点
+        #   （它不可能是"某月最新一份"——月份从名字里都读不出来）。
+        m = re.match(r"snapshots-archive-(\d{6})", t.name)
+        if m:
+            month = m.group(1)
+            if month not in month_seen:
+                month_seen.add(month)
+                month_anchor.add(t.name)
 
     for t in tars:
         size = t.stat().st_size
@@ -345,8 +376,7 @@ def do_retention(dest):
     if not dest.is_dir():
         print(f"[ERR] 备份目录不存在：{dest}", file=sys.stderr)
         return ERR
-    items = sorted([p for pat in ("ai-autonomy-team-*.bundle", "snapshots-archive-*.tar.gz")
-                    for p in dest.glob(pat)])
+    items = _backup_files(dest)
     if not items:
         print(f"[ERR] 目录里没有备份：{dest}", file=sys.stderr)
         return BAD

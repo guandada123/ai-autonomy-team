@@ -1,7 +1,7 @@
 {
- "created_at": "2026-10-28T10:22:31",
- "label": "行数同步",
- "file_count": 132,
+ "created_at": "2026-10-28T19:15:08",
+ "label": "题库v1.3并入",
+ "file_count": 133,
  "files": {
   "scripts/build_package.py": {
    "sha256": "b2dad8c4b0adc07c8cc367c51c292263c2789cf6501a0a7481c80260de23f494",
@@ -32,8 +32,8 @@
    "bytes": 7769
   },
   "scripts/inspect_status.py": {
-   "sha256": "6fa8919cdf8e00a55091e4edfaee151fc0382d6edb10104fdbebd8a07fda4a6e",
-   "bytes": 14580
+   "sha256": "69e4a896b3882e3a3cc2aaa3abaa2af5dd35d56f93e57cc9271462d83e6d62b3",
+   "bytes": 15428
   },
   "scripts/inspection_watch.py": {
    "sha256": "c8409fe69d7e54b72f98ead403d30da25020f9c78e260c50d183a00eea95f026",
@@ -72,8 +72,8 @@
    "bytes": 1750
   },
   "scripts/make_backup.py": {
-   "sha256": "650bf240e02d908e258030758a97cbcb48e6ec9cd5ed4bfa9ef3c49cc7ee2abf",
-   "bytes": 22138
+   "sha256": "5696d75573addc9dcd67818e4a1496c42e01f7c329072607e3e4c4e9a7f6bd59",
+   "bytes": 23832
   },
   "scripts/make_fixtures.py": {
    "sha256": "1f7329d2cc180b6e9bfe982b65b9f519bfb31c513444f5207359faaae4cdff2e",
@@ -124,24 +124,24 @@
    "bytes": 17283
   },
   "scripts/recompute_watch.py": {
-   "sha256": "4ff4634873ec8fc01edaee5f8f673fa79514625351a762c1e7de371b3e303340",
-   "bytes": 5424
+   "sha256": "e2da244c2224098133a1cda05d5a5e62731e731364ac53a3c268f51b2290d99f",
+   "bytes": 5795
   },
   "scripts/redact_report.py": {
    "sha256": "b0557dfa5ba2659b0f9da12495a4deabbcbb29664a5620a160b3e5c913a9b2dc",
    "bytes": 11300
   },
   "scripts/regress.py": {
-   "sha256": "6c6801c6b271a795f9598bf4a7d5fd401cb4d17c630d74424922772f5612d86f",
-   "bytes": 67229
+   "sha256": "496383e8d32cb83812ee94e6d0b8f4db52a30865bff5d6ac806465a87bba3e13",
+   "bytes": 68112
   },
   "scripts/secret_patterns.py": {
    "sha256": "c77c883691005f530cff2444c7acb0470dfadf595ae1c15dbc98b34857b56ef1",
    "bytes": 4979
   },
   "scripts/snapshot_sources.py": {
-   "sha256": "bfb83f3313317d2cecc49dcad5bdbd1009d0599bab2caa89134dba28f2fa1082",
-   "bytes": 25694
+   "sha256": "14d4db22ac874be253c80898a1227ce13e30e80c5f1d5c9116f10490e49e60fb",
+   "bytes": 26879
   },
   "scripts/spec_conformance.py": {
    "sha256": "689c30623c485830755308fccf673034d43b00e47af91d2ea5f62c94f8e0fdec",
@@ -503,6 +503,10 @@
    "sha256": "8675dde70b391850f51932ebd35693f0dbdb57601cffde4196f46e0979bbfa47",
    "bytes": 8139
   },
+  "docs/decisions/D-0079-题库v1.3并入.md": {
+   "sha256": "054aa38237e0c18b148a280bb0eb49c24a4999471c706512f7f4de9242e69b02",
+   "bytes": 2687
+  },
   "docs/decisions/TEMPLATE.md": {
    "sha256": "0bbc33940a540ae0e983817d9b1cf6daf6502ff233074d5023a3466511867e6e",
    "bytes": 856
@@ -533,8 +537,8 @@
   }
  },
  "caller": {
-  "pid": 9939,
-  "ppid": 9935,
-  "parent_cmd": "/bin/zsh -c . '/Users/guan/.workbuddy/shell-snapshots/snapshot-zsh-1793150459605-6vcet2.sh' && if [ -n \"${CODEBUDDY_SAFE_DELETE_BIN_DIR:-}\" ]; then unalias rm unlink rmdir 2>/dev/null || true; unset -"
+  "pid": 9425,
+  "ppid": 9422,
+  "parent_cmd": "/bin/zsh -c . '/Users/guan/.workbuddy/shell-snapshots/snapshot-zsh-1793177924055-dfoenh.sh' && if [ -n \"${CODEBUDDY_SAFE_DELETE_BIN_DIR:-}\" ]; then unalias rm unlink rmdir 2>/dev/null || true; unset -"
  }
 }

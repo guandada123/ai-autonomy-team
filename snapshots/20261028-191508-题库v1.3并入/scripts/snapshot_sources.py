@@ -223,6 +223,12 @@ def catalog(out=None, quiet=False, snap_root=None, archive_root=None):
                      "last_seen_created_at": r.get("created_at") or ""})
 
     rows.sort(key=lambda r: r["name"])
+    # ★ fresh clone 边缘（审查 P3-7）：snapshots/ 不存在且毫无记录时，mkdir 会凭空
+    #   创建空目录，把门禁 H 的报错从「无快照目录」变成「verify 失败」，掩盖真实状态。
+    if not rows and not prev and not out.parent.exists():
+        print(f"[WARN] 无任何快照记录且 {out.parent} 不存在 —— 不创建目录、不写清单"
+              f"（先打一次快照再 --catalog）", file=sys.stderr)
+        return out, {"in_git": 0, "archived": 0, "missing": 0, "total": 0}
     stat = {"in_git": sum(1 for r in rows if r["in_git"]),
             "archived": sum(1 for r in rows if r["location"].startswith("_trash")),
             "missing": len(missing), "total": len(rows)}
@@ -541,7 +547,11 @@ def main():
     if args.verify:
         return verify()
     if args.catalog:
-        catalog()
+        try:
+            catalog()
+        except Exception as e:      # 清单是本命令的目的，失败要说明白，不留裸 traceback
+            print(f"[ERR] 清单生成失败：{e}", file=sys.stderr)
+            return 1
         return 0
     snapshot(args.label)
     if not args.no_prune:
@@ -550,7 +560,14 @@ def main():
             return 2
     # 打完/移完立即刷新清单：清单若只在人工记得跑 --catalog 时更新，
     # 它就会在上述 churn 之后立刻变成过期事实（正是本次要修的那个病）。
-    catalog()
+    # ★ 快照本体已成功，清单失败不能当成"快照失败"重试（会再产一个快照，churn），
+    #   但也必须非 0 退出让人看见 —— 明确说清"快照已成功、清单过期"。
+    try:
+        catalog()
+    except Exception as e:
+        print(f"[ERR] 快照已生成，但清单刷新失败：{e} —— 清单此刻已过期，请重跑 --catalog",
+              file=sys.stderr)
+        return 1
     return 0
 
 
