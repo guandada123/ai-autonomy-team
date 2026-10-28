@@ -3,9 +3,9 @@
  "_generated_by": "scripts/snapshot_sources.py --catalog",
  "count": {
   "in_git": 3,
-  "archived": 216,
+  "archived": 217,
   "missing": 0,
-  "total": 219
+  "total": 220
  },
  "snapshots": [
   {
@@ -1738,8 +1738,8 @@
   },
   {
    "name": "20261028-081910-文档行数同步",
-   "location": "snapshots",
-   "in_git": true,
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
    "label": "文档行数同步",
    "created_at": "2026-10-28T08:19:10",
    "file_count": 132
@@ -1758,6 +1758,14 @@
    "in_git": true,
    "label": "备份提醒改指retention",
    "created_at": "2026-10-28T08:21:08",
+   "file_count": 132
+  },
+  {
+   "name": "20261028-092906-代码审查报告",
+   "location": "snapshots",
+   "in_git": true,
+   "label": "代码审查报告",
+   "created_at": "2026-10-28T09:29:06",
    "file_count": 132
   }
  ]
