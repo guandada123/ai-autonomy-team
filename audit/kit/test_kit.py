@@ -36,6 +36,8 @@
 """
 from __future__ import annotations
 
+import contextlib
+import io
 import json
 import sys
 import tempfile
@@ -56,10 +58,23 @@ V2 = ROOT / "audit/baseline/v2"
 
 CHECKS: list[tuple[str, callable]] = []
 
+# 报告项：跑、打印、但**不计入退出码**。
+# 只放「数据/环境当前是什么状态」这类会随数据集变化而变化的观测（F1，2026-10-28）。
+# 放进 CHECKS 的后果：标注一换就红，于是 selftest 常红 = 真回归被淹没（狼来了）。
+REPORTS: list[tuple[str, callable]] = []
+
 
 def check(name):
     def deco(fn):
         CHECKS.append((name, fn))
+        return fn
+    return deco
+
+
+def report(name):
+    """与 check 的区别：只观察不裁决，失败也不影响 exit-code。"""
+    def deco(fn):
+        REPORTS.append((name, fn))
         return fn
     return deco
 
@@ -300,13 +315,48 @@ def _():
         {t: 1.0 for t in ths}, ths) == 5
 
 
-@check("label_saturation: 当前前提标注集判定为饱和（S1/S2 命中）")
+@report("label_saturation: 当前标注集饱和状态（观测，非裁决）")
 def _():
-    # 钉住当前状态：若哪天标签被独立标注替换、或规则改动，这条会变，
-    # 届时须有意更新，而不是让「1.00 全对」悄悄继续被当成有效性证据。
-    grid = label_saturation.sweep(["calibration", "heldout"], [3, 5, 20])
-    assert grid["calibration"][5] == 1.0, grid
-    assert grid["heldout"][3] == grid["heldout"][20] == 1.0, grid
+    # 原先这条断言钉的是具体数值（calibration[5]==1.0），2026-10-28 移出 exit-code：
+    # 它断言的是「数据当前长什么样」，标注一换就红，而饱和是事实、不该靠改阈值灭掉。
+    # 现在这里只报数；「判据本身还判不判得动」改由下面四条合成用例钉住（正负样本齐全）。
+    sets, ths = ["calibration", "heldout"], [3, 5, 20]
+    grid = label_saturation.sweep(sets, ths)
+    hits = label_saturation.evaluate(grid, sets, ths)
+    for s in sets:
+        print(f"    {s}: " + "  ".join(f"th{t}={grid[s][t]:.3f}" for t in ths))
+    print(f"    命中判据: {[h['rule'] for h in hits] or '无'}"
+          " —— 饱和不代表脚本坏了，代表这套标注不足以验证规则")
+
+
+@check("label_saturation.evaluate: S1 满分必命中（正样本）")
+def _():
+    grid = {"a": {3: 1.0, 5: 0.9}}
+    rules = [h["rule"] for h in label_saturation.evaluate(grid, ["a"], [3, 5])]
+    assert "S1" in rules, rules
+
+
+@check("label_saturation.evaluate: 0.99 不得算满分（负样本，钉住 >=0.999 的边界）")
+def _():
+    # 若把 >=0.999 写反成 <= 或放宽成 >=0.9，上一条照样绿，这条会红。
+    grid = {"a": {3: 0.99, 5: 0.90}}
+    assert label_saturation.evaluate(grid, ["a"], [3, 5]) == [], grid
+
+
+@check("label_saturation.evaluate: S2 五点同值必命中（正样本）")
+def _():
+    ths = [3, 5, 8, 10, 12]
+    grid = {"a": {t: 0.8 for t in ths}}
+    rules = [h["rule"] for h in label_saturation.evaluate(grid, ["a"], ths)]
+    assert "S2" in rules, rules
+
+
+@check("label_saturation.evaluate: 每点都不同不得命中 S2（负样本）")
+def _():
+    ths = [3, 5, 8, 10, 12]
+    grid = {"a": {t: 0.8 - 0.05 * i for i, t in enumerate(ths)}}
+    rules = [h["rule"] for h in label_saturation.evaluate(grid, ["a"], ths)]
+    assert "S2" not in rules, rules
 
 
 # ── 组五：交叉验证（关键）────────────────────────────────────────────────
@@ -401,17 +451,40 @@ def main() -> int:
         except Exception as e:                       # 断言失败与意外异常都要报
             fails.append((name, f"{type(e).__name__}: {e}"))
 
+    # 报告项：只看不裁决（F1）。分界线在这里——
+    # 「报告说数据是饱和的」= 数据态，不进退出码；「报告自己跑不起来」= 代码坏了，照样红。
+    report_lines: list[str] = []
+    report_fails: list[tuple[str, str]] = []
+    for name, fn in REPORTS:
+        buf = io.StringIO()
+        try:
+            with contextlib.redirect_stdout(buf):
+                fn()
+        except Exception as e:
+            report_fails.append((name, f"{type(e).__name__}: {e}"))
+            buf.write(f"    ⚠️ 报告项自身出错: {type(e).__name__}: {e}")
+        report_lines.append(f"  · {name}\n{buf.getvalue().rstrip()}")
+
     if "--json" in sys.argv:
-        print(json.dumps({"total": len(CHECKS), "failed": len(fails),
-                          "fails": [{"check": n, "err": e} for n, e in fails]},
+        print(json.dumps({"checks": len(CHECKS), "reports": len(REPORTS),
+                          "failed": len(fails) + len(report_fails),
+                          "fails": [{"check": n, "err": e} for n, e in fails],
+                          "report_errors": [{"report": n, "err": e}
+                                            for n, e in report_fails],
+                          "report_lines": report_lines},
                          ensure_ascii=False, indent=2))
     else:
         print(f"[kit-test] {len(CHECKS) - len(fails)}/{len(CHECKS)} 通过")
         for n, e in fails:
             print(f"  🔴 {n}\n     {e}")
-        if not fails:
+        if report_lines:
+            print("\n── 报告（数据态观测，不计入退出码）──")
+            print("\n".join(report_lines))
+        for n, e in report_fails:
+            print(f"  🔴 报告项出错 {n}\n     {e}")
+        if not fails and not report_fails:
             print("  ✅ 全部通过（含与历史 score_v2 的交叉验证）")
-    return 1 if fails else 0
+    return 1 if (fails or report_fails) else 0
 
 
 if __name__ == "__main__":

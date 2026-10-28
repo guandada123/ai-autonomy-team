@@ -86,18 +86,12 @@ def invariant_run(series: dict, ths: list[int]) -> int:
     return best
 
 
-def main() -> int:
-    ap = argparse.ArgumentParser(description="标注集饱和检查")
-    ap.add_argument("--sets", default="calibration,heldout")
-    ap.add_argument("--sweep", default="")
-    ap.add_argument("--json", action="store_true")
-    args = ap.parse_args()
+def evaluate(grid: dict, sets: list[str], ths: list[int]) -> list[dict]:
+    """对一张 (集合 × 阈值) 网格跑 S1/S2/S3，返回命中列表。
 
-    sets = [s.strip() for s in args.sets.split(",") if s.strip()]
-    ths = ([int(x) for x in args.sweep.split(",") if x.strip()]
-           if args.sweep else DEFAULT_SWEEP)
-
-    grid = sweep(sets, ths)
+    为什么抽成函数：判定逻辑若只活在 `main()` 里，测试要验证它就只能再抄一份
+    规则（两处实现必然漂移）。CLI 与 test_kit 共用这一份，才是同一把尺。
+    """
     hits = []
 
     # ── S1：任何集合拿到满分 ────────────────────────────────────────────
@@ -124,6 +118,22 @@ def main() -> int:
             hits.append({"rule": "S3", "set": f"{a}/{b}",
                          "msg": f"{len(ths)} 个阈值下两者准确率始终相等 → 两套集合同源，"
                                 f"留出没有起到留出作用"})
+    return hits
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser(description="标注集饱和检查")
+    ap.add_argument("--sets", default="calibration,heldout")
+    ap.add_argument("--sweep", default="")
+    ap.add_argument("--json", action="store_true")
+    args = ap.parse_args()
+
+    sets = [s.strip() for s in args.sets.split(",") if s.strip()]
+    ths = ([int(x) for x in args.sweep.split(",") if x.strip()]
+           if args.sweep else DEFAULT_SWEEP)
+
+    grid = sweep(sets, ths)
+    hits = evaluate(grid, sets, ths)
 
     if args.json:
         print(json.dumps({"sets": sets, "thresholds": ths, "grid": grid,
