@@ -1,0 +1,1756 @@
+{
+ "_note": "快照目录清单（入库）。`snapshots/` 下的快照字节在 git 里；`_trash/snapshots-archive/` 下的只在本机盘上并被 ~/Backups 的 tar 覆盖。本文件回答「有过哪些快照、现在在哪」，不替代字节。location=missing 表示该快照已从两个目录消失（保留历史记录，不删条目）。",
+ "_generated_by": "scripts/snapshot_sources.py --catalog",
+ "count": {
+  "in_git": 3,
+  "archived": 215,
+  "missing": 0,
+  "total": 218
+ },
+ "snapshots": [
+  {
+   "name": "20261021-075235-v3.0-rc基线",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "v3.0-rc基线",
+   "created_at": "2026-10-21T07:52:35",
+   "file_count": 56
+  },
+  {
+   "name": "20261021-075354-protocol表格修正",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "protocol表格修正",
+   "created_at": "2026-10-21T07:53:54",
+   "file_count": 56
+  },
+  {
+   "name": "20261021-075419-pre_release_check 强化H项",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "pre_release_check 强化H项",
+   "created_at": "2026-10-21T07:54:19",
+   "file_count": 56
+  },
+  {
+   "name": "20261021-080336-密钥模式单一真源",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "密钥模式单一真源",
+   "created_at": "2026-10-21T08:03:36",
+   "file_count": 57
+  },
+  {
+   "name": "20261021-082418-C项报错改进+B_C可证伪验证",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "C项报错改进+B/C可证伪验证",
+   "created_at": "2026-10-21T08:24:18",
+   "file_count": 57
+  },
+  {
+   "name": "20261021-104400-03指引彻底化+索引补齐",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "03指引彻底化+索引补齐",
+   "created_at": "2026-10-21T10:44:00",
+   "file_count": 57
+  },
+  {
+   "name": "20261021-110622-加镜像出口",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "加镜像出口",
+   "created_at": "2026-10-21T11:06:23",
+   "file_count": 57
+  },
+  {
+   "name": "20261021-124527-加sync_doc_numbers",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "加sync_doc_numbers",
+   "created_at": "2026-10-21T12:45:27",
+   "file_count": 58
+  },
+  {
+   "name": "20261021-124555-统一规则+报错提示",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "统一规则+报错提示",
+   "created_at": "2026-10-21T12:45:55",
+   "file_count": 58
+  },
+  {
+   "name": "20261021-124621-回写自动化配置",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "回写自动化配置",
+   "created_at": "2026-10-21T12:46:21",
+   "file_count": 58
+  },
+  {
+   "name": "20261021-140221-第8项改架构限制",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "第8项改架构限制",
+   "created_at": "2026-10-21T14:02:21",
+   "file_count": 58
+  },
+  {
+   "name": "20261021-140253-清单状态回填",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "清单状态回填",
+   "created_at": "2026-10-21T14:02:53",
+   "file_count": 58
+  },
+  {
+   "name": "20261021-140316-清单名称修正",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "清单名称修正",
+   "created_at": "2026-10-21T14:03:16",
+   "file_count": 58
+  },
+  {
+   "name": "20261021-142438-单席对照实验+补TASK字段",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "单席对照实验+补TASK字段",
+   "created_at": "2026-10-21T14:24:38",
+   "file_count": 58
+  },
+  {
+   "name": "20261021-143017-判断层实验",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "判断层实验",
+   "created_at": "2026-10-21T14:30:17",
+   "file_count": 58
+  },
+  {
+   "name": "20261021-155846-ADJ判断空间分析",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "ADJ判断空间分析",
+   "created_at": "2026-10-21T15:58:46",
+   "file_count": 58
+  },
+  {
+   "name": "20261021-160108-加自洽校验工具",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "加自洽校验工具",
+   "created_at": "2026-10-21T16:01:08",
+   "file_count": 59
+  },
+  {
+   "name": "20261021-160919-ADJ加合规标记",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "ADJ加合规标记",
+   "created_at": "2026-10-21T16:09:19",
+   "file_count": 59
+  },
+  {
+   "name": "20261021-171014-留白实验",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "留白实验",
+   "created_at": "2026-10-21T17:10:14",
+   "file_count": 59
+  },
+  {
+   "name": "20261021-171815-D-0025价值主张修正",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "D-0025价值主张修正",
+   "created_at": "2026-10-21T17:18:15",
+   "file_count": 60
+  },
+  {
+   "name": "20261021-172255-修正D-0025表述",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "修正D-0025表述",
+   "created_at": "2026-10-21T17:22:55",
+   "file_count": 60
+  },
+  {
+   "name": "20261021-173132-交接文档",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "交接文档",
+   "created_at": "2026-10-21T17:31:32",
+   "file_count": 60
+  },
+  {
+   "name": "20261021-181437-复核报告落地-交接与索引同步",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "复核报告落地-交接与索引同步",
+   "created_at": "2026-10-21T18:14:37",
+   "file_count": 60
+  },
+  {
+   "name": "20261021-181556-改check_consistency前",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "改check_consistency前",
+   "created_at": "2026-10-21T18:15:56",
+   "file_count": 60
+  },
+  {
+   "name": "20261021-181835-check_consistency分桶校验落地",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "check_consistency分桶校验落地",
+   "created_at": "2026-10-21T18:18:35",
+   "file_count": 60
+  },
+  {
+   "name": "20261021-182125-D-0026撤回D-0025",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "D-0026撤回D-0025",
+   "created_at": "2026-10-21T18:21:25",
+   "file_count": 61
+  },
+  {
+   "name": "20261021-182923-真实对账工具与首次运行",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "真实对账工具与首次运行",
+   "created_at": "2026-10-21T18:29:23",
+   "file_count": 62
+  },
+  {
+   "name": "20261021-184202-pnl单一真源根治",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "pnl单一真源根治",
+   "created_at": "2026-10-21T18:42:02",
+   "file_count": 62
+  },
+  {
+   "name": "20261021-200408-改implies前",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "改implies前",
+   "created_at": "2026-10-21T20:04:08",
+   "file_count": 62
+  },
+  {
+   "name": "20261021-201006-D-0027修implies",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "D-0027修implies",
+   "created_at": "2026-10-21T20:10:06",
+   "file_count": 63
+  },
+  {
+   "name": "20261021-201104-D-0027落地校验补记",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "D-0027落地校验补记",
+   "created_at": "2026-10-21T20:11:04",
+   "file_count": 63
+  },
+  {
+   "name": "20261021-211027-D-0028六席定A",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "D-0028六席定A",
+   "created_at": "2026-10-21T21:10:27",
+   "file_count": 64
+  },
+  {
+   "name": "20261021-212305-实盘第二样本与costfix",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "实盘第二样本与costfix",
+   "created_at": "2026-10-21T21:23:05",
+   "file_count": 64
+  },
+  {
+   "name": "20261021-213856-字段溯源与daily_pnl根治",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "字段溯源与daily_pnl根治",
+   "created_at": "2026-10-21T21:38:56",
+   "file_count": 65
+  },
+  {
+   "name": "20261022-072521-券商对照B系列",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "券商对照B系列",
+   "created_at": "2026-10-22T07:25:21",
+   "file_count": 65
+  },
+  {
+   "name": "20261022-073405-股息入账归类",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "股息入账归类",
+   "created_at": "2026-10-22T07:34:05",
+   "file_count": 65
+  },
+  {
+   "name": "20261022-075409-dashboard死读修复",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "dashboard死读修复",
+   "created_at": "2026-10-22T07:54:09",
+   "file_count": 65
+  },
+  {
+   "name": "20261022-080729-盘前不抹daily_pnl",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "盘前不抹daily_pnl",
+   "created_at": "2026-10-22T08:07:29",
+   "file_count": 65
+  },
+  {
+   "name": "20261022-105310-报告脱敏工具",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "报告脱敏工具",
+   "created_at": "2026-10-22T10:53:10",
+   "file_count": 66
+  },
+  {
+   "name": "20261022-110635-自洽扫描接流程",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "自洽扫描接流程",
+   "created_at": "2026-10-22T11:06:35",
+   "file_count": 66
+  },
+  {
+   "name": "20261022-111234-kind与标识规范化",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "kind与标识规范化",
+   "created_at": "2026-10-22T11:12:34",
+   "file_count": 67
+  },
+  {
+   "name": "20261022-113105-接手验收与使用者判定",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "接手验收与使用者判定",
+   "created_at": "2026-10-22T11:31:05",
+   "file_count": 69
+  },
+  {
+   "name": "20261022-120237-更正使用者判定",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "更正使用者判定",
+   "created_at": "2026-10-22T12:02:37",
+   "file_count": 69
+  },
+  {
+   "name": "20261022-120658-自治团队方案v1",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "自治团队方案v1",
+   "created_at": "2026-10-22T12:06:59",
+   "file_count": 69
+  },
+  {
+   "name": "20261022-123120-方案审计存档",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "方案审计存档",
+   "created_at": "2026-10-22T12:31:20",
+   "file_count": 69
+  },
+  {
+   "name": "20261022-124305-开源方案调研",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "开源方案调研",
+   "created_at": "2026-10-22T12:43:05",
+   "file_count": 69
+  },
+  {
+   "name": "20261022-124807-调研v2与需求判定",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "调研v2与需求判定",
+   "created_at": "2026-10-22T12:48:07",
+   "file_count": 69
+  },
+  {
+   "name": "20261022-125527-最终方案整合",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "最终方案整合",
+   "created_at": "2026-10-22T12:55:27",
+   "file_count": 69
+  },
+  {
+   "name": "20261022-125851-D-0030终审权",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "D-0030终审权",
+   "created_at": "2026-10-22T12:58:51",
+   "file_count": 70
+  },
+  {
+   "name": "20261022-134238-阶段0-2落地",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "阶段0-2落地",
+   "created_at": "2026-10-22T13:42:38",
+   "file_count": 75
+  },
+  {
+   "name": "20261022-134351-三轨指标与探针校准",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "三轨指标与探针校准",
+   "created_at": "2026-10-22T13:43:51",
+   "file_count": 75
+  },
+  {
+   "name": "20261022-143000-开轮前闸门",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "开轮前闸门",
+   "created_at": "2026-10-22T14:30:00",
+   "file_count": 76
+  },
+  {
+   "name": "20261022-152145-单模型定位与闸门修正",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "单模型定位与闸门修正",
+   "created_at": "2026-10-22T15:21:45",
+   "file_count": 77
+  },
+  {
+   "name": "20261022-153250-多模型调研与D-0036更正",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "多模型调研与D-0036更正",
+   "created_at": "2026-10-22T15:32:50",
+   "file_count": 78
+  },
+  {
+   "name": "20261022-154027-D-0037路由不可验证",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "D-0037路由不可验证",
+   "created_at": "2026-10-22T15:40:27",
+   "file_count": 79
+  },
+  {
+   "name": "20261022-160146-扣费信号更正",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "扣费信号更正",
+   "created_at": "2026-10-22T16:01:46",
+   "file_count": 80
+  },
+  {
+   "name": "20261022-160507-多模型首轮实测",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "多模型首轮实测",
+   "created_at": "2026-10-22T16:05:07",
+   "file_count": 81
+  },
+  {
+   "name": "20261022-161008-停止证明路由",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "停止证明路由",
+   "created_at": "2026-10-22T16:10:08",
+   "file_count": 82
+  },
+  {
+   "name": "20261022-161757-多角色定论",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "多角色定论",
+   "created_at": "2026-10-22T16:17:57",
+   "file_count": 83
+  },
+  {
+   "name": "20261022-162402-提问设计复盘",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "提问设计复盘",
+   "created_at": "2026-10-22T16:24:02",
+   "file_count": 83
+  },
+  {
+   "name": "20261022-162704-多角色价值实测",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "多角色价值实测",
+   "created_at": "2026-10-22T16:27:04",
+   "file_count": 84
+  },
+  {
+   "name": "20261022-163313-角色覆盖度补齐",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "角色覆盖度补齐",
+   "created_at": "2026-10-22T16:33:13",
+   "file_count": 84
+  },
+  {
+   "name": "20261022-172148-评分表v2",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "评分表v2",
+   "created_at": "2026-10-22T17:21:48",
+   "file_count": 84
+  },
+  {
+   "name": "20261022-172753-评分表v3定稿",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "评分表v3定稿",
+   "created_at": "2026-10-22T17:27:53",
+   "file_count": 85
+  },
+  {
+   "name": "20261022-173106-计划前置",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "计划前置",
+   "created_at": "2026-10-22T17:31:07",
+   "file_count": 86
+  },
+  {
+   "name": "20261022-180037-规则审计全自动",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "规则审计全自动",
+   "created_at": "2026-10-22T18:00:37",
+   "file_count": 86
+  },
+  {
+   "name": "20261022-182548-两阶段协议v1",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "两阶段协议v1",
+   "created_at": "2026-10-22T18:25:48",
+   "file_count": 86
+  },
+  {
+   "name": "20261022-184924-全对话审计",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "全对话审计",
+   "created_at": "2026-10-22T18:49:24",
+   "file_count": 86
+  },
+  {
+   "name": "20261022-190753-续接摘要",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "续接摘要",
+   "created_at": "2026-10-22T19:07:53",
+   "file_count": 86
+  },
+  {
+   "name": "20261022-195140-P0五条修复",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "P0五条修复",
+   "created_at": "2026-10-22T19:51:40",
+   "file_count": 86
+  },
+  {
+   "name": "20261022-195221-P0五条修复+记录",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "P0五条修复+记录",
+   "created_at": "2026-10-22T19:52:21",
+   "file_count": 86
+  },
+  {
+   "name": "20261022-195243-P0五条修复+记录v2",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "P0五条修复+记录v2",
+   "created_at": "2026-10-22T19:52:43",
+   "file_count": 86
+  },
+  {
+   "name": "20261022-200633-八角命令",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "八角命令",
+   "created_at": "2026-10-22T20:06:33",
+   "file_count": 87
+  },
+  {
+   "name": "20261022-225311-八角首次真跑",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "八角首次真跑",
+   "created_at": "2026-10-22T22:53:11",
+   "file_count": 87
+  },
+  {
+   "name": "20261022-231530-判据补丁",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "判据补丁",
+   "created_at": "2026-10-22T23:15:30",
+   "file_count": 87
+  },
+  {
+   "name": "20261022-232410-score幂等修复",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "score幂等修复",
+   "created_at": "2026-10-22T23:24:10",
+   "file_count": 87
+  },
+  {
+   "name": "20261022-233526-八角影子运行第1次",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "八角影子运行第1次",
+   "created_at": "2026-10-22T23:35:26",
+   "file_count": 87
+  },
+  {
+   "name": "20261023-080142-evidence占位检测",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "evidence占位检测",
+   "created_at": "2026-10-23T08:01:42",
+   "file_count": 87
+  },
+  {
+   "name": "20261023-080153-evidence占位检测v2",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "evidence占位检测v2",
+   "created_at": "2026-10-23T08:01:53",
+   "file_count": 87
+  },
+  {
+   "name": "20261023-173649-独立化_git+工程外壳+解耦+基线迁移",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "独立化：git+工程外壳+解耦+基线迁移",
+   "created_at": "2026-10-23T17:36:49",
+   "file_count": 87
+  },
+  {
+   "name": "20261023-173800-文档补正+快照迁移",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "文档补正+快照迁移",
+   "created_at": "2026-10-23T17:38:00",
+   "file_count": 87
+  },
+  {
+   "name": "20261023-175428-审计修复S1S2M1",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "审计修复S1S2M1",
+   "created_at": "2026-10-23T17:54:28",
+   "file_count": 87
+  },
+  {
+   "name": "20261023-175436-同步MANIFEST数字",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "同步MANIFEST数字",
+   "created_at": "2026-10-23T17:54:36",
+   "file_count": 87
+  },
+  {
+   "name": "20261023-181616-快照保留策略M2",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "快照保留策略M2",
+   "created_at": "2026-10-23T18:16:16",
+   "file_count": 87
+  },
+  {
+   "name": "20261023-183058-遗留项收口-M3M4-A系列",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "遗留项收口-M3M4-A系列",
+   "created_at": "2026-10-23T18:30:58",
+   "file_count": 87
+  },
+  {
+   "name": "20261023-183340-脱敏修复与计数门禁",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "脱敏修复与计数门禁",
+   "created_at": "2026-10-23T18:33:40",
+   "file_count": 87
+  },
+  {
+   "name": "20261023-184052-params_fail-closed",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "params fail-closed",
+   "created_at": "2026-10-23T18:40:52",
+   "file_count": 87
+  },
+  {
+   "name": "20261023-184124-目标机清单澄清",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "目标机清单澄清",
+   "created_at": "2026-10-23T18:41:24",
+   "file_count": 87
+  },
+  {
+   "name": "20261023-185214-D-0045_整库私有",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "D-0045 整库私有",
+   "created_at": "2026-10-23T18:52:14",
+   "file_count": 88
+  },
+  {
+   "name": "20261023-185303-D-0045_备份落盘",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "D-0045 备份落盘",
+   "created_at": "2026-10-23T18:53:03",
+   "file_count": 88
+  },
+  {
+   "name": "20261023-185326-D-0045_备份数据核对",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "D-0045 备份数据核对",
+   "created_at": "2026-10-23T18:53:26",
+   "file_count": 88
+  },
+  {
+   "name": "20261023-190337-D-0045_改推私有远端",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "D-0045 改推私有远端",
+   "created_at": "2026-10-23T19:03:37",
+   "file_count": 88
+  },
+  {
+   "name": "20261023-190437-D-0045_推送验收",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "D-0045 推送验收",
+   "created_at": "2026-10-23T19:04:37",
+   "file_count": 88
+  },
+  {
+   "name": "20261023-190839-pre-push_闸门",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "pre-push 闸门",
+   "created_at": "2026-10-23T19:08:39",
+   "file_count": 89
+  },
+  {
+   "name": "20261023-190901-pre-push_自检样本",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "pre-push 自检样本",
+   "created_at": "2026-10-23T19:09:01",
+   "file_count": 89
+  },
+  {
+   "name": "20261023-190958-私钥模式收紧",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "私钥模式收紧",
+   "created_at": "2026-10-23T19:09:58",
+   "file_count": 89
+  },
+  {
+   "name": "20261023-192622-make_backup_固化",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "make backup 固化",
+   "created_at": "2026-10-23T19:26:22",
+   "file_count": 90
+  },
+  {
+   "name": "20261023-192650-备份脚本去破坏性调用",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "备份脚本去破坏性调用",
+   "created_at": "2026-10-23T19:26:50",
+   "file_count": 90
+  },
+  {
+   "name": "20261023-192731-备份周期化",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "备份周期化",
+   "created_at": "2026-10-23T19:27:31",
+   "file_count": 90
+  },
+  {
+   "name": "20261023-192937-N_N_声明纳入门禁",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "N/N 声明纳入门禁",
+   "created_at": "2026-10-23T19:29:37",
+   "file_count": 90
+  },
+  {
+   "name": "20261023-193031-交接项数修正",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "交接项数修正",
+   "created_at": "2026-10-23T19:30:31",
+   "file_count": 90
+  },
+  {
+   "name": "20261023-204724-钩子检查与CI",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "钩子检查与CI",
+   "created_at": "2026-10-23T20:47:24",
+   "file_count": 91
+  },
+  {
+   "name": "20261023-205352-CI首跑修正",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "CI首跑修正",
+   "created_at": "2026-10-23T20:53:52",
+   "file_count": 91
+  },
+  {
+   "name": "20261023-205458-CI二次运行绿",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "CI二次运行绿",
+   "created_at": "2026-10-23T20:54:58",
+   "file_count": 91
+  },
+  {
+   "name": "20261023-205649-备份清单修正",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "备份清单修正",
+   "created_at": "2026-10-23T20:56:49",
+   "file_count": 91
+  },
+  {
+   "name": "20261023-211036-接手项数入E项",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "接手项数入E项",
+   "created_at": "2026-10-23T21:10:36",
+   "file_count": 92
+  },
+  {
+   "name": "20261023-211244-行数表入B项",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "行数表入B项",
+   "created_at": "2026-10-23T21:12:44",
+   "file_count": 93
+  },
+  {
+   "name": "20261023-214037-代码审查A+B",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "代码审查A+B",
+   "created_at": "2026-10-23T21:40:37",
+   "file_count": 94
+  },
+  {
+   "name": "20261023-214118-原子写去删除",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "原子写去删除",
+   "created_at": "2026-10-23T21:41:18",
+   "file_count": 94
+  },
+  {
+   "name": "20261023-214302-D-0049记录",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "D-0049记录",
+   "created_at": "2026-10-23T21:43:02",
+   "file_count": 95
+  },
+  {
+   "name": "20261023-221913-审查修正",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "审查修正",
+   "created_at": "2026-10-23T22:19:13",
+   "file_count": 95
+  },
+  {
+   "name": "20261023-222044-C批",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "C批",
+   "created_at": "2026-10-23T22:20:44",
+   "file_count": 95
+  },
+  {
+   "name": "20261023-222114-C批落地",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "C批落地",
+   "created_at": "2026-10-23T22:21:14",
+   "file_count": 95
+  },
+  {
+   "name": "20261023-222152-C批记录",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "C批记录",
+   "created_at": "2026-10-23T22:21:52",
+   "file_count": 96
+  },
+  {
+   "name": "20261023-225208-覆盖率基线",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "覆盖率基线",
+   "created_at": "2026-10-23T22:52:08",
+   "file_count": 97
+  },
+  {
+   "name": "20261023-225234-覆盖率基线复核",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "覆盖率基线复核",
+   "created_at": "2026-10-23T22:52:34",
+   "file_count": 97
+  },
+  {
+   "name": "20261023-232802-校准集扩样36",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "校准集扩样36",
+   "created_at": "2026-10-23T23:28:02",
+   "file_count": 98
+  },
+  {
+   "name": "20261023-232933-校准集扩样36",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "校准集扩样36",
+   "created_at": "2026-10-23T23:29:33",
+   "file_count": 98
+  },
+  {
+   "name": "20261023-233627-方案订正",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "方案订正",
+   "created_at": "2026-10-23T23:36:27",
+   "file_count": 98
+  },
+  {
+   "name": "20261023-234558-F项扩根级",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "F项扩根级",
+   "created_at": "2026-10-23T23:45:58",
+   "file_count": 99
+  },
+  {
+   "name": "20261023-234652-F项决策",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "F项决策",
+   "created_at": "2026-10-23T23:46:52",
+   "file_count": 99
+  },
+  {
+   "name": "20261024-003158-四项口径落定",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "四项口径落定",
+   "created_at": "2026-10-24T00:31:58",
+   "file_count": 101
+  },
+  {
+   "name": "20261024-003330-四项口径落定",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "四项口径落定",
+   "created_at": "2026-10-24T00:33:30",
+   "file_count": 101
+  },
+  {
+   "name": "20261024-004221-单agent基线",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "单agent基线",
+   "created_at": "2026-10-24T00:42:21",
+   "file_count": 102
+  },
+  {
+   "name": "20261024-005414-基线扩样30题",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "基线扩样30题",
+   "created_at": "2026-10-24T00:54:14",
+   "file_count": 103
+  },
+  {
+   "name": "20261024-010529-备份口径修正",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "备份口径修正",
+   "created_at": "2026-10-24T01:05:29",
+   "file_count": 103
+  },
+  {
+   "name": "20261024-063939-审阅清单",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "审阅清单",
+   "created_at": "2026-10-24T06:39:39",
+   "file_count": 103
+  },
+  {
+   "name": "20261024-065004-用户更正真值",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "用户更正真值",
+   "created_at": "2026-10-24T06:50:04",
+   "file_count": 103
+  },
+  {
+   "name": "20261024-065322-规则性质三段式",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "规则性质三段式",
+   "created_at": "2026-10-24T06:53:22",
+   "file_count": 103
+  },
+  {
+   "name": "20261024-065751-L-0016资格型规则",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "L-0016资格型规则",
+   "created_at": "2026-10-24T06:57:51",
+   "file_count": 103
+  },
+  {
+   "name": "20261024-070114-题库冻结v1",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "题库冻结v1",
+   "created_at": "2026-10-24T07:01:14",
+   "file_count": 104
+  },
+  {
+   "name": "20261024-070359-对照实验设计",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "对照实验设计",
+   "created_at": "2026-10-24T07:03:59",
+   "file_count": 105
+  },
+  {
+   "name": "20261024-073747",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "",
+   "created_at": "2026-10-24T07:37:47",
+   "file_count": 106
+  },
+  {
+   "name": "20261024-075033",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "",
+   "created_at": "2026-10-24T07:50:33",
+   "file_count": 107
+  },
+  {
+   "name": "20261024-081441",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "",
+   "created_at": "2026-10-24T08:14:41",
+   "file_count": 107
+  },
+  {
+   "name": "20261024-081612",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "",
+   "created_at": "2026-10-24T08:16:12",
+   "file_count": 107
+  },
+  {
+   "name": "20261024-082123",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "",
+   "created_at": "2026-10-24T08:21:23",
+   "file_count": 108
+  },
+  {
+   "name": "20261024-082820",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "",
+   "created_at": "2026-10-24T08:28:20",
+   "file_count": 109
+  },
+  {
+   "name": "20261024-083808",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "",
+   "created_at": "2026-10-24T08:38:08",
+   "file_count": 109
+  },
+  {
+   "name": "20261024-084503",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "",
+   "created_at": "2026-10-24T08:45:03",
+   "file_count": 110
+  },
+  {
+   "name": "20261024-091245",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "",
+   "created_at": "2026-10-24T09:12:45",
+   "file_count": 113
+  },
+  {
+   "name": "20261024-100551",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "",
+   "created_at": "2026-10-24T10:05:51",
+   "file_count": 114
+  },
+  {
+   "name": "20261024-110011",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "",
+   "created_at": "2026-10-24T11:00:11",
+   "file_count": 114
+  },
+  {
+   "name": "20261024-115045",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "",
+   "created_at": "2026-10-24T11:50:45",
+   "file_count": 114
+  },
+  {
+   "name": "20261024-125317",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "",
+   "created_at": "2026-10-24T12:53:17",
+   "file_count": 115
+  },
+  {
+   "name": "20261024-151213",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "",
+   "created_at": "2026-10-24T15:12:13",
+   "file_count": 116
+  },
+  {
+   "name": "20261024-160544",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "",
+   "created_at": "2026-10-24T16:05:44",
+   "file_count": 116
+  },
+  {
+   "name": "20261024-160859",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "",
+   "created_at": "2026-10-24T16:08:59",
+   "file_count": 117
+  },
+  {
+   "name": "20261024-214628",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "",
+   "created_at": "2026-10-24T21:46:29",
+   "file_count": 117
+  },
+  {
+   "name": "20261025-064718",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "",
+   "created_at": "2026-10-25T06:47:19",
+   "file_count": 117
+  },
+  {
+   "name": "20261025-064917",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "",
+   "created_at": "2026-10-25T06:49:17",
+   "file_count": 117
+  },
+  {
+   "name": "20261025-064959",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "",
+   "created_at": "2026-10-25T06:49:59",
+   "file_count": 117
+  },
+  {
+   "name": "20261025-065025",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "",
+   "created_at": "2026-10-25T06:50:25",
+   "file_count": 117
+  },
+  {
+   "name": "20261025-065045",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "",
+   "created_at": "2026-10-25T06:50:45",
+   "file_count": 117
+  },
+  {
+   "name": "20261025-082439",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "",
+   "created_at": "2026-10-25T08:24:39",
+   "file_count": 117
+  },
+  {
+   "name": "20261025-083459",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "",
+   "created_at": "2026-10-25T08:34:59",
+   "file_count": 118
+  },
+  {
+   "name": "20261025-083540",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "",
+   "created_at": "2026-10-25T08:35:40",
+   "file_count": 118
+  },
+  {
+   "name": "20261025-083632",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "",
+   "created_at": "2026-10-25T08:36:32",
+   "file_count": 118
+  },
+  {
+   "name": "20261025-083808",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "",
+   "created_at": "2026-10-25T08:38:08",
+   "file_count": 118
+  },
+  {
+   "name": "20261025-083850",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "",
+   "created_at": "2026-10-25T08:38:50",
+   "file_count": 118
+  },
+  {
+   "name": "20261025-083917",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "",
+   "created_at": "2026-10-25T08:39:17",
+   "file_count": 118
+  },
+  {
+   "name": "20261025-083956",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "",
+   "created_at": "2026-10-25T08:39:56",
+   "file_count": 118
+  },
+  {
+   "name": "20261025-084031",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "",
+   "created_at": "2026-10-25T08:40:31",
+   "file_count": 118
+  },
+  {
+   "name": "20261025-084422-caller-痕迹实测",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "caller-痕迹实测",
+   "created_at": "2026-10-25T08:44:22",
+   "file_count": 118
+  },
+  {
+   "name": "20261025-084437",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "",
+   "created_at": "2026-10-25T08:44:37",
+   "file_count": 118
+  },
+  {
+   "name": "20261025-084524",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "",
+   "created_at": "2026-10-25T08:45:24",
+   "file_count": 118
+  },
+  {
+   "name": "20261025-204102",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "",
+   "created_at": "2026-10-25T20:41:02",
+   "file_count": 118
+  },
+  {
+   "name": "20261025-204214",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "",
+   "created_at": "2026-10-25T20:42:14",
+   "file_count": 118
+  },
+  {
+   "name": "20261026-071347",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "",
+   "created_at": "2026-10-26T07:13:47",
+   "file_count": 119
+  },
+  {
+   "name": "20261026-074155",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "",
+   "created_at": "2026-10-26T07:41:55",
+   "file_count": 120
+  },
+  {
+   "name": "20261026-074238",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "",
+   "created_at": "2026-10-26T07:42:38",
+   "file_count": 120
+  },
+  {
+   "name": "20261026-082631",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "",
+   "created_at": "2026-10-26T08:26:31",
+   "file_count": 122
+  },
+  {
+   "name": "20261026-083625",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "",
+   "created_at": "2026-10-26T08:36:25",
+   "file_count": 122
+  },
+  {
+   "name": "20261026-083653",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "",
+   "created_at": "2026-10-26T08:36:53",
+   "file_count": 122
+  },
+  {
+   "name": "20261026-083739",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "",
+   "created_at": "2026-10-26T08:37:39",
+   "file_count": 122
+  },
+  {
+   "name": "20261026-083812",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "",
+   "created_at": "2026-10-26T08:38:13",
+   "file_count": 122
+  },
+  {
+   "name": "20261026-085231",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "",
+   "created_at": "2026-10-26T08:52:31",
+   "file_count": 122
+  },
+  {
+   "name": "20261026-111549",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "",
+   "created_at": "2026-10-26T11:15:50",
+   "file_count": 122
+  },
+  {
+   "name": "20261026-111612",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "",
+   "created_at": "2026-10-26T11:16:12",
+   "file_count": 122
+  },
+  {
+   "name": "20261026-112934",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "",
+   "created_at": "2026-10-26T11:29:34",
+   "file_count": 122
+  },
+  {
+   "name": "20261026-113314",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "",
+   "created_at": "2026-10-26T11:33:14",
+   "file_count": 122
+  },
+  {
+   "name": "20261026-121604",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "",
+   "created_at": "2026-10-26T12:16:04",
+   "file_count": 122
+  },
+  {
+   "name": "20261026-184820",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "",
+   "created_at": "2026-10-26T18:48:20",
+   "file_count": 122
+  },
+  {
+   "name": "20261026-184911",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "",
+   "created_at": "2026-10-26T18:49:11",
+   "file_count": 122
+  },
+  {
+   "name": "20261026-185340",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "",
+   "created_at": "2026-10-26T18:53:40",
+   "file_count": 122
+  },
+  {
+   "name": "20261026-190219",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "",
+   "created_at": "2026-10-26T19:02:19",
+   "file_count": 122
+  },
+  {
+   "name": "20261026-190521",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "",
+   "created_at": "2026-10-26T19:05:21",
+   "file_count": 123
+  },
+  {
+   "name": "20261026-191201",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "",
+   "created_at": "2026-10-26T19:12:01",
+   "file_count": 125
+  },
+  {
+   "name": "20261026-191847",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "",
+   "created_at": "2026-10-26T19:18:47",
+   "file_count": 125
+  },
+  {
+   "name": "20261026-191900",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "",
+   "created_at": "2026-10-26T19:19:00",
+   "file_count": 125
+  },
+  {
+   "name": "20261026-191951",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "",
+   "created_at": "2026-10-26T19:19:51",
+   "file_count": 125
+  },
+  {
+   "name": "20261026-194119",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "",
+   "created_at": "2026-10-26T19:41:19",
+   "file_count": 125
+  },
+  {
+   "name": "20261026-194151",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "",
+   "created_at": "2026-10-26T19:41:51",
+   "file_count": 125
+  },
+  {
+   "name": "20261026-213016",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "",
+   "created_at": "2026-10-26T21:30:16",
+   "file_count": 125
+  },
+  {
+   "name": "20261026-214529",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "",
+   "created_at": "2026-10-26T21:45:29",
+   "file_count": 126
+  },
+  {
+   "name": "20261027-081506",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "",
+   "created_at": "2026-10-27T08:15:06",
+   "file_count": 126
+  },
+  {
+   "name": "20261027-145539",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "",
+   "created_at": "2026-10-27T14:55:39",
+   "file_count": 126
+  },
+  {
+   "name": "20261027-161619",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "",
+   "created_at": "2026-10-27T16:16:20",
+   "file_count": 126
+  },
+  {
+   "name": "20261027-161632",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "",
+   "created_at": "2026-10-27T16:16:32",
+   "file_count": 126
+  },
+  {
+   "name": "20261027-162258",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "",
+   "created_at": "2026-10-27T16:22:58",
+   "file_count": 126
+  },
+  {
+   "name": "20261027-162309",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "",
+   "created_at": "2026-10-27T16:23:09",
+   "file_count": 126
+  },
+  {
+   "name": "20261027-195215",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "",
+   "created_at": "2026-10-27T19:52:15",
+   "file_count": 126
+  },
+  {
+   "name": "20261027-225216",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "",
+   "created_at": "2026-10-27T22:52:16",
+   "file_count": 126
+  },
+  {
+   "name": "20261027-225246",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "",
+   "created_at": "2026-10-27T22:52:46",
+   "file_count": 126
+  },
+  {
+   "name": "20261027-234836-round13两席重跑",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "round13两席重跑",
+   "created_at": "2026-10-27T23:48:36",
+   "file_count": 127
+  },
+  {
+   "name": "20261027-235000-round13两席重跑-文档同步",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "round13两席重跑-文档同步",
+   "created_at": "2026-10-27T23:50:00",
+   "file_count": 127
+  },
+  {
+   "name": "20261027-235026-round13两席重跑-README同步",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "round13两席重跑-README同步",
+   "created_at": "2026-10-27T23:50:26",
+   "file_count": 127
+  },
+  {
+   "name": "20261027-235045-round13两席重跑-D0073",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "round13两席重跑-D0073",
+   "created_at": "2026-10-27T23:50:45",
+   "file_count": 127
+  },
+  {
+   "name": "20261027-235111-round13两席重跑-ARCH同步",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "round13两席重跑-ARCH同步",
+   "created_at": "2026-10-27T23:51:11",
+   "file_count": 127
+  },
+  {
+   "name": "20261027-235327-round13两席重跑-交接摘要",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "round13两席重跑-交接摘要",
+   "created_at": "2026-10-27T23:53:27",
+   "file_count": 127
+  },
+  {
+   "name": "20261028-002835-题库v1.2并入",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "题库v1.2并入",
+   "created_at": "2026-10-28T00:28:35",
+   "file_count": 128
+  },
+  {
+   "name": "20261028-003326-round13重判",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "round13重判",
+   "created_at": "2026-10-28T00:33:26",
+   "file_count": 129
+  },
+  {
+   "name": "20261028-003415-round13重判-补充说明",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "round13重判-补充说明",
+   "created_at": "2026-10-28T00:34:16",
+   "file_count": 129
+  },
+  {
+   "name": "20261028-004024-round4补状态",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "round4补状态",
+   "created_at": "2026-10-28T00:40:24",
+   "file_count": 129
+  },
+  {
+   "name": "20261028-004751-遗留项定性结案",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "遗留项定性结案",
+   "created_at": "2026-10-28T00:47:51",
+   "file_count": 131
+  },
+  {
+   "name": "20261028-081856-审计遗留四项修复",
+   "location": "snapshots",
+   "in_git": true,
+   "label": "审计遗留四项修复",
+   "created_at": "2026-10-28T08:18:56",
+   "file_count": 132
+  },
+  {
+   "name": "20261028-081910-文档行数同步",
+   "location": "snapshots",
+   "in_git": true,
+   "label": "文档行数同步",
+   "created_at": "2026-10-28T08:19:10",
+   "file_count": 132
+  },
+  {
+   "name": "20261028-081922-依赖文档计数同步",
+   "location": "snapshots",
+   "in_git": true,
+   "label": "依赖文档计数同步",
+   "created_at": "2026-10-28T08:19:22",
+   "file_count": 132
+  }
+ ]
+}

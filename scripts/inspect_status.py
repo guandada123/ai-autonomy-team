@@ -11,8 +11,24 @@
 ## 输出（只读，不写任何文件）
 
 逐轮打印：answer-final 是否存在 / aggregation_inputs 席位与状态 / answer-status /
-metrics.flip_rate / verdict(pending, veto_deadline) / 违规律 / S8-1 泄漏。末尾汇总：
+**current state（当前状态）** / metrics.flip_rate / verdict(pending, veto_deadline) /
+违规律 / S8-1 泄漏。末尾汇总：
 LEAK SUMMARY、缺 aggregation_inputs 的轮次、人类闸门、flip_rate 明细、无 answer-final 的轮次。
+
+## 2026-10-28（D-0078）：新增 `current state` 行，verdict 行标「判据侧快照」
+
+**病**：`verdict-layered.json` / `pending-adjudication.json` 是 `verify.py` **判据侧**的产物，
+其 `verdict=pending_adjudication` 的语义是「当时有 N 个判断项等人签字」（协议 05 §3：
+未裁决≠失败）。裁决落盘后当前状态在 `answer-status.json` 的 `adjudication_state`，
+而这两份旧产物**按设计不改写**（改它等于把「当时待裁什么」改写成事后结论）。
+结果是本脚本只打 verdict 行时，**29 轮已裁决的轮次看起来全是未裁决**（round13 只是被
+人眼发现的其中一个，不是特例）——「聚合噪声掩盖单点」的典型。
+
+**修**：新增 `current state:` 行，**以 `answer-status.json` 为唯一真源**；verdict 行保留
+（它是历史事实），但标注 `(判据侧快照 @ts)`，与当前态冲突时追加 `← 已被 ... 取代`。
+**不覆盖任何文件**，只改显示口径。
+
+★ 这条不是「round13 的特例处理」：同一缺陷覆盖全部 29 轮，特例化会留下 28 个同形隐患。
 
 ## 判据（预注册，不得事后解释）
 
@@ -24,13 +40,28 @@ LEAK SUMMARY、缺 aggregation_inputs 的轮次、人类闸门、flip_rate 明�
 
 ## 退出码
 
-恒 0（报告型工具；是否异常由读输出的人/自动化判断，避免"恒红=噪音"）。
+0 = 正常输出（报告型工具；是否异常由读输出的人/自动化判断，避免"恒红=噪音"）。
+2 = 参数/目录错误（`--runs` 指向不存在目录）—— 加了参数就要有参数错误，
+    否则「路径写错」会静默变成「0 轮、一切正常」。
 """
-import json, os, glob, sys
+import argparse, json, os, glob, sys
 from pathlib import Path
 
 RUNS = Path(__file__).resolve().parent.parent / "migration-package" / "runs"
 THRESHOLD = 0.4
+
+# ★ `--runs`（2026-10-28，D-0078）：默认仍是真实 runs 目录，行为不变。
+#   存在的理由是**可证伪**：`current state` 的判据必须能在合成样本上被击破
+#   （已裁决+verdict 自称 pending / 无 answer-status / 非 verify.py 版式三种），
+#   否则只能靠「今天正好有一轮是这样」来验证 —— 那等于没有判据。
+#   与 inspection_watch.py 的 `--runs` 同一先例（回归第 54 项亦因此而生）。
+_ap = argparse.ArgumentParser(description="把 runs/round* 的状态提取成可复算的事实层（只读）")
+_ap.add_argument("--runs", default=str(RUNS), help=f"runs 目录（默认 {RUNS}）")
+_args = _ap.parse_args()
+RUNS = Path(_args.runs).expanduser()
+if not RUNS.is_dir():
+    print(f"[ERR] runs 目录不存在：{RUNS}", file=sys.stderr)
+    sys.exit(2)
 
 def load(p):
     try:
@@ -124,6 +155,45 @@ def detect_leak(info):
             leaks.append((seat, input_shas[seat], entries))
     return leaks
 
+# ---- ①b current state: answer-status.json 是当前状态的唯一真源 ----
+# ★ 两套版式并存（2026-10-28 实测）：
+#   (a) verify.py 输出：`adjudication_state`（adjudicated / fail / pending / not_applicable）
+#       + provenance + answer/spec/record 三方 sha —— 29 轮是这个；
+#   (b) 人工闸门记录：round34 手写 `status: resolved_by_human` + resolution{}。
+#   只认 (a) 会把 round34 误报成「无 answer-status」——两套都要认，且要标明是哪套，
+#   否则「有文件」和「字段名不同」会混成同一个「未终态」。
+RESOLVED_STATES = ("adjudicated", "resolved_by_human", "not_applicable")
+
+
+def current_state(info):
+    """返回 (state|None, detail)。state=None 表示确实拿不到当前状态（不是"未裁决"）。"""
+    as_ = info.get("answer_status")
+    if not isinstance(as_, dict) or "__error__" in as_:
+        return (None, "无 answer-status.json —— 未终态")
+    st = as_.get("adjudication_state")
+    if st:
+        return (st, f"provenance={as_.get('provenance')}, ts={as_.get('ts')}，"
+                    f"源 answer-status.json[adjudication_state]")
+    st2 = as_.get("status")
+    if st2:
+        return (st2, f"ts={as_.get('ts')}，源 answer-status.json[status]"
+                     "（非 verify.py 版式：人工闸门记录，见其 resolution 段）")
+    return (None, "answer-status.json 存在但无 adjudication_state / status 字段（版式未知）")
+
+
+def annotate_verdict(v, cur_state):
+    """verdict 行的后缀：标明它是判据侧快照，并在与当前态冲突时点名取代者。
+
+    冲突判定只看「verdict 自称 pending_adjudication 且当前态已 resolved」这一种，
+    其余不改写 —— 少改一个字，就少一次误读。
+    """
+    ts = v.get("ts") or "?"
+    tag = f"（判据侧快照 @{ts}）"
+    if str(v.get("verdict")) == "pending_adjudication" and cur_state in RESOLVED_STATES:
+        tag += f" ← 已被 answer-status.json 的 {cur_state} 取代（非当前状态，勿据此人判未裁决）"
+    return tag
+
+
 # ---- iterate ----
 print("="*80)
 for rn in sorted(results):
@@ -140,6 +210,8 @@ for rn in sorted(results):
     if inputs is not None:
         print(f"    seats: {[ (i.get('seat'), i.get('seat_check_status')) for i in inputs if isinstance(i,dict)]}")
     print(f"  answer-status: {as_ if isinstance(as_, dict) else as_}")
+    cur_state, cur_detail = current_state(info)
+    print(f"  current state: {cur_state or '未终态'}（{cur_detail}）")
     # metrics flip rate
     frs = []
     for m in mets:
@@ -152,14 +224,28 @@ for rn in sorted(results):
     # verdicts
     for v in info["verdicts"]:
         if isinstance(v, dict):
-            print(f"  verdict[{v.get('spec_layer','?')}]: {v.get('verdict')} pending={v.get('pending')} veto_deadline={v.get('veto_deadline')}")
+            print(f"  verdict[{v.get('spec_layer','?')}]: {v.get('verdict')} pending={v.get('pending')} veto_deadline={v.get('veto_deadline')} {annotate_verdict(v, cur_state)}")
     if leak:
         print(f"  *** S8-1 LEAK: {leak}")
     if viol:
         print(f"  seat violations: {viol}")
 
 print("\n" + "="*80)
-print("LEAK SUMMARY:")
+print("CURRENT STATE SUMMARY（当前状态以 answer-status.json 为准，非 verdict 行）:")
+_adj = [rn for rn in sorted(results) if current_state(results[rn])[0] in RESOLVED_STATES]
+_unterm = [rn for rn in sorted(results) if not current_state(results[rn])[0]]
+_stale = [rn for rn in sorted(results)
+          if current_state(results[rn])[0] in RESOLVED_STATES
+          and any(isinstance(v, dict) and str(v.get("verdict")) == "pending_adjudication"
+                  for v in results[rn]["verdicts"])]
+print(f"  已 resolved（adjudicated / resolved_by_human / not_applicable）: {len(_adj)} 轮")
+print(f"  未终态（拿不到 answer-status 状态）: {len(_unterm)} 轮 → {_unterm or '无'}")
+print(f"  verdict 行自称 pending 但当前态已裁决: {len(_stale)} 轮 → {_stale or '无'}")
+if _stale:
+    print("    ★ 这是**已知显示现象**，不是待办：verdict-layered.json 是判据侧快照，裁决后不回写。")
+    print("      勿据此把任何一轮报成未裁决；要看异常去看 runs/<rn>/integrity-notes.json。")
+
+print("\nLEAK SUMMARY:")
 for rn in sorted(results):
     leak = detect_leak(results[rn])
     if leak:

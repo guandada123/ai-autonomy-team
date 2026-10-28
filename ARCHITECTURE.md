@@ -131,7 +131,7 @@
 
 | 模块 | 行数 | 检查什么 | 何时跑 |
 |---|---|---|---|
-| `regress.py` | 1043 || B 全量回归 | 调用 `regress.py` 55 项 | 改代码后没跑测试 |
+| `regress.py` | 1101 || B 全量回归 | 调用 `regress.py` 56 项 | 改代码后没跑测试 |
 | C 判据自检 | 判据用例自检 | 改了判据逻辑 |
 | D 包完整性 | `MANIFEST.json` 与包内逐字节一致 | 改了 `scripts/` 却没 `make package-apply` |
 | E 密钥扫描 | 用 `secret_patterns.py` 扫全仓 | 硬编码了 token |
@@ -159,7 +159,7 @@
 
 | 模块 | 行数 | 职责 |
 |---|---|---|
-| `snapshot_sources.py` | 411 || `secret_patterns.py` | 91 || `redact_report.py` | 248 || `field_provenance.py` | 177 | 字段溯源：这个字段谁在写 |
+| `snapshot_sources.py` | 535 || `secret_patterns.py` | 91 || `redact_report.py` | 248 || `field_provenance.py` | 177 | 字段溯源：这个字段谁在写 |
 | `canon.py` | 174 | 标识与词表规范化 |
 | `sync_doc_numbers.py` | 210 |---
 
@@ -190,9 +190,9 @@ ai-autonomy-team/
 ├── (无根 config/)             ← 契约参数物理在 migration-package/config/，勿在根找
 ├── docs/
 │   ├── protocol/              ← 7 份工作协议（规范正文）
-│   ├── decisions/             ← 76 份决策记录（编号到 D-0077；D-0017 未建）
+│   ├── decisions/             ← 77 份决策记录（编号到 D-0078；D-0017 未建）
 │   └── *.md                   ← 32 份分析/审计/复盘（历史存档）
-├── .learnings/                ← 32 条经验教训（L-XXXX，跨项目通用）
+├── .learnings/                ← 33 条经验教训（L-XXXX，跨项目通用）
 ├── templates/                 ← 席位提示词模板（new_round 渲染用）
 ├── fixtures/frozen/           ← ★ 冻结基线（regress 第 8 项依赖，必须入库）
 ├── snapshots/                 ← ★ 真源快照（H 项依赖；默认留最近 3 个，超出自动归档）

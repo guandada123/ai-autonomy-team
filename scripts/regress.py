@@ -1011,14 +1011,72 @@ def main():
             f"阳性 rc={r_pos} 含STILL={'STILL' in o_pos} / 阴性 rc={r_neg} / "
             f"活数据={'GONE' if 'GONE' in o_live else '非GONE'}")
 
-    # ==================== 第 55 项：回归幂等守门 ====================
+    # ==================== 第 55 项：inspect_status 的当前态口径 ====================
+    # ★ 2026-10-28（D-0078）。病：`verdict-layered.json` 是判据侧的**当时快照**，
+    #   裁决后不回写；脚本只打 verdict 行时，29 轮已裁决的轮次读起来全是「未裁决」。
+    #   round13 只是被人眼发现的那一个 —— 修特例会留下 28 个同形隐患，故修判据。
+    # ★ 可证伪性：三种版式各一个合成轮，全部**不依赖活数据**（活数据的分布会变，
+    #   判据若靠它续命，就不算判据）。三态缺任一即红：
+    #     roundA 已裁决 + verdict 自称 pending → 必须 adjudicated 且标「已被…取代」
+    #     roundB 无 answer-status            → 必须「未终态」
+    #     roundC 非 verify.py 版式(status)   → 必须认成 resolved_by_human（不得当未终态）
+    #   把 current_state 改回「优先读 verdict」→ roundA 立刻红，方向反了也红。
+    with tempfile.TemporaryDirectory(prefix="regress55-") as _td:
+        fx = Path(_td)
+        (fx / "roundA").mkdir()
+        (fx / "roundA" / "answer-status.json").write_text(json.dumps({
+            "adjudication_state": "adjudicated", "provenance": "native",
+            "ts": "2026-10-28T00:00:00+08:00"}), encoding="utf-8")
+        (fx / "roundA" / "verdict-layered.json").write_text(json.dumps({
+            "verdict": "pending_adjudication", "spec_layer": "all", "pending": [],
+            "summary": {"total": 1, "passed": 1, "failed": 0, "pending": 2},
+            "ts": "2026-10-20T14:19:53+08:00"}), encoding="utf-8")
+        (fx / "roundB").mkdir()
+        (fx / "roundB" / "verdict-layered.json").write_text(json.dumps({
+            "verdict": "pending_adjudication", "spec_layer": "all", "pending": [],
+            "summary": {"total": 1, "passed": 1, "failed": 0, "pending": 1},
+            "ts": "2026-10-20T14:19:53+08:00"}), encoding="utf-8")
+        (fx / "roundC").mkdir()
+        (fx / "roundC" / "answer-status.json").write_text(json.dumps({
+            "status": "resolved_by_human", "ts": "2026-10-24T00:29:35",
+            "resolution": {"by": "human:test"}}), encoding="utf-8")
+        (fx / "roundC" / "verdict-layered.json").write_text(json.dumps({
+            "verdict": "pass", "spec_layer": "all", "pending": [],
+            "summary": {"total": 1, "passed": 1, "failed": 0, "pending": 0},
+            "ts": "2026-10-24T00:29:35"}), encoding="utf-8")
+        r55, o55 = run(["scripts/inspect_status.py", "--runs", str(fx)])
+    # 按轮切段断言，避免「A 的字串被 B 的段满足」
+    # ★ 不能直接 `"未终态" in seg["roundC"]`：最后一段会一直延伸到文件末尾
+    #   （含 CURRENT STATE SUMMARY），而那段里就有"未终态"三个字 —— 第一版这么写
+    #   当场误判 C 为 False。断言必须落在**该轮自己的 current state 行**上。
+    seg = {}
+    for chunk in o55.split("### ")[1:]:
+        seg[chunk.split("\n", 1)[0].strip()] = chunk
+
+    def state_of(name):
+        for line in seg.get(name, "").splitlines():
+            if "current state:" in line:
+                return line.split("current state:", 1)[1].strip()
+        return "<无 current state 行>"
+
+    a_st, b_st, c_st = state_of("roundA"), state_of("roundB"), state_of("roundC")
+    a_ok = a_st.startswith("adjudicated") and "已被 answer-status.json 的 adjudicated 取代" in seg["roundA"]
+    b_ok = b_st.startswith("未终态")
+    c_ok = c_st.startswith("resolved_by_human")
+    sum_ok = "verdict 行自称 pending 但当前态已裁决: 1 轮" in o55
+    s.check(55, "inspect_status 当前态：已裁决+verdict自称pending / 无answer-status / 非verify版式 三态",
+            r55 == 0 and a_ok and b_ok and c_ok and sum_ok,
+            f"rc={r55} A={a_st[:20]} B={b_st[:12]} C={c_st[:24]} 汇总计数={sum_ok}")
+
+    # ==================== 第 56 项：回归幂等守门 ====================
     # ★ F11 的守门项。全部夹具项都已在上面跑完；若任何一项把机器产出写回了
     #   包内（而非 _trash/ 工作副本），包内 sha256 就会变，此条立刻变红。
     #   它把「回归套件是否自污染」从「靠人记得先重建 MANIFEST」变成可自动判定。
     #   2026-10-25：第 54 项插入后，本守门从 54 顺延为 55（沿用 D-0057 先例）。
+    #   2026-10-28：第 55 项（inspect_status 口径）插入后再次顺延为 56（同一先例）。
     rc, out = run(["gen_manifest.py", "--root", ".", "--check", "MANIFEST.json"], PKG)
     # 第 50/51/54 项只读或只写 _trash，故「包内是否被污染」的判定仍可放在最后
-    s.expect(55, "回归幂等（跑完后包内仍与 MANIFEST 一致）", rc, out, 0, "完全一致")
+    s.expect(56, "回归幂等（跑完后包内仍与 MANIFEST 一致）", rc, out, 0, "完全一致")
 
     ok_all = all(i["ok"] for i in s.items)
     npass = sum(1 for i in s.items if i["ok"])

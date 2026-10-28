@@ -144,6 +144,95 @@ def snapshot(label=""):
     return dst
 
 
+def catalog(out=None, quiet=False, snap_root=None, archive_root=None):
+    """把**全部**快照（入库的 + 归档的 + 已不在盘上的历史记录）写成一份入库清单。
+
+    ## 为什么需要（2026-10-28，D-0078）
+
+    `prune()` 把超期快照移到 `_trash/snapshots-archive/`（不入库）——字节留在本机，
+    但**git 里从此没有任何记录**：clone 一份新仓库，只看得到 3 个快照，看不出
+    历史上打过多少份、都叫什么、为什么消失。2026-10-28 审计把这条列为
+    「数据在盘上但失去 git 追溯」。
+
+    修法不是把字节搬回 git（74MB 且逐份近乎全同，会把仓库压垮），
+    而是**入库存清单**：名字 / 标签 / 时间 / 文件数 / 当前所在位置。
+
+    ## 累计而非快照式
+
+    清单会**合并**上一次的内容：某个快照若已从两个目录里都消失（人工清理过），
+    条目仍保留并标 `location="missing"` + 记下 `last_seen_location`。
+    若每次都只写"现在盘上有什么"，这份文件就只是 `ls` 的缓存，追溯价值为零。
+
+    ## 刻意不写 `generated_at`
+
+    每跑一次快照就改一行时间戳，等于每次提交都带一条无信息 diff（快照 churn 的
+    另一半）。"这份清单什么时候产生的"由 git 自己回答（commit 时间），不需要第
+    二个真源。
+
+    返回 (写入路径, 统计 dict)。
+    """
+    out = Path(out) if out else (SNAP_ROOT / "CATALOG.json")
+    sr = snap_root if snap_root is not None else SNAP_ROOT
+    ar = archive_root if archive_root is not None else ARCHIVE_ROOT
+    prev = {}
+    if out.is_file():
+        try:
+            for r in json.loads(out.read_text(encoding="utf-8")).get("snapshots") or []:
+                if r.get("name"):
+                    prev[r["name"]] = r
+        except (OSError, json.JSONDecodeError):
+            prev = {}
+
+    rows, seen = [], set()
+    for loc, root, in_git in (("snapshots", sr, True),
+                              ("_trash/snapshots-archive", ar, False)):
+        if not root.is_dir():
+            continue
+        for d in sorted([x for x in root.iterdir() if x.is_dir()]):
+            meta = {}
+            idx = d / "_index.json"
+            if idx.is_file():
+                try:
+                    meta = json.loads(idx.read_text(encoding="utf-8"))
+                except (OSError, json.JSONDecodeError):
+                    meta = {}
+            rows.append({"name": d.name, "location": loc, "in_git": in_git,
+                         "label": meta.get("label") or "",
+                         "created_at": meta.get("created_at") or "",
+                         "file_count": meta.get("file_count")})
+            seen.add(d.name)
+
+    missing = [prev[n] for n in sorted(prev) if n not in seen]
+    for r in missing:
+        rows.append({"name": r["name"], "location": "missing", "in_git": False,
+                     "label": r.get("label") or "", "created_at": r.get("created_at") or "",
+                     "file_count": r.get("file_count"),
+                     "last_seen_location": r.get("location"),
+                     "last_seen_label": r.get("label") or "",
+                     "last_seen_created_at": r.get("created_at") or ""})
+
+    rows.sort(key=lambda r: r["name"])
+    stat = {"in_git": sum(1 for r in rows if r["in_git"]),
+            "archived": sum(1 for r in rows if r["location"].startswith("_trash")),
+            "missing": len(missing), "total": len(rows)}
+    doc = {
+        "_note": ("快照目录清单（入库）。`snapshots/` 下的快照字节在 git 里；"
+                  "`_trash/snapshots-archive/` 下的只在本机盘上并被 ~/Backups 的 tar 覆盖。"
+                  "本文件回答「有过哪些快照、现在在哪」，不替代字节。"
+                  "location=missing 表示该快照已从两个目录消失（保留历史记录，不删条目）。"),
+        "_generated_by": "scripts/snapshot_sources.py --catalog",
+        "count": stat,
+        "snapshots": rows,
+    }
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(json.dumps(doc, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+    if not quiet:
+        print(f"[OK] 清单 {out.relative_to(ROOT) if out.is_relative_to(ROOT) else out}："
+              f"入库 {stat['in_git']} / 归档 {stat['archived']} / 缺失 {stat['missing']}"
+              f"（共 {stat['total']}）")
+    return out, stat
+
+
 def prune(keep=3, snap_root=None, archive_root=None, quiet=False):
     """只保留最近 keep 个快照在 snapshots/，其余移到归档目录。返回 (moved, kept)。
 
@@ -361,6 +450,33 @@ def self_test():
             (ar / "20260101-000000-z" / "marker.txt").read_text(encoding="utf-8") == "旧的那份",
         )
 
+        # ⑥ 清单（D-0078）：必须同时覆盖两个位置，且**保留已消失快照的记录**
+        #    判据看三件事：入库/归档/缺失计数各自对得上、鬼条目被标 missing、
+        #    排序确定。若把合并逻辑删掉（只写"现在盘上有什么"），鬼条目会消失 → 红。
+        (sr / "20260101-000003-c" / "_index.json").write_text(
+            json.dumps({"label": "标签C", "created_at": "2026-01-01T00:00:03",
+                        "file_count": 7}), encoding="utf-8")
+        cat_out = td / "CATALOG.json"
+        cat_out.write_text(json.dumps({"snapshots": [
+            {"name": "20200101-000000-ghost", "location": "_trash/snapshots-archive",
+             "label": "已消失的旧快照", "created_at": "2020-01-01T00:00:00",
+             "file_count": 5}]}, ensure_ascii=False), encoding="utf-8")
+        _, stat = catalog(cat_out, quiet=True, snap_root=sr, archive_root=ar)
+        doc = json.loads(cat_out.read_text(encoding="utf-8"))
+        rows = {r["name"]: r for r in doc["snapshots"]}
+        n_sr = len([d for d in sr.iterdir() if d.is_dir()])
+        n_ar = len([d for d in ar.iterdir() if d.is_dir()])
+        expect("清单：入库计数 = snapshots/ 目录数", stat["in_git"] == n_sr, f"{stat['in_git']} vs {n_sr}")
+        expect("清单：归档计数 = 归档目录数", stat["archived"] == n_ar, f"{stat['archived']} vs {n_ar}")
+        expect("清单：已消失快照仍留记录且标 missing",
+               rows.get("20200101-000000-ghost", {}).get("location") == "missing"
+               and rows["20200101-000000-ghost"].get("last_seen_label") == "已消失的旧快照")
+        expect("清单：index 元信息被带上",
+               rows.get("20260101-000003-c", {}).get("label") == "标签C"
+               and rows["20260101-000003-c"].get("file_count") == 7)
+        expect("清单：按名字排序（确定性）",
+               [r["name"] for r in doc["snapshots"]] == sorted(r["name"] for r in doc["snapshots"]))
+
     print()
     if fails:
         print(f"[FAIL] 自检未通过：{len(fails)}/{n_ok + len(fails)} 项失败")
@@ -386,6 +502,8 @@ def main():
                     help="打完不清理，保留全部（快照会持续累积，谨慎使用）")
     ap.add_argument("--self-test", action="store_true",
                     help="自检 prune 逻辑（用临时目录，不碰真实快照）")
+    ap.add_argument("--catalog", action="store_true",
+                    help="重建入库的快照清单 snapshots/CATALOG.json（只读快照目录）")
     args = ap.parse_args()
 
     if args.self_test:
@@ -399,11 +517,17 @@ def main():
         return mirror(args.mirror, args.mirror_all)
     if args.verify:
         return verify()
+    if args.catalog:
+        catalog()
+        return 0
     snapshot(args.label)
     if not args.no_prune:
         moved, _ = prune(args.prune_keep)
         if moved is None:          # keep 非法
             return 2
+    # 打完/移完立即刷新清单：清单若只在人工记得跑 --catalog 时更新，
+    # 它就会在上述 churn 之后立刻变成过期事实（正是本次要修的那个病）。
+    catalog()
     return 0
 
 
