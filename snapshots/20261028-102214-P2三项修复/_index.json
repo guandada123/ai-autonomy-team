@@ -1,6 +1,6 @@
 {
- "created_at": "2026-10-28T08:21:08",
- "label": "备份提醒改指retention",
+ "created_at": "2026-10-28T10:22:14",
+ "label": "P2三项修复",
  "file_count": 132,
  "files": {
   "scripts/build_package.py": {
@@ -72,8 +72,8 @@
    "bytes": 1750
   },
   "scripts/make_backup.py": {
-   "sha256": "a0a0831ca6f99c7d5463029f654b99ca7c591fb19e5e3c94729a7bdef25dac15",
-   "bytes": 20911
+   "sha256": "650bf240e02d908e258030758a97cbcb48e6ec9cd5ed4bfa9ef3c49cc7ee2abf",
+   "bytes": 22138
   },
   "scripts/make_fixtures.py": {
    "sha256": "1f7329d2cc180b6e9bfe982b65b9f519bfb31c513444f5207359faaae4cdff2e",
@@ -140,8 +140,8 @@
    "bytes": 4979
   },
   "scripts/snapshot_sources.py": {
-   "sha256": "f246bb1738be1ba1e8b71859cf7affe1eeb18c2f42e90527464af79909fa1b00",
-   "bytes": 24130
+   "sha256": "bfb83f3313317d2cecc49dcad5bdbd1009d0599bab2caa89134dba28f2fa1082",
+   "bytes": 25694
   },
   "scripts/spec_conformance.py": {
    "sha256": "689c30623c485830755308fccf673034d43b00e47af91d2ea5f62c94f8e0fdec",
@@ -533,8 +533,8 @@
   }
  },
  "caller": {
-  "pid": 38735,
-  "ppid": 38733,
-  "parent_cmd": "/bin/zsh -c . '/Users/guan/.workbuddy/shell-snapshots/snapshot-zsh-1793146307540-h2kjvr.sh' && if [ -n \"${CODEBUDDY_SAFE_DELETE_BIN_DIR:-}\" ]; then unalias rm unlink rmdir 2>/dev/null || true; unset -"
+  "pid": 9654,
+  "ppid": 9651,
+  "parent_cmd": "/bin/zsh -c . '/Users/guan/.workbuddy/shell-snapshots/snapshot-zsh-1793150459605-6vcet2.sh' && if [ -n \"${CODEBUDDY_SAFE_DELETE_BIN_DIR:-}\" ]; then unalias rm unlink rmdir 2>/dev/null || true; unset -"
  }
 }

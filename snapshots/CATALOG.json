@@ -3,9 +3,9 @@
  "_generated_by": "scripts/snapshot_sources.py --catalog",
  "count": {
   "in_git": 3,
-  "archived": 217,
+  "archived": 219,
   "missing": 0,
-  "total": 220
+  "total": 222
  },
  "snapshots": [
   {
@@ -1746,16 +1746,16 @@
   },
   {
    "name": "20261028-081922-依赖文档计数同步",
-   "location": "snapshots",
-   "in_git": true,
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
    "label": "依赖文档计数同步",
    "created_at": "2026-10-28T08:19:22",
    "file_count": 132
   },
   {
    "name": "20261028-082108-备份提醒改指retention",
-   "location": "snapshots",
-   "in_git": true,
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
    "label": "备份提醒改指retention",
    "created_at": "2026-10-28T08:21:08",
    "file_count": 132
@@ -1766,6 +1766,22 @@
    "in_git": true,
    "label": "代码审查报告",
    "created_at": "2026-10-28T09:29:06",
+   "file_count": 132
+  },
+  {
+   "name": "20261028-102214-P2三项修复",
+   "location": "snapshots",
+   "in_git": true,
+   "label": "P2三项修复",
+   "created_at": "2026-10-28T10:22:14",
+   "file_count": 132
+  },
+  {
+   "name": "20261028-102231-行数同步",
+   "location": "snapshots",
+   "in_git": true,
+   "label": "行数同步",
+   "created_at": "2026-10-28T10:22:31",
    "file_count": 132
   }
  ]

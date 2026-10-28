@@ -55,6 +55,7 @@ D-0045 定了「整库推私有远端」，但远端**不覆盖** `.gitignore` �
 """
 import argparse
 import hashlib
+import shlex
 import subprocess
 import sys
 import tarfile
@@ -238,6 +239,15 @@ def self_test():
                           "snapshots-archive-20261031-0001.tar.gz" in keep
                           and cand == ["snapshots-archive-20261105-0001.tar.gz"]))
 
+        # ★ 清理命令引用（2026-10-28 审查 P2-1）：含空格路径必须能被 shlex 无损拆回，
+        #   否则人复制执行的 trash 命令会拆参 —— 纯字符串用例，不需要文件真实存在。
+        import shlex as _shlex
+        p_sp = Path("/tmp/x/space dir") / "snapshots-archive-20261024-0044.tar.gz"
+        _, trash_cmd = cleanup_commands([(p_sp, "candidate", "x", 1)])
+        cases.append(("清理命令：空格路径经引用后可无损拆回（未引用=删除命令拼错）",
+                      _shlex.split(trash_cmd)[1:] == [str(p_sp)]
+                      and trash_cmd.startswith("trash ")))
+
     bad_n = 0
     for name, ok in cases:
         bad_n += 0 if ok else 1
@@ -315,6 +325,17 @@ def classify(items):
     return out
 
 
+def cleanup_commands(cand):
+    """把「复核 / 清理」两条命令拼好（纯字符串，可自检）。
+
+    ★ 路径必须经 shlex 引用（2026-10-28 代码审查 P2-1，探针实证）：--dest 可含空格，
+      未引用时 `trash …/space dir/…` 会被 shell 拆成两个参数 ——
+      这是给人复制执行的**删除命令**，拼错的代价远大于多一行代码。
+    """
+    args = [str(p) for p, _, _, _ in cand]
+    return "ls -l " + shlex.join(args), "trash " + shlex.join(args)
+
+
 def do_retention(dest):
     """只报告：按策略分类 + 可回收字节数 + 人工清理命令。**不删除、不移动任何文件。**
 
@@ -343,11 +364,12 @@ def do_retention(dest):
         print(f"  [{mark}] {p.name:44s} {human(size):>9s}  {why}")
     print(f"\n保留 {len(keep)} 份（{human(total - reclaim)}）｜可清理 {len(cand)} 份（{human(reclaim)}）")
     if cand:
+        ls_cmd, trash_cmd = cleanup_commands(cand)
         print("\n★ 本工具不会删除任何文件（删备份不可逆，且该删哪份取决于恢复场景，属人的决定）。")
         print("  确认要清理由人执行；执行前先复核每份都能解释「为什么它不需要」：")
-        print(f"    ls -l {' '.join(str(p) for p, _, _, _ in cand)}")
-        print("  确认后（macOS 走废纸篓，可恢复）：")
-        print(f"    trash {' '.join(str(p) for p, _, _, _ in cand)}")
+        print(f"    {ls_cmd}")
+        print("  确认后（macOS 走废纸篓，可恢复；`trash` 非 macOS 自带，无则用 Finder 或 osascript）：")
+        print(f"    {trash_cmd}")
     else:
         print("\n无需清理：没有任何文件同时满足「超出最近 3 份」且「非月度锚点」。")
     return OK

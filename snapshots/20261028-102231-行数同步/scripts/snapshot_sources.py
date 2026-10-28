@@ -180,7 +180,18 @@ def catalog(out=None, quiet=False, snap_root=None, archive_root=None):
             for r in json.loads(out.read_text(encoding="utf-8")).get("snapshots") or []:
                 if r.get("name"):
                     prev[r["name"]] = r
-        except (OSError, json.JSONDecodeError):
+        except (OSError, json.JSONDecodeError) as e:
+            # ★ 不静默（2026-10-28 代码审查 P2-2，探针实证）：读坏既有清单时
+            #   missing 历史会丢，本次写入只含当前盘上的快照 —— 「累计式」静默降级
+            #   成快照式，正是本文件要防的病。也不硬失败：快照流程不该被旁挂清单
+            #   卡死；原文若已入库，可从 git 历史取回。
+            try:
+                disp = out.relative_to(ROOT)
+            except ValueError:
+                disp = out
+            print(f"[WARN] 既有清单不可读（{e}）——本次写入只含当前盘上的快照，"
+                  f"已记录的 missing 历史将丢失（若已入库，原文可从 git 历史取回：{disp}）",
+                  file=sys.stderr)
             prev = {}
 
     rows, seen = [], set()
@@ -476,6 +487,18 @@ def self_test():
                and rows["20260101-000003-c"].get("file_count") == 7)
         expect("清单：按名字排序（确定性）",
                [r["name"] for r in doc["snapshots"]] == sorted(r["name"] for r in doc["snapshots"]))
+
+        # ⑦ 清单文件损坏：必须告警而非静默丢历史（2026-10-28 审查 P2-2，
+        #    探针实证：损坏后 ghost 条目消失且无提示）。判据：stderr 有 WARN
+        #    且本次仍产出合法清单（不崩、含当前盘上快照）。
+        bad_out = td / "CATALOG-bad.json"
+        bad_out.write_text("not-json{{{", encoding="utf-8")
+        _err = io.StringIO()
+        with contextlib.redirect_stderr(_err):
+            _, stat_bad = catalog(bad_out, quiet=True, snap_root=sr, archive_root=ar)
+        expect("清单：文件损坏时告警而非静默（WARN 可见且仍产出合法清单）",
+               "WARN" in _err.getvalue()
+               and json.loads(bad_out.read_text(encoding="utf-8"))["count"]["total"] >= 1)
 
     print()
     if fails:

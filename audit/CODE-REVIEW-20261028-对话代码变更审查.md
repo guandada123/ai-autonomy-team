@@ -132,3 +132,13 @@ shell 会把空格处拆成两个参数：`trash /var/…/space` + `dir/snapshot
 ---
 
 *AI 生成（代码审查 缺陷定位 修复建议 · code-guard-pro）；所有数字可回溯到本文件引用的探针输出与 git diff。*
+
+## 八、处置记录（2026-10-28 10:20，用户裁：1 做完 / 2 不清理 / 3 做完）
+
+| 项 | 处置 | 验证 |
+|---|---|---|
+| P2-1 清理命令未引用 | **已修**：提取 `cleanup_commands()` 纯函数（`shlex.join`），`ls`/`trash` 两行都走它；提示语注明 `trash` 非 macOS 自带（本机 `/usr/bin/trash` 存在，已验证） | 探针复验：空格 dest 下输出 `'…/space dir/…'` 带引用；`--self-test` **9/9**（新增"空格路径可无损拆回"，未引用会红） |
+| P2-2 catalog 静默丢历史 | **已修**：JSONDecodeError/OSError → stderr `[WARN]`（含取回指引），不硬失败（快照流程不被旁挂清单卡死）；原文在 git 可回溯 | `--self-test` **17/17**（新增"损坏时 WARN 可见且仍产出合法清单"，去掉告警即红） |
+| P2-3 prompt 写死计数 | **已修**：08:05 automation prompt 的 30/4/29 基线删除，改为「以脚本当次 CURRENT STATE SUMMARY 为准、与上日输出对比、名单扩大才算异常」；round1/8/9/10 定性改为"已发生的事实"而非待核计数 | automation 回读确认（id `89087d94`） |
+| P2 备份清理 | **不清理**（用户裁） | 现状 668.6MB；`--retention` 报告随时可查 |
+| P3-1~8 | **未动**（按 §六建议：随下次触碰对应文件顺手做，不专门开提交） | — |
