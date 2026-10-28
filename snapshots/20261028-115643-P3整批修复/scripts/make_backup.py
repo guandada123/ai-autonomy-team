@@ -55,6 +55,8 @@ D-0045 定了「整库推私有远端」，但远端**不覆盖** `.gitignore` �
 """
 import argparse
 import hashlib
+import re
+import shlex
 import subprocess
 import sys
 import tarfile
@@ -238,6 +240,34 @@ def self_test():
                           "snapshots-archive-20261031-0001.tar.gz" in keep
                           and cand == ["snapshots-archive-20261105-0001.tar.gz"]))
 
+        # ★ 清理命令引用（2026-10-28 审查 P2-1）：含空格路径必须能被 shlex 无损拆回，
+        #   否则人复制执行的 trash 命令会拆参 —— 纯字符串用例，不需要文件真实存在。
+        import shlex as _shlex
+        p_sp = Path("/tmp/x/space dir") / "snapshots-archive-20261024-0044.tar.gz"
+        _, trash_cmd = cleanup_commands([(p_sp, "candidate", "x", 1)])
+        cases.append(("清理命令：空格路径经引用后可无损拆回（未引用=删除命令拼错）",
+                      _shlex.split(trash_cmd)[1:] == [str(p_sp)]
+                      and trash_cmd.startswith("trash ")))
+
+        # ★ 月份解析防呆（2026-10-28 审查 P3-5）：非日期形文件名不得凭 split
+        #   下标混进「月度锚点」——它连月份都读不出来。名字以 "0" 开头保证
+        #   字符串排序时它最旧（否则 keep_recent 会先把它留下，用例失去区分力）。
+        with tempfile.TemporaryDirectory() as td4:
+            d4 = Path(td4)
+            weird_batch = ["snapshots-archive-0legacy.tar.gz",
+                           "snapshots-archive-20261101-0001.tar.gz",
+                           "snapshots-archive-20261102-0001.tar.gz",
+                           "snapshots-archive-20261103-0001.tar.gz"]
+            for n in weird_batch:
+                (d4 / n).write_bytes(b"x" * 10)
+            rows = classify([d4 / n for n in weird_batch])
+            dec = {p.name: dec for p, dec, _, _ in rows}
+            # 区分点：0legacy 靠"月度锚点"留下（旧 split 实现）= keep → 红；
+            # 新实现读不出月份 → 只能当 candidate。1101 是"最近 3 份"的正常保留，作对照。
+            cases.append(("月份解析：非日期形文件名不得当月度锚点（split 下标实现会判红）",
+                          dec.get("snapshots-archive-0legacy.tar.gz") == "candidate"
+                          and dec.get("snapshots-archive-20261101-0001.tar.gz") == "keep"))
+
     bad_n = 0
     for name, ok in cases:
         bad_n += 0 if ok else 1
@@ -253,15 +283,21 @@ def human(n):
         n /= 1024
 
 
+def _backup_files(dest):
+    """本工具会产出的两种文件名（排除 .DS_Store 等异物）。
+
+    ★ 不用 `*.*` 通配：macOS 一进目录就写 `.DS_Store`，「最新一份」会被它抢走
+      （2026-10-23 实测）——列目录是给人做删除决策的，混入异物等于给错依据。
+    """
+    return sorted([p for pat in ("ai-autonomy-team-*.bundle", "snapshots-archive-*.tar.gz")
+                   for p in dest.glob(pat)])
+
+
 def do_list(dest):
     if not dest.is_dir():
         print(f"[ERR] 备份目录不存在：{dest}", file=sys.stderr)
         return ERR
-    # 只认本工具会产出的两种文件名。原来用 `*.*` 通配：macOS 一进目录就写
-    # `.DS_Store`，于是「最新一份」被它抢走（2026-10-23 实测）——
-    # 列目录是给人做删除决策的，把非备份文件混进来等于给错依据。
-    items = sorted([p for pat in ("ai-autonomy-team-*.bundle", "snapshots-archive-*.tar.gz")
-                    for p in dest.glob(pat)])
+    items = _backup_files(dest)
     if not items:
         print(f"[ERR] 目录里没有备份：{dest}", file=sys.stderr)
         return BAD
@@ -299,10 +335,15 @@ def classify(items):
     month_seen = set()
     month_anchor = set()
     for t in tars:
-        m = t.name.split("-")[2][:6] if len(t.name.split("-")) > 2 else "?"
-        if m not in month_seen:
-            month_seen.add(m)
-            month_anchor.add(t.name)
+        # ★ 正则而非 split 下标（审查 P3-5）：`split("-")[2][:6]` 把文件名形状
+        #   写死在第 3 段，形状一变就静默错月。非日期形文件名不参与锚点
+        #   （它不可能是"某月最新一份"——月份从名字里都读不出来）。
+        m = re.match(r"snapshots-archive-(\d{6})", t.name)
+        if m:
+            month = m.group(1)
+            if month not in month_seen:
+                month_seen.add(month)
+                month_anchor.add(t.name)
 
     for t in tars:
         size = t.stat().st_size
@@ -315,6 +356,17 @@ def classify(items):
     return out
 
 
+def cleanup_commands(cand):
+    """把「复核 / 清理」两条命令拼好（纯字符串，可自检）。
+
+    ★ 路径必须经 shlex 引用（2026-10-28 代码审查 P2-1，探针实证）：--dest 可含空格，
+      未引用时 `trash …/space dir/…` 会被 shell 拆成两个参数 ——
+      这是给人复制执行的**删除命令**，拼错的代价远大于多一行代码。
+    """
+    args = [str(p) for p, _, _, _ in cand]
+    return "ls -l " + shlex.join(args), "trash " + shlex.join(args)
+
+
 def do_retention(dest):
     """只报告：按策略分类 + 可回收字节数 + 人工清理命令。**不删除、不移动任何文件。**
 
@@ -324,8 +376,7 @@ def do_retention(dest):
     if not dest.is_dir():
         print(f"[ERR] 备份目录不存在：{dest}", file=sys.stderr)
         return ERR
-    items = sorted([p for pat in ("ai-autonomy-team-*.bundle", "snapshots-archive-*.tar.gz")
-                    for p in dest.glob(pat)])
+    items = _backup_files(dest)
     if not items:
         print(f"[ERR] 目录里没有备份：{dest}", file=sys.stderr)
         return BAD
@@ -343,11 +394,12 @@ def do_retention(dest):
         print(f"  [{mark}] {p.name:44s} {human(size):>9s}  {why}")
     print(f"\n保留 {len(keep)} 份（{human(total - reclaim)}）｜可清理 {len(cand)} 份（{human(reclaim)}）")
     if cand:
+        ls_cmd, trash_cmd = cleanup_commands(cand)
         print("\n★ 本工具不会删除任何文件（删备份不可逆，且该删哪份取决于恢复场景，属人的决定）。")
         print("  确认要清理由人执行；执行前先复核每份都能解释「为什么它不需要」：")
-        print(f"    ls -l {' '.join(str(p) for p, _, _, _ in cand)}")
-        print("  确认后（macOS 走废纸篓，可恢复）：")
-        print(f"    trash {' '.join(str(p) for p, _, _, _ in cand)}")
+        print(f"    {ls_cmd}")
+        print("  确认后（macOS 走废纸篓，可恢复；`trash` 非 macOS 自带，无则用 Finder 或 osascript）：")
+        print(f"    {trash_cmd}")
     else:
         print("\n无需清理：没有任何文件同时满足「超出最近 3 份」且「非月度锚点」。")
     return OK

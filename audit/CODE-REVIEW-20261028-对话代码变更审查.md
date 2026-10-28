@@ -142,3 +142,24 @@ shell 会把空格处拆成两个参数：`trash /var/…/space` + `dir/snapshot
 | P2-3 prompt 写死计数 | **已修**：08:05 automation prompt 的 30/4/29 基线删除，改为「以脚本当次 CURRENT STATE SUMMARY 为准、与上日输出对比、名单扩大才算异常」；round1/8/9/10 定性改为"已发生的事实"而非待核计数 | automation 回读确认（id `89087d94`） |
 | P2 备份清理 | **不清理**（用户裁） | 现状 668.6MB；`--retention` 报告随时可查 |
 | P3-1~8 | **未动**（按 §六建议：随下次触碰对应文件顺手做，不专门开提交） | — |
+
+## 九、P3 处置补记（2026-10-28 11:50，用户指令「继续」）
+
+§六建议「P3 随触碰顺手做、不专门开提交」；用户明确「继续」后改为**整批一次修**（这属于
+被授权的任务，不再算"顺便优化"）。全部落盘，各有自检/回归钉住：
+
+| 项 | 修法 | 钉子 |
+|---|---|---|
+| 3-1 轮名字典序 | `round_key()` 自然排序（9 处 `sorted(results)`） | 回归 55 断言 `round2` 先于 `round10`（字典序实现在此红） |
+| 3-2 措辞重复 | detail 去掉尾缀「—— 未终态」 | 回归 55 的 B 断言仍覆盖 |
+| 3-3 pending 全量打印 | 只打 `pending_ids=[ADJ-001, …]`（round13 一行 700→160 字） | 回归 55 断言 id 列表在、`'question'` 不在输出 |
+| 3-4 重复 glob | 提取 `_backup_files(dest)`，do_list / do_retention 共用 | 既有自检覆盖 |
+| 3-5 硬编码下标 | 月份解析改 `re.match(r"snapshots-archive-(\d{6})")`，读不出月份不参与锚点 | 自检 10/10：异形名"0legacy"必须 candidate（split 实现会判成月度锚点 keep） |
+| 3-6 catalog 裸 traceback | 两处 try/except + 明确 [ERR]（"快照已成功、清单过期"），退出码保持非 0 | 代码审查级，行为由探针覆盖 |
+| 3-7 fresh clone 空目录 | 无快照且目录不存在 → WARN + 不建目录不写清单 | 探针实证：`fresh/ 未被创建` |
+| 3-8 trash 可移植性 | 已随 P2-1 完成（提示语注明） | — |
+
+自曝一个用例 bug：P3-5 首版期望把 20261101 判成 candidate——但 4 份 tar 时它在"最近 3 份"
+内本来就该 keep，是**期望错不是代码错**；修正期望（0legacy=candidate + 1101=keep 作对照）。
+
+验证：回归 56/56（55 项已扩展）、make_backup 自检 10/10、snapshot_sources 自检 17/17。

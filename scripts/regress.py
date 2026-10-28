@@ -1028,9 +1028,15 @@ def main():
             "adjudication_state": "adjudicated", "provenance": "native",
             "ts": "2026-10-28T00:00:00+08:00"}), encoding="utf-8")
         (fx / "roundA" / "verdict-layered.json").write_text(json.dumps({
-            "verdict": "pending_adjudication", "spec_layer": "all", "pending": [],
+            "verdict": "pending_adjudication", "spec_layer": "all",
+            "pending": [
+                {"id": "ADJ-001", "question": "测试判断项一", "options": ["a", "b"]},
+                {"id": "ADJ-002", "question": "测试判断项二", "options": ["6", "5"]}],
             "summary": {"total": 1, "passed": 1, "failed": 0, "pending": 2},
             "ts": "2026-10-20T14:19:53+08:00"}), encoding="utf-8")
+        # P3-1 阳性：字典序会把 round10 排在 round2 前面；自然序必须 round2 在前
+        (fx / "round10").mkdir()
+        (fx / "round2").mkdir()
         (fx / "roundB").mkdir()
         (fx / "roundB" / "verdict-layered.json").write_text(json.dumps({
             "verdict": "pending_adjudication", "spec_layer": "all", "pending": [],
@@ -1064,9 +1070,16 @@ def main():
     b_ok = b_st.startswith("未终态")
     c_ok = c_st.startswith("resolved_by_human")
     sum_ok = "verdict 行自称 pending 但当前态已裁决: 1 轮" in o55
-    s.check(55, "inspect_status 当前态：已裁决+verdict自称pending / 无answer-status / 非verify版式 三态",
-            r55 == 0 and a_ok and b_ok and c_ok and sum_ok,
-            f"rc={r55} A={a_st[:20]} B={b_st[:12]} C={c_st[:24]} 汇总计数={sum_ok}")
+    # ★ P3-1（2026-10-28）：轮序必须自然序（round2 先于 round10）—— 字典序实现在这里红
+    order_ok = 0 < o55.index("### round2") < o55.index("### round10")
+    # ★ P3-3：pending 只打 id（每日 08:05 读 stdout 的 token 成本），
+    #   全文里的 question/options 字段不得出现在输出 —— 打回全文即红
+    ids_ok = ("pending_ids=['ADJ-001', 'ADJ-002']" in seg.get("roundA", "")
+              and "'question'" not in o55)
+    s.check(55, "inspect_status 当前态三态 + 自然轮序 + pending 只打 id",
+            r55 == 0 and a_ok and b_ok and c_ok and sum_ok and order_ok and ids_ok,
+            f"rc={r55} A={a_st[:20]} B={b_st[:12]} C={c_st[:24]} 汇总={sum_ok} "
+            f"轮序={order_ok} pending只打id={ids_ok}")
 
     # ==================== 第 56 项：回归幂等守门 ====================
     # ★ F11 的守门项。全部夹具项都已在上面跑完；若任何一项把机器产出写回了

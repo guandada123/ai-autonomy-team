@@ -180,7 +180,18 @@ def catalog(out=None, quiet=False, snap_root=None, archive_root=None):
             for r in json.loads(out.read_text(encoding="utf-8")).get("snapshots") or []:
                 if r.get("name"):
                     prev[r["name"]] = r
-        except (OSError, json.JSONDecodeError):
+        except (OSError, json.JSONDecodeError) as e:
+            # ★ 不静默（2026-10-28 代码审查 P2-2，探针实证）：读坏既有清单时
+            #   missing 历史会丢，本次写入只含当前盘上的快照 —— 「累计式」静默降级
+            #   成快照式，正是本文件要防的病。也不硬失败：快照流程不该被旁挂清单
+            #   卡死；原文若已入库，可从 git 历史取回。
+            try:
+                disp = out.relative_to(ROOT)
+            except ValueError:
+                disp = out
+            print(f"[WARN] 既有清单不可读（{e}）——本次写入只含当前盘上的快照，"
+                  f"已记录的 missing 历史将丢失（若已入库，原文可从 git 历史取回：{disp}）",
+                  file=sys.stderr)
             prev = {}
 
     rows, seen = [], set()
@@ -212,6 +223,12 @@ def catalog(out=None, quiet=False, snap_root=None, archive_root=None):
                      "last_seen_created_at": r.get("created_at") or ""})
 
     rows.sort(key=lambda r: r["name"])
+    # ★ fresh clone 边缘（审查 P3-7）：snapshots/ 不存在且毫无记录时，mkdir 会凭空
+    #   创建空目录，把门禁 H 的报错从「无快照目录」变成「verify 失败」，掩盖真实状态。
+    if not rows and not prev and not out.parent.exists():
+        print(f"[WARN] 无任何快照记录且 {out.parent} 不存在 —— 不创建目录、不写清单"
+              f"（先打一次快照再 --catalog）", file=sys.stderr)
+        return out, {"in_git": 0, "archived": 0, "missing": 0, "total": 0}
     stat = {"in_git": sum(1 for r in rows if r["in_git"]),
             "archived": sum(1 for r in rows if r["location"].startswith("_trash")),
             "missing": len(missing), "total": len(rows)}
@@ -477,6 +494,18 @@ def self_test():
         expect("清单：按名字排序（确定性）",
                [r["name"] for r in doc["snapshots"]] == sorted(r["name"] for r in doc["snapshots"]))
 
+        # ⑦ 清单文件损坏：必须告警而非静默丢历史（2026-10-28 审查 P2-2，
+        #    探针实证：损坏后 ghost 条目消失且无提示）。判据：stderr 有 WARN
+        #    且本次仍产出合法清单（不崩、含当前盘上快照）。
+        bad_out = td / "CATALOG-bad.json"
+        bad_out.write_text("not-json{{{", encoding="utf-8")
+        _err = io.StringIO()
+        with contextlib.redirect_stderr(_err):
+            _, stat_bad = catalog(bad_out, quiet=True, snap_root=sr, archive_root=ar)
+        expect("清单：文件损坏时告警而非静默（WARN 可见且仍产出合法清单）",
+               "WARN" in _err.getvalue()
+               and json.loads(bad_out.read_text(encoding="utf-8"))["count"]["total"] >= 1)
+
     print()
     if fails:
         print(f"[FAIL] 自检未通过：{len(fails)}/{n_ok + len(fails)} 项失败")
@@ -518,7 +547,11 @@ def main():
     if args.verify:
         return verify()
     if args.catalog:
-        catalog()
+        try:
+            catalog()
+        except Exception as e:      # 清单是本命令的目的，失败要说明白，不留裸 traceback
+            print(f"[ERR] 清单生成失败：{e}", file=sys.stderr)
+            return 1
         return 0
     snapshot(args.label)
     if not args.no_prune:
@@ -527,7 +560,14 @@ def main():
             return 2
     # 打完/移完立即刷新清单：清单若只在人工记得跑 --catalog 时更新，
     # 它就会在上述 churn 之后立刻变成过期事实（正是本次要修的那个病）。
-    catalog()
+    # ★ 快照本体已成功，清单失败不能当成"快照失败"重试（会再产一个快照，churn），
+    #   但也必须非 0 退出让人看见 —— 明确说清"快照已成功、清单过期"。
+    try:
+        catalog()
+    except Exception as e:
+        print(f"[ERR] 快照已生成，但清单刷新失败：{e} —— 清单此刻已过期，请重跑 --catalog",
+              file=sys.stderr)
+        return 1
     return 0
 
 

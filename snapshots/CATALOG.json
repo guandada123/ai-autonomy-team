@@ -3,9 +3,9 @@
  "_generated_by": "scripts/snapshot_sources.py --catalog",
  "count": {
   "in_git": 3,
-  "archived": 219,
+  "archived": 220,
   "missing": 0,
-  "total": 222
+  "total": 223
  },
  "snapshots": [
   {
@@ -1762,8 +1762,8 @@
   },
   {
    "name": "20261028-092906-代码审查报告",
-   "location": "snapshots",
-   "in_git": true,
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
    "label": "代码审查报告",
    "created_at": "2026-10-28T09:29:06",
    "file_count": 132
@@ -1782,6 +1782,14 @@
    "in_git": true,
    "label": "行数同步",
    "created_at": "2026-10-28T10:22:31",
+   "file_count": 132
+  },
+  {
+   "name": "20261028-115643-P3整批修复",
+   "location": "snapshots",
+   "in_git": true,
+   "label": "P3整批修复",
+   "created_at": "2026-10-28T11:56:43",
    "file_count": 132
   }
  ]

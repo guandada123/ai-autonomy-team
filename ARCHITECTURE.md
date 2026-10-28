@@ -131,7 +131,7 @@
 
 | 模块 | 行数 | 检查什么 | 何时跑 |
 |---|---|---|---|
-| `regress.py` | 1101 || B 全量回归 | 调用 `regress.py` 56 项 | 改代码后没跑测试 |
+| `regress.py` | 1114 || B 全量回归 | 调用 `regress.py` 56 项 | 改代码后没跑测试 |
 | C 判据自检 | 判据用例自检 | 改了判据逻辑 |
 | D 包完整性 | `MANIFEST.json` 与包内逐字节一致 | 改了 `scripts/` 却没 `make package-apply` |
 | E 密钥扫描 | 用 `secret_patterns.py` 扫全仓 | 硬编码了 token |
@@ -159,7 +159,7 @@
 
 | 模块 | 行数 | 职责 |
 |---|---|---|
-| `snapshot_sources.py` | 558 || `secret_patterns.py` | 91 || `redact_report.py` | 248 || `field_provenance.py` | 177 | 字段溯源：这个字段谁在写 |
+| `snapshot_sources.py` | 575 || `secret_patterns.py` | 91 || `redact_report.py` | 248 || `field_provenance.py` | 177 | 字段溯源：这个字段谁在写 |
 | `canon.py` | 174 | 标识与词表规范化 |
 | `sync_doc_numbers.py` | 210 |---
 
