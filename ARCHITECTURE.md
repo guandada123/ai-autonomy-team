@@ -136,7 +136,7 @@
 | D 包完整性 | `MANIFEST.json` 与包内逐字节一致 | 改了 `scripts/` 却没 `make package-apply` |
 | E 密钥扫描 | 用 `secret_patterns.py` 扫全仓 | 硬编码了 token |
 | F 决策编号 | 引用的 `D-XXXX` 必须存在 | 文档里写了不存在的编号 |
-| G 待办扫描 | 无残留 TODO/待办 | 提交了半成品 |
+| G 待办扫描 | 无残留未完成标记 | 提交了半成品 |
 | H 真源快照 | 最近快照可校验 | 改了大量文件却没打快照 |
 
 > **D 项是最容易踩的**：`migration-package/` 是构建产物，但历史上一直被当源码手工改。现在有 `--check` 兜住，改完 `scripts/` 必须 `make package-apply`。

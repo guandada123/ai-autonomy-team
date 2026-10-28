@@ -3,9 +3,9 @@
  "_generated_by": "scripts/snapshot_sources.py --catalog",
  "count": {
   "in_git": 3,
-  "archived": 228,
+  "archived": 229,
   "missing": 0,
-  "total": 231
+  "total": 232
  },
  "snapshots": [
   {
@@ -1834,8 +1834,8 @@
   },
   {
    "name": "20261028-214540-v2方向提案",
-   "location": "snapshots",
-   "in_git": true,
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
    "label": "v2方向提案",
    "created_at": "2026-10-28T21:45:40",
    "file_count": 134
@@ -1854,6 +1854,14 @@
    "in_git": true,
    "label": "F3三向比对",
    "created_at": "2026-10-28T23:47:13",
+   "file_count": 134
+  },
+  {
+   "name": "20261029-075446-F7门禁扫描范围",
+   "location": "snapshots",
+   "in_git": true,
+   "label": "F7门禁扫描范围",
+   "created_at": "2026-10-29T07:54:46",
    "file_count": 134
   }
  ]

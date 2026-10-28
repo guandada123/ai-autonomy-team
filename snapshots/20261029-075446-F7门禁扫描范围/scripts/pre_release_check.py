@@ -134,7 +134,11 @@ def chk_manifest():
 
 def chk_secrets():
     hits = []
-    for base in (SCRIPTS, DOCS, PKG / "judges", PKG / "config"):
+    # 2026-10-29（F7）：audit/、templates/、outputs/ 原不在扫描范围。
+    # 密钥防线是**按「哪些目录被扫到」定义的** —— 没被扫到的目录等于没有防线，
+    # 而这三个目录恰恰装着评审输出与外发模板（最容易夹带的东西）。
+    for base in (SCRIPTS, DOCS, ROOT / "audit", ROOT / "templates", ROOT / "outputs",
+                 PKG / "judges", PKG / "config"):
         if not base.is_dir():
             continue
         for p in base.rglob("*"):
@@ -179,13 +183,24 @@ def chk_decision_ids():
 
 
 def chk_todo():
+    # 2026-10-29（F7）：原先只扫 `docs/*.md`（顶层、非递归）——
+    # docs 子目录里的待办、以及根级四份文档里的待办全是盲区。
+    # F 项（决策编号）2026-10-23 已因同款问题修过（D-0053），G 项这次补齐。
+    targets = [ROOT / n for n in ("README.md", "ARCHITECTURE.md", "DEPENDENCIES.md",
+                                  "M4-接续指南.md") if (ROOT / n).is_file()]
+    targets += [p for p in DOCS.rglob("*.md") if p.is_file()]
     hits = []
-    for p in DOCS.glob("*.md"):
+    for p in targets:
         if p.name in TODO_EXEMPT:
             continue
-        for i, ln in enumerate(p.read_text(encoding="utf-8").splitlines(), 1):
+        try:
+            lines = p.read_text(encoding="utf-8", errors="replace").splitlines()
+        except OSError:
+            continue
+        for i, ln in enumerate(lines, 1):
             if TODO_PAT.search(ln):
-                hits.append(f"{p.name}:{i}")
+                rel = p.relative_to(ROOT).as_posix() if p.is_relative_to(ROOT) else p.name
+                hits.append(f"{rel}:{i}")
     return not hits, ("无残留" if not hits else f"{len(hits)} 处: " + ", ".join(hits[:4]))
 
 
@@ -203,10 +218,18 @@ def chk_snapshot():
     if not dirs:
         return False, "无快照"
     rc, out = sh([PY, str(SCRIPTS / "snapshot_sources.py"), "--verify"])
+    if rc == 2:
+        # 2026-10-28（F3）：环境错误（无可用快照）与「发现差异」必须分开说，
+        # 否则「没有基准」会被误读成「有基准但不一致」，两种处置完全不同。
+        return False, "无可用快照（--verify 返回 2：环境错误，非差异）"
     if rc != 0:
-        # 抽出「修改 N」那行，给出可操作信息
-        line = next((ln.strip() for ln in out.splitlines() if "修改" in ln or "新增" in ln), "")
-        return False, f"真源与最近快照 {dirs[-1].name} 不一致（改了未打快照）。{line}"
+        # 2026-10-28（F3）：--verify 改为三向比对，输出行改以 A/B/C/D 分类开头
+        # （A 真源改动 / B 副本缺失 / C 副本被改 / D 真源与副本互异）。
+        # 仍按旧文案找「修改/新增」会抽到空串，失败信息就没有可操作内容。
+        kinds = [ln.strip() for ln in out.splitlines()
+                 if ln.strip().startswith(("A ", "B ", "C ", "D "))]
+        tail = "；".join(kinds[:3]) or (out.strip().splitlines() or ["无详情"])[-1]
+        return False, f"与最近快照 {dirs[-1].name} 不一致（三向比对命中）。{tail}"
     return True, f"最近快照: {dirs[-1].name}，与真源一致"
 
 

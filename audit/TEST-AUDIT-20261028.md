@@ -109,8 +109,10 @@ Phase 1 未逐条清点 octagon/redact_report/pre_push_scan/new_round 内部项�
 | **F3**（P0-3） | ✅ 已实施 | `verify()` 改**三向比对**（索引 ↔ 副本实际字节 ↔ 真源，A/B/C 三类分别报告）；新增 `restore` 子命令（写前逐文件校验副本哈希、缺件/污染**整体拒绝**、默认 dry-run、`--apply` 才写、写后 readback）；verify 的裸 `cp -R` 回滚建议已删除；`pre_release_check.chk_snapshot` 适配新输出并区分 rc=2（无基准）与 rc=1（有差异）。自检 17 → **36 项** |
 | F3 假绿实证 | ✅ 已复现 | /tmp 迷你仓库四场景同场对照：干净 PASS(0)；真源改 FAIL(1)；**副本删 → 新版 1 / 旧版 0**；**副本改 → 新版 1 / 旧版 0**；三方齐改 FAIL(1)。旧版假绿属实 |
 | **F5**（P2，提前做） | ✅ 已实施 | Makefile `selftest` 收编 4 个孤儿 `--self-test`：snapshot_sources **36**（含 F3 新增 19 条）、judges/seat_check **41**、metrics **21**、check_consistency **3** = **+101 项**，实测各秒级（全量 11s）。**收编前 F3 那 19 条用例 CI 上根本不会跑**，收编后才有意义。未收编：`regress`（已由门禁 B 项跑，重复即 ×2 耗时）、`verify_handover`（人工接手验收，非回归） |
-| F7/F8/F6 | ⬜ 未动 | 按优先级，F7（门禁 E 加目录 / G 改 rglob）为下一个 |
+| **F7**（P1-1） | ✅ 已实施 | 门禁 E 纳入 `audit/`、`templates/`、`outputs/`；门禁 G 改 `rglob` + 根级四文档（D-0053 同款修法）。三处盲区均由旧版同场对照实证：audit 藏密钥 → 新版 FAIL/**旧版 PASS**；docs 子目录 TODO → 新版 FAIL/**旧版 PASS**；根级文档 TODO → 新版 FAIL/**旧版 PASS**；干净仓库双方均 PASS |
+| F8/F6 | ⬜ 未动 | 按优先级，F8（regress timeout / scratch 互踩）为下一个 |
 | 新发现计数漂移 | ⬜ 待 F6 | Makefile help 文本「kit-test（30 项）」实为 **38** 项 —— 第 5 处漂移，留给 F6 与其余 4 处统一修，不在此轮夹带 |
+| 新发现盲区 | ⬜ 待定 | `pre_release_check.py` 自身**无 `--self-test` 入口** → F7 这批正负样本只做成一次性 /tmp 实验，未固化、CI 不跑（R2「守门员无守卫」的又一例：门禁自己没有守卫）。要固化需新建入口并收编（~30 行） |
 
 **F1 后 CI 红灯性质的变化**：此前 `make selftest` 的 exit 2 由「标注集饱和」这一**数据事实**引起，
 与代码是否损坏无关；修复后该事实仍在报告段如实打印（heldout 三阈值全 1.000，命中 S1），
