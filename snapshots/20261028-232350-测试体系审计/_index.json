@@ -1,6 +1,6 @@
 {
- "created_at": "2026-10-28T21:02:39",
- "label": "禁读边界入协议-计数修正",
+ "created_at": "2026-10-28T23:23:50",
+ "label": "测试体系审计",
  "file_count": 134,
  "files": {
   "scripts/build_package.py": {
@@ -541,8 +541,8 @@
   }
  },
  "caller": {
-  "pid": 68652,
-  "ppid": 68649,
-  "parent_cmd": "/bin/zsh -c . '/Users/guan/.workbuddy/shell-snapshots/snapshot-zsh-1793192377750-4ybtac.sh' && if [ -n \"${CODEBUDDY_SAFE_DELETE_BIN_DIR:-}\" ]; then unalias rm unlink rmdir 2>/dev/null || true; unset -"
+  "pid": 56068,
+  "ppid": 56066,
+  "parent_cmd": "/bin/zsh -c . '/Users/guan/.workbuddy/shell-snapshots/snapshot-zsh-1793199609019-wanhq0.sh' && if [ -n \"${CODEBUDDY_SAFE_DELETE_BIN_DIR:-}\" ]; then unalias rm unlink rmdir 2>/dev/null || true; unset -"
  }
 }
