@@ -105,7 +105,7 @@ Phase 1 未逐条清点 octagon/redact_report/pre_push_scan/new_round 内部项�
 | **F1**（P0-1） | ✅ 已实施 | `label_saturation.evaluate()` 抽出（CLI 与 test_kit 共用同一判据，避免两处实现漂移）；原「钉住 calibration[5]==1.0」的数据态断言移出 exit-code，改为报告段；补 4 条合成用例（S1 正/负、S2 正/负）。**test_kit 35 → 38 项，38/38 通过，exit 0** |
 | F1 可证伪性 | ✅ 已验证 | 三次注入各被击破：判据永不命中→S1/S2 正样本红；恒命中 S1→负样本红；`invariant_run` 恒 1→S2 正样本红（exit 均为 1） |
 | **F2**（P0-2） | ✅ 账号侧已恢复 | 2026-10-28 15:24 run 40715599134 的 job **已真实启动**并跑完 4 步（此前 billing 拦截期 job 未启动）→ 拦截解除属实 |
-| F2 验证 | ⏳ 待回读 | 额度恢复后 CI 首次全绿须**亲眼读 run 结论**，不以「没收到失败邮件」为通过依据 |
+| F2 验证 | ✅ 已亲眼确认 | run **40717644766**（commit 195cb33）conclusion=**success**，逐步：检出/环境自述/`make selftest` 全 success；日志实读 kit-test **38/38**、门禁 **8/8**（B 回归 56/56）、报告段如实打印 S1 命中。非「没收到失败邮件」式推断 |
 | F3/F7/F8/F6 | ⬜ 未动 | 按 P0→P1 顺序，F3（门禁 H 三向比对）为下一个 |
 
 **F1 后 CI 红灯性质的变化**：此前 `make selftest` 的 exit 2 由「标注集饱和」这一**数据事实**引起，
