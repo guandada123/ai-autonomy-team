@@ -421,7 +421,7 @@ def main():
         print(f"[FAIL] {failed} 份产物没通过还原验证 —— 别把它当备份", file=sys.stderr)
         return BAD
     print(f"[PASS] {stamp} 备份完成且逐份验证通过 → {dest}")
-    print("       提醒：本工具不会删旧备份；要清理用 --list 看清后手动删。")
+    print("       提醒：本工具不会删旧备份。要清理先跑 --retention（按策略分类 + 给出复核/执行命令）。")
     return OK
 
 
