@@ -1,6 +1,6 @@
 {
- "created_at": "2026-10-28T10:22:14",
- "label": "P2三项修复",
+ "created_at": "2026-10-28T17:02:57",
+ "label": "v1.3议题证据",
  "file_count": 132,
  "files": {
   "scripts/build_package.py": {
@@ -32,8 +32,8 @@
    "bytes": 7769
   },
   "scripts/inspect_status.py": {
-   "sha256": "6fa8919cdf8e00a55091e4edfaee151fc0382d6edb10104fdbebd8a07fda4a6e",
-   "bytes": 14580
+   "sha256": "69e4a896b3882e3a3cc2aaa3abaa2af5dd35d56f93e57cc9271462d83e6d62b3",
+   "bytes": 15428
   },
   "scripts/inspection_watch.py": {
    "sha256": "c8409fe69d7e54b72f98ead403d30da25020f9c78e260c50d183a00eea95f026",
@@ -72,8 +72,8 @@
    "bytes": 1750
   },
   "scripts/make_backup.py": {
-   "sha256": "650bf240e02d908e258030758a97cbcb48e6ec9cd5ed4bfa9ef3c49cc7ee2abf",
-   "bytes": 22138
+   "sha256": "5696d75573addc9dcd67818e4a1496c42e01f7c329072607e3e4c4e9a7f6bd59",
+   "bytes": 23832
   },
   "scripts/make_fixtures.py": {
    "sha256": "1f7329d2cc180b6e9bfe982b65b9f519bfb31c513444f5207359faaae4cdff2e",
@@ -132,16 +132,16 @@
    "bytes": 11300
   },
   "scripts/regress.py": {
-   "sha256": "6c6801c6b271a795f9598bf4a7d5fd401cb4d17c630d74424922772f5612d86f",
-   "bytes": 67229
+   "sha256": "496383e8d32cb83812ee94e6d0b8f4db52a30865bff5d6ac806465a87bba3e13",
+   "bytes": 68112
   },
   "scripts/secret_patterns.py": {
    "sha256": "c77c883691005f530cff2444c7acb0470dfadf595ae1c15dbc98b34857b56ef1",
    "bytes": 4979
   },
   "scripts/snapshot_sources.py": {
-   "sha256": "bfb83f3313317d2cecc49dcad5bdbd1009d0599bab2caa89134dba28f2fa1082",
-   "bytes": 25694
+   "sha256": "14d4db22ac874be253c80898a1227ce13e30e80c5f1d5c9116f10490e49e60fb",
+   "bytes": 26879
   },
   "scripts/spec_conformance.py": {
    "sha256": "689c30623c485830755308fccf673034d43b00e47af91d2ea5f62c94f8e0fdec",
@@ -533,8 +533,8 @@
   }
  },
  "caller": {
-  "pid": 9654,
-  "ppid": 9651,
-  "parent_cmd": "/bin/zsh -c . '/Users/guan/.workbuddy/shell-snapshots/snapshot-zsh-1793150459605-6vcet2.sh' && if [ -n \"${CODEBUDDY_SAFE_DELETE_BIN_DIR:-}\" ]; then unalias rm unlink rmdir 2>/dev/null || true; unset -"
+  "pid": 33950,
+  "ppid": 33945,
+  "parent_cmd": "/bin/zsh -c . '/Users/guan/.workbuddy/shell-snapshots/snapshot-zsh-1793177924055-dfoenh.sh' && if [ -n \"${CODEBUDDY_SAFE_DELETE_BIN_DIR:-}\" ]; then unalias rm unlink rmdir 2>/dev/null || true; unset -"
  }
 }

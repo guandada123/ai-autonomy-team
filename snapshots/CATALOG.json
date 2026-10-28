@@ -3,9 +3,9 @@
  "_generated_by": "scripts/snapshot_sources.py --catalog",
  "count": {
   "in_git": 3,
-  "archived": 220,
+  "archived": 221,
   "missing": 0,
-  "total": 223
+  "total": 224
  },
  "snapshots": [
   {
@@ -1770,8 +1770,8 @@
   },
   {
    "name": "20261028-102214-P2三项修复",
-   "location": "snapshots",
-   "in_git": true,
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
    "label": "P2三项修复",
    "created_at": "2026-10-28T10:22:14",
    "file_count": 132
@@ -1790,6 +1790,14 @@
    "in_git": true,
    "label": "P3整批修复",
    "created_at": "2026-10-28T11:56:43",
+   "file_count": 132
+  },
+  {
+   "name": "20261028-170257-v1.3议题证据",
+   "location": "snapshots",
+   "in_git": true,
+   "label": "v1.3议题证据",
+   "created_at": "2026-10-28T17:02:57",
    "file_count": 132
   }
  ]
