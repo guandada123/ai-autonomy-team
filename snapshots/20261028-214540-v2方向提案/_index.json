@@ -1,6 +1,6 @@
 {
- "created_at": "2026-10-28T21:02:05",
- "label": "禁读边界入协议",
+ "created_at": "2026-10-28T21:45:40",
+ "label": "v2方向提案",
  "file_count": 134,
  "files": {
   "scripts/build_package.py": {
@@ -541,8 +541,8 @@
   }
  },
  "caller": {
-  "pid": 68228,
-  "ppid": 68225,
-  "parent_cmd": "/bin/zsh -c . '/Users/guan/.workbuddy/shell-snapshots/snapshot-zsh-1793192377750-4ybtac.sh' && if [ -n \"${CODEBUDDY_SAFE_DELETE_BIN_DIR:-}\" ]; then unalias rm unlink rmdir 2>/dev/null || true; unset -"
+  "pid": 93179,
+  "ppid": 93177,
+  "parent_cmd": "/bin/zsh -c . '/Users/guan/.workbuddy/shell-snapshots/snapshot-zsh-1793194958697-1gsbgs.sh' && if [ -n \"${CODEBUDDY_SAFE_DELETE_BIN_DIR:-}\" ]; then unalias rm unlink rmdir 2>/dev/null || true; unset -"
  }
 }

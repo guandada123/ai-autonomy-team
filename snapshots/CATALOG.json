@@ -3,9 +3,9 @@
  "_generated_by": "scripts/snapshot_sources.py --catalog",
  "count": {
   "in_git": 3,
-  "archived": 225,
+  "archived": 226,
   "missing": 0,
-  "total": 228
+  "total": 229
  },
  "snapshots": [
   {
@@ -1810,8 +1810,8 @@
   },
   {
    "name": "20261028-210205-禁读边界入协议",
-   "location": "snapshots",
-   "in_git": true,
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
    "label": "禁读边界入协议",
    "created_at": "2026-10-28T21:02:05",
    "file_count": 134
@@ -1830,6 +1830,14 @@
    "in_git": true,
    "label": "计数修正2",
    "created_at": "2026-10-28T21:03:06",
+   "file_count": 134
+  },
+  {
+   "name": "20261028-214540-v2方向提案",
+   "location": "snapshots",
+   "in_git": true,
+   "label": "v2方向提案",
+   "created_at": "2026-10-28T21:45:40",
    "file_count": 134
   }
  ]
