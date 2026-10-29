@@ -45,3 +45,13 @@ jobs:
 
       - name: 全量自检（脚本自检 + A–H 门禁 + 56 项回归）
         run: make selftest
+
+      - name: 覆盖率 ratchet 门槛（基线见 tools/coverage-baseline.txt）
+        # 独立步骤而非 A–H 第 9 项：coverage 需要装第三方包，放门禁里会让
+        # 「干净环境全过」的承诺破产（H 项 2026-10-23 的教训）。ratchet 只许上不许下。
+        run: |
+          python3 -m venv /tmp/cov-venv
+          /tmp/cov-venv/bin/pip install -q coverage
+          ./tools/coverage_run.sh > /tmp/cov.log 2>&1 || { tail -30 /tmp/cov.log; exit 1; }
+          PCT=$(awk '$1=="TOTAL"{gsub(/%/,"",$4); print $4}' /tmp/cov.log)
+          ./tools/coverage_gate.sh "$PCT"

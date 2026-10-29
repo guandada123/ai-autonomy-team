@@ -1,7 +1,7 @@
 {
- "created_at": "2026-10-29T14:49:06",
- "label": "coverage口径合并",
- "file_count": 361,
+ "created_at": "2026-10-29T15:48:21",
+ "label": "基线80",
+ "file_count": 363,
  "files": {
   "scripts/build_package.py": {
    "sha256": "b2dad8c4b0adc07c8cc367c51c292263c2789cf6501a0a7481c80260de23f494",
@@ -552,8 +552,8 @@
    "bytes": 12762
   },
   "audit/TEST-AUDIT-20261028.md": {
-   "sha256": "52254449ea1b30613e0fc7aa7bcdd25a8dd3bbb89346de4a9084d15a0050f65a",
-   "bytes": 20367
+   "sha256": "36602d399d4371deb8bd4bd1b455ebb8c4c476f5e7797d92e6f07d1117bc430b",
+   "bytes": 21710
   },
   "audit/baseline/PROTOCOL-席位禁读边界-v1.md": {
    "sha256": "cd50dbf0dc2e222f6d1cfd85bb53c52b363f5783de32a0b7878c800f0d5d2b52",
@@ -1252,8 +1252,8 @@
    "bytes": 3156
   },
   "audit/kit/test_kit.py": {
-   "sha256": "4297752b0320e71e9195a87df50789cb0bf5b92d99d0483ab67e34d2eafa868d",
-   "bytes": 32374
+   "sha256": "f74028d3282b037a756af541a2dd302458d276d1b5cda3497d736f824e214131",
+   "bytes": 44876
   },
   "audit/probes/premise/spec-cases.json": {
    "sha256": "d552c79e28bd10e2b02f776f31f49df6b24cce34618e8d489214d93d29cded41",
@@ -1408,8 +1408,8 @@
    "bytes": 4191
   },
   ".github/workflows/selftest.yml": {
-   "sha256": "dbd5e3b5e8d29e2651eedee714b95769e6d710e06a0a531099c930bf4014bbae",
-   "bytes": 1528
+   "sha256": "893c6a49f1dba12a21eab68aa70321572c78730e5985acc00c73753938a83b2f",
+   "bytes": 2140
   },
   "tools/.coveragerc": {
    "sha256": "259195805c84f3a5c3481aa9508eb4a650e8eb2182048ad5edbf01f26d9e07f8",
@@ -1418,6 +1418,14 @@
   "tools/README.md": {
    "sha256": "7c8ba7a8bd93015cf175353c6edaa6076053bf54554d50cb27b8f028171dbc2d",
    "bytes": 3166
+  },
+  "tools/coverage-baseline.txt": {
+   "sha256": "95aebc97bc646c67fdcd923a5965b001f3c8a5c4d3a77075112e12a3a311d760",
+   "bytes": 3
+  },
+  "tools/coverage_gate.sh": {
+   "sha256": "c7ca78294960790870fdf6fe03bfa7aec18d3bea2ede35b93483aa84e42db322",
+   "bytes": 1157
   },
   "tools/coverage_run.sh": {
    "sha256": "1e49a55fdc3bcd9f60a39a3c7b72ecde984db67089a475fed41720adf6e3590a",
@@ -1449,8 +1457,8 @@
   }
  },
  "caller": {
-  "pid": 11167,
-  "ppid": 11154,
-  "parent_cmd": "/bin/zsh -c . '/Users/guan/.workbuddy/shell-snapshots/snapshot-zsh-1793255598044-x483w7.sh' && if [ -n \"${CODEBUDDY_SAFE_DELETE_BIN_DIR:-}\" ]; then unalias rm unlink rmdir 2>/dev/null || true; unset -"
+  "pid": 51570,
+  "ppid": 51562,
+  "parent_cmd": "/bin/zsh -c . '/Users/guan/.workbuddy/shell-snapshots/snapshot-zsh-1793259546649-lkm22h.sh' && if [ -n \"${CODEBUDDY_SAFE_DELETE_BIN_DIR:-}\" ]; then unalias rm unlink rmdir 2>/dev/null || true; unset -"
  }
 }

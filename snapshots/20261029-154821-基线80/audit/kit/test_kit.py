@@ -710,6 +710,309 @@ def _():
 
 
 
+# ── 组N+3：接手验收 verify_handover（基线抬升，2026-10-29）──────────────
+# 此前零行为测试：它的 6 项结论就是「这台机器能不能接手」，判据本身没人撞过。
+# 纯函数用真模块直调；带分支的检查用临时目录 + 打桩（与 F9 同款模式）。
+
+
+def _vh(tmp: Path):
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("vh_ut", ROOT / "scripts/verify_handover.py")
+    vh = importlib.util.module_from_spec(spec)
+    sys.modules["vh_ut"] = vh
+    spec.loader.exec_module(vh)
+    vh.ROOT = tmp
+    vh.PKG = tmp / "migration-package"
+    return vh
+
+
+def _vh_run(vh, argv):
+    import contextlib
+    old = sys.argv
+    sys.argv = ["verify_handover.py", *argv]
+    out, err = io.StringIO(), io.StringIO()
+    try:
+        with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+            rc = vh.main()
+    finally:
+        sys.argv = old
+    return rc, out.getvalue(), err.getvalue()
+
+
+@check("verify_handover: _is_stdlib 三态（标准库/内置/第三方各自判定）")
+def _():
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("vh_t", ROOT / "scripts/verify_handover.py")
+    vh = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(vh)
+    assert vh._is_stdlib("json") is True                 # 纯标准库
+    assert vh._is_stdlib("_thread") is True              # built-in
+    assert vh._is_stdlib("no_such_module_xyz") is False  # 不存在
+    assert vh._is_stdlib("coverage") is False            # 本 venv 装了它 → site-packages
+
+
+@check("verify_handover: chk_manifest 正样本（真包声明=实际）")
+def _():
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("vh_t2", ROOT / "scripts/verify_handover.py")
+    vh = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(vh)
+    ok, detail = vh.chk_manifest()
+    assert ok is True and "声明 1121" in detail, detail
+
+
+@check("verify_handover: chk_manifest 三条负样本（坏 JSON/计数不符/缓存残留）")
+def _():
+    with tempfile.TemporaryDirectory() as td:
+        tmp = Path(td)
+        pkg = tmp / "migration-package"
+        pkg.mkdir()
+        (pkg / "a.py").write_text("x\n", encoding="utf-8")
+        vh = _vh(tmp)
+
+        ok, d = vh.chk_manifest()
+        assert ok is False and "读不到" in d, d
+
+        (pkg / "MANIFEST.json").write_text('{"stats": {"file_count": 1, "total_bytes": 2}}',
+                                           encoding="utf-8")
+        ok, d = vh.chk_manifest()
+        assert ok is True and "实际 1 个文件" in d, d    # 1 个文件对 1 条声明
+
+        (pkg / "MANIFEST.json").write_text('{"stats": {"file_count": 99, "total_bytes": 2}}',
+                                           encoding="utf-8")
+        ok, d = vh.chk_manifest()
+        assert ok is False and "99" in d, d
+
+        # 2026-10-22 实测的交付卫生问题：缓存不算文件数，但要单独提示
+        cache = pkg / "judges" / "__pycache__"
+        cache.mkdir(parents=True)
+        (cache / "x.cpython-313.pyc").write_bytes(b"junk")
+        ok, d = vh.chk_manifest()
+        assert ok is False and "缓存文件" in d, d
+
+
+@check("verify_handover: chk_hook 全部分支（OK/未装/不可执行/内容不对/非 git）")
+def _():
+    import subprocess
+
+    def mkrepo(tag, hook_body=None, hook_mode=0o755):
+        td = Path(tempfile.mkdtemp(prefix=f"vh-hook-{tag}-"))
+        subprocess.run(["git", "init", "-q"], cwd=td, check=True, capture_output=True)
+        (td / "scripts").mkdir()
+        (td / "scripts" / "pre_push_scan.py").write_text("# hook target\n", encoding="utf-8")
+        if hook_body is not None:
+            h = td / ".git" / "hooks" / "pre-push"
+            h.write_text(hook_body, encoding="utf-8")
+            h.chmod(hook_mode)
+        return _vh(td)
+
+    vh = mkrepo("ok", "#!/bin/sh\nexec python3 scripts/pre_push_scan.py --hook\n")
+    ok, d = vh.chk_hook()
+    assert ok is True and "pre_push_scan.py" in d, d
+
+    vh = mkrepo("missing")                                # git 仓库但没装钩子
+    ok, d = vh.chk_hook()
+    assert ok is False and "未安装" in d, d
+
+    vh = mkrepo("noexec", "#!/bin/sh\n", hook_mode=0o644)
+    ok, d = vh.chk_hook()
+    assert ok is False and "不可执行" in d, d
+
+    vh = mkrepo("wrong", "#!/bin/sh\necho 别的钩子\n")
+    ok, d = vh.chk_hook()
+    assert ok is False and "未调用" in d, d
+
+    td = Path(tempfile.mkdtemp(prefix="vh-nogit-"))       # 不是 git 仓库
+    vh = _vh(td)
+    ok, d = vh.chk_hook()
+    assert ok is False and "不是 git 仓库" in d, d
+
+
+@check("verify_handover: chk_regress 单包分支（拿到的是包不是工作区 → 明说）")
+def _():
+    with tempfile.TemporaryDirectory() as td:
+        tmp = Path(td)
+        vh = _vh(tmp)
+        (vh.PKG).mkdir()
+        ok, d = vh.chk_regress()
+        assert ok is False and "单包" in d, d
+
+
+@check("verify_handover: main 聚合（--count 自报 6 / PKG 缺失 → 2 / 异常项记失败不崩）")
+def _():
+    with tempfile.TemporaryDirectory() as td:
+        tmp = Path(td)
+        vh = _vh(tmp)
+        rc, out, err = _vh_run(vh, ["--count"])
+        assert rc == 0 and out.strip() == "6", (rc, out)
+
+        rc, out, err = _vh_run(vh, [])                    # PKG 不存在 → 环境错误
+        assert rc == 2, f"rc={rc}\n{out}{err}"
+
+        vh.PKG.mkdir()                                    # 异常注入需要过 PKG 存在性检查
+        def boom():
+            raise RuntimeError("注入")
+        vh.CHECKS = [("甲 会炸", boom), ("乙 正常", lambda: (True, "1/1"))]
+        rc, out, err = _vh_run(vh, ["-q"])
+        assert rc == 1 and "甲 会炸" in err, (rc, err)
+
+
+# ── 组N+4：推前闸门 pre_push_scan（基线抬升，2026-10-29）─────────────────
+# --self-test 只证明「模式能命中正样本」（18 条），扫描/权限判定/钩子安装零测试。
+
+
+def _pps(tag="a"):
+    import importlib.util
+    spec = importlib.util.spec_from_file_location(f"pps_ut_{tag}",
+                                                  ROOT / "scripts/pre_push_scan.py")
+    pps = importlib.util.module_from_spec(spec)
+    sys.modules[f"pps_ut_{tag}"] = pps
+    spec.loader.exec_module(pps)
+    return pps
+
+
+def _mini_repo(tmp: Path, files: dict):
+    import subprocess
+    subprocess.run(["git", "init", "-q"], cwd=tmp, check=True, capture_output=True)
+    subprocess.run(["git", "config", "user.email", "t@t"], cwd=tmp, check=True, capture_output=True)
+    subprocess.run(["git", "config", "user.name", "t"], cwd=tmp, check=True, capture_output=True)
+    for rel, content in files.items():
+        f = tmp / rel
+        f.parent.mkdir(parents=True, exist_ok=True)
+        f.write_text(content, encoding="utf-8")
+    subprocess.run(["git", "add", "-A"], cwd=tmp, check=True, capture_output=True)
+    subprocess.run(["git", "commit", "-qm", "t"], cwd=tmp, check=True, capture_output=True)
+
+
+@check("pre_push_scan: pattern_self_test 正样本（真模块 18 条模式全命中）")
+def _():
+    pps = _pps("ok")
+    ok, lines = pps.pattern_self_test(verbose=False)
+    assert ok is True, lines
+    assert sum(1 for ln in lines if ln.startswith("  [ok]")) == len(pps.PROBES), lines
+
+
+@check("pre_push_scan: pattern_self_test 三条负路（缺样本/多样本/抓不到）")
+def _():
+    import re as _re
+    # 独立模块副本上注入，不污染真模块
+    pps = _pps("neg")
+    pps.SECRET_PATTERNS = pps.SECRET_PATTERNS + [(_re.compile(r"NEVER_MATCH_XYZ"), "幽灵模式")]
+    ok, lines = pps.pattern_self_test(verbose=False)
+    assert ok is False and any("没有正样本" in ln for ln in lines), lines
+
+    pps2 = _pps("neg2")
+    pps2.PROBES = dict(pps2.PROBES)
+    pps2.PROBES["不存在的模式"] = "x"                       # 名字写错 → extra
+    ok, lines = pps2.pattern_self_test(verbose=False)
+    assert ok is False and any("没有对应模式" in ln for ln in lines), lines
+
+    pps3 = _pps("neg3")
+    pps3.PROBES = dict(pps3.PROBES)
+    pps3.PROBES["OpenAI 风格密钥 sk-…"] = "sk-short"        # 抓不到自己的样本
+    ok, lines = pps3.pattern_self_test(verbose=False)
+    assert ok is False and any("抓不到自己的正样本" in ln for ln in lines), lines
+
+
+@check("pre_push_scan: reachable_blobs + scan_history（迷你仓库：命中/干净/非 blob 跳过）")
+def _():
+    with tempfile.TemporaryDirectory() as td:
+        tmp = Path(td)
+        probe = _pps("scan").PROBES["OpenAI 风格密钥 sk-…"]
+        _mini_repo(tmp, {"docs/clean.md": "正常内容，token 用量 126100\n",
+                         "leaks/key.txt": probe + "\n"})
+        pps = _pps("scan2")
+        pps.ROOT = tmp
+        blobs = pps.reachable_blobs()
+        # rev-list --objects 会连 tree 一起列出（带路径）——文件必须都在，
+        # 而 scan_history 靠 kind==blob 把 tree/commit 跳过（这正是被测行为之一）
+        assert {"docs/clean.md", "leaks/key.txt"} <= set(blobs.values()), blobs
+
+        hits = pps.scan_history()
+        assert len(hits) == 1 and hits[0][0] == "leaks/key.txt", hits   # tree 不产生命中
+        assert "OpenAI" in hits[0][1], hits
+
+
+@check("pre_push_scan: check_remote_visibility 四态（无origin/非GitHub/gh假PUBLIC/gh假PRIVATE）")
+def _():
+    import subprocess as sp
+    with tempfile.TemporaryDirectory() as td:
+        tmp = Path(td)
+        _mini_repo(tmp, {"a.txt": "x\n"})
+        pps = _pps("rv")
+        pps.ROOT = tmp
+
+        st, msg = pps.check_remote_visibility()
+        assert st == "ok" and "无 origin" in msg, (st, msg)
+
+        sp.run(["git", "remote", "add", "origin", "https://gitlab.com/x/y.git"],
+               cwd=tmp, check=True, capture_output=True)
+        st, msg = pps.check_remote_visibility()
+        assert st == "unknown" and "非 GitHub" in msg, (st, msg)
+
+        # 假 gh：注入 PATH 的可执行文件，分别返回 PUBLIC / PRIVATE / 坏 JSON
+        binp = tmp / "bin"
+        binp.mkdir()
+        for name, body in (("gh_pub", '{"visibility": "PUBLIC"}'),
+                           ("gh_priv", '{"visibility": "PRIVATE"}'),
+                           ("gh_bad", "not-json")):
+            f = binp / name
+            f.write_text("#!/bin/sh\ncat <<'EOF'\n" + body + "\nEOF\n", encoding="utf-8")
+            f.chmod(0o755)
+        sp.run(["git", "remote", "set-url", "origin", "https://github.com/x/y.git"],
+               cwd=tmp, check=True, capture_output=True)
+        old_path = pps.subprocess  # noqa 占位，真正注入在下面
+        import os as _os
+        real_env_path = _os.environ.get("PATH", "")
+
+        def _with_gh(ghname, extra_path=real_env_path):
+            _os.environ["PATH"] = f"{binp}:{extra_path}"
+            # 让脚本里的 gh 解析到假脚本：改名为 gh
+            gh = binp / "gh"
+            gh.write_text((binp / ghname).read_text(encoding="utf-8"), encoding="utf-8")
+            gh.chmod(0o755)
+        try:
+            _with_gh("gh_pub")
+            st, msg = pps.check_remote_visibility()
+            assert st == "public" and "PUBLIC" in msg, (st, msg)
+
+            _with_gh("gh_priv")
+            st, msg = pps.check_remote_visibility()
+            assert st == "ok" and "PRIVATE" in msg, (st, msg)
+
+            _with_gh("gh_bad")
+            st, msg = pps.check_remote_visibility()
+            assert st == "unknown", (st, msg)          # 坏 JSON 不许被当成 private
+        finally:
+            _os.environ["PATH"] = real_env_path
+
+
+@check("pre_push_scan: --install-hook 生成可执行钩子，且接手验收第 6 项因此转绿（联动）")
+def _():
+    import subprocess as sp
+    with tempfile.TemporaryDirectory() as td:
+        tmp = Path(td)
+        _mini_repo(tmp, {"a.txt": "x\n"})
+        pps = _pps("hook")
+        pps.ROOT = tmp
+        old = sys.argv
+        sys.argv = ["pre_push_scan.py", "--install-hook"]
+        try:
+            rc = pps.main()
+        finally:
+            sys.argv = old
+        assert rc == 0, rc
+        hook = tmp / ".git" / "hooks" / "pre-push"
+        assert hook.is_file() and "pre_push_scan.py" in hook.read_text(encoding="utf-8")
+
+        # 联动：verify_handover 第 6 项对同一个仓库必须判 OK
+        vh = _vh(tmp)
+        (tmp / "scripts").mkdir()
+        (tmp / "scripts" / "pre_push_scan.py").write_text("# target\n", encoding="utf-8")
+        ok, d = vh.chk_hook()
+        assert ok is True, d
+
+
 # ── 运行器 ───────────────────────────────────────────────────────────────
 
 def main() -> int:
