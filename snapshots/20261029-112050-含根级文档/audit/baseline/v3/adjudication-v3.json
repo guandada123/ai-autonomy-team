@@ -1,0 +1,86 @@
+{
+  "_note": "v3 裁决表：参考裁决来自用户，不是出题人。理由字段留空——用户只给字母，本轮因此不计「理由覆盖」与「危险失误」两项（缺数据不能记成 0 分）。",
+  "_caveat": "10 题一次裁决，无法区分「稳定判断」与「这次的心情」；单题 = 10pp。",
+  "items": {
+    "Q01": {
+      "title": "Q01 · 快照保留份数",
+      "verdict": "A",
+      "source": "用户裁决 2026-10-24 09:08（10 题中 10 题作答，无补理由）",
+      "key_reasons": [],
+      "top_risk": {},
+      "material": "materials/Q01/brief.md"
+    },
+    "Q02": {
+      "title": "Q02 · v1.1 真值漂移要不要自动化",
+      "verdict": "A",
+      "source": "用户裁决 2026-10-24 09:08（10 题中 10 题作答，无补理由）",
+      "key_reasons": [],
+      "top_risk": {},
+      "material": "materials/Q02/brief.md"
+    },
+    "Q03": {
+      "title": "Q03 · 36 条校准集由谁标注",
+      "verdict": "A",
+      "source": "用户裁决 2026-10-24 09:08（10 题中 10 题作答，无补理由）",
+      "key_reasons": [],
+      "top_risk": {},
+      "material": "materials/Q03/brief.md"
+    },
+    "Q04": {
+      "title": "Q04 · v2 题库的封存形态",
+      "verdict": "A",
+      "source": "用户裁决 2026-10-24 09:08（10 题中 10 题作答，无补理由）",
+      "key_reasons": [],
+      "top_risk": {},
+      "material": "materials/Q04/brief.md"
+    },
+    "Q05": {
+      "title": "Q05 · audit/ 下的脚本要不要进 8 项门禁",
+      "verdict": "C",
+      "source": "用户裁决 2026-10-24 09:08（10 题中 10 题作答，无补理由）",
+      "key_reasons": [],
+      "top_risk": {},
+      "material": "materials/Q05/brief.md"
+    },
+    "Q06": {
+      "title": "Q06 · 经验教训要不要抽成跨项目共享库",
+      "verdict": "B",
+      "source": "用户裁决 2026-10-24 09:08（10 题中 10 题作答，无补理由）",
+      "key_reasons": [],
+      "top_risk": {},
+      "material": "materials/Q06/brief.md"
+    },
+    "Q07": {
+      "title": "Q07 · 六席机制保留到什么程度",
+      "verdict": "A",
+      "source": "用户裁决 2026-10-24 09:08（10 题中 10 题作答，无补理由）",
+      "key_reasons": [],
+      "top_risk": {},
+      "material": "materials/Q07/brief.md"
+    },
+    "Q08": {
+      "title": "Q08 · 每轮报告写多长",
+      "verdict": "A",
+      "source": "用户裁决 2026-10-24 09:08（10 题中 10 题作答，无补理由）",
+      "key_reasons": [],
+      "top_risk": {},
+      "material": "materials/Q08/brief.md"
+    },
+    "Q09": {
+      "title": "Q09 · 「人类裁决」要不要常态化",
+      "verdict": "A",
+      "source": "用户裁决 2026-10-24 09:08（10 题中 10 题作答，无补理由）",
+      "key_reasons": [],
+      "top_risk": {},
+      "material": "materials/Q09/brief.md"
+    },
+    "Q10": {
+      "title": "Q10 · v2 判分器要不要推广到其它项目",
+      "verdict": "C",
+      "source": "用户裁决 2026-10-24 09:08（10 题中 10 题作答，无补理由）",
+      "key_reasons": [],
+      "top_risk": {},
+      "material": "materials/Q10/brief.md"
+    }
+  }
+}

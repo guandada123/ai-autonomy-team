@@ -1,0 +1,127 @@
+{
+  "_note": "v2 第四轮（A/B 分批）B 批 S1，回传转录（reasons 保留要点）。",
+  "seat": "S1",
+  "batch": "B",
+  "used_tools": true,
+  "forbidden_paths_read": false,
+  "answers": {
+    "V2-03": {
+      "verdict": "dont",
+      "reasons": [
+        "题面来源一换分数 100%→61.1%，改旧题等于换卷；sha256 锚改一字节即红；新批次可承接真值更新"
+      ],
+      "top_risk": "旧题真值持续腐化，v1 最终只剩考古价值",
+      "falsification": "若存在改题后仍维持跨批次可比的机制，则不准改是多余的",
+      "confidence": "high"
+    },
+    "V2-06": {
+      "verdict": "dont",
+      "reasons": [
+        "上限 19/27 < 20/27，任何臂都必然低于基线；偏差来自仓库变化不是模型退化；只校验 sha256"
+      ],
+      "top_risk": "重锚版几小时内同样腐化，只是把问题推迟",
+      "falsification": "若部分题真值变化不影响判分，则上限论证不成立",
+      "confidence": "high"
+    },
+    "V2-07": {
+      "verdict": "dont",
+      "reasons": [
+        "只测过一次没有方差；覆盖率与测试有效性无关，会奖励刷覆盖；采集机制本身脆弱易假红"
+      ],
+      "top_risk": "无门禁则覆盖率静默下滑",
+      "falsification": "若拿到 3 次以上稳定基线且有制衡指标，则设阈值成立",
+      "confidence": "high"
+    },
+    "V2-11": {
+      "verdict": "dont",
+      "reasons": [
+        "钩子缺失时无一处会红，而 CI 在推送后才跑；接手验收正是本机可用性入口；与 CI 互补不冲突"
+      ],
+      "top_risk": "只查文件存在，内容过期的钩子照样通过",
+      "falsification": "若钩子内容无入库基准 hash，则收益接近零",
+      "confidence": "high"
+    },
+    "V2-13": {
+      "verdict": "dont",
+      "reasons": [
+        "静默 off 与通过不可区分，是最危险的一类失败；同类已多次属系统性缺陷；内部改契约成本低"
+      ],
+      "top_risk": "非标准目录调用占多数时大面积中断，退化为形式主义",
+      "falsification": "若统计显示非标准目录占大多数，则应退到显式 WARNING",
+      "confidence": "high"
+    },
+    "V2-15": {
+      "verdict": "do",
+      "reasons": [
+        "使用者明确要求人保留终裁；不可逆事项事后复盘在定义上无效；三级划分同时解两个失效模式"
+      ],
+      "top_risk": "可逆边界划错，把实际不可逆的判成可逆",
+      "falsification": "若待裁队列否决率近 0 且处理极短，则退化为纯瓶颈",
+      "confidence": "high"
+    },
+    "V2-17": {
+      "verdict": "do",
+      "reasons": [
+        "目标机 python3 无三方库；否决权部件跑不起来整个交付失效；一律零依赖是让所有项目为一个付费"
+      ],
+      "top_risk": "业务侧放开使供应链面不受控",
+      "falsification": "若该部件现状已零依赖，则迁移包这条约束空转",
+      "confidence": "high"
+    },
+    "V2-18": {
+      "verdict": "do",
+      "reasons": [
+        "自由文本阈值靠感觉且不可证伪；结构化可定位可复现；填卡是一次性成本"
+      ],
+      "top_risk": "填卡形式化，字段齐但内容空",
+      "falsification": "若结构化卡「合规但前提被推翻」比例显著更高，则只是把负担前移",
+      "confidence": "high"
+    },
+    "V2-20": {
+      "verdict": "do",
+      "reasons": [
+        "跨族在默认环境不可得是环境事实；同质辩论期望不变；判据与探针不依赖多模型"
+      ],
+      "top_risk": "把独立性 0 过度推广成多席位无价值",
+      "falsification": "若同模型多席实测降低方差，则应改称独立性低但不为零",
+      "confidence": "high"
+    },
+    "V2-22": {
+      "verdict": "do",
+      "reasons": [
+        "不存在的模型名照样返回，是决定性证据；路由记录读不到；Self-MoA 可验证"
+      ],
+      "top_risk": "静默回退意味着此前多模型结论全部作废",
+      "falsification": "若某环境能读到路由或非法模型名会报错，则前提消失",
+      "confidence": "high"
+    },
+    "V2-24": {
+      "verdict": "dont",
+      "reasons": [
+        "两类失败（判据没定义、方向错）在执行阶段无法补救；使用者明确要求；审计计划正是为纠错而设"
+      ],
+      "top_risk": "小任务 overhead 过重被普遍跳过",
+      "falsification": "若小改动占多数且延迟显著上升，则应按改动面分级",
+      "confidence": "high"
+    },
+    "V2-26": {
+      "verdict": "do",
+      "reasons": [
+        "根级四份引用 6 编号从未被扫，同一句话 README 不红 docs 红；当前门禁在惩罚诚实；带格式的豁免可压滥用面"
+      ],
+      "top_risk": "豁免句式被复制粘贴使 F 项退化",
+      "falsification": "若扩范围后历史欠账无法清偿导致长期红，则应分批",
+      "confidence": "medium"
+    },
+    "V2-27": {
+      "verdict": "do",
+      "reasons": [
+        "14/14 当参照使非劣效必然成立；重跑成本远低于得出不可证伪结论；理论值口径都对不上"
+      ],
+      "top_risk": "14 题样本太小，置信区间极宽",
+      "falsification": "若重跑后基线仍近 100%，则应改用绝对差值+置信区间",
+      "confidence": "medium"
+    }
+  },
+  "note": "13 题均按各题末尾标签语义作答（V2-11/V2-13/V2-24 的 do 是维持现状，故取 dont）。"
+}

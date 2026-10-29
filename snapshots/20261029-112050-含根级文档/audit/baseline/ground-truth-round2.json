@@ -1,0 +1,90 @@
+{
+  "_note": "第二轮真值（Q11–Q31）。全部测量得出；Q21/Q23/Q24 因口径或无真源被排除。",
+  "Q11": {
+    "v": "D-0055",
+    "measured": "ls docs/decisions | grep ^D- | sort | tail -1"
+  },
+  "Q12": {
+    "v": 7,
+    "measured": "ls migration-package/protocol/*.md | wc -l"
+  },
+  "Q13": {
+    "v": 21,
+    "measured": "ls migration-package/fixtures/tasks | wc -l"
+  },
+  "Q14": {
+    "v": 15,
+    "measured": "ls .learnings/L-*.md | wc -l"
+  },
+  "Q15": {
+    "v": 34,
+    "measured": "ls -d migration-package/runs/round* | wc -l"
+  },
+  "Q16": {
+    "v": 28,
+    "measured": "ls scripts/*.py | wc -l"
+  },
+  "Q17": {
+    "v": 7,
+    "measured": "ls scripts/judges | wc -l"
+  },
+  "Q18": {
+    "v": 6,
+    "measured": "ls templates | wc -l（ad/ex×3/pm/xj 各一）"
+  },
+  "Q19": {
+    "v": 633,
+    "measured": "git ls-files '*.md' | wc -l"
+  },
+  "Q20": {
+    "v": "2026-10-23",
+    "measured": "git log --reverse --format=%ad --date=short | head -1"
+  },
+  "Q21": {
+    "v": null,
+    "verdict": "excluded",
+    "measured": "用户 2026-10-24 更正：本金分时期——最初 1.5 万 → 后来设为 5 万（与模拟盘持平）→ 后来提供真实实盘（≈¥41,652，2026-10-22 国金 APP 口径）。不存在单一真值，必须带时点；本题无时点，作废"
+  },
+  "Q22": {
+    "v": 4,
+    "measured": "用户 2026-10-24 更正：实盘 3 只（长电 600584 / 华天 002185 / 科创半导体ETF 华夏）+ 模拟盘 1 只（招商银行）= 4 只。MEMORY.md L144 仍记『模拟盘 美的/长电600900/紫金』，属过时记录"
+  },
+  "Q23": {
+    "v": 50,
+    "measured": "用户 2026-10-24 确认：上限 50% 是给他设置的规则，他同意了，但自己打破未遵守（实际 77%）。→ 规则本身有效，本题有真值"
+  },
+  "Q24": {
+    "v": null,
+    "verdict": "excluded",
+    "measured": "用户 2026-10-24 确认：规则是 −8%（他同意过、自己打破了未遵守）；且明确『以后问止损线按持仓板块分别说』→ 主板 −8% / 创业板 −15%，题面未声明板块，作废"
+  },
+  "Q25": {
+    "v": 80,
+    "measured": "MEMORY.md L109『Claw(A股投顾核心,80+自动化/75+活跃)』"
+  },
+  "Q26": {
+    "v": 89.69,
+    "measured": "会话摘要 2026-10-17《StockInsight》『coverage 89.69%』（本次独立复核）"
+  },
+  "Q27": {
+    "v": null,
+    "verdict": "excluded",
+    "measured": "用户 2026-10-24 更正：『应该跑了几轮，这个数据变化还是和时间相关』→ 测试数随时点变化，无单一真值，需带时点；本题作废"
+  },
+  "Q28": {
+    "v": 3435,
+    "measured": "会话摘要 2026-10-18『trading_memory.json（3435→840 条）』"
+  },
+  "Q29": {
+    "v": "70.5x50.5",
+    "measured": "会话摘要 2026-10-18《露营车茶台》『hard tabletop 70.5×50.5cm』"
+  },
+  "Q30": {
+    "v": "90x70",
+    "measured": "会话摘要 2026-10-18《露营车茶台》『revised to 90×70 main』"
+  },
+  "Q31": {
+    "v": 867,
+    "measured": "会话摘要 2026-10-18《Claw资料库》『基于867笔样本模拟-8%止损』"
+  }
+}

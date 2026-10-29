@@ -1,0 +1,9 @@
+{"_note":"v2 第 3 席（S3）作答，回传原文转录。","seat":"S3","used_tools":true,"forbidden_paths_read":false,
+"answers":{
+"V2-01":{"verdict":"do","reasons":["覆盖关系实测：祖先关系全通过、tar 条目差集 0","2348 自身通过还原验证；私有远端有完整历史","删除只走废纸篓"],"top_risk":"2348 损坏则四组皆失","falsification":"若 2348 无法还原或旧 bundle 有独有提交，则裁断错","confidence":"high"},
+"V2-02":{"verdict":"dont","reasons":["独立性为 0 时配对设计的「非劣效」几乎是恒真命题，测不出任何东西","27 题对 5pp margin 没有功效，b/c 各自 1~2 题的差别就在噪声里","成本虽然低（81 席输出），但会产出一个看似有结论、实际无信息的数字"],"top_risk":"把「不劣」当成「有用」，据此扩大席位投入","falsification":"若能算出 27 题配对在 5pp margin 下的检验功效并证明 ≥80%，则我的反对不成立","confidence":"medium"},
+"V2-03":{"verdict":"dont","reasons":["只换题面来源分数就 100%→61.1%，说明题集是实验条件","冻结有 sha256 + 回归项做载体","改真值=换尺子，历史分数不可比"],"top_risk":"题库老化被固化","falsification":"若改动可版本化且历史分数重算并标注不可比，则可改","confidence":"high"},
+"V2-04":{"verdict":"dont","reasons":["macOS 10 倍分钟计费，私有仓库预算紧","Linux 已覆盖 clone + 回归 + 门禁","quotePath 类差异可用单条校验兜住，不构成上矩阵的理由"],"top_risk":"漏检 macOS 特有问题","falsification":"若出现第二次 macOS-only 事故，则应加","confidence":"high"},
+"V2-05":{"verdict":"do","reasons":["人工同步 5 次说明必然漂","零检查导致已多次不符","已有同步脚本 + A 项"],"top_risk":"频繁红被忽略","falsification":"若 30 天内红项多为误报则无收益","confidence":"high"},
+"V2-06":{"verdict":"do","reasons":["8/27 失效，上限 19/27 < 20/27","哈希只证明没被改，不证明还对","v1 文件保留，可回退"],"top_risk":"74.1% 不可跨期比较","falsification":"若 8 题中有一题其实准确，则停用理由减弱","confidence":"high"}},
+"note":"V2-02 判 dont 的核心是「非劣效在独立性为 0 时近乎恒真」，而非样本量。"}

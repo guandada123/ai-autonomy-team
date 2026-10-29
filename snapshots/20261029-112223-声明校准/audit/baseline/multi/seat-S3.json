@@ -1,0 +1,8 @@
+{
+  "_note": "第 3 席（S3）作答，回传原文转录。条件：新上下文、无工具、无项目路径、凭记忆。",
+  "seat": "S3",
+  "used_tools": false,
+  "answers": {"T02": null, "T03": null, "T04": null, "T05": null, "T06": null, "T07": null, "T08": 9.75, "T09": 10.9, "T10": null, "Q14": null, "Q15": null, "Q22": null, "Q23": null, "Q25": null, "Q26": null, "Q28": null, "Q29": null, "Q30": null, "Q31": null, "Q11": null, "Q12": null, "Q13": null, "Q16": null, "Q17": null, "Q18": null, "Q19": null, "Q20": null},
+  "confidence": {"T02": "low", "T03": "low", "T04": "low", "T05": "low", "T06": "low", "T07": "low", "T08": "high", "T09": "high", "T10": "low", "Q14": "low", "Q15": "low", "Q22": "low", "Q23": "low", "Q25": "low", "Q26": "low", "Q28": "low", "Q29": "low", "Q30": "low", "Q31": "low", "Q11": "low", "Q12": "low", "Q13": "low", "Q16": "low", "Q17": "low", "Q18": "low", "Q19": "low", "Q20": "low"},
+  "note": "本会话上下文中没有任何该私有工程的记忆；仅 T08（(90-70.5)/2=9.75）与 T09（-5.44-(-16.34)=10.9）由题干数字直接算出，其余全 null 标 low。"
+}

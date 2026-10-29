@@ -1,0 +1,147 @@
+{
+  "_note": "v2 第二轮（12 题）单席臂 M1，回传原文转录。",
+  "seat": "M1",
+  "used_tools": true,
+  "forbidden_paths_read": false,
+  "answers": {
+    "V2-01": {
+      "verdict": "do",
+      "reasons": [
+        "三个旧 bundle 的 HEAD 经 merge-base --is-ancestor 均证明是 317a6e9 的祖先",
+        "2348 与三个旧 tar 做 comm -23，独有条目均为 0",
+        "2348 自身通过还原验证，且私有 GitHub 远端另存完整历史",
+        "删除去向是 _trash/ 而非 rm，动作可逆"
+      ],
+      "top_risk": "comm 只比条目名不比内容",
+      "falsification": "若内容级 sha256 比对发现同名但内容不同，则已被覆盖不成立",
+      "confidence": "medium"
+    },
+    "V2-03": {
+      "verdict": "dont",
+      "reasons": [
+        "题集敏感性实验：只换题面来源，100% 掉到 61.1%",
+        "冻结锚 5 份文件 sha256，改一个字节即红",
+        "只准新增批次已是现行规则",
+        "4 题已作废说明作废口径可用"
+      ],
+      "top_risk": "真值已失效的题仍被引用出分",
+      "falsification": "若能在不改旧字节前提高效重锚，则禁令多此一举",
+      "confidence": "high"
+    },
+    "V2-04": {
+      "verdict": "do",
+      "reasons": [
+        "已发生过的 core.quotePath 差异正是 Linux 上不会出现的坑，而开发机是 macOS",
+        "54 项回归 + 8 项门禁全在 Linux 跑通，无法证明 macOS 也过",
+        "只需一个 macOS job，成本可控"
+      ],
+      "top_risk": "挤占分钟预算，导致 Linux 检查被降频",
+      "falsification": "若 quotePath 类差异可被 Linux 侧断言覆盖，则收益为零",
+      "confidence": "medium"
+    },
+    "V2-05": {
+      "verdict": "do",
+      "reasons": [
+        "人工同步 5 次、每次 8~11 处，纯人工路径已被证伪",
+        "sync_doc_numbers.py + A 项可构成查改闭环",
+        "行数随每次提交变化，过期是必然态"
+      ],
+      "top_risk": "门禁把行数固化成发布硬阻塞",
+      "falsification": "若行数口径本身不稳定，设门禁只会制造假红",
+      "confidence": "high"
+    },
+    "V2-06": {
+      "verdict": "do",
+      "reasons": [
+        "8 题失效使天花板压到 19/27 < 20/27",
+        "冻结只校验 sha256，不校验真值是否成立",
+        "v1 文件保留，停用不等于销毁",
+        "失效清单逐题可核"
+      ],
+      "top_risk": "重锚版未验证就上台，出现无基准空窗",
+      "falsification": "若 8 题中有题真值其实未变，则紧迫性下降",
+      "confidence": "high"
+    },
+    "V2-07": {
+      "verdict": "dont",
+      "reasons": [
+        "基线只测过一次，单点测量没有方差",
+        "采集机制刚搭，稳定性未复测",
+        "覆盖率与测试有效性无直接关系，阈值会激励刷数字"
+      ],
+      "top_risk": "覆盖率缓慢下滑无人报警",
+      "falsification": "若连续 3 次波动小于 1pp，则阈值可设",
+      "confidence": "high"
+    },
+    "V2-08": {
+      "verdict": "do",
+      "reasons": [
+        "原结论建立在 20 条上，扩到 36 条后置信区间不再适用",
+        "新增 16 条专挑边界，正对原结论薄弱处",
+        "两次标注口径可能漂移",
+        "只动标注不动逻辑，归因干净"
+      ],
+      "top_risk": "重评后阈值其实没变，白跑一轮",
+      "falsification": "若二项比例检验显示落在同一置信区间，则无需推翻",
+      "confidence": "high"
+    },
+    "V2-09": {
+      "verdict": "do",
+      "reasons": [
+        "三种状态输出不可区分，前提审查事实上不存在",
+        "记一行跳过不拦任何人",
+        "脚本缺失也放行，可被删文件绕过"
+      ],
+      "top_risk": "批量加 --skip-premise，把隐性跳过变显性跳过",
+      "falsification": "若 --skip-premise 使用率接近 100%，则只是形式化",
+      "confidence": "medium"
+    },
+    "V2-10": {
+      "verdict": "dont",
+      "reasons": [
+        "4 处全在门禁路径上，收益仅约 20 行",
+        "裁判与 Decimal 语义深度纠缠",
+        "已有先例：冻结的硬裁判抽出去会依赖会变的模块"
+      ],
+      "top_risk": "四份封装各自演化出不一致",
+      "falsification": "若差异被固化成配置并有测试保证逐字节等价，则理由消失",
+      "confidence": "high"
+    },
+    "V2-11": {
+      "verdict": "do",
+      "reasons": [
+        "钩子缺失时全链路无一处会红",
+        "CI 拦不住密钥，钩子是数据离开前唯一闸口",
+        "换机即消失属必然而非偶发",
+        "钩子证明不了干净环境能跑，不构成反对理由"
+      ],
+      "top_risk": "新机器必然红，若无一键安装会变噪音",
+      "falsification": "若 CI 侧已有等价前置拦截，则优先级下降",
+      "confidence": "high"
+    },
+    "V2-12": {
+      "verdict": "do",
+      "reasons": [
+        "时长翻倍的前提不成立：项数是常量",
+        "门禁已有 8 项，边际成本可忽略",
+        "人工核对实际是没人核对",
+        "已知未覆盖本身是把缺口写成默认"
+      ],
+      "top_risk": "只核声明不核实际，形成新的假绿灯",
+      "falsification": "若存在运行期跳过使实际执行项数少于常量，则论据被推翻",
+      "confidence": "high"
+    },
+    "V2-13": {
+      "verdict": "do",
+      "reasons": [
+        "静默 off 与检查通过不可区分",
+        "同类静默跳过已多次出现",
+        "报错不等于封死，临时目录有显式出路"
+      ],
+      "top_risk": "契约变更让既有调用失败，使用者硬编码 off",
+      "falsification": "若非标准目录调用占多数且均良性，则摩擦大于收益",
+      "confidence": "medium"
+    }
+  },
+  "note": "12 题独立作答。"
+}

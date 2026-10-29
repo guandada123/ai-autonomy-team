@@ -1,0 +1,127 @@
+{
+  "_note": "v2 第四轮（A/B 分批）A 批 S1，回传转录（reasons 保留要点）。",
+  "seat": "S1",
+  "batch": "A",
+  "used_tools": true,
+  "forbidden_paths_read": false,
+  "answers": {
+    "V2-01": {
+      "verdict": "do",
+      "reasons": [
+        "merge-base 三条全通过；2348 还原验证 + 私有远端双兜底；删除走 _trash 可逆"
+      ],
+      "top_risk": "旧 tar 只比条目名不比内容",
+      "falsification": "若旧 tar 有内容不同条目则错",
+      "confidence": "medium"
+    },
+    "V2-04": {
+      "verdict": "dont",
+      "reasons": [
+        "10 倍计费且预算紧；Linux 覆盖的是脚本确定性行为；quotePath 可用配置在现有 job 定死"
+      ],
+      "top_risk": "macOS 独有路径/大小写/换行差异会流到发布",
+      "falsification": "若出现 Linux 全绿 macOS 必现的发布级缺陷，则不该省",
+      "confidence": "medium"
+    },
+    "V2-05": {
+      "verdict": "dont",
+      "reasons": [
+        "人工同步 5 次是量化重复劳动；零检查已多次失真；工具现成"
+      ],
+      "top_risk": "硬失败会把每次提交卡住，门禁变噪音",
+      "falsification": "若失败次数远高于拦下的真实问题，则应改为构建时生成",
+      "confidence": "medium"
+    },
+    "V2-08": {
+      "verdict": "dont",
+      "reasons": [
+        "20→36 近翻倍，原置信区间不足；新增专挑边界；标注口径已变"
+      ],
+      "top_risk": "把扩样当走过场验证",
+      "falsification": "若重跑后阈值位置与分离度几乎一致，则沿用也不错",
+      "confidence": "high"
+    },
+    "V2-09": {
+      "verdict": "do",
+      "reasons": [
+        "三态不可区分等于把失败伪装成通过；记一行不拦人；内部摩擦可接受"
+      ],
+      "top_risk": "缺文件硬失败被当麻烦而整体绕过",
+      "falsification": "若 --skip-premise 频率接近 100%，则只是明示跳过",
+      "confidence": "high"
+    },
+    "V2-10": {
+      "verdict": "dont",
+      "reasons": [
+        "四处都在门禁路径；已有冻结件抽取的前车之鉴；Decimal 语义会被耦合"
+      ],
+      "top_risk": "四处长期各自漂移，重复反成负担",
+      "falsification": "若同一 bug 需重复修三次以上，则重复成本超合并风险",
+      "confidence": "high"
+    },
+    "V2-12": {
+      "verdict": "dont",
+      "reasons": [
+        "时长翻倍理由不成立：项数是常量；门禁已有 8 项边际近零；人工核对实际没人核"
+      ],
+      "top_risk": "常量与 CHECKS 脱钩，得到永远为真的假绿灯",
+      "falsification": "若该项从未失败且无人改 CHECKS，则只是抄了常量",
+      "confidence": "high"
+    },
+    "V2-14": {
+      "verdict": "do",
+      "reasons": [
+        "合成任务已无可增信息；机制与口径可独立使用；可收缩形态不必丢弃资产"
+      ],
+      "top_risk": "参考实现变成一句话免责",
+      "falsification": "若判据/探针因缺少真实反馈而停止演进，则只保存了壳",
+      "confidence": "high"
+    },
+    "V2-16": {
+      "verdict": "do",
+      "reasons": [
+        "三条覆盖三个层次；第 2 条最贴近真实成本不该砍；no_data 让数据源缺口可见"
+      ],
+      "top_risk": "两条长期 no_data 使看板失去信任",
+      "falsification": "若半年后仍无数据源且整块被忽略，则应先做实有数据指标",
+      "confidence": "medium"
+    },
+    "V2-19": {
+      "verdict": "dont",
+      "reasons": [
+        "没做与通过不可区分，与 V2-09 同型；配置写着不等于实测；两项检查成本固定可预估"
+      ],
+      "top_risk": "拒绝开轮把调试挡住后被绕过",
+      "falsification": "若被卡次数远多于拦下的无效开轮，则应降级为警告",
+      "confidence": "high"
+    },
+    "V2-21": {
+      "verdict": "do",
+      "reasons": [
+        "官方文档写明可指定；原判据是观测手段不足；先写回配置再等实测"
+      ],
+      "top_risk": "配置写回后阈值一并升高，产出虚假独立性",
+      "falsification": "若实测指定被静默忽略，则应回退",
+      "confidence": "high"
+    },
+    "V2-23": {
+      "verdict": "do",
+      "reasons": [
+        "能验证处单席就过；需要它的地方分歧无法裁定；列分歧有独立价值"
+      ],
+      "top_risk": "缺少可检验产出标准，退化成无人用的清单",
+      "falsification": "若分歧从未被证伪或采纳，则应进一步收缩",
+      "confidence": "high"
+    },
+    "V2-25": {
+      "verdict": "dont",
+      "reasons": [
+        "裁剪让备份与审计同时失真；远端可 PRIVATE 且无密钥；防线应加在扫描与钩子"
+      ],
+      "top_risk": "把 PRIVATE+无密钥当充分条件，忽略业务敏感性",
+      "falsification": "若 real-runs 含可识别业务数据，则须先脱敏",
+      "confidence": "medium"
+    }
+  },
+  "note": "13 题按题干括号标签作答；两处门禁题（V2-09/V2-19）同判 fail-closed。"
+}

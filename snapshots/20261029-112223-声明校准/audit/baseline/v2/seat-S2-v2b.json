@@ -1,0 +1,117 @@
+{
+  "_note": "v2 第二轮（12 题）第 2 席 S2，回传原文转录。",
+  "seat": "S2",
+  "used_tools": true,
+  "forbidden_paths_read": false,
+  "answers": {
+    "V2-01": {
+      "verdict": "do",
+      "reasons": [
+        "祖先检查全通过；tar 独有条目 0；2348 还原验证通过 + 私有远端异地冗余；删除走 _trash/ 可回滚"
+      ],
+      "top_risk": "祖先与 tar 比对不覆盖 tag/reflog/stash 等引用元数据",
+      "falsification": "对任一旧 bundle 跑 list-heads/tag/reflog，若有不在 317a6e9 祖先链的引用则错",
+      "confidence": "medium"
+    },
+    "V2-03": {
+      "verdict": "dont",
+      "reasons": [
+        "题面来源一换 100%→61.1%，措辞即主变量；sha256 锚 + 回归第 53 项改一字节即红；已有 4 题作废通道；只准新增批次"
+      ],
+      "top_risk": "若偏差大到新旧批次不可比，不改会让 v1 历史分数失去参照",
+      "falsification": "若偏差源于判分脚本/真值文件缺陷且新批次无法修正，则 dont 错",
+      "confidence": "high"
+    },
+    "V2-04": {
+      "verdict": "dont",
+      "reasons": [
+        "私有仓 10 倍分钟计费且预算紧；开发机即 macOS，quotePath 类坑本地必先暴露；Linux 恰是团队没有的机器才需 CI 补；显式 -c core.quotePath=false 或 -z 即可根治"
+      ],
+      "top_risk": "macOS 还有不依赖本机残留的差异（大小写不敏感、默认 shell、gitignore 大小写）",
+      "falsification": "干净 macOS 环境跑 54 项回归若出现 Linux CI 未捕获的失败，则 dont 错",
+      "confidence": "medium"
+    },
+    "V2-05": {
+      "verdict": "do",
+      "reasons": [
+        "人工同步 5 次每次 8~11 处且多次不符无人发现；sync 脚本 + A 项工具已就位；行数是确定性可计算量，无口径争议"
+      ],
+      "top_risk": "行数每提交必变，硬阻断会让无关数字反复卡提交，催生绕过",
+      "falsification": "接入后一个月若触发次数远超其余门禁之和且多数与本次改动无关，则只制造噪音",
+      "confidence": "medium"
+    },
+    "V2-06": {
+      "verdict": "do",
+      "reasons": [
+        "上限被压到 19/27 < 20/27，必然得出全员退步的假结论；只校验 sha256 不校验真值；v1 文件保留可并行重锚；7 小时漂移 8/27"
+      ],
+      "top_risk": "重锚同时调口径会把真值更新与难度变化混在一起",
+      "falsification": "若逐题复核发现 8 题得分不受漂移影响（各臂本来就都错），则紧迫性不成立",
+      "confidence": "high"
+    },
+    "V2-07": {
+      "verdict": "dont",
+      "reasons": [
+        "基线只测过一次，单点不足以区分正常波动与真实下降；父子进程链路脆弱，阈值会被测量噪声触发；覆盖率与测试有效性无关，会激励刷分"
+      ],
+      "top_risk": "不设阈值等于无人看管，可能长期停滞或倒退",
+      "falsification": "若连续 3 次以上波动小于 1~2pp 且断言有效，则应改为按基线设阈值",
+      "confidence": "high"
+    },
+    "V2-08": {
+      "verdict": "do",
+      "reasons": [
+        "20→36 近翻倍，置信区间改变；新增 16 条专挑边界，正打原结论薄弱处；正负由各 10 变各 18，误判权重变了；只动标注变量隔离干净"
+      ],
+      "top_risk": "把新标注的口径漂移误读成阈值失效",
+      "falsification": "若仅用原 20 条重算的阈值移动在容差内，则扩样不影响原结论",
+      "confidence": "high"
+    },
+    "V2-09": {
+      "verdict": "do",
+      "reasons": [
+        "三态输出不可区分，等于把未审查洗成通过；记一行跳过不拦人；缺文件也放行，最需要拦的场景最静默；使用者是自己人，改造成本一次性"
+      ],
+      "top_risk": "多一个必填参数催生一律加 --skip-premise 的习惯",
+      "falsification": "若日志显示绝大多数轮次都带 --skip-premise，则只是换了种形式主义",
+      "confidence": "high"
+    },
+    "V2-10": {
+      "verdict": "dont",
+      "reasons": [
+        "四处都在门禁路径，收益仅约 20 行；verify.py 与 Decimal 深度纠缠，抽公共层会把浮点边界带进门禁；已有冻结件抽取的前车之鉴；当前重复尚未造成实际不一致"
+      ],
+      "top_risk": "长期看四份拷贝可能各自漂移，出现同一检查两种结果",
+      "falsification": "若日后四份已产生行为分歧（同输入不同退出码），则应合并并加等效性测试",
+      "confidence": "high"
+    },
+    "V2-11": {
+      "verdict": "do",
+      "reasons": [
+        "钩子缺失时推送照常成功、无一处会红；CI 拦不住密钥，钩子是离开前唯一闸口；本地文件恰属接手验收管辖；新机器红是唯一提示"
+      ],
+      "top_risk": "把本地环境纳入验收，会让刚 clone 的正常中间态变红，诱使人跳过整个 handover",
+      "falsification": "若 handover 因钩子失败比例过高且普遍选择绕过，则应降级为 WARN",
+      "confidence": "high"
+    },
+    "V2-12": {
+      "verdict": "do",
+      "reasons": [
+        "项数来自常量 len(CHECKS)，报它不需跑检查，时长翻倍的因果链是错的；人工核对实际没人核对；门禁已有 8 项，边际成本近零"
+      ],
+      "top_risk": "核的是常量 5，不是这台机器 5 项都过，绿灯制造假安全感",
+      "falsification": "若纳入必须 import verify_handover 而 import 会触发其内部回归（时长确实翻倍），则成本论据失效",
+      "confidence": "medium"
+    },
+    "V2-13": {
+      "verdict": "do",
+      "reasons": [
+        "静默 off 把没查洗成查过了；同类静默跳过已反复出现，属系统性模式缺陷；图省事正需被显式声明；内部工具契约变更代价一次性"
+      ],
+      "top_risk": "报错让既有调用（含测试夹具）集体失败，可能催生更粗暴的绕过",
+      "falsification": "若改后测试夹具被迫一律传 --preflight off，则只是把静默换成显式、无实质改善",
+      "confidence": "high"
+    }
+  },
+  "note": "12 题独立作答；V2-02 未读未答。judge dont 的共同理由是「收益小于不可逆风险」；两处 silent-skip 判 do 的理由是「不可区分即等于未执行」。"
+}

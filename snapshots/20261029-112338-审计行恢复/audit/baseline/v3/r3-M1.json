@@ -1,0 +1,80 @@
+{
+  "_note": "v3 重复运行第 3 次，M1。题面与提示与前次完全相同，独立会话。",
+  "seat": "M1",
+  "run": 3,
+  "used_tools": true,
+  "forbidden_paths_read": false,
+  "answers": {
+    "Q01": {
+      "verdict": "A",
+      "reasons": [
+        "H项只比最近1份、归档是移动不是删除、3.7MB无压力"
+      ],
+      "confidence": "medium"
+    },
+    "Q02": {
+      "verdict": "C",
+      "reasons": [
+        "漂移真实但非服务型项目，加定时背四件套，写待办成本最低"
+      ],
+      "confidence": "medium"
+    },
+    "Q03": {
+      "verdict": "B",
+      "reasons": [
+        "换模型能发现实现者口径漂移且不必你出标准逐条耗时；同源偏差消不掉与已降级措辞相符"
+      ],
+      "confidence": "medium"
+    },
+    "Q04": {
+      "verdict": "C",
+      "reasons": [
+        "结论易被误引且含端口路径备份结构，需archive并双处标注"
+      ],
+      "confidence": "medium"
+    },
+    "Q05": {
+      "verdict": "C",
+      "reasons": [
+        "仅手工调用但结论进决策记录，py_compile挡语法漂移且不拖慢门禁"
+      ],
+      "confidence": "medium"
+    },
+    "Q06": {
+      "verdict": "C",
+      "reasons": [
+        "仅1/3通用，抽库要先答四问，月导出以最低成本解决传播"
+      ],
+      "confidence": "medium"
+    },
+    "Q07": {
+      "verdict": "B",
+      "reasons": [
+        "四臂26/26零分歧、独立性按0计，砍席位不影响判据与探针"
+      ],
+      "confidence": "high"
+    },
+    "Q08": {
+      "verdict": "C",
+      "reasons": [
+        "逐题表是唯一可复算凭据，正文精简+详尽版附录两者兼得"
+      ],
+      "confidence": "medium"
+    },
+    "Q09": {
+      "verdict": "A",
+      "reasons": [
+        "单模型下唯一能破天花板的方式，只做一次下轮就回来"
+      ],
+      "confidence": "high"
+    },
+    "Q10": {
+      "verdict": "C",
+      "reasons": [
+        "强绑key_reasons，直接推广等于三份出题裁决工作量，先解耦"
+      ],
+      "confidence": "medium"
+    }
+  },
+  "note": "十题独立判断；Q03 在「你自标」与「换模型标」之间摇摆，两读各有道理。"
+}

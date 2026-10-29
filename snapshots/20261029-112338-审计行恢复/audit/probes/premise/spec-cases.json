@@ -1,0 +1,362 @@
+{
+  "_README": "规格符合性套件（spec-conformance），**不是**校准集。spec= 由 P-01/P-02/P-03 三条规则文本推导的期望值（不跑代码）；semantic= 不带规则知识的评审者会怎么判（作者判断，非独立真值）。用途：① spec 与实现比对抓回归；② spec 与 semantic 的分歧即规则盲区清单。id 已打散（前缀与标签无关），避免 D-0070 的'按组同构'问题。",
+  "created": "2026-10-26",
+  "cases": [
+    {
+      "id": "C01",
+      "semantic": "拦",
+      "spec": "拦",
+      "card": {
+        "beneficiary": "系统",
+        "metric": {
+          "name": "稳定性",
+          "baseline": 99.9,
+          "method": "监控"
+        },
+        "do_nothing_cost": {
+          "description": "可能出问题",
+          "comparable": true
+        }
+      },
+      "note": "【受益人黑名单但指标齐全】系统→黑名单清空为 0 字，P-01 命中；此卡用于验证 P-01 与 P-02/P-03 的组合"
+    },
+    {
+      "id": "C02",
+      "semantic": "过",
+      "spec": "过",
+      "card": {
+        "beneficiary": "团队发布值班人",
+        "metric": {
+          "name": "夜间发布失败次数",
+          "baseline": 0,
+          "method": "CI 失败记录"
+        },
+        "do_nothing_cost": {
+          "description": "每晚多花 20 分钟核对",
+          "comparable": true
+        }
+      },
+      "note": "【边界对偶】去『团队』后 5 字 → 过；与上一张仅差一字，用于暴露阈值脆弱性"
+    },
+    {
+      "id": "C03",
+      "semantic": "拦",
+      "spec": "过",
+      "card": {
+        "beneficiary": "负责夜间发布的值班同学",
+        "metric": {
+          "name": "发布耗时",
+          "baseline": 0,
+          "method": "人工记录"
+        },
+        "do_nothing_cost": {
+          "description": "每月两次手工返工",
+          "comparable": true
+        }
+      },
+      "note": "【基线荒谬】'发布耗时'基线 0（0 秒不可能），规则不查基线合理性"
+    },
+    {
+      "id": "C04",
+      "semantic": "过",
+      "spec": "过",
+      "card": {
+        "beneficiary": "夜间值班的 SRE",
+        "metric": {
+          "name": "告警响应时长",
+          "baseline": "15 分钟",
+          "method": "飞书告警时间戳"
+        },
+        "do_nothing_cost": {
+          "description": "故障持续到次日",
+          "comparable": true
+        }
+      },
+      "note": "同上"
+    },
+    {
+      "id": "C05",
+      "semantic": "过",
+      "spec": "过",
+      "card": {
+        "beneficiary": "王工",
+        "metric": {
+          "name": "对账残差",
+          "baseline": 33.09,
+          "method": "逐仓算残差"
+        },
+        "do_nothing_cost": {
+          "description": "月末返工 2 小时",
+          "comparable": true
+        }
+      },
+      "note": "【短但具体·第二例】王工 2 字，语义该过、规则判拦（与老张同类，用于确认不是孤例）｜2026-10-26 规格变更：加入人名豁免后 spec 由「拦」改为「过」"
+    },
+    {
+      "id": "C06",
+      "semantic": "拦",
+      "spec": "拦",
+      "card": {
+        "beneficiary": "团队发布值班",
+        "metric": {
+          "name": "错误决策数",
+          "baseline": 0,
+          "method": "每月统计"
+        },
+        "do_nothing_cost": {
+          "description": "按 0 判断",
+          "comparable": true
+        }
+      },
+      "note": "【边界】去『团队』后 4 字；语义上「发布值班」仍是无名角色"
+    },
+    {
+      "id": "C07",
+      "semantic": "过",
+      "spec": "过",
+      "card": {
+        "beneficiary": "下一个接入这套协议的项目接手者",
+        "metric": {
+          "name": "跨项目复用需改的字段数",
+          "baseline": 6,
+          "method": "逐项目试挂载"
+        },
+        "do_nothing_cost": {
+          "description": "每项目各造一套门禁",
+          "comparable": true
+        }
+      },
+      "note": "对照组：长且具体"
+    },
+    {
+      "id": "C08",
+      "semantic": "拦",
+      "spec": "拦",
+      "card": {
+        "beneficiary": "大家",
+        "metric": {
+          "name": "错误决策数",
+          "baseline": 0,
+          "method": "每月统计"
+        },
+        "do_nothing_cost": {
+          "description": "按 0 判断",
+          "comparable": true
+        }
+      },
+      "note": "对照组：两字泛称"
+    },
+    {
+      "id": "C09",
+      "semantic": "拦",
+      "spec": "过",
+      "card": {
+        "beneficiary": "负责夜间发布的值班同学",
+        "metric": {
+          "name": "稳定性",
+          "baseline": 0,
+          "method": "看情况"
+        },
+        "do_nothing_cost": {
+          "description": "可能出问题",
+          "comparable": true
+        }
+      },
+      "note": "【键齐但内容空】method='看情况'、后果'可能出问题'，规则只查键在不在 → 放过"
+    },
+    {
+      "id": "C10",
+      "semantic": "拦",
+      "spec": "拦",
+      "card": {
+        "beneficiary": "机制本身",
+        "metric": {},
+        "do_nothing_cost": {
+          "description": "可能出问题",
+          "comparable": false
+        }
+      },
+      "note": "全三项都不成立"
+    },
+    {
+      "id": "C11",
+      "semantic": "拦",
+      "spec": "过",
+      "card": {
+        "beneficiary": "我们团队自己用的那套报表工具",
+        "metric": {
+          "name": "使用次数",
+          "baseline": 0,
+          "method": "网关日志"
+        },
+        "do_nothing_cost": {
+          "description": "继续手工导表",
+          "comparable": true
+        }
+      },
+      "note": "【长但空泛】去掉『我们/团队/自己』后剩 8 字，规则放过；语义仍是自用、无外部受损方"
+    },
+    {
+      "id": "C12",
+      "semantic": "拦",
+      "spec": "拦",
+      "card": {
+        "beneficiary": "",
+        "metric": {
+          "name": "错误决策数",
+          "baseline": 0,
+          "method": "每月统计"
+        },
+        "do_nothing_cost": {
+          "description": "人会按 0 判断",
+          "comparable": true
+        }
+      },
+      "note": "受益人为空"
+    },
+    {
+      "id": "C13",
+      "semantic": "过",
+      "spec": "过",
+      "card": {
+        "beneficiary": "核对账本的人",
+        "metric": {
+          "name": "对账残差",
+          "baseline": 33.09,
+          "method": "逐仓算残差"
+        },
+        "do_nothing_cost": {
+          "description": "月末才发现，返工 2 小时",
+          "comparable": true
+        }
+      },
+      "note": "受益人具体、三键齐全、后果可比"
+    },
+    {
+      "id": "C14",
+      "semantic": "过",
+      "spec": "过",
+      "card": {
+        "beneficiary": "每天 8 点看日报的人",
+        "metric": {
+          "name": "被抹成 0 的次数",
+          "baseline": 0,
+          "method": "单测 + 盘前实跑"
+        },
+        "do_nothing_cost": {
+          "description": "人按 0 做判断",
+          "comparable": true
+        }
+      },
+      "note": "同上"
+    },
+    {
+      "id": "C15",
+      "semantic": "过",
+      "spec": "过",
+      "card": {
+        "beneficiary": "老张",
+        "metric": {
+          "name": "错误决策数",
+          "baseline": 0,
+          "method": "每月从 decisions/ 数被推翻条数"
+        },
+        "do_nothing_cost": {
+          "description": "按 0 做判断",
+          "comparable": true
+        }
+      },
+      "note": "【短但具体】老张是具体人名，语义该过；规则按 2 字判拦 → 已知误报｜2026-10-26 规格变更：加入人名豁免后 spec 由「拦」改为「过」"
+    },
+    {
+      "id": "C16",
+      "semantic": "过",
+      "spec": "过",
+      "card": {
+        "beneficiary": "接手此仓库的人",
+        "metric": {
+          "name": "覆盖率",
+          "baseline": 73,
+          "method": "tools/coverage_run.sh"
+        },
+        "do_nothing_cost": {
+          "description": "测试空洞只能靠猜",
+          "comparable": true
+        }
+      },
+      "note": "【对照组】三项都合规 → 语义也应过（用于验证我自己的判断不自相矛盾）"
+    },
+    {
+      "id": "C17",
+      "semantic": "过",
+      "spec": "过",
+      "card": {
+        "beneficiary": "要选技术方案的人",
+        "metric": {
+          "name": "候选维护活跃度",
+          "baseline": "issue 中位 9.4 天",
+          "method": "GitHub API"
+        },
+        "do_nothing_cost": {
+          "description": "选错返工两周",
+          "comparable": true
+        }
+      },
+      "note": "对照组：短但具体（7 字）"
+    },
+    {
+      "id": "C18",
+      "semantic": "拦",
+      "spec": "拦",
+      "card": {
+        "beneficiary": "维护者",
+        "metric": {
+          "name": "错误决策数",
+          "baseline": 0,
+          "method": "每月统计"
+        },
+        "do_nothing_cost": {
+          "description": "仪表盘显示 0",
+          "comparable": true
+        }
+      },
+      "note": "受益人 3 字、泛称"
+    },
+    {
+      "id": "C19",
+      "semantic": "拦",
+      "spec": "拦",
+      "card": {
+        "beneficiary": "投资决策的准确性",
+        "metric": {
+          "name": "更准",
+          "baseline": null,
+          "method": null
+        },
+        "do_nothing_cost": {
+          "description": "判断继续拍脑袋",
+          "comparable": true
+        }
+      },
+      "note": "指标有 name 但 baseline/method 为 null"
+    },
+    {
+      "id": "C20",
+      "semantic": "过",
+      "spec": "过",
+      "card": {
+        "beneficiary": "公司财务岗的会计",
+        "metric": {
+          "name": "周返工次数",
+          "baseline": "0 次/周",
+          "method": "CI 失败记录"
+        },
+        "do_nothing_cost": {
+          "description": "每次返工约半天",
+          "comparable": true
+        }
+      },
+      "note": "同上"
+    }
+  ]
+}

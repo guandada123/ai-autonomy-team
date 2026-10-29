@@ -1,0 +1,479 @@
+{
+  "_note": "多席位多数票汇总（3 席），由 aggregate_seats.py 生成",
+  "seats": [
+    "seat-S1.json",
+    "seat-S2.json",
+    "seat-S3.json"
+  ],
+  "n_questions": 27,
+  "n_majority": 0,
+  "n_ambiguous": 27,
+  "ambiguous": [
+    {
+      "q": "Q11",
+      "reason": "三席均答 null（无票）",
+      "raw": [
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "q": "Q12",
+      "reason": "三席均答 null（无票）",
+      "raw": [
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "q": "Q13",
+      "reason": "三席均答 null（无票）",
+      "raw": [
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "q": "Q14",
+      "reason": "三席均答 null（无票）",
+      "raw": [
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "q": "Q15",
+      "reason": "三席均答 null（无票）",
+      "raw": [
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "q": "Q16",
+      "reason": "三席均答 null（无票）",
+      "raw": [
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "q": "Q17",
+      "reason": "三席均答 null（无票）",
+      "raw": [
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "q": "Q18",
+      "reason": "三席均答 null（无票）",
+      "raw": [
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "q": "Q19",
+      "reason": "三席均答 null（无票）",
+      "raw": [
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "q": "Q20",
+      "reason": "三席均答 null（无票）",
+      "raw": [
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "q": "Q22",
+      "reason": "三席均答 null（无票）",
+      "raw": [
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "q": "Q23",
+      "reason": "三席均答 null（无票）",
+      "raw": [
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "q": "Q25",
+      "reason": "三席均答 null（无票）",
+      "raw": [
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "q": "Q26",
+      "reason": "三席均答 null（无票）",
+      "raw": [
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "q": "Q28",
+      "reason": "三席均答 null（无票）",
+      "raw": [
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "q": "Q29",
+      "reason": "三席均答 null（无票）",
+      "raw": [
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "q": "Q30",
+      "reason": "三席均答 null（无票）",
+      "raw": [
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "q": "Q31",
+      "reason": "三席均答 null（无票）",
+      "raw": [
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "q": "T02",
+      "reason": "三席均答 null（无票）",
+      "raw": [
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "q": "T03",
+      "reason": "三席均答 null（无票）",
+      "raw": [
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "q": "T04",
+      "reason": "三席均答 null（无票）",
+      "raw": [
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "q": "T05",
+      "reason": "三席均答 null（无票）",
+      "raw": [
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "q": "T06",
+      "reason": "三席均答 null（无票）",
+      "raw": [
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "q": "T07",
+      "reason": "三席均答 null（无票）",
+      "raw": [
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "q": "T08",
+      "reason": "有效票仅 1 席（<2），不构成多数票",
+      "raw": [
+        null,
+        null,
+        9.75
+      ]
+    },
+    {
+      "q": "T09",
+      "reason": "有效票仅 1 席（<2），不构成多数票",
+      "raw": [
+        null,
+        null,
+        10.9
+      ]
+    },
+    {
+      "q": "T10",
+      "reason": "三席均答 null（无票）",
+      "raw": [
+        null,
+        null,
+        null
+      ]
+    }
+  ],
+  "answers": {},
+  "votes": {
+    "Q11": {
+      "raw": [
+        null,
+        null,
+        null
+      ],
+      "counts": {}
+    },
+    "Q12": {
+      "raw": [
+        null,
+        null,
+        null
+      ],
+      "counts": {}
+    },
+    "Q13": {
+      "raw": [
+        null,
+        null,
+        null
+      ],
+      "counts": {}
+    },
+    "Q14": {
+      "raw": [
+        null,
+        null,
+        null
+      ],
+      "counts": {}
+    },
+    "Q15": {
+      "raw": [
+        null,
+        null,
+        null
+      ],
+      "counts": {}
+    },
+    "Q16": {
+      "raw": [
+        null,
+        null,
+        null
+      ],
+      "counts": {}
+    },
+    "Q17": {
+      "raw": [
+        null,
+        null,
+        null
+      ],
+      "counts": {}
+    },
+    "Q18": {
+      "raw": [
+        null,
+        null,
+        null
+      ],
+      "counts": {}
+    },
+    "Q19": {
+      "raw": [
+        null,
+        null,
+        null
+      ],
+      "counts": {}
+    },
+    "Q20": {
+      "raw": [
+        null,
+        null,
+        null
+      ],
+      "counts": {}
+    },
+    "Q22": {
+      "raw": [
+        null,
+        null,
+        null
+      ],
+      "counts": {}
+    },
+    "Q23": {
+      "raw": [
+        null,
+        null,
+        null
+      ],
+      "counts": {}
+    },
+    "Q25": {
+      "raw": [
+        null,
+        null,
+        null
+      ],
+      "counts": {}
+    },
+    "Q26": {
+      "raw": [
+        null,
+        null,
+        null
+      ],
+      "counts": {}
+    },
+    "Q28": {
+      "raw": [
+        null,
+        null,
+        null
+      ],
+      "counts": {}
+    },
+    "Q29": {
+      "raw": [
+        null,
+        null,
+        null
+      ],
+      "counts": {}
+    },
+    "Q30": {
+      "raw": [
+        null,
+        null,
+        null
+      ],
+      "counts": {}
+    },
+    "Q31": {
+      "raw": [
+        null,
+        null,
+        null
+      ],
+      "counts": {}
+    },
+    "T02": {
+      "raw": [
+        null,
+        null,
+        null
+      ],
+      "counts": {}
+    },
+    "T03": {
+      "raw": [
+        null,
+        null,
+        null
+      ],
+      "counts": {}
+    },
+    "T04": {
+      "raw": [
+        null,
+        null,
+        null
+      ],
+      "counts": {}
+    },
+    "T05": {
+      "raw": [
+        null,
+        null,
+        null
+      ],
+      "counts": {}
+    },
+    "T06": {
+      "raw": [
+        null,
+        null,
+        null
+      ],
+      "counts": {}
+    },
+    "T07": {
+      "raw": [
+        null,
+        null,
+        null
+      ],
+      "counts": {}
+    },
+    "T08": {
+      "raw": [
+        null,
+        null,
+        9.75
+      ],
+      "counts": {
+        "9.75": 1
+      }
+    },
+    "T09": {
+      "raw": [
+        null,
+        null,
+        10.9
+      ],
+      "counts": {
+        "10.9": 1
+      }
+    },
+    "T10": {
+      "raw": [
+        null,
+        null,
+        null
+      ],
+      "counts": {}
+    }
+  }
+}

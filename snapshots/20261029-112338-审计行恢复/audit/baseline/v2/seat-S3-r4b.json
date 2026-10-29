@@ -1,0 +1,127 @@
+{
+  "_note": "v2 第四轮（A/B 分批）B 批 S3，回传转录（reasons 保留要点）。",
+  "seat": "S3",
+  "batch": "B",
+  "used_tools": true,
+  "forbidden_paths_read": false,
+  "answers": {
+    "V2-03": {
+      "verdict": "dont",
+      "reasons": [
+        "sha256 锚改一字节即红；题面来源一换 100%→61.1%；只准新增批次已有 4 题作废先例"
+      ],
+      "top_risk": "永久错误（判分逻辑本身错）会被新批次继承",
+      "falsification": "若某题被证伪到无法用新批次修正，则必须改旧文件",
+      "confidence": "high"
+    },
+    "V2-06": {
+      "verdict": "dont",
+      "reasons": [
+        "上限 19/27 < 20/27，分数不可解释；只校验 sha256 不校验真值；v1 全留可并存"
+      ],
+      "top_risk": "用正确性换掉纵向连续性",
+      "falsification": "若 8 题能在窗口内修复回原真值，则继续用 v1 无上限压制",
+      "confidence": "high"
+    },
+    "V2-07": {
+      "verdict": "dont",
+      "reasons": [
+        "只测过一次没有方差；采集靠自建机制尚未复现；覆盖率与有效性无关"
+      ],
+      "top_risk": "覆盖率静默下滑无人发现",
+      "falsification": "若同一 commit 连测 3 次差异<1% 且机制在干净环境稳定复现，则阈值有基准",
+      "confidence": "high"
+    },
+    "V2-11": {
+      "verdict": "dont",
+      "reasons": [
+        "钩子缺失是完全静默失败；CI 拦不住密钥；纳合验收把问题暴露在真正发生的时刻"
+      ],
+      "top_risk": "验收项变 6 项且新机器默认红，混淆「没装」与「坏了」",
+      "falsification": "若钩子改为入库随 clone 生效，则不必单列",
+      "confidence": "high"
+    },
+    "V2-13": {
+      "verdict": "dont",
+      "reasons": [
+        "静默 off 与通过不可区分；同类已多次属系统性；内部契约变更代价可控"
+      ],
+      "top_risk": "纯报错推动使用者绕过整个 preflight",
+      "falsification": "若非标准目录占比很高，则应改为默认报错+显式 --no-preflight",
+      "confidence": "high"
+    },
+    "V2-15": {
+      "verdict": "do",
+      "reasons": [
+        "使用者明确要求人保留终裁；不可逆动作事后复盘救不回来；判据弱在值不值得做"
+      ],
+      "top_risk": "不可逆边界靠人临时判，分级退化成全部打断",
+      "falsification": "若待裁队列绝大多数是可逆琐事、人只机械点同意，则应回退",
+      "confidence": "high"
+    },
+    "V2-17": {
+      "verdict": "do",
+      "reasons": [
+        "目标机 python3 无三方库；否决权部件必须能跑；零依赖不该外溢成所有项目规则"
+      ],
+      "top_risk": "业务代码被复用进迁移包时悄悄带进依赖",
+      "falsification": "若迁移包必须产出 xlsx/docx，则零依赖不可行，应改为随包 vendor",
+      "confidence": "medium"
+    },
+    "V2-18": {
+      "verdict": "do",
+      "reasons": [
+        "自由文本不可证伪就无法改进也无法信任；结构化可机械判定可回归；责任回到提案人"
+      ],
+      "top_risk": "机械填字段，卡满但前提仍空洞",
+      "falsification": "若字段覆盖不了实际前提的多样性，则卡本身失效",
+      "confidence": "high"
+    },
+    "V2-20": {
+      "verdict": "do",
+      "reasons": [
+        "单模型环境跨家族不可得；同质辩论期望不变，独立性按 0 计；判据与探针不依赖多模型"
+      ],
+      "top_risk": "砍卖点后实际仍跑多席，使用者误以为残留独立性",
+      "falsification": "若恢复多家族或同模型多视角确有增益，则按 0 计过保守",
+      "confidence": "high"
+    },
+    "V2-22": {
+      "verdict": "do",
+      "reasons": [
+        "不存在的模型名照样返回说明静默回退；自报是复述非证据；Self-MoA 可验证"
+      ],
+      "top_risk": "路由可能部分生效，停证会掩盖跑错模型",
+      "falsification": "若能从平台侧拿到请求级模型标识，则停证属过早放弃",
+      "confidence": "high"
+    },
+    "V2-24": {
+      "verdict": "dont",
+      "reasons": [
+        "使用者明确要求；验收判据缺位是已知失败类；计划会错推出的正是要审计计划"
+      ],
+      "top_risk": "小任务走完整四步被默契跳过",
+      "falsification": "若小任务占比很高且流程耗时远超任务本身，则应设轻量分支",
+      "confidence": "high"
+    },
+    "V2-26": {
+      "verdict": "do",
+      "reasons": [
+        "同一句话 README 不红 docs 红，说明红不红取决于位置而非缺号；根级引用 6 编号全在盲区；带格式豁免更可审计"
+      ],
+      "top_risk": "豁免可被任意文本触发，F 项退化成空检查",
+      "falsification": "若豁免无法强约束，则只扩范围不开豁免",
+      "confidence": "medium"
+    },
+    "V2-27": {
+      "verdict": "do",
+      "reasons": [
+        "参照取 100% 则非劣效必然成立；14/14 不是同一批题，直接用同样虚高；重跑成本低于得出不可证伪结论"
+      ],
+      "top_risk": "单次重跑基线自带采样噪声",
+      "falsification": "若多次实测方差极大，则需多次采样取分布",
+      "confidence": "high"
+    }
+  },
+  "note": "六题选 dont（V2-03/06/07/11/13/24）：让失败看起来像成功的机制一律判改，能用新批次解的一律不动旧锚。"
+}

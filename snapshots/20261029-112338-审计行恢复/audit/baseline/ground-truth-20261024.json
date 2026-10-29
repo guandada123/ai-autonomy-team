@@ -1,0 +1,14 @@
+{
+  "_note": "单 agent 基线的真值。全部由**测量**得到，不取自作答；测量命令逐条写在 note 里，可复现。",
+  "T01": {"v": 9197, "measured": "make backup 输出『9197 个文件』；另 tar -tzf | wc -l = 10024 条目（含 827 目录）",
+          "verdict": "excluded：题面未声明口径"},
+  "T02": {"v": 35, "measured": "git clone --bare 2348.bundle && git rev-list --count HEAD"},
+  "T03": {"v": 121.2, "measured": "ls -l snapshots-archive-*.tar.gz 字节和 /1048576"},
+  "T04": {"v": 53, "measured": "ls docs/decisions/*.md | grep -vc TEMPLATE"},
+  "T05": {"v": 53, "measured": "make selftest 实跑『B 全量回归 53/53』"},
+  "T06": {"v": [73, 6049], "measured": "D-0051 记录（工具实测基线）"},
+  "T07": {"v": [36, 18], "measured": "calibration.json cases 计数"},
+  "T08": {"v": 9.75, "measured": "(90-70.5)/2，台面 70.5×50.5、桌布 90×70"},
+  "T09": {"v": 10.90, "measured": "|-16.34 - (-5.44)|，止损回测两期均值"},
+  "T10": {"v": ["6353", "5bba", "972c"], "measured": "git bundle list-heads 三个旧 bundle 的 SHA 前 4 位"}
+}

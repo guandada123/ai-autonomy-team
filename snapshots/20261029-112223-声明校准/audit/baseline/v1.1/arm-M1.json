@@ -1,0 +1,43 @@
+{
+  "_note": "单席臂 M1（有据可查条件）。回传原文转录；唯一修正：原文 Q31 写成 null_placeholder（笔误），按其在 unknown 中的说明还原为 null。",
+  "_caveat": "M1 自报 forbidden_paths_read=false，但说明中承认一次 `grep -rl '桌布|半导体'` 的输出里列出了 audit/baseline/ 下的文件路径（未见内容、未打开文件）。判为有效并记录在案。",
+  "seat": "M1",
+  "used_tools": true,
+  "answers": {
+    "T02": 39, "T03": 73.7, "T04": 58, "T05": 54, "T06": [73, 6049], "T07": [36, 18],
+    "T08": 9.75, "T09": 10.9, "Q14": 18, "Q15": 34,
+    "Q22": 4, "Q23": 50, "Q25": 87, "Q26": 86, "Q28": 3435, "Q29": "70.5x50.5",
+    "Q30": "90x70", "Q31": null,
+    "Q11": "D-0059", "Q12": 7, "Q13": 20, "Q16": 28, "Q17": 6, "Q18": 6, "Q19": 654, "Q20": "2026-10-23"
+  },
+  "evidence": {
+    "T02": "git clone 0633.bundle → rev-list --count HEAD = 39（bundle HEAD=80c95e3）",
+    "T03": "38245929+39048796=77294725 字节 /1048576 = 73.7 MiB",
+    "T04": "git ls-tree -r 156d33d -- docs/decisions | grep -c 'D-[0-9]' = 58（缺 D-0017，不计 TEMPLATE）",
+    "T05": "python3 scripts/regress.py 末行「结果：54/54 通过」",
+    "T06": "D-0051:34「语句总数 / 覆盖率 | 6,049 / 73%」",
+    "T07": "calibration.json len(cases)=36，should_hit=True 18",
+    "T08": "(90−70.5)/2 = 9.75",
+    "T09": "−5.44−(−16.34) = 10.90",
+    "Q14": "git ls-tree -r 156d33d -- .learnings | grep -c '.md$' = 18",
+    "Q15": "git ls-tree 156d33d -- migration-package/runs | grep -c '^040000' = 34",
+    "Q22": "real-runs/2026-10-22 实盘 3 + 2026-10-21 模拟 1 = 4；D-0056 亦更正为 4",
+    "Q25": "docs/自治团队方案-审计-20261022.md:128「87 自动化」",
+    "Q26": "docs/自治团队方案-审计-20261022.md:126「覆盖率 86 硬门槛」",
+    "Q28": "heldout.json H05「3435→840 条」",
+    "Q29": "heldout.json:24「70.5×50.5cm」",
+    "Q30": "heldout.json:24「四轮修订后定 90×70 主方案」",
+    "Q31": "（查不到）",
+    "Q11": "git ls-tree 156d33d -- docs/decisions 编号最大 D-0059",
+    "Q12": "protocol 目录 7 份",
+    "Q13": "git ls-tree 156d33d -- fixtures/tasks | grep -c '^040000' = 20（另有 tasks-manifest.json 不计）",
+    "Q16": "git ls-tree 156d33d -- scripts | grep -c '.py$' = 28（仅顶层）",
+    "Q17": "git ls-tree 156d33d -- scripts/judges = 6 个 blob（无子目录）",
+    "Q18": "templates 6 份",
+    "Q19": "git ls-tree -r 156d33d | grep -c '.md$' = 654（默认 quotepath 会转义中文名导致漏计到 284）",
+    "Q20": "git log --reverse 首条 fbf0ecd 2026-10-23"
+  },
+  "unknown": [
+    {"q": "Q31", "why": "全仓（排除 audit/baseline、_trash）无任何文档记录该次止损回测的样本笔数；不猜。"}
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "_note": "题库 v1 冻结锚点。改任何一份 = 换了一份试卷，此前所有分数作废；回归第 53 项会逐个比对 sha256，改了必红。只准新增批次，不准修改旧文件。",
+  "frozen_at": "2026-10-24 07:02",
+  "frozen_by": "用户（\"题库可以冻结\"）",
+  "items_total": 31,
+  "valid_n": 27,
+  "excluded": [
+    "T01",
+    "Q21",
+    "Q24",
+    "Q27"
+  ],
+  "round1": {
+    "valid_n": 9,
+    "pass": 9
+  },
+  "round2": {
+    "valid_n": 18,
+    "pass": 11
+  },
+  "combined": {
+    "valid_n": 27,
+    "pass": 20,
+    "rate": 0.741
+  },
+  "question_rules": [
+    "问「数量」必须带时点（截至 X 日）",
+    "问「规则值」不必带板块，问「实际值」必须带",
+    "问「文件数」必须说明算不算文件夹"
+  ],
+  "files": [
+    {
+      "path": "audit/baseline/single-agent-answers-20261024.json",
+      "bytes": 364,
+      "sha256": "6948850cfa8c7f09657f42628e803ccdf4f17f6d8c114ee46e8e3fc6e854ddcb"
+    },
+    {
+      "path": "audit/baseline/ground-truth-20261024.json",
+      "bytes": 1109,
+      "sha256": "d0472ff8d2d298feefd2fbfb5a8c4f5c1753ca12067ca7cce06f3af51aae5394"
+    },
+    {
+      "path": "audit/baseline/answers-round2-blind.json",
+      "bytes": 1539,
+      "sha256": "02aee18cad9fe9811fcdde218508b13145d846df482c7bf7c16533e27ae43fa7"
+    },
+    {
+      "path": "audit/baseline/ground-truth-round2.json",
+      "bytes": 3098,
+      "sha256": "5ad4c9691348a96fe53c215adf45301bdd5e114c0568874de7789154fdf02087"
+    },
+    {
+      "path": "audit/baseline/judge_baseline.py",
+      "bytes": 3118,
+      "sha256": "5c1aefc6694a2ae8c51714f6dd40663fc8a083039f3c9e79d8864590f660ccfd"
+    }
+  ]
+}

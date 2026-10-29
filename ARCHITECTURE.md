@@ -159,7 +159,7 @@
 
 | 模块 | 行数 | 职责 |
 |---|---|---|
-| `snapshot_sources.py` | 852 || `secret_patterns.py` | 91 || `redact_report.py` | 248 || `field_provenance.py` | 177 | 字段溯源：这个字段谁在写 |
+| `snapshot_sources.py` | 890 || `secret_patterns.py` | 91 || `redact_report.py` | 248 || `field_provenance.py` | 177 | 字段溯源：这个字段谁在写 |
 | `canon.py` | 174 | 标识与词表规范化 |
 | `sync_doc_numbers.py` | 210 |---
 
@@ -224,10 +224,12 @@ ai-autonomy-team/
 
 ### 关于 `snapshots/` 的两点容易误解
 
-1. **它覆盖什么**：`SOURCES = ["scripts", "docs/protocol", "docs/decisions", "templates"]`——只有这 4 个目录。**根目录的 README/ARCHITECTURE/DEPENDENCIES 不在快照范围**，改它们不会让 H 项变红，也不会被备份。理由是它们讲"怎么用这个项目"，不是判据口径的载体。
+1. **它覆盖什么**（2026-10-29 扩）：`SOURCES = ["scripts", "docs/protocol", "docs/decisions", "templates", "audit", ".learnings", ".github/workflows"]` + 根级单文件 `Makefile / README.md / ARCHITECTURE.md / DEPENDENCIES.md / M4-接续指南.md`。
+   原先只有前 4 个目录，**根级文档与 `audit/`（判据与冻结基线）不在快照范围**——实测一次改动 12 个文件只有 5 个被 H 约束，等于"改判据文件不需要备份"。旧理由「根级文档只讲怎么用、不是判据载体」不成立：M4-接续指南写着验收命令与预期项数，audit/ 里是判据与冻结基线，它们错了照样会把人带偏。
+   刻意不入快照：`outputs/`（机器产出）、`migration-package/runs/`（业务数据，物证由 git 与 runs 自身承担）。
 2. **为什么只留 3 个，且怎么保证不涨**：`H` 项只需要"最近一个快照与真源一致"。**历史回滚由 git 承担**，快照不再是唯一回滚来源（这正是 2026-10-23 建 git 之后职责的重新划分）。
    `snapshot_sources.py` 打完快照后会自动 `prune --keep 3`：更早的**移动**（不是删除）到 `_trash/snapshots-archive/`，本机可查、可用 `cp -R` 取回，`--list` 会提示归档数量。
-   留 3 而非 1，是为了"最新那个坏了还能退一个"；再多就是纯占体积（每快照约 1.0 MB，且入库后每次提交都带上）。
+   留 3 而非 1，是为了"最新那个坏了还能退一个"；再多就是纯占体积（2026-10-29 扩范围后每快照 2.4 MB / 357 文件，且入库后每次提交都带上）。
    要临时保留全部：`--no-prune`；要改保留数：`--prune-keep N`（`N < 1` 会被拒绝，否则 H 项失去基准）。
 
 ---

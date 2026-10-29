@@ -1,0 +1,243 @@
+{
+  "_note": "v2 第三轮（26 题）单席臂 M1，回传转录（reasons 保留要点）。",
+  "seat": "M1",
+  "used_tools": true,
+  "forbidden_paths_read": false,
+  "answers": {
+    "V2-01": {
+      "verdict": "dont",
+      "reasons": [
+        "tar 只比条目名，独有条目 0 不证明内容一致；90MB 收益与不可逆风险不成比例；备份是时点快照，多时点本身有价值"
+      ],
+      "top_risk": "把条目名覆盖误读成内容覆盖",
+      "falsification": "若逐字节比对也一致且磁盘确实需要 90MB，则我错",
+      "confidence": "high"
+    },
+    "V2-03": {
+      "verdict": "dont",
+      "reasons": [
+        "题面来源一换 100%→61.1%；sha256 锚改一字节即红；作废而非修改已有先例"
+      ],
+      "top_risk": "开口子改旧题会把冻结变成摆设",
+      "falsification": "若新批次能覆盖全部过期真值且回归可比，则不必改旧题",
+      "confidence": "high"
+    },
+    "V2-04": {
+      "verdict": "dont",
+      "reasons": [
+        "macOS 10 倍计费且预算紧；quotePath 一行配置可修；开发机即 macOS 可本地复现"
+      ],
+      "top_risk": "漏检 macOS 独有坑，攒到发布爆发",
+      "falsification": "若出现只在 macOS 复现、本地测不出且已影响发布的缺陷，则须加",
+      "confidence": "high"
+    },
+    "V2-05": {
+      "verdict": "do",
+      "reasons": [
+        "人工同步 5 次每次 8~11 处，成本已量化；零检查已静默失真；工具现成"
+      ],
+      "top_risk": "做成提交级门禁会制造噪声 diff 与持续红灯",
+      "falsification": "若行数表只有发布时才有读者且 A 项已覆盖，则重复建设",
+      "confidence": "high"
+    },
+    "V2-06": {
+      "verdict": "do",
+      "reasons": [
+        "上限 19/27 < 20/27，会把题错了读成能力退步；只校验 sha256 不校验真值；停用可逆"
+      ],
+      "top_risk": "把过期真值导致的下降当成模型退化",
+      "falsification": "若 8 题多数真值仍成立，则裁断过重",
+      "confidence": "high"
+    },
+    "V2-07": {
+      "verdict": "dont",
+      "reasons": [
+        "父子进程链路脆弱，阈值会把工具失真变成红灯；只跑过一次无法区分噪声；覆盖率与测试有效性无关"
+      ],
+      "top_risk": "把一次性 73% 定死，误红后被调低绕过",
+      "falsification": "若连续多轮稳定在窄区间，则阈值可设",
+      "confidence": "high"
+    },
+    "V2-08": {
+      "verdict": "do",
+      "reasons": [
+        "20→36 近翻倍；新增 16 条专挑边界；跨时间标注口径可能漂移"
+      ],
+      "top_risk": "沿用旧结论把扩样当验证，白跑",
+      "falsification": "若 36 条重算后结论完全不变，则价值只是确认",
+      "confidence": "high"
+    },
+    "V2-09": {
+      "verdict": "do",
+      "reasons": [
+        "三态不可区分是可观测性缺失；记一行跳过不拦人；缺文件也放行"
+      ],
+      "top_risk": "老脚本被卡，习惯性加 --skip-premise 退化成新静默",
+      "falsification": "若多数开轮无法提供 premise-card，则收益被抵消",
+      "confidence": "high"
+    },
+    "V2-10": {
+      "verdict": "dont",
+      "reasons": [
+        "四处全在门禁路径，爆炸半径远大于省 20 行；裁判与 Decimal 纠缠；已有同型教训"
+      ],
+      "top_risk": "把四处失败模式耦合成一个",
+      "falsification": "若有完整行为对拍证明等价且维护成本确实被拖累，则合并成立",
+      "confidence": "high"
+    },
+    "V2-11": {
+      "verdict": "do",
+      "reasons": [
+        "钩子缺失时无一处会红；CI 拦不住密钥；纳合验收定义自洽"
+      ],
+      "top_risk": "新机器必然红，安装若不能自动化则成固定红灯",
+      "falsification": "若钩子安装无法脚本化，则只会制造固定红灯",
+      "confidence": "high"
+    },
+    "V2-12": {
+      "verdict": "do",
+      "reasons": [
+        "时长翻倍前提不成立：只需读常量 len(CHECKS)；门禁已 8 项；人工核对实际没人核"
+      ],
+      "top_risk": "被文档写死的理由说服而维持人工",
+      "falsification": "若必须实际执行 CHECKS 才能核数字，则耗时确实翻倍",
+      "confidence": "high"
+    },
+    "V2-13": {
+      "verdict": "do",
+      "reasons": [
+        "静默 off 与通过不可区分；同类问题已多次；内部契约变更成本低"
+      ],
+      "top_risk": "临时目录调用被打断，最后加豁免参数",
+      "falsification": "若非标准目录调用占比很高且刻意为之，则报错成纯摩擦",
+      "confidence": "high"
+    },
+    "V2-14": {
+      "verdict": "do",
+      "reasons": [
+        "合成任务上已看不出可增信息；机制产出是可复现机制与可校验口径；砍席位连口径一起丢"
+      ],
+      "top_risk": "把无增益误读成机制无用",
+      "falsification": "若真实业务场景显出可测增益，则不砍的判断需重估",
+      "confidence": "high"
+    },
+    "V2-15": {
+      "verdict": "do",
+      "reasons": [
+        "判据弱在值不值得做；不可逆动作事后审计替代不了事前拦截；使用者明确要求人保留终裁"
+      ],
+      "top_risk": "可逆/不可逆边界会争议，误分类进自动终审",
+      "falsification": "若可逆划分能机械判定且无误分类，则可放宽",
+      "confidence": "high"
+    },
+    "V2-16": {
+      "verdict": "do",
+      "reasons": [
+        "三条各覆盖不同侧面；只留金额偏差会让非对账场景无度量；no_data 保住待办可见"
+      ],
+      "top_risk": "两指标长期 no_data，看板变空壳",
+      "falsification": "若返工工时数据源永远拿不到，则应砍或替换",
+      "confidence": "high"
+    },
+    "V2-17": {
+      "verdict": "do",
+      "reasons": [
+        "目标机 python3 无第三方库；否决权部件必须能跑；用迁移包约束惩罚业务项目不对"
+      ],
+      "top_risk": "业务项目放开会把供应链摊大",
+      "falsification": "若出现难定位的版本冲突或审计缺口，则需收紧",
+      "confidence": "high"
+    },
+    "V2-18": {
+      "verdict": "do",
+      "reasons": [
+        "自由文本阈值靠感觉且不可证伪；结构化字段可机械校验；填卡代价一次性"
+      ],
+      "top_risk": "字段设计不全，真话塞进合规字段",
+      "falsification": "若字段覆盖不了主要提案类型，则退化成形式主义",
+      "confidence": "high"
+    },
+    "V2-19": {
+      "verdict": "do",
+      "reasons": [
+        "没做检查与通过不可区分；配置写着不等于实测过；拒绝开轮才拦得住"
+      ],
+      "top_risk": "调试被反复卡，最后改退出码绕过",
+      "falsification": "若正常开轮中闸门失败占比高且多为误判，则应降级为警告",
+      "confidence": "high"
+    },
+    "V2-20": {
+      "verdict": "do",
+      "reasons": [
+        "环境只有一个模型，独立性按 0 才诚实；同质辩论期望不变；判据与探针不依赖多模型"
+      ],
+      "top_risk": "把独立性 0 讲太绝对，连列分歧的副产品一起否定",
+      "falsification": "若后续真的开放多家族并显出增益，则需重估",
+      "confidence": "high"
+    },
+    "V2-21": {
+      "verdict": "do",
+      "reasons": [
+        "原判依据是观察不到，官方文档写明可配置；但未实测不能升阈值；维持 dont 等于固化悲观结论"
+      ],
+      "top_risk": "把文档写了当成能力有了",
+      "falsification": "若实测证明静默回退（不存在模型也照常返回），则默认不可得正确",
+      "confidence": "high"
+    },
+    "V2-22": {
+      "verdict": "do",
+      "reasons": [
+        "不存在的模型名也照常返回，路径不可证伪；自报可复述；Self-MoA 可验证"
+      ],
+      "top_risk": "把多采样当多模型替代品，独立性不等价",
+      "falsification": "若找到可观测点证实指定生效，则不该停",
+      "confidence": "high"
+    },
+    "V2-23": {
+      "verdict": "do",
+      "reasons": [
+        "能验证处单席就过，不能验证处分歧无法裁定；列分歧本身有独立价值"
+      ],
+      "top_risk": "换成列可能性后失去量化指标",
+      "falsification": "若设计出可裁定的判断题口径，则定位需重估",
+      "confidence": "high"
+    },
+    "V2-24": {
+      "verdict": "do",
+      "reasons": [
+        "使用者明确要求第一步先计划并审计；失败案例直指计划缺位；计划会错正因如此才要审"
+      ],
+      "top_risk": "小任务流程过重被整体跳过",
+      "falsification": "若小任务占比极高且流程成本超返工成本，则需规模阈值",
+      "confidence": "high"
+    },
+    "V2-25": {
+      "verdict": "do",
+      "reasons": [
+        "裁剪会让备份与审计同时失真；远端可私有且无密钥文件；防线应建在扫描与钩子上"
+      ],
+      "top_risk": "把无密钥当成无敏感内容",
+      "falsification": "若 real-runs 有不能出本机的客户数据，则必须裁剪",
+      "confidence": "high"
+    },
+    "V2-26": {
+      "verdict": "do",
+      "reasons": [
+        "根级四份文档引用 6 个编号全在盲区；同一句话 docs 红 README 不红；豁免应加格式约束"
+      ],
+      "top_risk": "豁免太宽，缺号都能标故意",
+      "falsification": "若加根级后红项爆炸且多为历史遗留，则需分期",
+      "confidence": "high"
+    },
+    "V2-27": {
+      "verdict": "do",
+      "reasons": [
+        "取 100% 参照会让非劣效平凡成立；14/14 是旧题集不能直接当基线；实测成本不高"
+      ],
+      "top_risk": "拿历史 14/14 当实测基线，又回到平凡",
+      "falsification": "若当前题集重测仍近 100%，则设计本身要换指标",
+      "confidence": "high"
+    }
+  },
+  "note": "26 题按各题末尾标签作答；备份清理与 macOS 矩阵两题按成本与证据不足判不加。"
+}

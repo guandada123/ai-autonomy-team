@@ -1,0 +1,79 @@
+{
+  "_note": "v3 十题 M1 作答，回传转录。参考裁决来自用户，本臂作答时未见。",
+  "seat": "M1",
+  "used_tools": true,
+  "forbidden_paths_read": false,
+  "answers": {
+    "Q01": {
+      "verdict": "A",
+      "reasons": [
+        "门禁H项只需最近1份、旧份只移到_trash不删除，且已有git全量历史+私有远端+独立bundle，省1.2MB无收益"
+      ],
+      "confidence": "medium"
+    },
+    "Q02": {
+      "verdict": "C",
+      "reasons": [
+        "8天8/27失效说明漂移真实，但compare_v11.py的exit 3硬闸已能在出分时拦住，为非服务型项目新建调度/告警/重试/轮转不划算"
+      ],
+      "confidence": "medium"
+    },
+    "Q03": {
+      "verdict": "A",
+      "reasons": [
+        "材料指出换模型同源偏差消不掉，只有你自标才能拿到真正独立的判据"
+      ],
+      "confidence": "medium"
+    },
+    "Q04": {
+      "verdict": "C",
+      "reasons": [
+        "结论是测不出差异可能被误引为正面证据，需README与ARCHITECTURE双处标注；材料含真实细节，不宜只留报告把材料丢进_trash"
+      ],
+      "confidence": "medium"
+    },
+    "Q05": {
+      "verdict": "C",
+      "reasons": [
+        "六脚本仅本机手工调用却有一个会覆盖materials下的brief，py_compile能以最小成本覆盖audit/又不拖慢门禁"
+      ],
+      "confidence": "medium"
+    },
+    "Q06": {
+      "verdict": "C",
+      "reasons": [
+        "仅约1/3标了跨项目通用，抽库要解版本/引用/同步/冲突四件未定事，月度快照导出是低成本单向分发"
+      ],
+      "confidence": "medium"
+    },
+    "Q07": {
+      "verdict": "B",
+      "reasons": [
+        "四臂26/26零分歧、独立性按0计，席位无增益却每轮烧4—8个agent，砍掉不影响判据与探针"
+      ],
+      "confidence": "high"
+    },
+    "Q08": {
+      "verdict": "C",
+      "reasons": [
+        "报告是唯一可复算凭据且三份里两份数字被修正过，逐题表不能砍，双份兼顾可读与完整"
+      ],
+      "confidence": "medium"
+    },
+    "Q09": {
+      "verdict": "A",
+      "reasons": [
+        "你裁决是目前唯一已知能打破天花板的方式，成本仅几分钟；只做一次天花板下轮就回来"
+      ],
+      "confidence": "medium"
+    },
+    "Q10": {
+      "verdict": "C",
+      "reasons": [
+        "指标可复用但key_reasons与题集强绑定，推广等于三份新出题+裁决工作量，先解耦再谈"
+      ],
+      "confidence": "medium"
+    }
+  },
+  "note": "全部只依据各题 brief 内事实，未跨题推演；Q01/Q02/Q05/Q09 倾向低成本可逆一侧。"
+}

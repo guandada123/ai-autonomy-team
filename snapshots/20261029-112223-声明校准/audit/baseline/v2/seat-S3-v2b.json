@@ -1,0 +1,117 @@
+{
+  "_note": "v2 第二轮（12 题）第 3 席 S3，回传原文转录。",
+  "seat": "S3",
+  "used_tools": true,
+  "forbidden_paths_read": false,
+  "answers": {
+    "V2-01": {
+      "verdict": "do",
+      "reasons": [
+        "merge-base 三次全通过；tar 独有条目 0；2348 还原验证通过；私有远端双层兜底；删除走废纸篓"
+      ],
+      "top_risk": "comm 方向可能记反：以 2348 为基准得 0 不证明旧 tar 条目全被包含",
+      "falsification": "按正确方向重跑 comm -23 若任一新旧 tar 有独有条目则错",
+      "confidence": "medium"
+    },
+    "V2-03": {
+      "verdict": "dont",
+      "reasons": [
+        "sha256 锚 + 回归项载体；题面来源一换 100%→61.1%；只准新增批次；作废通道已存在"
+      ],
+      "top_risk": "把「修改」窄化成「作废+重发并重锚」其实不破坏可比性",
+      "falsification": "若存在保留 v1 五文件不变同时又重锚的方案，则 dont 过严",
+      "confidence": "high"
+    },
+    "V2-04": {
+      "verdict": "dont",
+      "reasons": [
+        "macOS 10 倍计费且预算紧；quotePath 属配置问题可用 -z 或关闭解决；开发机即 macOS 天天碰到；未做第二次预算评估"
+      ],
+      "top_risk": "只在 macOS 干净 clone 上断、Linux 全绿的问题会漏",
+      "falsification": "若出现 Linux 全绿但 macOS 干净 clone 必挂的发布事故，或预算宽松，则错",
+      "confidence": "medium"
+    },
+    "V2-05": {
+      "verdict": "do",
+      "reasons": [
+        "人工同步 5 次每次 8~11 处；此前零检查已多次不符；工具链现成；行数每提交必变正需发布点强制对齐"
+      ],
+      "top_risk": "门禁退化成发布前无脑跑 sync",
+      "falsification": "一个发布周期内 ≥3 次只因子行数卡发布且无一次对应真实错误，则只是噪音",
+      "confidence": "high"
+    },
+    "V2-06": {
+      "verdict": "do",
+      "reasons": [
+        "上限 19/27 < 20/27；只校验 sha256 不校验真值；多题冻结时即不符；v1 文件保留可重锚"
+      ],
+      "top_risk": "重锚只改 8 题答案而不重跑基线，等于换错对照",
+      "falsification": "若重锚后仍有题在冻结时即不符，则单次重锚不够",
+      "confidence": "high"
+    },
+    "V2-07": {
+      "verdict": "dont",
+      "reasons": [
+        "只测过一次，73% 波动区间未知；父子进程口径脆弱；空断言可刷覆盖；首次接入即设阈值"
+      ],
+      "top_risk": "没阈值就没压力，覆盖率停在 73%",
+      "falsification": "若连续 2~3 次基线稳定且口径已覆盖，则应按基线−3pp 设阈值",
+      "confidence": "high"
+    },
+    "V2-08": {
+      "verdict": "do",
+      "reasons": [
+        "样本近翻倍且新增专挑边界；正负 10→18 分母变了须重算；标注口径可能漂移；只动标注成本低"
+      ],
+      "top_risk": "把样本噪音当阈值该调，过拟合到 36 条",
+      "falsification": "若关键指标落在原结论同一置信区间，则沿用也可接受",
+      "confidence": "high"
+    },
+    "V2-09": {
+      "verdict": "do",
+      "reasons": [
+        "三态不可区分，检查等于不存在；记一行跳过不拦人；脚本缺失也放行；代价仅多一个参数"
+      ],
+      "top_risk": "fail-closed 后老脚本被卡，无脑加 --skip-premise 成橡皮图章",
+      "falsification": "若 --skip-premise 占比过半，则只是换了种跳过方式",
+      "confidence": "high"
+    },
+    "V2-10": {
+      "verdict": "dont",
+      "reasons": [
+        "四处全在门禁路径，省 20 行风险倒挂；裁判与 Decimal 纠缠；已有同型教训；代码内重复≠整文件重复"
+      ],
+      "top_risk": "第 5、6 处出现后参数拼装分化，门禁悄悄跑出不同结论",
+      "falsification": "若出现 4 处之外重复且拼装已分叉导致门禁结论不一致，则应部分抽取",
+      "confidence": "high"
+    },
+    "V2-11": {
+      "verdict": "do",
+      "reasons": [
+        "钩子缺失无一处会红；CI 拦不住密钥；不入库必然换机即失；接手验收定义即此"
+      ],
+      "top_risk": "只查文件存在，空壳钩子也 PASS",
+      "falsification": "若验收 PASS 但推送时扫描未执行，则须改为校验钩子内容哈希",
+      "confidence": "high"
+    },
+    "V2-12": {
+      "verdict": "do",
+      "reasons": [
+        "项数是常量 len(CHECKS)，报它不需跑检查；人工核对实际没人核对；门禁已 8 项边际成本近零；已知未覆盖本身是缺口"
+      ],
+      "top_risk": "核的是脚本说有 5 项，不是 5 项真跑过",
+      "falsification": "若出现门禁报 5/5 但实跑少于 5 项，则须改为校验执行记录",
+      "confidence": "high"
+    },
+    "V2-13": {
+      "verdict": "do",
+      "reasons": [
+        "静默 off 与通过不可区分；同类静默跳过已多次；图省事正需被显式暴露；内部可一次改完"
+      ],
+      "top_risk": "调用方包一层吞掉退出码，静默跳过换个地方发生",
+      "falsification": "若一个月内出现 ≥2 处吞异常写法，则报错过头",
+      "confidence": "medium"
+    }
+  },
+  "note": "12 题全部裁断；V2-01（tar 覆盖方向存疑）与 V2-04（成本 vs 漏检）最不确定，标 medium。"
+}

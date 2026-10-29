@@ -1,0 +1,79 @@
+{
+  "_note": "v3 十题 S2 作答，回传转录。参考裁决来自用户，本臂作答时未见。",
+  "seat": "S2",
+  "used_tools": true,
+  "forbidden_paths_read": false,
+  "answers": {
+    "Q01": {
+      "verdict": "A",
+      "reasons": [
+        "H项只比最近1份，另2份纯历史回看，且已有git全量历史+私有远端+bundle/tar三重备份，上调只增磁盘"
+      ],
+      "confidence": "high"
+    },
+    "Q02": {
+      "verdict": "C",
+      "reasons": [
+        "漂移确实频繁，但项目无常驻服务，加定时要新增四件套，写进待办成本最低且能兜住出分时机"
+      ],
+      "confidence": "high"
+    },
+    "Q03": {
+      "verdict": "A",
+      "reasons": [
+        "D-0052自认标注者=实现者，换模型底座相同消不掉同源偏差，只有你亲自标注才拿到独立判据"
+      ],
+      "confidence": "medium"
+    },
+    "Q04": {
+      "verdict": "C",
+      "reasons": [
+        "C在README与ARCHITECTURE双处标注「仅档案、不可用于决策」，比A更强的防误引约束"
+      ],
+      "confidence": "high"
+    },
+    "Q05": {
+      "verdict": "C",
+      "reasons": [
+        "audit脚本纯本机调用，py_compile能以最小门禁耗时成本堵住脚本跑不起来这类硬失败"
+      ],
+      "confidence": "medium"
+    },
+    "Q06": {
+      "verdict": "C",
+      "reasons": [
+        "21条里仅约1/3跨项目通用，抽库要额外解决四题，月度导出即可覆盖传播需求又不引入同步机制"
+      ],
+      "confidence": "medium"
+    },
+    "Q07": {
+      "verdict": "B",
+      "reasons": [
+        "四臂26/26零分歧、独立性按0计，席位零增益却每轮烧4-8个agent，判据与探针本就不依赖席位"
+      ],
+      "confidence": "high"
+    },
+    "Q08": {
+      "verdict": "B",
+      "reasons": [
+        "逐题表有凭据价值，但转成CSV既保住可复算性又让正文回到结论+判据+复算命令三段"
+      ],
+      "confidence": "high"
+    },
+    "Q09": {
+      "verdict": "A",
+      "reasons": [
+        "你裁决是参考值与出题人分离，材料明写这是唯一已知打破天花板的方式，10题仅几分钟"
+      ],
+      "confidence": "high"
+    },
+    "Q10": {
+      "verdict": "C",
+      "reasons": [
+        "指标可复用但key_reasons与题集强绑定，推广等于三个项目各自新增出题与裁决，先解耦再决定"
+      ],
+      "confidence": "medium"
+    }
+  },
+  "note": "十题皆仅读对应 brief；Q03/Q05/Q06/Q10 因须在成本与独立性间取舍标 medium。"
+}

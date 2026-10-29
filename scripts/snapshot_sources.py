@@ -69,7 +69,15 @@ SNAP_ROOT = ROOT / "snapshots"
 # 本机仍可查、可回滚。历史回滚的主责已交给 git（2026-10-23 建仓之后），
 # 快照的职责变成「H 项的比对基准」（见 ARCHITECTURE 目录结构一节）。
 ARCHIVE_ROOT = ROOT / "_trash" / "snapshots-archive"
-SOURCES = ["scripts", "docs/protocol", "docs/decisions", "templates"]
+# ★ 2026-10-29（H 覆盖盲区修复）：真源不止 scripts/。
+#   Makefile / 根级四文档 / audit/（判据与冻结基线）/ .learnings / .github/workflows
+#   同样是「改了不重跑就没意义」的真源。原范围漏掉它们 = 改这些文件永远不需要打快照，
+#   H 项对它们零约束（F6 实测：一次改了 12 个文件，只有 5 个被 H 约束）。
+#   outputs/ 是机器产出、runs/ 是业务数据，均刻意不入快照（真源 = 可执行代码 + 判据 + 决策 + 文档）。
+SOURCES = ["scripts", "docs/protocol", "docs/decisions", "templates",
+           "audit", ".learnings", ".github/workflows"]
+# 根级单文件（SOURCES 只支持目录，单文件走这里）
+ROOT_FILES = ["Makefile", "README.md", "ARCHITECTURE.md", "DEPENDENCIES.md", "M4-接续指南.md"]
 SKIP_SUFFIX = {".pyc", ".bak"}
 SKIP_DIRS = {"__pycache__", ".pytest_cache"}
 
@@ -91,6 +99,10 @@ def iter_sources(root=None):
     base_root = Path(root) if root is not None else ROOT
     for rel in SOURCES:
         base = base_root / rel
+        if base.is_file():                      # 2026-10-29：支持根级单文件（Makefile 等）
+            if base.suffix not in SKIP_SUFFIX:
+                yield rel, base
+            continue
         if not base.is_dir():
             continue
         for p in sorted(base.rglob("*")):
@@ -101,6 +113,10 @@ def iter_sources(root=None):
             if any(part in SKIP_DIRS for part in p.parts):
                 continue
             yield p.relative_to(base_root).as_posix(), p
+    for rel in ROOT_FILES:                      # 根级四文档 + Makefile：不在任何目录里
+        base = base_root / rel
+        if base.is_file() and base.suffix not in SKIP_SUFFIX:
+            yield rel, base
 
 
 def safe_label(label):
@@ -678,6 +694,11 @@ def self_test():
             (r / "scripts").mkdir(parents=True)
             (r / "scripts" / "a.py").write_text("A\n", encoding="utf-8")
             (r / "scripts" / "b.py").write_text("B\n", encoding="utf-8")
+            # 2026-10-29（H 覆盖盲区）：迷你仓库同步造根文件与 audit/，
+            # 否则「新 SOURCES 生效」只能靠人眼确认。
+            (r / "audit").mkdir()
+            (r / "audit" / "x.md").write_text("X\n", encoding="utf-8")
+            (r / "Makefile").write_text("all:\n\techo ok\n", encoding="utf-8")
             sr = td / f"snaps-{tag}"
             sr.mkdir()
             with contextlib.redirect_stdout(io.StringIO()):
@@ -694,6 +715,23 @@ def self_test():
         expect("三向：干净快照 → 三方一致", three_way(snap, r)["clean"] is True)
         expect("三向：干净快照 → verify rc=0（正样本）",
                _quiet(verify, snap_root=sr, root=r) == 0)
+
+        # ⑧b 覆盖面（2026-10-29，H 覆盖盲区修复）：SOURCES 不再只是 scripts/
+        idx = json.loads((snap / "_index.json").read_text(encoding="utf-8"))["files"]
+        expect("覆盖面：根文件 Makefile 与 audit/ 进入快照索引（H 对它们有约束力）",
+               "Makefile" in idx and "audit/x.md" in idx,
+               f"索引 {len(idx)} 项")
+        expect("防回退：SOURCES 必须含 audit/.learnings/.github/workflows，ROOT_FILES 5 个",
+               {"audit", ".learnings", ".github/workflows"} <= set(SOURCES)
+               and set(ROOT_FILES) == {"Makefile", "README.md", "ARCHITECTURE.md",
+                                       "DEPENDENCIES.md", "M4-接续指南.md"})
+        # 负样本：新增范围的真源被改，必须命中 A 类 —— 旧范围下这里会假绿
+        (r / "Makefile").write_text("all:\n\techo changed\n", encoding="utf-8")
+        (r / "audit" / "x.md").write_text("X2\n", encoding="utf-8")
+        tw = three_way(snap, r)
+        expect("覆盖面负样本：根文件/audit 被改 → A 类命中（旧范围在此假绿）",
+               sorted(tw["source_changed"]) == ["Makefile", "audit/x.md"],
+               str(tw["source_changed"]))
 
         # 负样本 A：真源被改
         r, sr, snap = _mk("src")

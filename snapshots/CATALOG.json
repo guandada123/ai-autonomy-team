@@ -3,9 +3,9 @@
  "_generated_by": "scripts/snapshot_sources.py --catalog",
  "count": {
   "in_git": 3,
-  "archived": 233,
+  "archived": 237,
   "missing": 0,
-  "total": 236
+  "total": 240
  },
  "snapshots": [
   {
@@ -1874,27 +1874,59 @@
   },
   {
    "name": "20261029-082454-F8超时与scratch隔离",
-   "location": "snapshots",
-   "in_git": true,
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
    "label": "F8超时与scratch隔离",
    "created_at": "2026-10-29T08:24:54",
    "file_count": 134
   },
   {
    "name": "20261029-082838-F8僵尸判据修正",
-   "location": "snapshots",
-   "in_git": true,
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
    "label": "F8僵尸判据修正",
    "created_at": "2026-10-29T08:28:38",
    "file_count": 134
   },
   {
    "name": "20261029-094559-F6计数对齐",
-   "location": "snapshots",
-   "in_git": true,
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
    "label": "F6计数对齐",
    "created_at": "2026-10-29T09:45:59",
    "file_count": 134
+  },
+  {
+   "name": "20261029-111959-H覆盖盲区修复",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "H覆盖盲区修复",
+   "created_at": "2026-10-29T11:19:59",
+   "file_count": 357
+  },
+  {
+   "name": "20261029-112050-含根级文档",
+   "location": "snapshots",
+   "in_git": true,
+   "label": "含根级文档",
+   "created_at": "2026-10-29T11:20:50",
+   "file_count": 357
+  },
+  {
+   "name": "20261029-112223-声明校准",
+   "location": "snapshots",
+   "in_git": true,
+   "label": "声明校准",
+   "created_at": "2026-10-29T11:22:23",
+   "file_count": 357
+  },
+  {
+   "name": "20261029-112338-审计行恢复",
+   "location": "snapshots",
+   "in_git": true,
+   "label": "审计行恢复",
+   "created_at": "2026-10-29T11:23:38",
+   "file_count": 357
   }
  ]
 }

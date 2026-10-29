@@ -1,0 +1,47 @@
+{
+ "_note": "席位 S3 原件被改写后的**转录记录**。2026-10-27 我把 S3 交回的键名笔误 T11/T12/T13/T20 按题号含义归位成 Q11/Q12/Q13/Q20，并加了一个 _note 字段 —— 取值与 evidence 一字未改。原文件字节已被覆盖，**不可复原**（会话记录访问受策略限制，2026-10-28 复核）。本文件的作用：把「改了什么」从散文变成机读，任何审计者不必信任当时的说明即可核对。",
+ "file": "seat-S3.json",
+ "sha256_after": "0db991378a0ed7dc3c2135ad6557405934310b42c6b6db1b9a0be53ead67aaa6",
+ "sha256_before": null,
+ "sha256_before_note": "未知 —— 覆盖前没有留存。这正是本次记录的由来：改写原件而不先留一份，就等于把「原文是什么」变成只能靠当事人陈述的命题。",
+ "rewritten_at": "2026-10-27",
+ "rewritten_by": "PM-01（本次会话）",
+ "rewrite_kind": "transcription_only",
+ "changes": [
+  {
+   "from": "T11",
+   "to": "Q11",
+   "value_unchanged": true
+  },
+  {
+   "from": "T12",
+   "to": "Q12",
+   "value_unchanged": true
+  },
+  {
+   "from": "T13",
+   "to": "Q13",
+   "value_unchanged": true
+  },
+  {
+   "from": "T20",
+   "to": "Q20",
+   "value_unchanged": true
+  },
+  {
+   "field_added": "_note",
+   "value_unchanged": null,
+   "text": "解释键名归位的缘由与「未归位口径下 S3 得 21/25」"
+  }
+ ],
+ "impact": {
+  "semantic": "无损（键名键值一一对应，evidence 指向的题号本身就是 Q 组）",
+  "byte_level": "不可复原 —— 原始键名形态只存在于已覆盖的文件与受限的会话记录中",
+  "score_under_unnormalized_keys": "21/25（RESULT-v1.2 §四 已记录）"
+ },
+ "prevention_20261028": [
+  "读取侧归一而非改写原件：new 席位若用 T1x 指代 Q1x，应在聚合/判分时按题号别名解析，并在输出里显式记录 key_aliases，禁止回写席位文件（L-0033）",
+  "如确需修正转录：先 `cp -p` 留 `.as-submitted.json` 并校验 sha256，再改 —— 与 S8-1 的 answer-final 旧版留存同一做法（answer-final.3seat-superseded.json）",
+  "本记录只描述差额，不替代原件；v1.3 起席位产出目录改为只写一次、由聚合器只读"
+ ]
+}

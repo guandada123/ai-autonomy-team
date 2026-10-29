@@ -1,0 +1,80 @@
+{
+  "_note": "v3 重复运行第 2 次，单席臂 M1。题面与提示与前次完全相同，独立会话。",
+  "seat": "M1",
+  "run": 2,
+  "used_tools": true,
+  "forbidden_paths_read": false,
+  "answers": {
+    "Q01": {
+      "verdict": "A",
+      "reasons": [
+        "门禁只比最近1份、归档不删除、另有git与bundle备份，无存储压力"
+      ],
+      "confidence": "high"
+    },
+    "Q02": {
+      "verdict": "C",
+      "reasons": [
+        "漂移快但exit 3硬闸已能不静默出分；非常驻项目，加定时要新增四件套，写进待办零边际成本"
+      ],
+      "confidence": "medium"
+    },
+    "Q03": {
+      "verdict": "A",
+      "reasons": [
+        "只有你自己标注才拿到独立判据，换模型同源偏差消不掉"
+      ],
+      "confidence": "medium"
+    },
+    "Q04": {
+      "verdict": "C",
+      "reasons": [
+        "结论「测不出差异」留原位可能被误引，需两处标注仅档案"
+      ],
+      "confidence": "high"
+    },
+    "Q05": {
+      "verdict": "C",
+      "reasons": [
+        "脚本只本机调用不进生产，py_compile已覆盖最基本失效"
+      ],
+      "confidence": "medium"
+    },
+    "Q06": {
+      "verdict": "C",
+      "reasons": [
+        "抽库要解四件事而三层记忆已存在，月导出不引入同步机制"
+      ],
+      "confidence": "medium"
+    },
+    "Q07": {
+      "verdict": "B",
+      "reasons": [
+        "26/26零分歧无增益，砍掉不影响判据与探针"
+      ],
+      "confidence": "high"
+    },
+    "Q08": {
+      "verdict": "B",
+      "reasons": [
+        "逐题表必须留但可另存CSV，正文留结论+判据+复算命令"
+      ],
+      "confidence": "high"
+    },
+    "Q09": {
+      "verdict": "A",
+      "reasons": [
+        "分离是目前唯一能打破天花板的方式，只做一次下轮就回来"
+      ],
+      "confidence": "high"
+    },
+    "Q10": {
+      "verdict": "C",
+      "reasons": [
+        "指标可复用但key_reasons强绑题集，跨项目共享四问未答"
+      ],
+      "confidence": "medium"
+    }
+  },
+  "note": "仅以证据成本比作答：小成本可逆项取现状或折中，涉及独立性与误引风险的取彻底方案。"
+}
