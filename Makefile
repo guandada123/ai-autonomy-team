@@ -97,6 +97,9 @@ selftest:
 	@echo "── 决策链一致性自检 ──"
 	$(PY) $(SCRIPTS)/check_consistency.py --self-test
 	@echo ""
+	@echo ""
+	@echo "── 回归运行保障自检（超时 / 进程组 / scratch 隔离 / 防回退）──"
+	$(PY) $(SCRIPTS)/regress.py --self-test
 	@echo "── 门禁自身自检（每个检查项都配正负样本，防「门禁假绿」）──"
 	$(PY) $(SCRIPTS)/pre_release_check.py --self-test
 	@echo "── 判据自检 + 全量门禁（内含全量回归，约 60 秒）──"

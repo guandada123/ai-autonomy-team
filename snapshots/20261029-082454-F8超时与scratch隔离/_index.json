@@ -1,6 +1,6 @@
 {
- "created_at": "2026-10-28T23:47:13",
- "label": "F3三向比对",
+ "created_at": "2026-10-29T08:24:54",
+ "label": "F8超时与scratch隔离",
  "file_count": 134,
  "files": {
   "scripts/build_package.py": {
@@ -88,8 +88,8 @@
    "bytes": 14732
   },
   "scripts/make_tasks_20.py": {
-   "sha256": "b207be232c5db18c2c155846a37d7d53feaad4f6f251d71a73e04850e5c8255a",
-   "bytes": 41902
+   "sha256": "3bcac71fd13177acfee8a1c22d194b372d302ee335cc6d753983cfd6abd65e9d",
+   "bytes": 42150
   },
   "scripts/make_transfer.py": {
    "sha256": "06c5aaa394c0d6c3806fb1ab300e09fb6ee5c7498b2c76bfd94a9ba0a55d9eb5",
@@ -112,8 +112,8 @@
    "bytes": 11650
   },
   "scripts/pre_release_check.py": {
-   "sha256": "0559600ff11c754a6061818dd14e5cd603e94611a76e8976c2ce7a532e3b8ff3",
-   "bytes": 16122
+   "sha256": "4d0be6c24283cc6b618402cf0619d93146741465da6bbbdf23aceacdb5f1298b",
+   "bytes": 33848
   },
   "scripts/premise_probe.py": {
    "sha256": "80b7312d4ebb3049afe46ee757cdefc907a620a060b2c3b159a2447a796e19f7",
@@ -132,8 +132,8 @@
    "bytes": 11300
   },
   "scripts/regress.py": {
-   "sha256": "496383e8d32cb83812ee94e6d0b8f4db52a30865bff5d6ac806465a87bba3e13",
-   "bytes": 68112
+   "sha256": "751e1b6fd29858efeda1da2ff639a5e10b92911cadb7c7b24d01e11f1168d24a",
+   "bytes": 74102
   },
   "scripts/secret_patterns.py": {
    "sha256": "c77c883691005f530cff2444c7acb0470dfadf595ae1c15dbc98b34857b56ef1",
@@ -541,8 +541,8 @@
   }
  },
  "caller": {
-  "pid": 73199,
-  "ppid": 73197,
-  "parent_cmd": "/bin/zsh -c . '/Users/guan/.workbuddy/shell-snapshots/snapshot-zsh-1793201152010-27t7u7.sh' && if [ -n \"${CODEBUDDY_SAFE_DELETE_BIN_DIR:-}\" ]; then unalias rm unlink rmdir 2>/dev/null || true; unset -"
+  "pid": 81915,
+  "ppid": 81913,
+  "parent_cmd": "/bin/zsh -c . '/Users/guan/.workbuddy/shell-snapshots/snapshot-zsh-1793232133189-i45hxc.sh' && if [ -n \"${CODEBUDDY_SAFE_DELETE_BIN_DIR:-}\" ]; then unalias rm unlink rmdir 2>/dev/null || true; unset -"
  }
 }

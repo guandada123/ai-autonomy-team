@@ -15,6 +15,7 @@ precheck.py —— 目标机（Mac mini M4 / macOS）环境自检
 
 import argparse
 import json
+import os
 import platform
 import shutil
 import subprocess
@@ -74,7 +75,10 @@ def main():
 
     # 6. 写权限（自检目录本身，不污染交付物）
     try:
-        probe = here / ".precheck_write_probe"
+        # 2026-10-29（F8）：探针名加 pid —— 固定名在并发下互踩：
+        # A 先 unlink 掉，B 的 unlink 就抛 FileNotFoundError，被记成「目录不可写」。
+        # 实测三个并发 regress 实例时 2/3 因此假红（第 11 项）。
+        probe = here / f".precheck_write_probe.{os.getpid()}"
         probe.write_text("ok", encoding="utf-8")
         probe.unlink()
         rec("目录可写", True, str(here))

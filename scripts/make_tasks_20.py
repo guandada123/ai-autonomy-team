@@ -31,6 +31,7 @@ make_tasks_20.py —— 批量生成 20 条留出任务（扩样，设计见 doc
 import argparse
 import csv
 import json
+import os
 import random
 import sys
 from decimal import Decimal, ROUND_HALF_EVEN
@@ -719,7 +720,10 @@ def self_check(out_dir, tasks):
     #   故这里【不做任何删除】—— 工作副本由回归流程统一处置）。
     pkg = Path(__file__).resolve().parent.parent / "migration-package"
     verify = pkg / "judges" / "verify.py"
-    work = Path(__file__).resolve().parent.parent / "_trash" / "tmp-regress" / "t20-selfcheck"
+    # 2026-10-29（F8）：目录名加 pid —— 固定名让并发 regress 实例共用同一份产物，
+    # 一方写的 verdict 被另一方读到（实测三个并发时 2/3 假红，第 49 项）。
+    work = (Path(__file__).resolve().parent.parent / "_trash" / "tmp-regress"
+            / f"t20-selfcheck-{os.getpid()}")
     work.mkdir(parents=True, exist_ok=True)
     bad = []
     for idx, t in tasks:
