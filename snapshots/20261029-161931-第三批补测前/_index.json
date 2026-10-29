@@ -1,6 +1,6 @@
 {
- "created_at": "2026-10-29T15:48:21",
- "label": "基线80",
+ "created_at": "2026-10-29T16:19:31",
+ "label": "第三批补测前",
  "file_count": 363,
  "files": {
   "scripts/build_package.py": {
@@ -1252,8 +1252,8 @@
    "bytes": 3156
   },
   "audit/kit/test_kit.py": {
-   "sha256": "f74028d3282b037a756af541a2dd302458d276d1b5cda3497d736f824e214131",
-   "bytes": 44876
+   "sha256": "39aa6408b1bc12967f4833a00466c0628f03de8a84c4f8150418b36ab1226693",
+   "bytes": 59665
   },
   "audit/probes/premise/spec-cases.json": {
    "sha256": "d552c79e28bd10e2b02f776f31f49df6b24cce34618e8d489214d93d29cded41",
@@ -1457,8 +1457,8 @@
   }
  },
  "caller": {
-  "pid": 51570,
-  "ppid": 51562,
-  "parent_cmd": "/bin/zsh -c . '/Users/guan/.workbuddy/shell-snapshots/snapshot-zsh-1793259546649-lkm22h.sh' && if [ -n \"${CODEBUDDY_SAFE_DELETE_BIN_DIR:-}\" ]; then unalias rm unlink rmdir 2>/dev/null || true; unset -"
+  "pid": 72634,
+  "ppid": 72632,
+  "parent_cmd": "/bin/zsh -c . '/Users/guan/.workbuddy/shell-snapshots/snapshot-zsh-1793261367925-b10oe0.sh' && if [ -n \"${CODEBUDDY_SAFE_DELETE_BIN_DIR:-}\" ]; then unalias rm unlink rmdir 2>/dev/null || true; unset -"
  }
 }

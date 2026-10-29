@@ -3,9 +3,9 @@
  "_generated_by": "scripts/snapshot_sources.py --catalog",
  "count": {
   "in_git": 3,
-  "archived": 246,
+  "archived": 248,
   "missing": 0,
-  "total": 249
+  "total": 251
  },
  "snapshots": [
   {
@@ -1978,16 +1978,16 @@
   },
   {
    "name": "20261029-154723-基线抬升前",
-   "location": "snapshots",
-   "in_git": true,
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
    "label": "基线抬升前",
    "created_at": "2026-10-29T15:47:23",
    "file_count": 363
   },
   {
    "name": "20261029-154821-基线80",
-   "location": "snapshots",
-   "in_git": true,
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
    "label": "基线80",
    "created_at": "2026-10-29T15:48:21",
    "file_count": 363
@@ -1998,6 +1998,22 @@
    "in_git": true,
    "label": "",
    "created_at": "2026-10-29T16:10:20",
+   "file_count": 363
+  },
+  {
+   "name": "20261029-161931-第三批补测前",
+   "location": "snapshots",
+   "in_git": true,
+   "label": "第三批补测前",
+   "created_at": "2026-10-29T16:19:31",
+   "file_count": 363
+  },
+  {
+   "name": "20261029-162017-基线82",
+   "location": "snapshots",
+   "in_git": true,
+   "label": "基线82",
+   "created_at": "2026-10-29T16:20:17",
    "file_count": 363
   }
  ]

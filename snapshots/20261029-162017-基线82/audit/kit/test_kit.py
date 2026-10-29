@@ -1013,6 +1013,302 @@ def _():
         assert ok is True, d
 
 
+# ── 组N+5：build_package / redact_report / inspect_status（基线抬升第二批）──
+
+@check("build_package: do_check 四态（一致/漂移/目标缺失/源缺失）")
+def _():
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("bp_ut", ROOT / "scripts/build_package.py")
+    bp = importlib.util.module_from_spec(spec)
+    sys.modules["bp_ut"] = bp
+    spec.loader.exec_module(bp)
+    import contextlib
+    import io as _io
+    # FIXED_MAPPING 的 12 条源在临时目录不存在 → 正好当「源缺失」样本（留 1 条即可）
+    bp.FIXED_MAPPING = [("scripts/judges/verify.py", "migration-package/judges/verify.py")]
+    with tempfile.TemporaryDirectory() as td:
+        tmp = Path(td)
+        src = tmp / "docs" / "protocol"
+        src.mkdir(parents=True)
+        (src / "x.md").write_text("V1\n", encoding="utf-8")
+        dst = tmp / "migration-package" / "protocol"
+        dst.mkdir(parents=True)
+
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            rc = bp.do_check(tmp)
+        assert rc == 1 and "[源缺失]" in buf.getvalue(), buf.getvalue()
+
+        (tmp / "scripts" / "judges").mkdir(parents=True)
+        (tmp / "scripts" / "judges" / "verify.py").write_text("v\n", encoding="utf-8")
+        (tmp / "migration-package" / "judges").mkdir(parents=True)
+        (tmp / "migration-package" / "judges" / "verify.py").write_text("v\n",
+                                                                       encoding="utf-8")
+
+        buf = _io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            rc = bp.do_check(tmp)                 # 目标缺失（DIR_MAPPING 的 md 还没同步）
+        assert rc == 1 and "[目标缺失]" in buf.getvalue(), buf.getvalue()
+
+        (dst / "x.md").write_text("V1\n", encoding="utf-8")
+        buf = _io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            rc = bp.do_check(tmp)
+        assert rc == 0 and "全部一致" in buf.getvalue(), buf.getvalue()
+
+        (dst / "x.md").write_text("V2\n", encoding="utf-8")   # 内容漂移
+        buf = _io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            rc = bp.do_check(tmp)
+        assert rc == 1 and "[漂移]" in buf.getvalue(), buf.getvalue()
+
+        (dst / "x.md").write_text("V1\n", encoding="utf-8")
+        (src / "y.md").write_text("Y\n", encoding="utf-8")    # 源有、包无 → 目标缺失
+        buf = _io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            rc = bp.do_check(tmp)
+        assert rc == 1 and "[目标缺失]" in buf.getvalue(), buf.getvalue()
+        (src / "y.md").unlink()
+
+
+@check("build_package: do_apply 写入/未变/装配日志（D-0018 留痕含 actor）")
+def _():
+    import importlib.util, json as _json
+    spec = importlib.util.spec_from_file_location("bp_ut2", ROOT / "scripts/build_package.py")
+    bp = importlib.util.module_from_spec(spec)
+    sys.modules["bp_ut2"] = bp
+    spec.loader.exec_module(bp)
+    with tempfile.TemporaryDirectory() as td:
+        tmp = Path(td)
+        src = tmp / "docs" / "protocol"
+        src.mkdir(parents=True)
+        (src / "x.md").write_text("V1\n", encoding="utf-8")
+        import contextlib, io as _io
+        buf = _io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            rc = bp.do_apply(tmp)
+        assert rc == 0
+        log = tmp / "assembly-log.jsonl"
+        entry = _json.loads(log.read_text(encoding="utf-8").strip().splitlines()[-1])
+        assert entry["actor"] == "build_package.py(--apply)" and entry["written"] == 1, entry
+
+        with contextlib.redirect_stdout(buf):
+            rc = bp.do_apply(tmp)                 # 第二次：内容没变 → unchanged
+        entry2 = _json.loads(log.read_text(encoding="utf-8").strip().splitlines()[-1])
+        assert entry2["written"] == 0 and entry2["unchanged"] >= 1, entry2
+
+
+@check("build_package: CLI --list 与无参（dispatch 分支）")
+def _():
+    import subprocess as sp
+    with tempfile.TemporaryDirectory() as td:
+        tmp = Path(td)
+        (tmp / "docs" / "protocol").mkdir(parents=True)
+        (tmp / "docs" / "protocol" / "x.md").write_text("V\n", encoding="utf-8")
+        r = sp.run([sys.executable, str(ROOT / "scripts/build_package.py"),
+                    "--root", str(tmp), "--list"], capture_output=True, text=True)
+        assert r.returncode == 0 and "映射表" in r.stdout, r.stdout
+        r = sp.run([sys.executable, str(ROOT / "scripts/build_package.py"),
+                    "--root", str(tmp)], capture_output=True, text=True)
+        assert r.returncode == 2, r.returncode    # 无 --check/--apply/--manifest → help + 2
+
+
+@check("build_package: CLI --manifest 在临时包上重建 MANIFEST（E1）")
+def _():
+    import subprocess as sp, shutil as _sh
+    with tempfile.TemporaryDirectory() as td:
+        tmp = Path(td)
+        pkg = tmp / "migration-package"
+        pkg.mkdir()
+        (pkg / "a.py").write_text("A=1\n", encoding="utf-8")
+        _sh.copy(str(ROOT / "migration-package/gen_manifest.py"),
+                 str(pkg / "gen_manifest.py"))
+        r = sp.run([sys.executable, str(ROOT / "scripts/build_package.py"),
+                    "--root", str(tmp), "--manifest"], capture_output=True, text=True)
+        assert r.returncode == 0, (r.stdout, r.stderr)
+        assert (pkg / "MANIFEST.json").is_file(), r.stdout
+
+
+@check("redact_report: --check 审输入现状（脏→FAIL / 净→PASS，不是自己查自己）")
+def _():
+    import subprocess as sp
+    tool = ROOT / "scripts/redact_report.py"
+    with tempfile.TemporaryDirectory() as td:
+        tmp = Path(td)
+        dirty = tmp / "dirty.md"
+        dirty.write_text("仅 600036 有仓\n", encoding="utf-8")
+        r = sp.run([sys.executable, str(tool), "--in", str(dirty), "--check"],
+                   capture_output=True, text=True)
+        assert r.returncode == 1 and "残留" in r.stdout, (r.returncode, r.stdout)
+
+        clean = tmp / "clean.md"
+        clean.write_text("仅 标的D 有仓\n", encoding="utf-8")
+        r = sp.run([sys.executable, str(tool), "--in", str(clean), "--check"],
+                   capture_output=True, text=True)
+        assert r.returncode == 0 and "无残留" in r.stdout, (r.returncode, r.stdout)
+
+
+@check("redact_report: 生成对外版（banner 前置、清单外代码代号化、无残留）")
+def _():
+    import subprocess as sp
+    tool = ROOT / "scripts/redact_report.py"
+    with tempfile.TemporaryDirectory() as td:
+        tmp = Path(td)
+        src = tmp / "r.md"
+        src.write_text("# 周报\n\n| I2 持仓 | 仅 600036 有仓（100 股） |\n", encoding="utf-8")
+        out = tmp / "out.md"
+        r = sp.run([sys.executable, str(tool), "--in", str(src), "--out", str(out)],
+                   capture_output=True, text=True)
+        assert r.returncode == 0 and "已生成" in r.stdout, (r.returncode, r.stdout)
+        text = out.read_text(encoding="utf-8")
+        assert "600036" not in text and "标的" in text, text
+        assert "勿公开" in text, text[:200]           # banner 在（未打码金额警示）
+        assert text.splitlines()[0].startswith("# 周报") or "账户金额" in text.splitlines()[1], text[:120]
+
+
+@check("redact_report: --mask-amounts 打码金额且 # 开头输入的 banner 插在标题后")
+def _():
+    import subprocess as sp
+    tool = ROOT / "scripts/redact_report.py"
+    with tempfile.TemporaryDirectory() as td:
+        tmp = Path(td)
+        src = tmp / "r.md"
+        src.write_text("# 周报\n现金 46,829.30 元。\n", encoding="utf-8")
+        out = tmp / "out.md"
+        r = sp.run([sys.executable, str(tool), "--in", str(src), "--out", str(out),
+                    "--mask-amounts"], capture_output=True, text=True)
+        assert r.returncode == 0, (r.returncode, r.stdout)
+        text = out.read_text(encoding="utf-8")
+        assert "46,829.30" not in text and "46,8xx.xx" in text, text
+        lines = text.splitlines()
+        assert lines[0].startswith("# 周报"), lines[:3]           # 原标题仍是首行
+        assert any("账户金额已抹掉" in ln or "抹掉精度" in ln for ln in lines[:4]), lines[:4]
+
+
+@check("redact_report: 错误分支三条（无 --in / 文件不存在 / 有 --in 无 --out）")
+def _():
+    import subprocess as sp
+    tool = ROOT / "scripts/redact_report.py"
+    with tempfile.TemporaryDirectory() as td:
+        tmp = Path(td)
+        r = sp.run([sys.executable, str(tool)], capture_output=True, text=True)
+        assert r.returncode == 2 and "--in" in (r.stdout + r.stderr), (r.returncode, r.stdout)
+        r = sp.run([sys.executable, str(tool), "--in", str(tmp / "nope.md"), "--check"],
+                   capture_output=True, text=True)
+        assert r.returncode == 2 and "读取失败" in (r.stdout + r.stderr), r.returncode
+        src = tmp / "r.md"
+        src.write_text("x\n", encoding="utf-8")
+        r = sp.run([sys.executable, str(tool), "--in", str(src)], capture_output=True, text=True)
+        assert r.returncode == 2 and "--out" in (r.stdout + r.stderr), r.returncode
+
+
+@check("inspect_status: 合成 runs 全景（双版式/未终态/stale 泄漏留痕/人闸/flip/缺字段）")
+def _():
+    import subprocess as sp, tempfile as _tfd
+    runs = Path(_tfd.mkdtemp(prefix="is-runs-"))
+    def rnd(name, files):
+        d = runs / name
+        d.mkdir(parents=True)
+        for fn, obj in files.items():
+            (d / fn).write_text(json.dumps(obj, ensure_ascii=False), encoding="utf-8")
+
+    rnd("round1", {   # adjudicated + stale verdict + S8-1 泄漏（有旁挂留痕）+ flip
+        "answer-final.json": {"aggregation_inputs": [
+            {"seat": "EX-01", "seat_check_status": "valid", "sha256": "shaA"},
+            {"seat": "EX-03", "seat_check_status": "valid", "sha256": "shaX"}]},
+        "answer-status.json": {"adjudication_state": "adjudicated",
+                               "provenance": "p", "ts": "t1"},
+        "seat-check.json": {"seats": [{"seat": "EX-03", "status": "blocked",
+                                       "error": "veto"}]},
+        "integrity-notes.json": {"findings": [{"severity": "high", "id": "F-1",
+                                               "disposition": "closed"},
+                                              {"severity": "med", "id": "F-2",
+                                               "disposition": "open"}]},
+        "verdict-layered.json": {"spec_layer": "adjudication",
+                                 "verdict": "pending_adjudication", "ts": "t0",
+                                 "pending": [{"id": "T01"}]},
+        "metrics.json": {"metrics_status": "ok",
+                         "flip_rate": {"value": 0.55, "threshold": 0.4}},
+    })
+    rnd("round2", {   # 版式 b：人工闸门记录（status 字段）+ 缺 aggregation_inputs
+        "answer-final.json": {},
+        "answer-status.json": {"status": "resolved_by_human", "ts": "t2",
+                               "resolution": {}},
+    })
+    rnd("round3", {   # 版式未知 → 未终态
+        "answer-final.json": {"aggregation_inputs": []},
+        "answer-status.json": {"weird": 1},
+    })
+    rnd("round4", {   # 人闸等待确认
+        "answer-final.json": {"aggregation_inputs": []},
+        "answer-status.json": {"status": "awaiting_human_confirm",
+                               "blocking": True, "ts": "t3"},
+    })
+    r = sp.run([sys.executable, str(ROOT / "scripts/inspect_status.py"),
+                "--runs", str(runs)], capture_output=True, text=True)
+    out = r.stdout
+    assert r.returncode == 0, (r.returncode, out, r.stderr)
+    # 双版式都被认出
+    assert "current state: adjudicated" in out, out
+    assert "current state: resolved_by_human" in out, out
+    assert "非 verify.py 版式" in out, out                       # 版式 b 必须标明来源
+    assert "current state: 未终态" in out and "版式未知" in out, out
+    # stale：verdict 自称 pending 但当前态已裁决 → 标注取代者
+    assert "已被 answer-status.json 的 adjudicated 取代" in out, out
+    assert "pending_ids=['T01']" in out, out
+    # 泄漏 + 旁挂留痕标注
+    assert "S8-1 LEAK" in out and "EX-03" in out, out
+    assert "已留痕(high/F-1/disposition=closed)" in out and "等 2 项" in out, out
+    # 汇总段
+    assert "已 resolved" in out and "verdict 行自称 pending 但当前态已裁决" in out, out
+    assert "HUMAN GATE" in out and "blocking=True" in out, out
+    assert "FLIP RATE values" in out and "flip_rate.value=0.55" in out, out
+    assert "MISSING aggregation_inputs" in out, out
+
+
+@check("inspect_status: 纯函数（round_key 自然排序 / violations 多形态 / annotate 无冲突不动）")
+def _():
+    import contextlib, io as _io
+    old = sys.argv
+    sys.argv = ["inspect_status.py"]
+    buf = _io.StringIO()
+    try:
+        with contextlib.redirect_stdout(buf), contextlib.redirect_stderr(buf):
+            import importlib.util
+            spec = importlib.util.spec_from_file_location("is_ut", ROOT / "scripts/inspect_status.py")
+            isv = importlib.util.module_from_spec(spec)
+            sys.modules["is_ut"] = isv
+            spec.loader.exec_module(isv)
+    finally:
+        sys.argv = old
+    assert sorted(["round4", "round34", "round10"], key=isv.round_key) ==         ["round4", "round10", "round34"]
+    assert isv.round_key("nonum") == (0, "nonum")
+
+    viol = isv.collect_seat_violations([
+        {"seats": [{"seat": "S1", "status": "blocked", "error": "e1"}]},          # list 形态
+        {"derived": {"seats": {"S2": {"seat": "S2"}}}},                            # dict 形态、valid
+        {"rejected_seats": ["S3", {"seat": "S4"}]},                                # 顶层列表
+        "not-a-dict",                                                              # 非 dict 元素
+    ])
+    assert viol["S1"] == [("blocked", "e1")], viol
+    assert "S2" not in viol, viol
+    assert viol["S3"] == [("blocked", "rejected_seats")], viol
+    assert viol["S4"] == [("blocked", "rejected_seats")], viol
+
+    assert isv.annotate_verdict({"verdict": "fail", "ts": "t"}, "adjudicated") == \
+        "（判据侧快照 @t）"                                        # 非 pending 不加取代语
+    assert isv.current_state({})[0] is None and "无 answer-status" in isv.current_state({})[1]
+
+
+@check("inspect_status: --runs 指向不存在目录 → exit 2（参数错误不许静默成 0 轮）")
+def _():
+    import subprocess as sp, tempfile as _tfd
+    r = sp.run([sys.executable, str(ROOT / "scripts/inspect_status.py"),
+                "--runs", str(Path(_tfd.mkdtemp()) / "nope")],
+               capture_output=True, text=True)
+    assert r.returncode == 2 and "runs 目录不存在" in r.stderr, (r.returncode, r.stderr)
+
+
 # ── 运行器 ───────────────────────────────────────────────────────────────
 
 def main() -> int:
