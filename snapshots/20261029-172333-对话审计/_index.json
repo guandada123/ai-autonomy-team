@@ -1,7 +1,7 @@
 {
- "created_at": "2026-10-29T16:10:20",
- "label": "",
- "file_count": 363,
+ "created_at": "2026-10-29T17:23:33",
+ "label": "对话审计",
+ "file_count": 364,
  "files": {
   "scripts/build_package.py": {
    "sha256": "b2dad8c4b0adc07c8cc367c51c292263c2789cf6501a0a7481c80260de23f494",
@@ -547,13 +547,17 @@
    "sha256": "c7b0d83bb30f8d3cd8744912c3022be61972cc8c74fb2ae8d26094470795de45",
    "bytes": 7350
   },
+  "audit/AUDIT-20261029-对话全程审计.md": {
+   "sha256": "3a69fb9a760bc0801345c0e31eefe7bcf29e3351dcbb998eb36c31b629a186d2",
+   "bytes": 9038
+  },
   "audit/CODE-REVIEW-20261028-对话代码变更审查.md": {
    "sha256": "4d8601112019ce823c4ba54b22bb3f3fc3e08d3414f7912d85e631e1610e5ae5",
    "bytes": 12762
   },
   "audit/TEST-AUDIT-20261028.md": {
-   "sha256": "36602d399d4371deb8bd4bd1b455ebb8c4c476f5e7797d92e6f07d1117bc430b",
-   "bytes": 21710
+   "sha256": "c78285dac3971c59a0cc04f957d130b6589ef1227814b17a650235ff72894223",
+   "bytes": 22362
   },
   "audit/baseline/PROTOCOL-席位禁读边界-v1.md": {
    "sha256": "cd50dbf0dc2e222f6d1cfd85bb53c52b363f5783de32a0b7878c800f0d5d2b52",
@@ -1252,8 +1256,8 @@
    "bytes": 3156
   },
   "audit/kit/test_kit.py": {
-   "sha256": "f74028d3282b037a756af541a2dd302458d276d1b5cda3497d736f824e214131",
-   "bytes": 44876
+   "sha256": "39aa6408b1bc12967f4833a00466c0628f03de8a84c4f8150418b36ab1226693",
+   "bytes": 59665
   },
   "audit/probes/premise/spec-cases.json": {
    "sha256": "d552c79e28bd10e2b02f776f31f49df6b24cce34618e8d489214d93d29cded41",
@@ -1420,7 +1424,7 @@
    "bytes": 3166
   },
   "tools/coverage-baseline.txt": {
-   "sha256": "95aebc97bc646c67fdcd923a5965b001f3c8a5c4d3a77075112e12a3a311d760",
+   "sha256": "6950980e3aca96f4dc400eb2e47cc5c343e0d3f483a4e70adcae1d7e6bb22d9c",
    "bytes": 3
   },
   "tools/coverage_gate.sh": {
@@ -1457,8 +1461,8 @@
   }
  },
  "caller": {
-  "pid": 65450,
-  "ppid": 65448,
-  "parent_cmd": "/bin/zsh -c . '/Users/guan/.workbuddy/shell-snapshots/snapshot-zsh-1793261311450-9ypp4s.sh' && if [ -n \"${CODEBUDDY_SAFE_DELETE_BIN_DIR:-}\" ]; then unalias rm unlink rmdir 2>/dev/null || true; unset -"
+  "pid": 15474,
+  "ppid": 15307,
+  "parent_cmd": "/bin/zsh -c . '/Users/guan/.workbuddy/shell-snapshots/snapshot-zsh-1793265278247-ctwvu5.sh' && if [ -n \"${CODEBUDDY_SAFE_DELETE_BIN_DIR:-}\" ]; then unalias rm unlink rmdir 2>/dev/null || true; unset -"
  }
 }
