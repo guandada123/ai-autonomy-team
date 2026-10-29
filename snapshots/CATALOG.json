@@ -3,9 +3,9 @@
  "_generated_by": "scripts/snapshot_sources.py --catalog",
  "count": {
   "in_git": 3,
-  "archived": 242,
+  "archived": 243,
   "missing": 0,
-  "total": 245
+  "total": 246
  },
  "snapshots": [
   {
@@ -1946,8 +1946,8 @@
   },
   {
    "name": "20261029-144511",
-   "location": "snapshots",
-   "in_git": true,
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
    "label": "",
    "created_at": "2026-10-29T14:45:11",
    "file_count": 357
@@ -1967,6 +1967,14 @@
    "label": "补漏",
    "created_at": "2026-10-29T14:52:10",
    "file_count": 361
+  },
+  {
+   "name": "20261029-150954-coverage门槛",
+   "location": "snapshots",
+   "in_git": true,
+   "label": "coverage门槛",
+   "created_at": "2026-10-29T15:09:54",
+   "file_count": 363
   }
  ]
 }
