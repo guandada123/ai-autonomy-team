@@ -1,6 +1,6 @@
 {
- "created_at": "2026-10-29T15:09:54",
- "label": "coverage门槛",
+ "created_at": "2026-10-29T16:10:20",
+ "label": "",
  "file_count": 363,
  "files": {
   "scripts/build_package.py": {
@@ -552,8 +552,8 @@
    "bytes": 12762
   },
   "audit/TEST-AUDIT-20261028.md": {
-   "sha256": "ab30ce5027fca3ab4177d0838472bc5ee1af32cb152a972f6ac8bccd12eff06f",
-   "bytes": 20991
+   "sha256": "36602d399d4371deb8bd4bd1b455ebb8c4c476f5e7797d92e6f07d1117bc430b",
+   "bytes": 21710
   },
   "audit/baseline/PROTOCOL-席位禁读边界-v1.md": {
    "sha256": "cd50dbf0dc2e222f6d1cfd85bb53c52b363f5783de32a0b7878c800f0d5d2b52",
@@ -1252,8 +1252,8 @@
    "bytes": 3156
   },
   "audit/kit/test_kit.py": {
-   "sha256": "4297752b0320e71e9195a87df50789cb0bf5b92d99d0483ab67e34d2eafa868d",
-   "bytes": 32374
+   "sha256": "f74028d3282b037a756af541a2dd302458d276d1b5cda3497d736f824e214131",
+   "bytes": 44876
   },
   "audit/probes/premise/spec-cases.json": {
    "sha256": "d552c79e28bd10e2b02f776f31f49df6b24cce34618e8d489214d93d29cded41",
@@ -1420,7 +1420,7 @@
    "bytes": 3166
   },
   "tools/coverage-baseline.txt": {
-   "sha256": "5ced0deaf966775a8b592f6bd95a33a67053b242a7c13654896cd9f2d36a0e37",
+   "sha256": "95aebc97bc646c67fdcd923a5965b001f3c8a5c4d3a77075112e12a3a311d760",
    "bytes": 3
   },
   "tools/coverage_gate.sh": {
@@ -1457,8 +1457,8 @@
   }
  },
  "caller": {
-  "pid": 24724,
-  "ppid": 24720,
-  "parent_cmd": "/bin/zsh -c . '/Users/guan/.workbuddy/shell-snapshots/snapshot-zsh-1793257537947-7pl5iu.sh' && if [ -n \"${CODEBUDDY_SAFE_DELETE_BIN_DIR:-}\" ]; then unalias rm unlink rmdir 2>/dev/null || true; unset -"
+  "pid": 65450,
+  "ppid": 65448,
+  "parent_cmd": "/bin/zsh -c . '/Users/guan/.workbuddy/shell-snapshots/snapshot-zsh-1793261311450-9ypp4s.sh' && if [ -n \"${CODEBUDDY_SAFE_DELETE_BIN_DIR:-}\" ]; then unalias rm unlink rmdir 2>/dev/null || true; unset -"
  }
 }
