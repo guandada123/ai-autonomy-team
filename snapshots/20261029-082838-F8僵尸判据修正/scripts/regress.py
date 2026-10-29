@@ -15,16 +15,20 @@ regress.py —— 全量回归验收套件
 用法：
     python3 regress.py                 # 跑全部项
     python3 regress.py --json          # 机器可读
+    python3 regress.py --self-test     # 只验「运行保障」本身（超时/进程组/scratch 隔离）
 退出码：0 = 全绿；1 = 有失败
 """
 
 import argparse
 import hashlib
 import json
+import os
 import shutil
+import signal
 import subprocess
 import sys
 import tempfile
+import time
 from datetime import datetime
 from pathlib import Path
 
@@ -44,15 +48,53 @@ RECORD_SELFTEST = f"{ROUND1}/adjudication-record.SELFTEST-PLUMBING-ONLY.json"
 #   第一次跑是绿的」——一套非幂等的回归。
 #   现在：包内夹具只含【输入】；机器产出全部落在 _trash/ 的工作副本里。
 FIXT_SRC = PKG / "fixtures/regress"                      # 只读来源
-TMP = ROOT / "_trash/tmp-regress"                        # scratch 根（不入库）
-TMP_FIXT = ROOT / "_trash/tmp-regress/fixtures"          # 工作副本（可写）
-FIXT = "../_trash/tmp-regress/fixtures"                  # 供 CLI 用的相对路径（cwd=PKG）
+
+# ★ F8 修复（2026-10-29）：scratch 根加「本次运行」子目录（时间戳 + pid）。
+#   原固定路径 `_trash/tmp-regress` 让两个并发实例（本地 make selftest / 自动化巡检 /
+#   CI 同时跑）共用同一份 fixtures 与 out，互相覆盖 —— D-0049 记过这条「已知未做」，
+#   表现为随机假红或更糟的假绿（A 的 out 被 B 覆盖后读到别人的结果）。
+#   隔离后顺带退役 move_stale_fixtures：每次都是全新复制的目录，结构上不可能有陈旧文件。
+RUN_ID = f"{datetime.now().strftime('%Y%m%d-%H%M%S')}-{os.getpid()}"
+TMP = ROOT / "_trash/tmp-regress" / RUN_ID                # scratch 根（不入库，按运行隔离）
+TMP_FIXT = TMP / "fixtures"                              # 工作副本（可写）
+# 供 CLI 用的相对路径（子进程 cwd=PKG）。由真源算出来，不再手写字面量：
+# 路径一旦写死，改 scratch 结构时就会漏改某一处，且漏改处表现是「读不到文件」而不是报错。
+TMP_REL = f"../{TMP.relative_to(ROOT).as_posix()}"
+FIXT = f"../{TMP_FIXT.relative_to(ROOT).as_posix()}"
+
+# 单次子进程调用的硬超时。本地全量回归约 10 秒、单次最长实测 < 3 秒，
+# 300 秒是 100 倍余量：真卡住（网络/死锁/等人输入）时快速失败并给出项号，
+# 而不是把 CI 挂到 job 级超时（6 小时）才红。
+CALL_TIMEOUT = 300
 
 
-def run(args, cwd=None):
-    r = subprocess.run([PY] + args, cwd=str(cwd or ROOT),
-                       capture_output=True, text=True, encoding="utf-8", errors="replace")
-    return r.returncode, (r.stdout or "") + (r.stderr or "")
+def run(args, cwd=None, timeout=None):
+    """跑一个子进程，返回 (退出码, stdout+stderr)。
+
+    ★ F8：改为 Popen + 硬超时 + **杀整个进程组**。
+      只 kill 直接子进程是不够的：这些脚本会再 fork（git/gh/python），
+      父进程被杀了孙进程仍活着并继续占用 scratch 目录，下一次运行就会读到
+      上一次的残留（正是「假绿」的味道）。start_new_session 让它自成进程组，
+      超时时 killpg 一次收干净。
+    超时按 124 返回（与 coreutils `timeout` 同约定），并附 [TIMEOUT] 标记 ——
+    调用点的 s.expect 只会看到「退出码 124 ≠ 期望值」，标记让 detail 里能看出是超时而非逻辑错。
+    """
+    limit = CALL_TIMEOUT if timeout is None else timeout
+    p = subprocess.Popen([PY] + args, cwd=str(cwd or ROOT),
+                         stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                         text=True, encoding="utf-8", errors="replace",
+                         start_new_session=True)
+    try:
+        out, err = p.communicate(timeout=limit)
+        return p.returncode, (out or "") + (err or "")
+    except subprocess.TimeoutExpired:
+        try:
+            os.killpg(p.pid, signal.SIGKILL)     # 整个进程组：父 + 所有孙进程
+        except OSError:                          # 组已消失（进程恰好自己退出）
+            p.kill()
+        out, err = p.communicate()
+        note = f"\n[TIMEOUT] 单次调用超过 {limit}s 未返回，已终止进程组：{' '.join(args)}"
+        return 124, (out or "") + (err or "") + note
 
 
 def sha(p):
@@ -76,49 +118,149 @@ class Suite:
         self.check(no, name, ok, d)
 
 
-def move_stale_fixtures():
-    """把工作副本里「源已不存在」的文件改名到 stale-<ts>/（不删除）。
+def self_test():
+    """只验「运行保障」本身 —— 不跑 56 项，秒级。
 
-    ★ 2026-10-23 修（代码审查 C-9）：`copytree(dirs_exist_ok=True)` 是合并式复制，
-      上游删除/改名夹具后，旧副本仍留在工作目录里 —— 测试可能继续读旧文件而"通过"。
-      项目禁止删除，故只做改名，现场仍可回查。
+    为什么需要：F8 的两处修复（超时 + scratch 隔离）都是**看不见的保障**。
+    没有它，任何人把 RUN_ID 改回固定路径、或把 Popen 换回 subprocess.run，
+    56 项照样全绿 —— 保障退化不会有任何信号（项目里已经栽过多次「修了但没人守」）。
     """
-    if not TMP_FIXT.is_dir():
-        return []
-    src = {p.relative_to(FIXT_SRC).as_posix() for p in FIXT_SRC.rglob("*") if p.is_file()}
-    stale = [p for p in TMP_FIXT.rglob("*")
-             if p.is_file() and p.relative_to(TMP_FIXT).as_posix() not in src]
-    if not stale:
-        return []
-    dest = TMP / f"stale-{datetime.now().strftime('%Y%m%d-%H%M%S-%f')}"
-    for p in stale:
-        tgt = dest / p.relative_to(TMP_FIXT)
-        tgt.parent.mkdir(parents=True, exist_ok=True)
-        p.rename(tgt)
-    return stale
+    n_ok, fails = 0, []
+
+    def expect(label, cond, detail=""):
+        nonlocal n_ok
+        if cond:
+            n_ok += 1
+            print(f"  [PASS] {label}" + (f"  {detail}" if detail else ""))
+        else:
+            fails.append(label)
+            print(f"  [FAIL] {label}  {detail}")
+
+    # 1 正样本：正常子进程
+    rc, out = run(["-c", "print('hi')"])
+    expect("正样本：普通子进程 rc=0 且回传 stdout", rc == 0 and "hi" in out, f"rc={rc}")
+
+    # 2 负样本：卡死必须被超时掐断，且用 124 与「逻辑错」区分
+    t0 = datetime.now()
+    rc, out = run(["-c", "import time; time.sleep(30)"], timeout=1)
+    dt = (datetime.now() - t0).total_seconds()
+    expect("负样本：卡死子进程 1s 超时 → rc=124 且带 [TIMEOUT]",
+           rc == 124 and "[TIMEOUT]" in out and dt < 8, f"rc={rc} 用时 {dt:.1f}s")
+
+    # 3 负样本：孙进程必须一起死，且必须**及时**返回
+    #   ★ 只断言「孙进程已死」是假绿：只 kill 父进程时 communicate() 会一直等孙进程
+    #     释放继承来的管道（实测 120 秒才返回），孙进程到点自己睡醒后「已死」——
+    #     用例看起来是绿的，而超时实际上完全没生效。故孙进程寿命拉到 600s，
+    #     并同时卡「1s 超时必须 8s 内返回」。
+    #   ★ 存活判据不能只用 os.kill(pid, 0)：**僵尸进程也会返回成功**。
+    #     Linux 上孙进程被 SIGKILL 后父进程已死无人回收，会短暂处于 Z 态；
+    #     macOS 回收快，本地由此全绿而 CI（Linux）红 —— 本地绿 ≠ CI 绿的老账。
+    def _alive(pid):
+        """僵尸（Z）算已死：SIGKILL 已生效，只是父进程已死没人回收。
+
+        判据按可靠性降级取三种：/proc（Linux，不依赖 ps 是否安装）→ ps（macOS）
+        → kill(0)（兜底，但对僵尸会误报存活）。
+        """
+        stat = Path(f"/proc/{pid}/stat")
+        try:
+            if stat.is_file():
+                return stat.read_text(encoding="utf-8", errors="replace").split()[2] != "Z"
+        except (OSError, IndexError):
+            pass
+        try:
+            out = subprocess.run(["ps", "-o", "stat=", "-p", str(pid)],
+                                 capture_output=True, text=True, timeout=5).stdout.strip()
+            if out:
+                return not out.startswith("Z")
+        except (OSError, subprocess.SubprocessError):
+            pass
+        try:
+            os.kill(pid, 0)
+            return True
+        except OSError:
+            return False
+
+    import tempfile as _tf
+    with _tf.TemporaryDirectory(prefix="regress-killpg-") as td:
+        pidf = Path(td) / "gc.pid"
+        code = ("import subprocess,time\n"
+                "p = subprocess.Popen(['sleep','600'])\n"
+                f"open({str(pidf)!r},'w').write(str(p.pid))\n"
+                "time.sleep(600)\n")
+        t1 = datetime.now()
+        rc, out = run(["-c", code], timeout=1)
+        dt1 = (datetime.now() - t1).total_seconds()
+        alive = None
+        if pidf.is_file():
+            try:
+                gpid = int(pidf.read_text(encoding="utf-8").strip())
+                alive = _alive(gpid)
+                for _ in range(20):              # 最多等 2s，容忍状态切换的窗口
+                    if not alive:
+                        break
+                    time.sleep(0.1)
+                    alive = _alive(gpid)
+            except (OSError, ValueError):
+                alive = False
+        expect("负样本：超时后孙进程一并被终止（killpg 而非 kill）",
+               rc == 124 and alive is False, f"rc={rc} 孙进程存活={alive}")
+        expect("负样本：且及时返回（只杀父进程会卡到孙进程释放管道）",
+               dt1 < 8, f"用时 {dt1:.1f}s（期望 < 8s）")
+
+    # 4 结构：scratch 根必须带「本次运行」标识
+    expect("结构：RUN_ID = 时间戳-pid，scratch 根含它",
+           TMP.name == RUN_ID and RUN_ID.endswith(f"-{os.getpid()}"),
+           f"{TMP.name}")
+    expect("结构：CLI 相对路径由 TMP 推导（不是手写字面量）",
+           TMP_REL.startswith("../") and TMP_REL.endswith(RUN_ID)
+           and FIXT == f"{TMP_REL}/fixtures", f"TMP_REL={TMP_REL}")
+
+    # 5 结构：两个独立进程的 scratch 必须不同（真起子进程，不靠推理）
+    probe = "import sys; sys.path.insert(0, 'scripts'); import regress; print(regress.TMP.name)"
+    outs = [run(["-c", probe])[1].strip() for _ in range(2)]
+    expect("结构：两次独立运行的 scratch 目录互不相同",
+           len(set(outs)) == 2 and all(o for o in outs), f"{outs}")
+
+    # 6 防回退：源码里除 TMP 定义那一行，不得再出现固定路径字面量
+    src_lines = Path(__file__).read_text(encoding="utf-8").splitlines()
+    lit = "tmp-" + "regress"          # 拼接：避免本行自己命中自己
+    offenders = [f"{i}" for i, ln in enumerate(src_lines, 1)
+                 if lit in ln and not ln.strip().startswith("#")
+                 and not ln.strip().startswith("TMP = ROOT")]
+    expect("防回退：除 TMP 定义外无固定 scratch 字面量（改回硬编码即红）",
+           not offenders, f"命中行 {offenders}" if offenders else "仅 TMP 定义 1 处")
+
+    print()
+    if fails:
+        print(f"[FAIL] 自检未通过：{len(fails)}/{n_ok + len(fails)} 项失败")
+        for f in fails:
+            print(f"  · {f}")
+        return 1
+    print(f"[PASS] 自检通过：{n_ok}/{n_ok} 项")
+    return 0
 
 
 def main():
     ap = argparse.ArgumentParser(description="30 项全量回归验收")
     ap.add_argument("--json", action="store_true")
+    ap.add_argument("--self-test", action="store_true",
+                    help="只验运行保障（超时 / 进程组 / scratch 隔离 / 防回退）")
     args = ap.parse_args()
+    if args.self_test:
+        return self_test()
 
     s = Suite()
     judge = ["judges/verify.py"]
     ans = f"{ROUND1}/answer-final.json"
-    scratch = ROOT / "_trash/tmp-regress/out"
+    scratch = TMP / "out"
     scratch.mkdir(parents=True, exist_ok=True)
 
-    # ★ 夹具工作副本（合并式复制；删除的唯一去向是改名到 _trash/，故此处不出删）
-    #   复制前先把「源已没有」的陈旧文件搬走，避免测试读旧夹具（C-9）
-    _stale = move_stale_fixtures()
-    if _stale:
-        print(f"[fixtures] 移出 {len(_stale)} 个陈旧文件 → {TMP}/stale-*")
+    # ★ 夹具工作副本：本次运行独享的新目录，直接整份复制（不存在"陈旧文件"的可能）
     shutil.copytree(FIXT_SRC, TMP_FIXT, dirs_exist_ok=True)
 
     def jrun(extra, tag):
         """统一把结果写到 scratch —— 摘要行只在给 --out 时打印。"""
-        return run(judge + extra + ["--out", f"../_trash/tmp-regress/out/{tag}.json"], PKG)
+        return run(judge + extra + ["--out", f"{TMP_REL}/out/{tag}.json"], PKG)
 
     # 1 自检
     rc, out = run(judge + ["--self-test"], PKG)
@@ -193,7 +335,7 @@ def main():
     #      第 12 项就在拿旧内容测幂等，会给出假绿）
     prev = TMP / "nr1"
     shutil.copytree(TMP_FIXT / "roundA", prev, dirs_exist_ok=True)
-    nr_args = ["new_round.py", "--root", "..", "--runs-dir", "../_trash/tmp-regress",
+    nr_args = ["new_round.py", "--root", "..", "--runs-dir", TMP_REL,
              "--preflight", "off",
                "--round", "nr2", "--role", "revision_round", "--from", "nr1", "--emit-prompts"]
     rc1, out1 = run(nr_args, PKG)
@@ -203,7 +345,7 @@ def main():
             f"首跑 rc={rc1} / 复跑 rc={rc2} / 复跑「写入 0 个」={('写入 0 个' in out2)}")
 
     # 13 目录 schema
-    rc, out = run(["new_round.py", "--root", "..", "--runs-dir", "../_trash/tmp-regress",
+    rc, out = run(["new_round.py", "--root", "..", "--runs-dir", TMP_REL,
              "--preflight", "off",
                    "--check", "nr2"], PKG)
     s.expect(13, "新轮次目录 schema 完整", rc, out, 0, "结构完整")
@@ -695,10 +837,10 @@ def main():
                                      encoding="utf-8", newline="\n")
     # ① 副本上重生成状态文件（无 --record → pending 四态），sha 绑定必须自洽
     run(["judges/verify.py", "--spec-dir", "fixtures/spec",
-         "--answer", "../_trash/tmp-regress/p42-live/answer-final.json",
-         "--status-out", "../_trash/tmp-regress/p42-live/answer-status.json",
+         "--answer", f"{TMP_REL}/p42-live/answer-final.json",
+         "--status-out", f"{TMP_REL}/p42-live/answer-status.json",
          "--status-provenance", "post_hoc_derived",
-         "--out", "../_trash/tmp-regress/p42-live/_v.json"], PKG)
+         "--out", f"{TMP_REL}/p42-live/_v.json"], PKG)
     _stf = _sdir / "answer-status.json"
     _st = json.loads(_stf.read_text(encoding="utf-8")) if _stf.is_file() else {}
     _afsha = sha(_sdir / "answer-final.json")
@@ -803,8 +945,8 @@ def main():
     (TMP / "answer-002.json").write_text(
         json.dumps(_a002, ensure_ascii=False) + "\n", encoding="utf-8", newline="\n")
     rc, out = run(["judges/verify.py", "--spec-dir", "fixtures/002/spec",
-                   "--answer", "../_trash/tmp-regress/answer-002.json",
-                   "--out", "../_trash/tmp-regress/verdict-002.json"], PKG)
+                   "--answer", f"{TMP_REL}/answer-002.json",
+                   "--out", f"{TMP_REL}/verdict-002.json"], PKG)
     s.expect(45, "002 判据可加载（算术 10/10 + 判断层 2 项 pending → exit 3）",
              rc, out, 3, "pending_adjudication")
 
@@ -812,14 +954,14 @@ def main():
     # ★ 防「任务串台」：allow 在 read_domains.json 里是全局的，new_round --task 负责
     #   按任务改写提示词的「你的读取域」。若有人改回全局直拼，席位会拿到两个任务的
     #   输入清单而校验不报警 —— 这条就是把那次事故（D-0010 审计发现）固化成回归。
-    rc, out = run(["new_round.py", "--root", "..", "--runs-dir", "../_trash/tmp-regress",
+    rc, out = run(["new_round.py", "--root", "..", "--runs-dir", TMP_REL,
              "--preflight", "off",
                    "--round", "t002p", "--role", "evidence_round", "--task", "002",
                    "--emit-prompts"], PKG)
-    _p002 = (ROOT / "_trash/tmp-regress/t002p/prompts/EX-01.md").read_text(
+    _p002 = (TMP / "t002p/prompts/EX-01.md").read_text(
         encoding="utf-8") if rc == 0 else ""
     # ★ --round 非纯数字时不加 round 前缀（与 --check 同一规则），目录名就是 t002p
-    _m002 = json.loads((ROOT / "_trash/tmp-regress/t002p/round-manifest.json")
+    _m002 = json.loads((TMP / "t002p/round-manifest.json")
                        .read_text(encoding="utf-8")) if rc == 0 else {}
     ok47 = (rc == 0
             and "- `fixtures/002/TASK.md`" in _p002
@@ -834,10 +976,10 @@ def main():
     # ==================== 第 47 项：--task 缺省 = 001，行为不变 ====================
     # ★ 防回归：任务参数化不得改变历史轮次的行为。缺省时提示词必须仍是根 fixtures/，
     #   且 002 的文件不得出现在 allow 段（deny 段出现属正常 —— 全局禁读清单）。
-    rc, out = run(["new_round.py", "--root", "..", "--runs-dir", "../_trash/tmp-regress",
+    rc, out = run(["new_round.py", "--root", "..", "--runs-dir", TMP_REL,
              "--preflight", "off",
                    "--round", "t001p", "--role", "evidence_round", "--emit-prompts"], PKG)
-    _p001 = (ROOT / "_trash/tmp-regress/t001p/prompts/EX-01.md").read_text(
+    _p001 = (TMP / "t001p/prompts/EX-01.md").read_text(
         encoding="utf-8") if rc == 0 else ""
     ok48 = (rc == 0
             and "- `fixtures/ledger.csv`" in _p001
@@ -867,7 +1009,7 @@ def main():
                 for n, m in rt.items()]}, ensure_ascii=False) + "\n",
             encoding="utf-8", newline="\n")
         run(SC + ["--round-dir", str(_sdir48),
-                  "--routing-json", "../_trash/tmp-regress/p48-routing.json"], PKG)
+                  "--routing-json", f"{TMP_REL}/p48-routing.json"], PKG)
         _rep = json.loads((_sdir48 / "seat-check.json").read_text(encoding="utf-8"))
         return (_rep.get("xj_family_check") or {}).get("cross_family")
     _same = _fam48("glm-5.3-flash", "glm-5.3-flash")       # XJ 与 EX 同家族

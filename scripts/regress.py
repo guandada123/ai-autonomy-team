@@ -28,6 +28,7 @@ import signal
 import subprocess
 import sys
 import tempfile
+import time
 from datetime import datetime
 from pathlib import Path
 
@@ -151,6 +152,34 @@ def self_test():
     #     释放继承来的管道（实测 120 秒才返回），孙进程到点自己睡醒后「已死」——
     #     用例看起来是绿的，而超时实际上完全没生效。故孙进程寿命拉到 600s，
     #     并同时卡「1s 超时必须 8s 内返回」。
+    #   ★ 存活判据不能只用 os.kill(pid, 0)：**僵尸进程也会返回成功**。
+    #     Linux 上孙进程被 SIGKILL 后父进程已死无人回收，会短暂处于 Z 态；
+    #     macOS 回收快，本地由此全绿而 CI（Linux）红 —— 本地绿 ≠ CI 绿的老账。
+    def _alive(pid):
+        """僵尸（Z）算已死：SIGKILL 已生效，只是父进程已死没人回收。
+
+        判据按可靠性降级取三种：/proc（Linux，不依赖 ps 是否安装）→ ps（macOS）
+        → kill(0)（兜底，但对僵尸会误报存活）。
+        """
+        stat = Path(f"/proc/{pid}/stat")
+        try:
+            if stat.is_file():
+                return stat.read_text(encoding="utf-8", errors="replace").split()[2] != "Z"
+        except (OSError, IndexError):
+            pass
+        try:
+            out = subprocess.run(["ps", "-o", "stat=", "-p", str(pid)],
+                                 capture_output=True, text=True, timeout=5).stdout.strip()
+            if out:
+                return not out.startswith("Z")
+        except (OSError, subprocess.SubprocessError):
+            pass
+        try:
+            os.kill(pid, 0)
+            return True
+        except OSError:
+            return False
+
     import tempfile as _tf
     with _tf.TemporaryDirectory(prefix="regress-killpg-") as td:
         pidf = Path(td) / "gc.pid"
@@ -165,8 +194,12 @@ def self_test():
         if pidf.is_file():
             try:
                 gpid = int(pidf.read_text(encoding="utf-8").strip())
-                os.kill(gpid, 0)
-                alive = True
+                alive = _alive(gpid)
+                for _ in range(20):              # 最多等 2s，容忍状态切换的窗口
+                    if not alive:
+                        break
+                    time.sleep(0.1)
+                    alive = _alive(gpid)
             except (OSError, ValueError):
                 alive = False
         expect("负样本：超时后孙进程一并被终止（killpg 而非 kill）",

@@ -3,9 +3,9 @@
  "_generated_by": "scripts/snapshot_sources.py --catalog",
  "count": {
   "in_git": 3,
-  "archived": 231,
+  "archived": 232,
   "missing": 0,
-  "total": 234
+  "total": 235
  },
  "snapshots": [
   {
@@ -1858,8 +1858,8 @@
   },
   {
    "name": "20261029-075446-F7门禁扫描范围",
-   "location": "snapshots",
-   "in_git": true,
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
    "label": "F7门禁扫描范围",
    "created_at": "2026-10-29T07:54:46",
    "file_count": 134
@@ -1878,6 +1878,14 @@
    "in_git": true,
    "label": "F8超时与scratch隔离",
    "created_at": "2026-10-29T08:24:54",
+   "file_count": 134
+  },
+  {
+   "name": "20261029-082838-F8僵尸判据修正",
+   "location": "snapshots",
+   "in_git": true,
+   "label": "F8僵尸判据修正",
+   "created_at": "2026-10-29T08:28:38",
    "file_count": 134
   }
  ]
