@@ -82,7 +82,7 @@ def chk_docs(ctx=None):
     ok = rc == 0
     # 失败时优先报「具体哪一行不一致」，而不是脚本末尾那句通用提示：
     # 只给提示等于告诉人"有事"却不说"在哪"，还得自己去翻输出（2026-10-23 实测）。
-    problems = [ln.strip() for ln in out.splitlines() if re.match(r"^\s*\[[A-E]\]\s", ln)]
+    problems = [ln.strip() for ln in out.splitlines() if re.match(r"^\s*\[[A-F]\]\s", ln)]
     if ok:
         tail = [ln for ln in out.strip().splitlines() if ln.strip()][-1] if out.strip() else ""
         return True, tail

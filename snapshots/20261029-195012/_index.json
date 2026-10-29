@@ -1,7 +1,7 @@
 {
- "created_at": "2026-10-29T18:28:52",
- "label": "并行会话定位",
- "file_count": 364,
+ "created_at": "2026-10-29T19:50:12",
+ "label": "",
+ "file_count": 366,
  "files": {
   "scripts/build_package.py": {
    "sha256": "b2dad8c4b0adc07c8cc367c51c292263c2789cf6501a0a7481c80260de23f494",
@@ -16,8 +16,8 @@
    "bytes": 15106
   },
   "scripts/check_docs_consistency.py": {
-   "sha256": "32403c82c747ebcd0720fb2c30b29170d0a070293c49e3033e152d82e3efe5b8",
-   "bytes": 15238
+   "sha256": "48be7f269aefbc981a4df1e2a6973c9f64a5adb9cfe9117b1d5be844df0e9f69",
+   "bytes": 16929
   },
   "scripts/field_provenance.py": {
    "sha256": "7926bba3821fd39f01e9045238f33b72a1550250f25a7c694165e656050b9b1c",
@@ -26,6 +26,10 @@
   "scripts/fsutil.py": {
    "sha256": "6c61df8a9a52b2af42d1eebac6eecff9428a1222e173f195107e3e655ede070e",
    "bytes": 2059
+  },
+  "scripts/handover_facts.py": {
+   "sha256": "fc9ba801a89edc127f2c0c637c497e34c59a94c7c097cf0df43839e9d5fe29a1",
+   "bytes": 7509
   },
   "scripts/inspect_agent_routing.py": {
    "sha256": "23df35834b0e5aa663209957ad9753fafc06075e0bc3e04aa2020c082c5724b6",
@@ -112,7 +116,7 @@
    "bytes": 11650
   },
   "scripts/pre_release_check.py": {
-   "sha256": "b0d9f70c193ac723c6119ee9fe1ff9d881d9db2b86c04ccb0210ebb16af37958",
+   "sha256": "e78fc407585523cb1696fd7aab6cfb470e0e9ce26ff61504114664e694b488b3",
    "bytes": 33848
   },
   "scripts/premise_probe.py": {
@@ -548,8 +552,8 @@
    "bytes": 7350
   },
   "audit/AUDIT-20261029-对话全程审计.md": {
-   "sha256": "1cb2d9c9736709c8a217d9ee76480c1e563cb7bfeab15d4f69ca132046a85702",
-   "bytes": 9992
+   "sha256": "f28658974309e2fcf41f058e61e66015dfc143f6ecea5847467b22a73058e322",
+   "bytes": 10269
   },
   "audit/CODE-REVIEW-20261028-对话代码变更审查.md": {
    "sha256": "4d8601112019ce823c4ba54b22bb3f3fc3e08d3414f7912d85e631e1610e5ae5",
@@ -1411,6 +1415,10 @@
    "sha256": "a89e4315f9a45f101b3dc3f548c069efd0ac7d9de4226dd2a841c20d480df86f",
    "bytes": 4191
   },
+  ".learnings/L-0037-造工具前先查仓库已有实现.md": {
+   "sha256": "5160b890f2f44dc5be02f404cba6ba423211822c19b4ccfd216b90620d798fe1",
+   "bytes": 2128
+  },
   ".github/workflows/selftest.yml": {
    "sha256": "893c6a49f1dba12a21eab68aa70321572c78730e5985acc00c73753938a83b2f",
    "bytes": 2140
@@ -1440,15 +1448,15 @@
    "bytes": 923
   },
   "Makefile": {
-   "sha256": "824c35ebf2b56e82bbaab22afb97bb745a9f94d134b8bcd288b12227951716e3",
-   "bytes": 12628
+   "sha256": "b0f6c037342dfa43c1798e98230ed2e875a83c258d5f430a4060b41e3391367c",
+   "bytes": 12765
   },
   "README.md": {
-   "sha256": "1428e6f00374bcf74d6d035dd7e06acaec436cc8910a67ca6f76138f057c864b",
+   "sha256": "2108b5d7ba7c24e936f6e6c41ee3f64b937fa5122e76db9b867cde9533bed9f7",
    "bytes": 5071
   },
   "ARCHITECTURE.md": {
-   "sha256": "5294db4603dcc9a2f974fe0b26923300f1cbc4df8e59a613e8d1db5fb0b04835",
+   "sha256": "7916a7bb9523bbcc2cbf94208dd69b4beabaf356851aeb472f7e83ff97581fc4",
    "bytes": 24056
   },
   "DEPENDENCIES.md": {
@@ -1461,8 +1469,8 @@
   }
  },
  "caller": {
-  "pid": 59453,
-  "ppid": 59450,
-  "parent_cmd": "/bin/zsh -c . '/Users/guan/.workbuddy/shell-snapshots/snapshot-zsh-1793269068543-wtrjd3.sh' && if [ -n \"${CODEBUDDY_SAFE_DELETE_BIN_DIR:-}\" ]; then unalias rm unlink rmdir 2>/dev/null || true; unset -"
+  "pid": 10969,
+  "ppid": 10967,
+  "parent_cmd": "/Library/Developer/CommandLineTools/usr/bin/make snapshot"
  }
 }
