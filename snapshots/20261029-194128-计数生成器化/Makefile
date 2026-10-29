@@ -101,6 +101,9 @@ selftest:
 	@echo "── 覆盖率门槛自检（ratchet 比较逻辑）──"
 	./tools/coverage_gate.sh --self-test
 	@echo ""
+	@echo "── 交接摘要数字生成器自检（emit/check 往返）──"
+	$(PY) $(SCRIPTS)/handover_facts.py --self-test
+	@echo ""
 	@echo ""
 	@echo "── 回归运行保障自检（超时 / 进程组 / scratch 隔离 / 防回退）──"
 	$(PY) $(SCRIPTS)/regress.py --self-test

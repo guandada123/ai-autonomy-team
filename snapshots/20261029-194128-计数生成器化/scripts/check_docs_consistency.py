@@ -264,6 +264,38 @@ def check_paired_counts(problems, expects):
     return checked
 
 
+def check_generated_blocks(problems):
+    """F. 生成块：文档里 <!-- BEGIN:handover-facts -->…END 块必须与生成器输出一致。
+
+    ★ 2026-10-29（审计 P1）：交接摘要手写「kit 64/64」25 分钟就过期（R3 根因复发）——
+    易变数字一律由 scripts/handover_facts.py 生成，本检查钉住「块 == 重新生成」，
+    过期即红并给出一条命令的修法。只扫 docs/交接摘要-*.md，没有块的文档不强制。
+    """
+    try:
+        import handover_facts as hf
+    except ImportError:
+        return 0
+    n = 0
+    for doc in sorted(DOCS.glob("交接摘要-*.md")):
+        try:
+            text = doc.read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            continue
+        m = re.search(re.escape(hf.BEGIN) + r"\n(.*?)" + re.escape(hf.END) + r"\n", text, re.S)
+        if not m:
+            continue
+        n += 1
+        try:
+            want = hf.render_inner(hf.collect())
+        except Exception as e:      # 真源采集失败也必须报，不能当一致放过
+            problems.append(("F", f"{doc.name} 生成块", f"真源采集异常：{type(e).__name__}: {e}"))
+            continue
+        if m.group(1) != want:
+            problems.append(("F", f"{doc.name} 生成块过期",
+                             "python3 scripts/handover_facts.py --emit docs/交接摘要-20261029.md"))
+    return n
+
+
 def main():
     ap = argparse.ArgumentParser(description="文档与磁盘一致性校验（只读）")
     ap.add_argument("--strict", action="store_true", help="存在不一致时 exit 1（CI 用）")
@@ -293,6 +325,7 @@ def main():
     c = check_contract_version(problems)
     d = check_count_claims(problems)
     e = check_paired_counts(problems, expects)
+    f = check_generated_blocks(problems)
 
     if not args.quiet:
         print("[check_docs_consistency] 文档 ↔ 磁盘一致性")
@@ -301,6 +334,7 @@ def main():
         print(f"  C. 契约版本        : 校验 {c} 处")
         print(f"  D. 计数声明        : 校验 {d} 处")
         print(f"  E. 配对计数        : 校验 {e} 处" + ("" if expects else "（未传 --expect，已跳过）"))
+        print(f"  F. 生成块          : 校验 {f} 处")
         print()
 
     if problems:
@@ -311,6 +345,9 @@ def main():
         kinds = {k for k, _, _ in problems}
         if "A" in kinds:
             print("\n[A 类可自动修复] python3 scripts/sync_doc_numbers.py", file=sys.stderr)
+        if "F" in kinds:
+            print("[F 类可自动修复] python3 scripts/handover_facts.py --emit docs/交接摘要-20261029.md",
+                  file=sys.stderr)
         if kinds & {"B", "C", "D", "E"}:
             print("[B/C/D/E 类需人工] B=索引行数，C=契约版本，D=计数声明，E=配对计数，\n"
                   "除 B 需重跑索引外，其余一律改文档数字去匹配实跑结果，别反过来凑",
@@ -320,7 +357,7 @@ def main():
         print("\n（非 --strict 模式：仅报告，不返回失败码）", file=sys.stderr)
         return OK
 
-    print(f"[PASS] 全部一致（合计校验 {a + b + c + d + e} 处）")
+    print(f"[PASS] 全部一致（合计校验 {a + b + c + d + e + f} 处）")
     return OK
 
 

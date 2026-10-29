@@ -3,9 +3,9 @@
  "_generated_by": "scripts/snapshot_sources.py --catalog",
  "count": {
   "in_git": 3,
-  "archived": 253,
+  "archived": 254,
   "missing": 0,
-  "total": 256
+  "total": 257
  },
  "snapshots": [
   {
@@ -2034,8 +2034,8 @@
   },
   {
    "name": "20261029-180444-审计修复落地",
-   "location": "snapshots",
-   "in_git": true,
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
    "label": "审计修复落地",
    "created_at": "2026-10-29T18:04:45",
    "file_count": 364
@@ -2055,6 +2055,14 @@
    "label": "并行会话定位",
    "created_at": "2026-10-29T18:28:52",
    "file_count": 364
+  },
+  {
+   "name": "20261029-194128-计数生成器化",
+   "location": "snapshots",
+   "in_git": true,
+   "label": "计数生成器化",
+   "created_at": "2026-10-29T19:41:29",
+   "file_count": 365
   }
  ]
 }
