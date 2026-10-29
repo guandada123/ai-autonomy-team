@@ -13,7 +13,7 @@ PKG     := migration-package
 .DEFAULT_GOAL := help
 .PHONY: help check test selftest handover metrics review package-check \
         recompute v11-compare item-gate score brief-lint kit-test label-audit \
-        package-apply snapshot sync-docs pre-push hooks backup backup-list veto-list coverage clean
+        package-apply snapshot sync-docs pre-push hooks backup backup-list veto-list coverage sync clean
 
 # ── 帮助 ──────────────────────────────────────────────────────────────
 help:
@@ -39,6 +39,7 @@ help:
 	@echo "    make snapshot       真源快照（改口径前先打）"
 	@echo "    make sync-docs      把文档里的数字同步为实际值"
 	@echo "    make coverage       覆盖率基线（开发期，需装 coverage；见 tools/README.md）"
+	@echo "    make sync           并行会话防护：pull --rebase --autostash 后回读 HEAD/远端"
 	@echo "    make veto-list      列出 24h 否决窗口内待裁的结论（人工否决权入口）"
 	@echo "    make recompute      题库 v1.1 真值重算检查（漂移即红，先跑它再出分）"
 	@echo "    make item-gate      题目准入闸（饱和/常数胜出/全错；当前应 FAIL）"
@@ -96,6 +97,9 @@ selftest:
 	@echo ""
 	@echo "── 决策链一致性自检 ──"
 	$(PY) $(SCRIPTS)/check_consistency.py --self-test
+	@echo ""
+	@echo "── 覆盖率门槛自检（ratchet 比较逻辑）──"
+	./tools/coverage_gate.sh --self-test
 	@echo ""
 	@echo ""
 	@echo "── 回归运行保障自检（超时 / 进程组 / scratch 隔离 / 防回退）──"
@@ -208,6 +212,19 @@ veto-list:
 coverage:
 	@echo "（开发期工具：需要 python -m venv + pip install coverage，见 tools/README.md）"
 	./tools/coverage_run.sh
+
+# 双写者防护（2026-10-29 审计）：并行会话写同一仓库时，动手前先 sync。
+# --autostash：本地未提交改动先收起、rebase 后恢复；回读 HEAD/远端相等才算同步。
+sync:
+	git pull --rebase --autostash origin main
+	git fetch -q origin main
+	@echo "── 回读 ──"
+	@git rev-parse HEAD origin/main
+	@if [ "$$(git rev-parse HEAD)" = "$$(git rev-parse origin/main)" ]; then \
+		echo "[PASS] 本地与远端同步"; \
+	else \
+		echo "[FAIL] 未同步——先处理再继续"; exit 1; \
+	fi
 
 # ── 清理 ──────────────────────────────────────────────────────────────
 # 只删可重建的 scratch。fixtures/frozen/ 与 migration-package/runs/ 不在其中。
