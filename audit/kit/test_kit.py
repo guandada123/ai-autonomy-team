@@ -1309,6 +1309,184 @@ def _():
     assert r.returncode == 2 and "runs 目录不存在" in r.stderr, (r.returncode, r.stderr)
 
 
+# ── 组N+6：make_backup / gen_manifest 补测（审计开放项 #4）──
+# 口径：只测纯函数与临时目录 I/O 路径；make_backup 自身 --self-test（13 项）已覆盖
+# verify/classify 正负样本，这里补「工具入口层」——do_list / do_retention /
+# _backup_files / human / git_facts 与 gen_manifest 的 newline / 过滤 / 写入域往返。
+
+@check("make_backup: human 三档与 KB 边界（人读单位算错=给错清理依据）")
+def _():
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("mb_ut", ROOT / "scripts/make_backup.py")
+    mb = importlib.util.module_from_spec(spec)
+    sys.modules["mb_ut"] = mb
+    spec.loader.exec_module(mb)
+    assert mb.human(0) == "0.0 B", mb.human(0)
+    assert mb.human(1023) == "1023.0 B", mb.human(1023)
+    assert mb.human(1024) == "1.0 KB", mb.human(1024)
+    assert mb.human(3 * 1024 ** 2) == "3.0 MB", mb.human(3 * 1024 ** 2)
+    assert mb.human(5 * 1024 ** 3) == "5.0 GB", mb.human(5 * 1024 ** 3)
+
+
+@check("make_backup: _backup_files 只认两种产物名（.DS_Store 不得抢「最新一份」）")
+def _():
+    mb = sys.modules["mb_ut"]
+    with tempfile.TemporaryDirectory() as td:
+        d = Path(td)
+        names = ["ai-autonomy-team-20261001-0001.bundle",
+                 "ai-autonomy-team-20261002-0002.bundle",
+                 "snapshots-archive-20261024-0044.tar.gz",
+                 "snapshots-archive-20261028-0048.tar.gz"]
+        for n in names:
+            (d / n).write_bytes(b"x" * 10)
+        (d / ".DS_Store").write_bytes(b"junk")
+        (d / "notes.txt").write_bytes(b"junk")
+        got = [p.name for p in mb._backup_files(d)]
+        assert got == sorted(names), got          # 异物被滤掉 + 按名排序（时间序）
+
+
+@check("make_backup: do_list / do_retention 三态退出码与「不删承诺」")
+def _():
+    import contextlib
+    import io as _io
+    mb = sys.modules["mb_ut"]
+    with tempfile.TemporaryDirectory() as td:
+        d = Path(td)
+        # 不存在 → ERR(2)
+        buf = _io.StringIO()
+        with contextlib.redirect_stderr(buf):
+            assert mb.do_list(d / "nope") == mb.ERR
+            assert mb.do_retention(d / "nope") == mb.ERR
+        # 空目录 → BAD(1)
+        assert mb.do_list(d) == mb.BAD
+        assert mb.do_retention(d) == mb.BAD
+        # 有备份 → 退出 0；retention 输出含 trash 命令，且**一个文件都不许动**
+        keep = ["ai-autonomy-team-20261101-0001.bundle",
+                "snapshots-archive-20261101-0001.tar.gz",
+                "snapshots-archive-20261102-0001.tar.gz",
+                "snapshots-archive-20261103-0001.tar.gz",
+                "snapshots-archive-20261104-0001.tar.gz"]   # 最旧一份 = 候选
+        for n in keep:
+            (d / n).write_bytes(b"x" * 10)
+        buf = _io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            assert mb.do_list(d) == mb.OK
+            assert "最新一份" in buf.getvalue()
+        buf = _io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            assert mb.do_retention(d) == mb.OK
+        out = buf.getvalue()
+        assert "可清理" in out and "trash " in out, out
+        assert all((d / n).is_file() for n in keep), "retention 删了文件——违反只读承诺！"
+
+
+@check("make_backup: git_facts 对非仓库目录返回 None（不可用≠可用的假值）")
+def _():
+    import subprocess as _sp
+    mb = sys.modules["mb_ut"]
+    with tempfile.TemporaryDirectory() as td:
+        assert mb.git_facts(Path(td)) is None, "非 git 目录必须返回 None"
+        ok = mb.git_facts(ROOT)
+        assert ok and len(ok) == 3 and ok[1].isdigit(), ok     # 真仓库三项齐全
+
+
+@check("gen_manifest: detect_newline 四态（LF/CRLF/MIXED/NONE，跨平台 sha 的前提）")
+def _():
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("gm_ut", ROOT / "migration-package/gen_manifest.py")
+    gm = importlib.util.module_from_spec(spec)
+    sys.modules["gm_ut"] = gm
+    spec.loader.exec_module(gm)
+    with tempfile.TemporaryDirectory() as td:
+        d = Path(td)
+        cases = {"lf.txt": b"a\nb\n", "crlf.txt": b"a\r\nb\r\n",
+                 "mixed.txt": b"a\r\nb\n", "none.txt": b"abc"}
+        for n, data in cases.items():
+            (d / n).write_bytes(data)
+        assert gm.detect_newline(d / "lf.txt") == "LF"
+        assert gm.detect_newline(d / "crlf.txt") == "CRLF"
+        assert gm.detect_newline(d / "mixed.txt") == "MIXED"
+        assert gm.detect_newline(d / "none.txt") == "NONE"
+        assert gm.detect_newline(d / "missing.txt") == "unknown"   # OSError 路径
+
+
+@check("gen_manifest: build 过滤与相对化（SKIP 名单/MANIFEST 自身排除/prefix 后 rel 仍相对 root）")
+def _():
+    gm = sys.modules["gm_ut"]
+    with tempfile.TemporaryDirectory() as td:
+        d = Path(td)
+        (d / "a").mkdir()
+        (d / "b" / "__pycache__").mkdir(parents=True)
+        (d / "a" / "x.txt").write_text("x\n", encoding="utf-8")
+        (d / "b" / "y.txt").write_text("y\n", encoding="utf-8")
+        (d / "b" / "__pycache__" / "junk.pyc").write_bytes(b"j")
+        (d / ".DS_Store").write_bytes(b"j")
+        (d / "MANIFEST.json").write_text("{}", encoding="utf-8")
+        entries = gm.build(d)
+        paths = [e["path"] for e in entries]
+        assert paths == ["a/x.txt", "b/y.txt"], paths        # 排除 + 排序 + rel 相对 root
+        sub = gm.build(d, path_prefixes=("b/",))
+        assert [e["path"] for e in sub] == ["b/y.txt"], sub   # 过滤后 rel 仍是 root 相对路径
+        globbed = gm.build(d, include_globs=("*.txt",))
+        assert len(globbed) == 2, globbed
+
+
+@check("gen_manifest: load_domain_config 占位符归一（截断到第一个 '{' 前 + 去重）")
+def _():
+    gm = sys.modules["gm_ut"]
+    with tempfile.TemporaryDirectory() as td:
+        cfg = Path(td) / "cfg.json"
+        cfg.write_text(json.dumps({
+            "allow": ["runs/round{n}/{seat}/", "runs/round", "runs/round"],
+            "deny": ["logs/{date}/app/"]
+        }), encoding="utf-8")
+        allow, deny = gm.load_domain_config(cfg)
+        # 文档语义：占位符取第一个 '{' 之前的部分 → 后段一并截断（runs/round{n}/… → runs/round）
+        assert allow == ["runs/round"], allow                # 占位符剥掉 + 去重
+        assert deny == ["logs/"], deny                       # 若不剥，startswith 恒不匹配
+
+
+@check("gen_manifest: 写入域 baseline→check 往返（CLEAN/HIT-added/HIT-changed 三态）")
+def _():
+    import contextlib
+    import io as _io
+    gm = sys.modules["gm_ut"]
+    with tempfile.TemporaryDirectory() as td:
+        d = Path(td)
+        (d / "runs" / "round1" / "S1").mkdir(parents=True)
+        (d / "runs" / "round1" / "S1" / "v.json").write_text("v1\n", encoding="utf-8")
+        cfg = d / "cfg.json"
+        cfg.write_text(json.dumps({"allow": [], "deny": ["runs/round1/"]}),
+                       encoding="utf-8")
+        base = d / "baseline.json"
+        buf = _io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            assert gm.write_domain_baseline(d, cfg, base) == 0
+        # 无变化 → CLEAN / rc 0
+        buf = _io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            assert gm.write_domain_check(d, cfg, base, None) == 0
+        assert "CLEAN" in buf.getvalue(), buf.getvalue()
+        # deny 域改内容 → HIT changed / rc 1
+        (d / "runs" / "round1" / "S1" / "v.json").write_text("v2\n", encoding="utf-8")
+        buf = _io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            assert gm.write_domain_check(d, cfg, base, None) == 1
+        assert "HIT" in buf.getvalue() and "[changed]" in buf.getvalue(), buf.getvalue()
+        # deny 域新增文件 → HIT added；allow 域新增不计入判定
+        (d / "runs" / "round1" / "S1" / "extra.json").write_text("e\n", encoding="utf-8")
+        (d / "allowed.txt").write_text("a\n", encoding="utf-8")
+        rep = d / "wd-check.json"
+        buf = _io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            assert gm.write_domain_check(d, cfg, base, rep) == 1
+        report = json.loads(rep.read_text(encoding="utf-8"))
+        assert report["verdict"] == "HIT", report
+        assert any(h["status"] == "added" and h["path"].endswith("extra.json")
+                   for h in report["changed_under_deny"]), report
+        assert report["changed_under_allow"] == [], report    # allow 域只对照不判定
+
+
 # ── 运行器 ───────────────────────────────────────────────────────────────
 
 def main() -> int:

@@ -1,7 +1,7 @@
 {
- "created_at": "2026-10-29T19:41:29",
- "label": "计数生成器化",
- "file_count": 365,
+ "created_at": "2026-10-29T20:12:45",
+ "label": "",
+ "file_count": 366,
  "files": {
   "scripts/build_package.py": {
    "sha256": "b2dad8c4b0adc07c8cc367c51c292263c2789cf6501a0a7481c80260de23f494",
@@ -552,8 +552,8 @@
    "bytes": 7350
   },
   "audit/AUDIT-20261029-对话全程审计.md": {
-   "sha256": "1cb2d9c9736709c8a217d9ee76480c1e563cb7bfeab15d4f69ca132046a85702",
-   "bytes": 9992
+   "sha256": "f28658974309e2fcf41f058e61e66015dfc143f6ecea5847467b22a73058e322",
+   "bytes": 10269
   },
   "audit/CODE-REVIEW-20261028-对话代码变更审查.md": {
    "sha256": "4d8601112019ce823c4ba54b22bb3f3fc3e08d3414f7912d85e631e1610e5ae5",
@@ -1260,8 +1260,8 @@
    "bytes": 3156
   },
   "audit/kit/test_kit.py": {
-   "sha256": "39aa6408b1bc12967f4833a00466c0628f03de8a84c4f8150418b36ab1226693",
-   "bytes": 59665
+   "sha256": "d8a882f12fc4773da3b986bb49c2429bf83b9eed870e872ae84dab95827d1add",
+   "bytes": 68177
   },
   "audit/probes/premise/spec-cases.json": {
    "sha256": "d552c79e28bd10e2b02f776f31f49df6b24cce34618e8d489214d93d29cded41",
@@ -1415,6 +1415,10 @@
    "sha256": "a89e4315f9a45f101b3dc3f548c069efd0ac7d9de4226dd2a841c20d480df86f",
    "bytes": 4191
   },
+  ".learnings/L-0037-造工具前先查仓库已有实现.md": {
+   "sha256": "5160b890f2f44dc5be02f404cba6ba423211822c19b4ccfd216b90620d798fe1",
+   "bytes": 2128
+  },
   ".github/workflows/selftest.yml": {
    "sha256": "893c6a49f1dba12a21eab68aa70321572c78730e5985acc00c73753938a83b2f",
    "bytes": 2140
@@ -1448,11 +1452,11 @@
    "bytes": 12765
   },
   "README.md": {
-   "sha256": "1428e6f00374bcf74d6d035dd7e06acaec436cc8910a67ca6f76138f057c864b",
+   "sha256": "2108b5d7ba7c24e936f6e6c41ee3f64b937fa5122e76db9b867cde9533bed9f7",
    "bytes": 5071
   },
   "ARCHITECTURE.md": {
-   "sha256": "5294db4603dcc9a2f974fe0b26923300f1cbc4df8e59a613e8d1db5fb0b04835",
+   "sha256": "7916a7bb9523bbcc2cbf94208dd69b4beabaf356851aeb472f7e83ff97581fc4",
    "bytes": 24056
   },
   "DEPENDENCIES.md": {
@@ -1465,8 +1469,8 @@
   }
  },
  "caller": {
-  "pid": 3283,
-  "ppid": 3279,
-  "parent_cmd": "/bin/zsh -c . '/Users/guan/.workbuddy/shell-snapshots/snapshot-zsh-1793273850352-fwl3yt.sh' && if [ -n \"${CODEBUDDY_SAFE_DELETE_BIN_DIR:-}\" ]; then unalias rm unlink rmdir 2>/dev/null || true; unset -"
+  "pid": 25674,
+  "ppid": 25672,
+  "parent_cmd": "/Library/Developer/CommandLineTools/usr/bin/make snapshot"
  }
 }
