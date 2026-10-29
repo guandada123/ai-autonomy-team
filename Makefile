@@ -44,7 +44,7 @@ help:
 	@echo "    make item-gate      题目准入闸（饱和/常数胜出/全错；当前应 FAIL）"
 	@echo "    make score          通用判分器（题集无关，含 pass^k 与 Fleiss κ）"
 	@echo "    make brief-lint     题面准入检查（情形段含结论/引用编号；当前应 FAIL）"
-	@echo "    make kit-test       判定工具自检（30 项，含与历史判分器的交叉验证）"
+	@echo "    make kit-test       判定工具自检（38 项，含与历史判分器的交叉验证）"
 	@echo "    make label-audit    标注集饱和检查（满分/阈值不敏感；当前应命中）"
 	@echo ""
 	@echo "  清理："
@@ -102,7 +102,7 @@ selftest:
 	$(PY) $(SCRIPTS)/regress.py --self-test
 	@echo "── 门禁自身自检（每个检查项都配正负样本，防「门禁假绿」）──"
 	$(PY) $(SCRIPTS)/pre_release_check.py --self-test
-	@echo "── 判据自检 + 全量门禁（内含全量回归，约 60 秒）──"
+	@echo "── 判据自检 + 全量门禁（内含全量回归，约 15 秒）──"
 	$(PY) $(SCRIPTS)/pre_release_check.py
 
 # ── 观测 ──────────────────────────────────────────────────────────────

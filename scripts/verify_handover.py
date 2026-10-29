@@ -17,7 +17,7 @@
 | 1 | 运行时 | G2 | python3 ≥ 3.9 且**零第三方依赖**（本包承诺只用标准库） |
 | 2 | 包自检 | G4 | `precheck.py` 通过（人工项 ≤1，须为跨家族） |
 | 3 | 判据自检 | G2 | `judges/verify.py --self-test` = 27/27 |
-| 4 | 全量回归 | G4 | `scripts/regress.py` = 50/50（**须在整棵工作区**，单包跑不了） |
+| 4 | 全量回归 | G4 | `scripts/regress.py` = 56/56（**须在整棵工作区**，单包跑不了） |
 | 5 | 包完整性 | G4 | MANIFEST 声明条数/字节 = 实际 |
 | 6 | 推送钩子 | D-0045 | `.git/hooks/pre-push` 已装且指向 `scripts/pre_push_scan.py` |
 

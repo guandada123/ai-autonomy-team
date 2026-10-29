@@ -43,5 +43,5 @@ jobs:
           git --version
           make --version | head -1
 
-      - name: 全量自检（脚本自检 + A–H 门禁 + 50 项回归）
+      - name: 全量自检（脚本自检 + A–H 门禁 + 56 项回归）
         run: make selftest

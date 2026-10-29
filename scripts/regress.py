@@ -8,7 +8,7 @@ regress.py —— 全量回归验收套件
 
 ★ 幂等性要求（F11）：本套件跑完后，包内任何文件的 sha256 都不得改变。
   所有会写盘的步骤都对着 _trash/ 下的工作副本或 scratch 输出跑。
-  第 30 项就是这条要求的守门项。
+  第 56 项就是这条要求的守门项（原第 30 项，随项数增长顺延）。
 
 依赖：仅 Python 标准库。
 
@@ -241,7 +241,7 @@ def self_test():
 
 
 def main():
-    ap = argparse.ArgumentParser(description="30 项全量回归验收")
+    ap = argparse.ArgumentParser(description="56 项全量回归验收")
     ap.add_argument("--json", action="store_true")
     ap.add_argument("--self-test", action="store_true",
                     help="只验运行保障（超时 / 进程组 / scratch 隔离 / 防回退）")
@@ -1022,7 +1022,7 @@ def main():
     # ★ 扩样（D-0012/扩样草案）：make_tasks_20.py 生成的每组夹具必须能被硬裁判加载
     #   （算术 10/10 + 判断层 pending）。生成器改动或夹具损坏在此拦截。
     #   自检过程会在包内临时写 _selfcheck-* 文件并在结束前删除；若中途崩溃留下
-    #   残留，第 54 项（幂等守门）会红 —— 这是特性。
+    #   残留，第 56 项（幂等守门）会红 —— 这是特性。
     rc_sc, out_sc = run(["scripts/make_tasks_20.py", "--out", "migration-package/fixtures/tasks",
                          "--self-check"], ROOT)
     s.check(49, "20 条留出任务批自检（生成器 + 每组 算术10/10 + pending）",

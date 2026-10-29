@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-10-29T08:14:54+08:00",
+  "generated_at": "2026-10-29T09:45:18+08:00",
   "root": "migration-package/",
   "note": "sha256 用于跨机完整性校验。newline=MIXED 的文本文件会导致证据链跨平台断裂，须修正。",
   "stats": {
@@ -11,7 +11,7 @@
     {
       "path": "README.md",
       "size": 9146,
-      "sha256": "e23ad40adca0fc4aaf7c4ec9df307324eada7f8da9cdbe82131cb656f9fbb27a",
+      "sha256": "2a539cc53052510e01760e637bed8f60fb1b1e9ea8b3fc70f178e89f6b856ae8",
       "newline": "LF"
     },
     {

@@ -1,6 +1,6 @@
 {
- "created_at": "2026-10-29T08:07:14",
- "label": "门禁自检固化",
+ "created_at": "2026-10-29T09:45:59",
+ "label": "F6计数对齐",
  "file_count": 134,
  "files": {
   "scripts/build_package.py": {
@@ -16,7 +16,7 @@
    "bytes": 15106
   },
   "scripts/check_docs_consistency.py": {
-   "sha256": "024defabd00f52ab11d15c1c8c3d391b78efb1b1b895b0fd8da18c1f1a96cd03",
+   "sha256": "32403c82c747ebcd0720fb2c30b29170d0a070293c49e3033e152d82e3efe5b8",
    "bytes": 15238
   },
   "scripts/field_provenance.py": {
@@ -88,11 +88,11 @@
    "bytes": 14732
   },
   "scripts/make_tasks_20.py": {
-   "sha256": "b207be232c5db18c2c155846a37d7d53feaad4f6f251d71a73e04850e5c8255a",
-   "bytes": 41902
+   "sha256": "3bcac71fd13177acfee8a1c22d194b372d302ee335cc6d753983cfd6abd65e9d",
+   "bytes": 42150
   },
   "scripts/make_transfer.py": {
-   "sha256": "06c5aaa394c0d6c3806fb1ab300e09fb6ee5c7498b2c76bfd94a9ba0a55d9eb5",
+   "sha256": "822e16e2763f2b6770388c58a38a341f05beaaa50dd18b8ccd19316f736e5bdf",
    "bytes": 8025
   },
   "scripts/metrics.py": {
@@ -112,7 +112,7 @@
    "bytes": 11650
   },
   "scripts/pre_release_check.py": {
-   "sha256": "4d0be6c24283cc6b618402cf0619d93146741465da6bbbdf23aceacdb5f1298b",
+   "sha256": "b0d9f70c193ac723c6119ee9fe1ff9d881d9db2b86c04ccb0210ebb16af37958",
    "bytes": 33848
   },
   "scripts/premise_probe.py": {
@@ -132,8 +132,8 @@
    "bytes": 11300
   },
   "scripts/regress.py": {
-   "sha256": "496383e8d32cb83812ee94e6d0b8f4db52a30865bff5d6ac806465a87bba3e13",
-   "bytes": 68112
+   "sha256": "222f2583670ba037e8392d29b8fa19b4dd71536ce6fc246ef0c017fdf537a6cf",
+   "bytes": 75624
   },
   "scripts/secret_patterns.py": {
    "sha256": "c77c883691005f530cff2444c7acb0470dfadf595ae1c15dbc98b34857b56ef1",
@@ -160,7 +160,7 @@
    "bytes": 8046
   },
   "scripts/verify_handover.py": {
-   "sha256": "918f84980694b1178662a1d03ed42ba8954ba4df726eec737657025d219f46ca",
+   "sha256": "1e9f5983ee6e486e80c98daad83f876c1c99a53b82d95ed100a24d562d25868b",
    "bytes": 10989
   },
   "scripts/veto_sweep.py": {
@@ -541,8 +541,8 @@
   }
  },
  "caller": {
-  "pid": 63666,
-  "ppid": 63664,
-  "parent_cmd": "/bin/zsh -c . '/Users/guan/.workbuddy/shell-snapshots/snapshot-zsh-1793232133189-i45hxc.sh' && if [ -n \"${CODEBUDDY_SAFE_DELETE_BIN_DIR:-}\" ]; then unalias rm unlink rmdir 2>/dev/null || true; unset -"
+  "pid": 31636,
+  "ppid": 31634,
+  "parent_cmd": "/bin/zsh -c . '/Users/guan/.workbuddy/shell-snapshots/snapshot-zsh-1793237991229-etay6k.sh' && if [ -n \"${CODEBUDDY_SAFE_DELETE_BIN_DIR:-}\" ]; then unalias rm unlink rmdir 2>/dev/null || true; unset -"
  }
 }

@@ -3,9 +3,9 @@
  "_generated_by": "scripts/snapshot_sources.py --catalog",
  "count": {
   "in_git": 3,
-  "archived": 232,
+  "archived": 233,
   "missing": 0,
-  "total": 235
+  "total": 236
  },
  "snapshots": [
   {
@@ -1866,8 +1866,8 @@
   },
   {
    "name": "20261029-080714-门禁自检固化",
-   "location": "snapshots",
-   "in_git": true,
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
    "label": "门禁自检固化",
    "created_at": "2026-10-29T08:07:14",
    "file_count": 134
@@ -1886,6 +1886,14 @@
    "in_git": true,
    "label": "F8僵尸判据修正",
    "created_at": "2026-10-29T08:28:38",
+   "file_count": 134
+  },
+  {
+   "name": "20261029-094559-F6计数对齐",
+   "location": "snapshots",
+   "in_git": true,
+   "label": "F6计数对齐",
+   "created_at": "2026-10-29T09:45:59",
    "file_count": 134
   }
  ]

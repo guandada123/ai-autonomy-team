@@ -116,7 +116,7 @@ _trash/  _archive/     ⊘ 不入库：scratch 可重建，快照归档只此一
 vim scripts/xxx.py
 
 # 改完必须三件套
-make test           # 54 项回归
+make test           # 56 项回归
 make package-apply  # 同步到包（否则 D 项红）
 make check          # 8 项门禁
 

@@ -2,7 +2,7 @@
 
 为什么带整棵工作区而不是只带 migration-package/：
   regress.py / build_package.py / make_round_fixtures.py 当初刻意【不入包】，
-  故只带包的话，Mac 上能跑机制但**不能继续开发**，也凑不齐 30 项回归。
+  故只带包的话，Mac 上能跑机制但**不能继续开发**，也凑不齐 56 项回归。
 
 设计约束：
   - 纯标准库（zipfile / hashlib），跨平台
