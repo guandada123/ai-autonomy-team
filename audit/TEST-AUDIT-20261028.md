@@ -112,7 +112,10 @@ Phase 1 未逐条清点 octagon/redact_report/pre_push_scan/new_round 内部项�
 | **F7**（P1-1） | ✅ 已实施 | 门禁 E 纳入 `audit/`、`templates/`、`outputs/`；门禁 G 改 `rglob` + 根级四文档（D-0053 同款修法）。三处盲区均由旧版同场对照实证：audit 藏密钥 → 新版 FAIL/**旧版 PASS**；docs 子目录 TODO → 新版 FAIL/**旧版 PASS**；根级文档 TODO → 新版 FAIL/**旧版 PASS**；干净仓库双方均 PASS |
 | F8/F6 | ⬜ 未动 | 按优先级，F8（regress timeout / scratch 互踩）为下一个 |
 | 新发现计数漂移 | ⬜ 待 F6 | Makefile help 文本「kit-test（30 项）」实为 **38** 项 —— 第 5 处漂移，留给 F6 与其余 4 处统一修，不在此轮夹带 |
-| 新发现盲区 | ⬜ 待定 | `pre_release_check.py` 自身**无 `--self-test` 入口** → F7 这批正负样本只做成一次性 /tmp 实验，未固化、CI 不跑（R2「守门员无守卫」的又一例：门禁自己没有守卫）。要固化需新建入口并收编（~30 行） |
+| **门禁自检**（R2 补，原「新发现盲区」） | ✅ 已实施 | `pre_release_check.py --self-test` **43 项**，全部在 `TemporaryDirectory` 假仓库内构造（不碰真源）。8 个检查项逐项配正负样本：E（4 目录各藏密钥）、G（顶层/子目录/根级/豁免面未扩大）、F（缺失/未建标注/根级范围）、D（缺文件/count 不符/字段名回退历史 bug）、B（55/56、EXIT=1、输出不可解析）、C（40/41、不可解析、audit 语法错）、H（无目录/空目录/rc=2 语义/三向命中/兜底/rc=0）、A（ctx 四项 --expect 真传下去、失败透出具体行）。另加契约 3 项（固定 8 项 / 字母 A–H / 无重名）与聚合 5 项（exit 0、exit 1 点名、单项抛异常不整体崩、`-q` 不刷明细、包目录缺失 exit 2）。**已收编进 `make selftest`**（全量 11s，rc=0） |
+| 门禁自检可证伪性 | ✅ 已验证 | **函数级注入 8/8 全被击破**（8 个 `chk_*` 逐个改成「永远通过」，红灯数 2–6 条不等，exit 均为 1）；**源码级变异 6/6 全被击破**（M1 删 `audit/` 扫描范围、M2 G 退回顶层非递归、M3 聚合不记失败、M4 `rc=2` 分支失效、M5 `chk_regress` 恒返回 True、M6 MANIFEST 读回历史字段 `bytes`），对照组（未变异副本）仍绿 |
+| 门禁自检的自引用陷阱 | ✅ 已规避并记录 | 源码里写死 `D-NNNN` 会让**真门禁 F 项当场判真仓库「引用缺失决策」**（F 项扫 `scripts/*.py`）；写成「…（未建）」还会被 `INTENTIONAL_ABSENT` 豁免掉，更难发现。改为运行时拼接 `"D-" + "8888"`。同型前科：`unlink(`（回归第 20 项，取 `git show HEAD` 版本）、`sk-…`（门禁 E）→ 纪律见 `.learnings/L-0035` |
+| 门禁自检发现的产品缺陷 | ✅ 顺带修掉 | `chk_regress` 原写法 `rc == 0 and m and ...` 在**输出不可解析时短路返回 `None`**（不是 `False`）。吃 `if not ok` 的上层看不出，但按 `ok is False` 断言就暴露 → 返回值统一 `bool(...)` |
 
 **F1 后 CI 红灯性质的变化**：此前 `make selftest` 的 exit 2 由「标注集饱和」这一**数据事实**引起，
 与代码是否损坏无关；修复后该事实仍在报告段如实打印（heldout 三阈值全 1.000，命中 S1），

@@ -1,6 +1,6 @@
 {
- "created_at": "2026-10-28T23:23:50",
- "label": "测试体系审计",
+ "created_at": "2026-10-29T08:07:14",
+ "label": "门禁自检固化",
  "file_count": 134,
  "files": {
   "scripts/build_package.py": {
@@ -112,8 +112,8 @@
    "bytes": 11650
   },
   "scripts/pre_release_check.py": {
-   "sha256": "3372460e7b8242b5357f2781ac26647d83eb260bec678c6114d2b2b56a542125",
-   "bytes": 15464
+   "sha256": "4d0be6c24283cc6b618402cf0619d93146741465da6bbbdf23aceacdb5f1298b",
+   "bytes": 33848
   },
   "scripts/premise_probe.py": {
    "sha256": "80b7312d4ebb3049afe46ee757cdefc907a620a060b2c3b159a2447a796e19f7",
@@ -140,8 +140,8 @@
    "bytes": 4979
   },
   "scripts/snapshot_sources.py": {
-   "sha256": "14d4db22ac874be253c80898a1227ce13e30e80c5f1d5c9116f10490e49e60fb",
-   "bytes": 26879
+   "sha256": "b2d1061e456478b8ed3d66f2f49f05662574b6c859ba8ed17f50f30146ad5885",
+   "bytes": 41497
   },
   "scripts/spec_conformance.py": {
    "sha256": "689c30623c485830755308fccf673034d43b00e47af91d2ea5f62c94f8e0fdec",
@@ -541,8 +541,8 @@
   }
  },
  "caller": {
-  "pid": 56068,
-  "ppid": 56066,
-  "parent_cmd": "/bin/zsh -c . '/Users/guan/.workbuddy/shell-snapshots/snapshot-zsh-1793199609019-wanhq0.sh' && if [ -n \"${CODEBUDDY_SAFE_DELETE_BIN_DIR:-}\" ]; then unalias rm unlink rmdir 2>/dev/null || true; unset -"
+  "pid": 63666,
+  "ppid": 63664,
+  "parent_cmd": "/bin/zsh -c . '/Users/guan/.workbuddy/shell-snapshots/snapshot-zsh-1793232133189-i45hxc.sh' && if [ -n \"${CODEBUDDY_SAFE_DELETE_BIN_DIR:-}\" ]; then unalias rm unlink rmdir 2>/dev/null || true; unset -"
  }
 }

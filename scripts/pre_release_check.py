@@ -30,6 +30,7 @@
 
     python3 scripts/pre_release_check.py            # 全量检查，打印明细
     python3 scripts/pre_release_check.py -q         # 只打印结论
+    python3 scripts/pre_release_check.py --self-test # 门禁自身的自检（正负样本，不动真仓库）
     退出码：0 全通过 / 1 有失败项 / 2 环境错误
 """
 import argparse
@@ -92,7 +93,9 @@ def chk_regress():
     rc, out = sh([PY, str(SCRIPTS / "regress.py")], cwd=PKG)
     m = re.search(r"结果：(\d+)/(\d+) 通过", out)
     got = f"{m.group(1)}/{m.group(2)}" if m else "解析失败"
-    return (rc == 0 and m and m.group(1) == m.group(2)), f"{got}, EXIT={rc}"
+    # 2026-10-29：原写法 `rc == 0 and m and ...` 在解析失败时短路返回 None（不是 False）。
+    # 吃 `if not ok` 的上层看不出来，但门禁自检按 `ok is False` 断言 —— 返回值一律规整为 bool。
+    return bool(rc == 0 and m and m.group(1) == m.group(2)), f"{got}, EXIT={rc}"
 
 
 def chk_selftest():
@@ -296,10 +299,354 @@ def chk_upgrade_info():
             f"（超期 {len(d['stale'])} 条；台账 docs/learnings-upgraded.json）")
 
 
+# ────────────────────── 门禁自身的守卫（--self-test） ──────────────────────
+#
+# 2026-10-29（F7 遗留）：门禁自身此前没有任何自动测试。F7 补的三处扫描盲区是靠
+# 一次性 /tmp 实验证明的 —— CI 上永远不跑，等于「守门员没有守卫」（审计根因 R2）。
+#
+# 两条设计约束：
+#   1. 自校验套件不得写它正在校验的资产 → 全程 TemporaryDirectory 造假仓库；
+#   2. 每条都配正负样本，负样本必须能把它推成 FAIL ——
+#      只验「干净时绿」等于没验，因为 `return True, "ok"` 也能满足它。
+
+
+def self_test():
+    """门禁自检：先证明每项「会红」，再让它绿。"""
+    import contextlib
+    import io
+    import tempfile
+
+    n_ok, fails = 0, []
+
+    def expect(label, cond, detail=""):
+        nonlocal n_ok
+        if cond:
+            n_ok += 1
+            print(f"  [PASS] {label}" + (f"  {detail}" if detail else ""))
+        else:
+            fails.append(label)
+            print(f"  [FAIL] {label}  {detail}")
+
+    saved = (ROOT, SCRIPTS, DOCS, PKG)
+
+    @contextlib.contextmanager
+    def at(td):
+        """把模块级四个路径指向假仓库。"""
+        global ROOT, SCRIPTS, DOCS, PKG
+        ROOT, SCRIPTS, DOCS, PKG = td, td / "scripts", td / "docs", td / "migration-package"
+        try:
+            yield td
+        finally:
+            ROOT, SCRIPTS, DOCS, PKG = saved
+
+    @contextlib.contextmanager
+    def with_sh(stub):
+        """替换 shell 边界：B/C/H/A 四类外部依赖逐源 mock，不真跑子进程。"""
+        global sh
+        old = sh
+        sh = stub
+        try:
+            yield
+        finally:
+            sh = old
+
+    @contextlib.contextmanager
+    def with_checks(stubs):
+        global CHECKS
+        old = CHECKS
+        CHECKS = stubs
+        try:
+            yield
+        finally:
+            CHECKS = old
+
+    def make(t, name):
+        d = t / name
+        (d / "scripts").mkdir(parents=True)
+        (d / "scripts" / "ok.py").write_text("# ok\n", encoding="utf-8")
+        (d / "docs" / "decisions").mkdir(parents=True)
+        (d / "migration-package").mkdir()
+        return d
+
+    def canned(rc, out):
+        return lambda cmd, cwd=None, timeout=None: (rc, out)
+
+    def run_main(argv):
+        old = sys.argv
+        sys.argv = ["pre_release_check.py", *argv]
+        out, err = io.StringIO(), io.StringIO()
+        try:
+            with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+                rc = main()
+        finally:
+            sys.argv = old
+        return rc, out.getvalue(), err.getvalue()
+
+    with tempfile.TemporaryDirectory(prefix="prc-selftest-") as tmp:
+        t = Path(tmp)
+        # 拼接构造：写成字面量会让本文件自身被 E 项判为泄露（同 regress 第 20 项的自引用陷阱）
+        KEY = "sk-" + "A" * 26
+
+        # ── E 密钥扫描 ─────────────────────────────────────────────
+        r = make(t, "e-clean")
+        with at(r):
+            ok, d = chk_secrets()
+        expect("E 正样本：干净仓库 → 通过", ok is True, d)
+
+        for sub in ("scripts", "audit", "templates", "outputs"):
+            r = make(t, f"e-{sub}")
+            (r / sub).mkdir(exist_ok=True)
+            (r / sub / "leak.md").write_text(f'token = "{KEY}"\n', encoding="utf-8")
+            with at(r):
+                ok, d = chk_secrets()
+            label = (f"E 负样本：{sub}/ 藏密钥 → 拦截（F7 补的盲区）" if sub != "scripts"
+                     else "E 负样本：scripts/ 藏密钥 → 拦截")
+            expect(label, ok is False and "leak.md" in d, d)
+
+        # ── G 待办扫描 ─────────────────────────────────────────────
+        r = make(t, "g")
+        with at(r):
+            expect("G 正样本：干净仓库 → 通过", chk_todo()[0] is True)
+
+        for label, path, text in (
+            ("docs 顶层含待办", r / "docs" / "top.md", "待处理：补图\n"),
+            ("docs 子目录含 TODO（F7 补的盲区）", r / "docs" / "sub" / "deep.md", "TODO: 待补\n"),
+            ("根级 README 含未修（F7 补的盲区）", r / "README.md", "未修：某问题\n"),
+        ):
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text("# 标题\n" + text, encoding="utf-8")
+            with at(r):
+                ok, d = chk_todo()
+            expect(f"G 负样本：{label} → 拦截",
+                   ok is False and path.relative_to(r).as_posix() in d, d)
+            path.write_text("# 标题\n", encoding="utf-8")
+
+        (r / "docs" / "会话审计-20261020.md").write_text("# TODO 历史记录\n", encoding="utf-8")
+        with at(r):
+            ok, d = chk_todo()
+        expect("G 正样本：豁免文件仍豁免（TODO_EXEMPT 生效）", ok is True, d)
+
+        (r / "docs" / "会话审计-20261021.md").write_text("# TODO 历史记录\n", encoding="utf-8")
+        with at(r):
+            ok, d = chk_todo()
+        expect("G 负样本：豁免按全名精确匹配 → 形近文件不放行", ok is False and "20261021" in d, d)
+        (r / "docs" / "会话审计-20261021.md").write_text("# 历史记录\n", encoding="utf-8")
+
+        # ── F 决策编号 ─────────────────────────────────────────────
+        # ★ 编号必须动态拼：F 项会扫 scripts/*.py，源码里写死一个不存在的 D-NNNN
+        #   等于让测试夹具参与真门禁扫描 —— 实测会直接把真仓库判成「引用了缺失决策」，
+        #   而写成「…（未建）」还会被自己的 INTENTIONAL_ABSENT 豁免掉，更难发现。
+        ID_OK = "D-" + "0001"
+        ID_ABSENT = "D-" + "9999"
+        ID_MISS = "D-" + "8888"
+
+        r = make(t, "f")
+        (r / "docs" / "decisions" / f"{ID_OK}-样例.md").write_text(f"# {ID_OK}\n", encoding="utf-8")
+        (r / "docs" / "index.md").write_text(f"见 {ID_OK}。\n", encoding="utf-8")
+        with at(r):
+            ok, d = chk_decision_ids()
+        expect("F 正样本：引用有对应文件 → 通过", ok is True, d)
+
+        (r / "docs" / "index.md").write_text(f"见 {ID_ABSENT}。\n", encoding="utf-8")
+        with at(r):
+            ok, d = chk_decision_ids()
+        expect("F 负样本：引用不存在的编号 → 拦截", ok is False and ID_ABSENT in d, d)
+
+        (r / "docs" / "index.md").write_text(f"{ID_ABSENT}（未建，保留编号）。\n", encoding="utf-8")
+        with at(r):
+            ok, d = chk_decision_ids()
+        expect("F 正样本：标注「未建」→ 不算缺文件", ok is True, d)
+
+        (r / "README.md").write_text(f"见 {ID_MISS}。\n", encoding="utf-8")
+        with at(r):
+            ok, d = chk_decision_ids()
+        expect("F 负样本：根级文档的引用也在范围（D-0053）", ok is False and ID_MISS in d, d)
+
+        # ── D 包完整性 ─────────────────────────────────────────────
+        r = make(t, "d")
+        mp = r / "migration-package" / "MANIFEST.json"
+        with at(r):
+            expect("D 负样本：MANIFEST 缺失 → 拦截", chk_manifest()[0] is False)
+
+        mp.write_text(json.dumps({"files": [{"path": "a", "size": 3}],
+                                  "stats": {"file_count": 1, "total_bytes": 3}}),
+                      encoding="utf-8")
+        with at(r):
+            expect("D 正样本：声明与实际一致 → 通过", chk_manifest()[0] is True)
+
+        mp.write_text(json.dumps({"files": [{"path": "a", "size": 3}],
+                                  "stats": {"file_count": 2, "total_bytes": 3}}),
+                      encoding="utf-8")
+        with at(r):
+            expect("D 负样本：file_count 与条目数不符 → 拦截", chk_manifest()[0] is False)
+
+        # 历史 bug 回归：字段名是 size，写成 bytes 会让实际字节恒为 0
+        mp.write_text(json.dumps({"files": [{"path": "a", "bytes": 3}],
+                                  "stats": {"file_count": 1, "total_bytes": 3}}),
+                      encoding="utf-8")
+        with at(r):
+            ok, d = chk_manifest()
+        expect("D 负样本：条目用 bytes 键（历史 bug）→ 拦截", ok is False, d)
+
+        # ── B 全量回归（外部依赖：子进程输出 + 退出码）────────────
+        r = make(t, "b")
+        with at(r):
+            with with_sh(canned(0, "结果：56/56 通过\n")):
+                expect("B 正样本：56/56 且 EXIT=0 → 通过", chk_regress()[0] is True)
+            with with_sh(canned(0, "结果：55/56 通过\n")):
+                expect("B 负样本：55/56 → 拦截", chk_regress()[0] is False)
+            with with_sh(canned(1, "结果：56/56 通过\n")):
+                expect("B 负样本：项数够但 EXIT=1 → 拦截（退出码也是判据）",
+                       chk_regress()[0] is False)
+            with with_sh(canned(0, "Traceback (most recent call last):\n")):
+                ok, d = chk_regress()
+            expect("B 负样本：输出不可解析 → 拦截（不把解析失败当过）",
+                   ok is False and "解析失败" in d, d)
+
+        # ── C 判据自检（外部依赖：verify.py + 本地语法扫描）────────
+        r = make(t, "c")
+        with at(r):
+            with with_sh(canned(0, "……41/41 项\n")):
+                expect("C 正样本：41/41 → 通过", chk_selftest()[0] is True)
+            with with_sh(canned(0, "……40/41 项\n")):
+                expect("C 负样本：40/41 → 拦截", chk_selftest()[0] is False)
+            with with_sh(canned(0, "boom\n")):
+                ok, d = chk_selftest()
+            expect("C 负样本：输出不可解析 → 拦截", ok is False and "无法解析" in d, d)
+
+            (r / "audit").mkdir()
+            (r / "audit" / "bad.py").write_text("def f(\n", encoding="utf-8")
+            with with_sh(canned(0, "……41/41 项\n")):
+                ok, d = chk_selftest()
+            expect("C 负样本：audit/ 下语法错 → 拦截（语法支路是活的）",
+                   ok is False and "bad.py" in d, d)
+
+        # ── H 真源快照（外部依赖：三向比对退出码 0/1/2）───────────
+        r = make(t, "h-none")
+        with at(r):
+            ok, d = chk_snapshot()
+        expect("H 负样本：无 snapshots 目录 → 拦截且给出可执行指引",
+               ok is False and "无快照目录" in d, d)
+
+        r = make(t, "h-empty")
+        (r / "snapshots").mkdir()
+        with at(r):
+            ok, d = chk_snapshot()
+        expect("H 负样本：目录存在但无快照 → 拦截", ok is False and "无快照" in d, d)
+
+        r = make(t, "h")
+        (r / "snapshots" / "20260101-000000-x").mkdir(parents=True)
+        with at(r):
+            with with_sh(canned(2, "[ERR] 无可用快照\n")):
+                ok, d = chk_snapshot()
+            expect("H 负样本：rc=2 → 报「环境错误」而非「有差异」",
+                   ok is False and "环境错误" in d, d)
+            with with_sh(canned(1, "A scripts/ok.py 真源被改\nC x 副本被改\n")):
+                ok, d = chk_snapshot()
+            expect("H 负样本：三向比对命中 → 拦截且详情带 A/B/C 分类",
+                   ok is False and "A scripts/ok.py" in d, d)
+            with with_sh(canned(1, "无法归类的输出\n")):
+                ok, d = chk_snapshot()
+            expect("H 负样本：无 A/B/C 行时不崩、详情有兜底", ok is False and bool(d), d)
+            with with_sh(canned(0, "[PASS] 一致\n")):
+                ok, d = chk_snapshot()
+            expect("H 正样本：rc=0 → 通过且报出快照名",
+                   ok is True and "20260101-000000-x" in d, d)
+
+        # ── A 文档一致性（ctx 是否真的传进子命令）──────────────────
+        r = make(t, "a")
+        seen = {}
+
+        def sh_docs(cmd, cwd=None, timeout=None):
+            if "--count" in cmd:
+                return 0, "6\n"
+            seen["cmd"] = list(cmd)
+            return 0, "  [OK] 一致\n"
+
+        with at(r):
+            with with_sh(sh_docs):
+                ok, d = chk_docs({"regress": 56, "criteria": 41, "gates": 8})
+        got = " ".join(seen.get("cmd") or [])
+        expect("A 正样本：ctx 实测项数真的传给了文档校验（已配置≠被读取）",
+               ok is True and all(f"{k}={v}" in got for k, v in
+                                  (("regress", 56), ("criteria", 41),
+                                   ("gates", 8), ("handover", 6))), got[-90:])
+
+        with at(r):
+            with with_sh(canned(1, "  [A] 回归声明 50/56 与实测不符\n")):
+                ok, d = chk_docs({"regress": 56, "criteria": 41, "gates": 8})
+        expect("A 负样本：不一致 → 拦截并透出具体行（不是通用尾句）",
+               ok is False and "[A]" in d, d)
+
+        # ── 对外契约：8 项、字母 A–H、无重名 ───────────────────────
+        names = [n for n, _ in CHECKS]
+        letters = "".join(n.split()[0] for n in names)
+        expect("契约：门禁固定 8 项（8/8 是本文件的对外基线）",
+               len(CHECKS) == 8, f"实为 {len(CHECKS)} 项")
+        expect("契约：字母 A–H 连续且与名字首字母一致", letters == "ABCDEFGH", letters)
+        expect("契约：检查项名不重复", len(set(names)) == len(names))
+
+        # ── 聚合层：失败/异常/静默/环境错误 四条通道 ───────────────
+        def ok_stub():
+            return True, "1/1"
+
+        def bad_stub():
+            return False, "1/2 不一致"
+
+        def boom_stub():
+            raise RuntimeError("注入异常")
+
+        # 聚合用例与真实 info 脚本无关：给 sh 一个确定性桩，否则自检输出随环境漂移
+        INFO = json.dumps({"rule_layer_exists": True, "star": 0, "upgraded": 0,
+                           "pending": [], "stale": []})
+
+        r = make(t, "m")
+        with at(r), with_sh(canned(0, INFO)):
+            with with_checks([("A 甲", ok_stub), ("B 乙", ok_stub)]):
+                rc, out, err = run_main([])
+            expect("聚合：全通过 → exit 0", rc == 0 and "[PASS] 2/2" in out, out.strip()[-60:])
+
+            with with_checks([("A 甲", ok_stub), ("B 乙", bad_stub)]):
+                rc, out, err = run_main([])
+            expect("聚合：任一项失败 → exit 1 且点名该项", rc == 1 and "B 乙" in err,
+                   err.strip()[-60:])
+
+            with with_checks([("A 甲", boom_stub), ("B 乙", ok_stub)]):
+                rc, out, err = run_main([])
+            expect("聚合：单项抛异常 → 记该项失败而非整体崩（exit 1）",
+                   rc == 1 and "A 甲" in err, err.strip()[-60:])
+
+            with with_checks([("A 甲", ok_stub)]):
+                rc, out, err = run_main(["-q"])
+            expect("聚合：-q 只打结论，不刷明细",
+                   rc == 0 and "✅" not in out and "[PASS]" in out)
+
+        nopkg = t / "nopkg"
+        nopkg.mkdir()
+        with at(nopkg):
+            with with_checks([("A 甲", ok_stub)]):
+                rc, _, _ = run_main([])
+        expect("聚合：包目录缺失 → exit 2（环境错误，与「有失败项」区分）", rc == 2, f"rc={rc}")
+
+    print()
+    if fails:
+        print(f"[FAIL] 自检未通过：{len(fails)}/{n_ok + len(fails)} 项失败")
+        for f in fails:
+            print(f"  · {f}")
+        return 1
+    print(f"[PASS] 自检通过：{n_ok}/{n_ok} 项")
+    return 0
+
+
 def main():
     ap = argparse.ArgumentParser(description="发布前一键检查（只读）")
     ap.add_argument("-q", "--quiet", action="store_true")
+    ap.add_argument("--self-test", action="store_true",
+                    help="门禁自身自检（正负样本，临时目录内构造，不动真仓库）")
     args = ap.parse_args()
+
+    if args.self_test:
+        return self_test()
 
     if not PKG.is_dir():
         print(f"[ERR] 包目录缺失: {PKG}", file=sys.stderr)

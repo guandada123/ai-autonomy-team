@@ -25,7 +25,7 @@ help:
 	@echo ""
 	@echo "  日常："
 	@echo "    make test          全量回归（项数见输出，不在此写死）"
-	@echo "    make selftest      各脚本内置自检（闸门/开轮/八角/脱敏/推送）"
+	@echo "    make selftest      各脚本内置自检（闸门/开轮/八角/脱敏/推送/门禁）"
 	@echo "    make pre-push      推之前自查（历史密钥 + 远端是否 private）"
 	@echo "    make hooks         安装 git pre-push 钩子（本地文件，换机需重装）"
 	@echo "    make backup        本地备份（bundle + 快照归档，逐份还原验证）"
@@ -96,6 +96,9 @@ selftest:
 	@echo ""
 	@echo "── 决策链一致性自检 ──"
 	$(PY) $(SCRIPTS)/check_consistency.py --self-test
+	@echo ""
+	@echo "── 门禁自身自检（每个检查项都配正负样本，防「门禁假绿」）──"
+	$(PY) $(SCRIPTS)/pre_release_check.py --self-test
 	@echo "── 判据自检 + 全量门禁（内含全量回归，约 60 秒）──"
 	$(PY) $(SCRIPTS)/pre_release_check.py
 

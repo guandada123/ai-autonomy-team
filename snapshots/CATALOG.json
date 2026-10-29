@@ -3,9 +3,9 @@
  "_generated_by": "scripts/snapshot_sources.py --catalog",
  "count": {
   "in_git": 3,
-  "archived": 229,
+  "archived": 230,
   "missing": 0,
-  "total": 232
+  "total": 233
  },
  "snapshots": [
   {
@@ -1842,8 +1842,8 @@
   },
   {
    "name": "20261028-232350-测试体系审计",
-   "location": "snapshots",
-   "in_git": true,
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
    "label": "测试体系审计",
    "created_at": "2026-10-28T23:23:50",
    "file_count": 134
@@ -1862,6 +1862,14 @@
    "in_git": true,
    "label": "F7门禁扫描范围",
    "created_at": "2026-10-29T07:54:46",
+   "file_count": 134
+  },
+  {
+   "name": "20261029-080714-门禁自检固化",
+   "location": "snapshots",
+   "in_git": true,
+   "label": "门禁自检固化",
+   "created_at": "2026-10-29T08:07:14",
    "file_count": 134
   }
  ]

@@ -17,7 +17,9 @@
 ## 用法
 
     python3 scripts/snapshot_sources.py                  # 打快照 → snapshots/<ts>/（并保留最近 3 个）
-    python3 scripts/snapshot_sources.py --verify         # 对比最近快照，报告改动/新增/删除
+    python3 scripts/snapshot_sources.py --verify         # 三向比对：索引 ↔ 副本字节 ↔ 真源
+    python3 scripts/snapshot_sources.py --restore latest # 回滚 dry-run（校验副本完好，不写盘）
+    python3 scripts/snapshot_sources.py --restore latest --apply   # 确认后才写回真源
     python3 scripts/snapshot_sources.py --list           # 列出已有快照（含归档数量提示）
     python3 scripts/snapshot_sources.py --label 改口径   # 给快照加标签
     python3 scripts/snapshot_sources.py --no-prune       # 打完不清理（快照会持续累积）
@@ -36,7 +38,14 @@
 默认只保留最近 3 个，更早的**移动**（不删除）到 `_trash/snapshots-archive/`。
 归档不入库、本机可查，也可 `cp -R` 取回。
 
-退出码：0 成功 / 1 --verify 发现差异 / 2 环境错误
+退出码：0 成功 / 1 --verify 发现差异、--restore 因副本不完好被拒 / 2 环境错误
+
+## --verify 与 --restore（2026-10-28，F3）
+
+旧版只比「索引 vs 真源」，从不读副本字节：副本被删或被改时，它照样 PASS ——
+门禁 H 是假绿，且照它给的 `cp -R` 回滚会把坏字节盖到真源上。现改为三向比对，
+副本状态（缺失/被改/不可读）单独成类报告；回滚一律走 `--restore`（先校验后写、
+默认 dry-run、写后 readback），不再给出裸 `cp -R`。
 """
 import argparse
 import hashlib
@@ -73,10 +82,15 @@ def sha256_of(p):
     return h.hexdigest()
 
 
-def iter_sources():
-    """产出 (相对路径, 绝对路径)。"""
+def iter_sources(root=None):
+    """产出 (相对路径, 绝对路径)。
+
+    root 可注入：自检要在临时目录里造一个迷你仓库，不能用真仓库做污染实验
+    （自校验套件不得写它正在校验的资产）。
+    """
+    base_root = Path(root) if root is not None else ROOT
     for rel in SOURCES:
-        base = ROOT / rel
+        base = base_root / rel
         if not base.is_dir():
             continue
         for p in sorted(base.rglob("*")):
@@ -86,7 +100,7 @@ def iter_sources():
                 continue
             if any(part in SKIP_DIRS for part in p.parts):
                 continue
-            yield p.relative_to(ROOT).as_posix(), p
+            yield p.relative_to(base_root).as_posix(), p
 
 
 def safe_label(label):
@@ -123,14 +137,16 @@ def caller_info() -> dict:
     return info
 
 
-def snapshot(label=""):
+def snapshot(label="", snap_root=None, root=None):
+    base_root = Path(root) if root is not None else ROOT
+    sr = Path(snap_root) if snap_root is not None else SNAP_ROOT
     ts = datetime.now().strftime("%Y%m%d-%H%M%S")
     safe = safe_label(label)
     name = f"{ts}{('-' + safe) if safe else ''}"
-    dst = SNAP_ROOT / name
+    dst = sr / name
     dst.mkdir(parents=True, exist_ok=False)
     index = {}
-    for rel, p in iter_sources():
+    for rel, p in iter_sources(base_root):
         target = dst / rel
         target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copyfile(p, target)
@@ -140,7 +156,8 @@ def snapshot(label=""):
                     "label": label, "file_count": len(index), "files": index,
                     "caller": caller_info()},
                    ensure_ascii=False, indent=1), encoding="utf-8")
-    print(f"[OK] 快照 {name}：{len(index)} 个文件 → {dst.relative_to(ROOT)}")
+    print(f"[OK] 快照 {name}：{len(index)} 个文件 → "
+          f"{dst.relative_to(base_root) if dst.is_relative_to(base_root) else dst}")
     return dst
 
 
@@ -309,31 +326,179 @@ def latest():
     return dirs[-1] if dirs else None
 
 
-def verify():
-    snap = latest()
+def three_way(snap_dir, root=None):
+    """三向比对：索引记录 ↔ 快照副本的实际字节 ↔ 真源的实际字节。
+
+    ## 为什么必须有（2026-10-28，F3）
+
+    旧版 `verify()` 只比「索引 vs 真源」，**从不读副本一个字节**。实测后果：
+    删掉副本、或把副本内容改掉，`--verify` 照样 PASS ——
+    绿的只是「索引与真源一致」，而**回滚来源已经坏了却无人知晓**。
+    门禁 H 因此是假绿：它守的回滚路径在它绿着的时候就已经不可用，
+    防线反向变成攻击面（真出事时照着它给的命令回滚，会把坏字节盖到真源上）。
+
+    ## 三类差异（互不重叠，分别报告）
+
+    | 类 | 含义 | 谁坏了 |
+    |---|---|---|
+    | A `source_*` | 真源相对索引有变（改/增/删） | 真源动了（正常迭代，打新快照即可） |
+    | B `copy_missing` | 副本文件不在盘上 | 回滚来源缺件 |
+    | C `copy_corrupt` | 副本在，但哈希 ≠ 索引 | 回滚来源被污染 |
+
+    `source_vs_copy` 是诊断项（真源与副本直接对撞），用于识别「三方各一值」。
+    """
+    base_root = Path(root) if root is not None else ROOT
+    snap_dir = Path(snap_dir)
+    idx = json.loads((snap_dir / "_index.json").read_text(encoding="utf-8"))["files"]
+    cur = {rel: {"sha256": sha256_of(p), "bytes": p.stat().st_size}
+           for rel, p in iter_sources(base_root)}
+
+    source_changed = sorted(r for r in idx.keys() & cur.keys()
+                            if idx[r]["sha256"] != cur[r]["sha256"])
+    source_added = sorted(cur.keys() - idx.keys())
+    source_removed = sorted(idx.keys() - cur.keys())
+
+    copy_missing, copy_corrupt, copy_unreadable, src_vs_copy = [], [], [], []
+    for rel in sorted(idx):
+        cp = snap_dir / rel
+        if not cp.is_file():
+            copy_missing.append(rel)
+            continue
+        try:
+            csha = sha256_of(cp)
+        except OSError as e:
+            copy_unreadable.append((rel, type(e).__name__))
+            continue
+        if csha != idx[rel]["sha256"]:
+            copy_corrupt.append(rel)
+        if rel in cur and cur[rel]["sha256"] != csha:
+            src_vs_copy.append(rel)
+
+    return {"snapshot": snap_dir.name, "index_count": len(idx), "source_count": len(cur),
+            "source_changed": source_changed, "source_added": source_added,
+            "source_removed": source_removed,
+            "copy_missing": copy_missing, "copy_corrupt": copy_corrupt,
+            "copy_unreadable": copy_unreadable, "source_vs_copy": src_vs_copy,
+            "clean": not (source_changed or source_added or source_removed
+                          or copy_missing or copy_corrupt or copy_unreadable)}
+
+
+def _resolve_snap(target, snap_root=None):
+    sr = Path(snap_root) if snap_root is not None else SNAP_ROOT
+    if not sr.is_dir():
+        return None
+    dirs = sorted([d for d in sr.iterdir()
+                   if d.is_dir() and (d / "_index.json").is_file()])
+    if not dirs:
+        return None
+    if target in ("", "latest", "last"):
+        return dirs[-1]
+    for d in dirs:
+        if d.name == target:
+            return d
+    return None
+
+
+def verify(snap_root=None, root=None, quiet=False):
+    snap = _resolve_snap("latest", snap_root)
     if snap is None:
         print("[ERR] 无可用快照，先跑一次不带 --verify 的 snapshot_sources.py", file=sys.stderr)
         return 2
-    old = json.loads((snap / "_index.json").read_text(encoding="utf-8"))["files"]
-    cur = {rel: {"sha256": sha256_of(p), "bytes": p.stat().st_size} for rel, p in iter_sources()}
+    base_root = Path(root) if root is not None else ROOT
+    tw = three_way(snap, base_root)
 
-    changed = [k for k in old.keys() & cur.keys() if old[k]["sha256"] != cur[k]["sha256"]]
-    added = sorted(cur.keys() - old.keys())
-    removed = sorted(old.keys() - cur.keys())
+    def _line(tag, items, why):
+        print(f"  {tag} {len(items)}：" + ", ".join(items[:8]) + (" …" if len(items) > 8 else ""))
+        print(f"      → {why}")
 
-    print(f"[verify] 对比最近快照 {snap.name}（{len(old)} 文件）")
-    if not (changed or added or removed):
-        print("[PASS] 真源与快照完全一致")
+    if not quiet:
+        print(f"[verify] 三向比对 {snap.name}（索引 {tw['index_count']} 文件 / "
+              f"真源 {tw['source_count']} 文件）")
+    if tw["clean"]:
+        if not quiet:
+            print("[PASS] 索引 ↔ 副本 ↔ 真源 三方一致")
         return 0
-    if changed:
-        print(f"  修改 {len(changed)}：" + ", ".join(sorted(changed)[:8]))
-    if added:
-        print(f"  新增 {len(added)}：" + ", ".join(added[:8]))
-    if removed:
-        print(f"  删除 {len(removed)}：" + ", ".join(removed[:8]))
-    print("\n[FAIL] 真源已变动 —— 若为有意改动，请先打新快照再继续；若为意外，可从上快照回滚：")
-    print(f"  cp -R {snap.relative_to(ROOT)}/scripts/. scripts/")
+    if not quiet:
+        if tw["source_changed"] or tw["source_added"] or tw["source_removed"]:
+            _line("A 真源改动", tw["source_changed"] + tw["source_added"] + tw["source_removed"],
+                  "真源相对快照变了（正常迭代则打新快照）")
+        if tw["copy_missing"]:
+            _line("B 副本缺失", tw["copy_missing"],
+                  "回滚来源缺件 —— 这份快照已不能完整回滚")
+        if tw["copy_corrupt"]:
+            _line("C 副本被改", tw["copy_corrupt"],
+                  "副本字节与索引不符 —— 回滚来源被污染")
+        if tw["copy_unreadable"]:
+            _line("C 副本不可读", [f"{r}({e})" for r, e in tw["copy_unreadable"]],
+                  "副本存在但读不出来 —— 回滚来源不可用")
+        if tw["source_vs_copy"] and not (tw["copy_corrupt"] or tw["copy_missing"]):
+            _line("D 真源与副本互异", tw["source_vs_copy"], "两者都在，但字节不同")
+
+    if not quiet:
+        print("\n[FAIL] 若为有意改动，请先打新快照再继续；若要回滚，用带校验的 restore：")
+        print("  python3 scripts/snapshot_sources.py --restore latest            # 先看 dry-run")
+        print("  python3 scripts/snapshot_sources.py --restore latest --apply    # 确认后才写回")
     return 1
+
+
+def restore(target="latest", root=None, snap_root=None, apply=False, quiet=False):
+    """把快照副本写回真源。**默认 dry-run**，必须显式 --apply 才落盘。
+
+    为什么不再建议裸 `cp -R <快照>/scripts/. scripts/`：`cp` 不校验副本是否完好。
+    副本若已污染或缺件，裸 cp 会把坏字节盖到真源上 ——
+    回滚这个动作本身变成事故。故四道闸：
+      ① 写回前逐文件校验副本 sha == 索引记录；
+      ② 任一文件缺失/不符即**整体拒绝**（部分回滚会造出半新半旧的真源）；
+      ③ 默认 dry-run，`--apply` 才写；
+      ④ 写后 readback：真源 sha 必须等于索引（写了 ≠ 写对）。
+    """
+    sr = Path(snap_root) if snap_root is not None else SNAP_ROOT
+    snap = _resolve_snap(target, sr)
+    if snap is None:
+        print(f"[ERR] 找不到可用快照：{target}", file=sys.stderr)
+        return 2
+    base_root = Path(root) if root is not None else ROOT
+    tw = three_way(snap, base_root)
+
+    problems = [(r, "副本缺失") for r in tw["copy_missing"]]
+    problems += [(r, "副本哈希与索引不符") for r in tw["copy_corrupt"]]
+    problems += [(r, f"副本不可读({e})") for r, e in tw["copy_unreadable"]]
+    if problems:
+        if not quiet:
+            print(f"[REFUSE] 快照 {snap.name} 的副本不完整，拒绝回滚（{len(problems)} 处）：",
+                  file=sys.stderr)
+            for rel, why in problems[:10]:
+                print(f"  · {rel} —— {why}", file=sys.stderr)
+            if len(problems) > 10:
+                print(f"  · …另有 {len(problems) - 10} 处", file=sys.stderr)
+            print("  回滚来源本身已不可信；真源未被改动。", file=sys.stderr)
+        return 1
+
+    idx = json.loads((snap / "_index.json").read_text(encoding="utf-8"))["files"]
+    n_diff = (len(tw["source_changed"]) + len(tw["source_added"]) + len(tw["source_removed"]))
+    if not apply:
+        if not quiet:
+            print(f"[DRY-RUN] 快照 {snap.name}：{len(idx)} 个文件副本校验通过，可以回滚")
+            print(f"  真源当前与快照相差 {n_diff} 个文件；确认后加 --apply 才写回")
+        return 0
+
+    n = 0
+    for rel in sorted(idx):
+        dst = base_root / rel
+        dst.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(snap / rel, dst)
+        n += 1
+
+    after = three_way(snap, base_root)
+    bad = after["source_changed"] + after["source_removed"]
+    if bad:
+        print(f"[ERR] 写回后仍有 {len(bad)} 个文件与快照不一致：{bad[:5]}", file=sys.stderr)
+        return 1
+    if not quiet:
+        print(f"[OK] 已从 {snap.name} 回滚 {n} 个文件，写后校验通过")
+        if after["source_added"]:
+            print(f"  另有 {len(after['source_added'])} 个快照外的新文件保持不动（restore 不删文件）")
+    return 0
 
 
 def listing():
@@ -506,6 +671,108 @@ def self_test():
                "WARN" in _err.getvalue()
                and json.loads(bad_out.read_text(encoding="utf-8"))["count"]["total"] >= 1)
 
+        # ⑧ 三向比对与 restore（2026-10-28，F3）
+        #    真仓库不做污染实验，这里造迷你仓库：两份真源 + 一份快照。
+        def _mk(tag):
+            r = td / f"repo-{tag}"
+            (r / "scripts").mkdir(parents=True)
+            (r / "scripts" / "a.py").write_text("A\n", encoding="utf-8")
+            (r / "scripts" / "b.py").write_text("B\n", encoding="utf-8")
+            sr = td / f"snaps-{tag}"
+            sr.mkdir()
+            with contextlib.redirect_stdout(io.StringIO()):
+                snap = snapshot("t", snap_root=sr, root=r)
+            return r, sr, snap
+
+        def _quiet(fn, *a, **k):
+            with contextlib.redirect_stdout(io.StringIO()), \
+                 contextlib.redirect_stderr(io.StringIO()):
+                return fn(*a, **k)
+
+        # 正样本：三方一致
+        r, sr, snap = _mk("ok")
+        expect("三向：干净快照 → 三方一致", three_way(snap, r)["clean"] is True)
+        expect("三向：干净快照 → verify rc=0（正样本）",
+               _quiet(verify, snap_root=sr, root=r) == 0)
+
+        # 负样本 A：真源被改
+        r, sr, snap = _mk("src")
+        (r / "scripts" / "a.py").write_text("A-modified\n", encoding="utf-8")
+        tw = three_way(snap, r)
+        expect("三向：真源被改 → A 类命中", tw["source_changed"] == ["scripts/a.py"],
+               str(tw["source_changed"]))
+        expect("三向：真源被改时副本仍完好（B/C 不得误报）",
+               tw["copy_missing"] == [] and tw["copy_corrupt"] == [])
+
+        # 负样本 B：副本被删 —— 旧版 verify 在此假绿（只读索引，不读副本）
+        r, sr, snap = _mk("del")
+        # 用「移出」而非 unlink 造副本缺失：scripts 下禁止删除调用
+        # （回归第 20 项：删除的唯一去向是改名到 _trash/）。移出同样让副本不在盘上，
+        # 且可找回 —— 造场景不该顺手破坏项目纪律。
+        shutil.move(str(snap / "scripts" / "a.py"), str(td / "gone-del-a.py"))
+        tw = three_way(snap, r)
+        expect("三向：副本被删 → B 类命中", tw["copy_missing"] == ["scripts/a.py"],
+               str(tw["copy_missing"]))
+        expect("三向：副本被删 → verify rc=1（旧实现在此 PASS，即假绿）",
+               _quiet(verify, snap_root=sr, root=r) == 1)
+
+        # 负样本 C：副本被污染
+        r, sr, snap = _mk("cor")
+        (snap / "scripts" / "a.py").write_text("TAMPERED\n", encoding="utf-8")
+        tw = three_way(snap, r)
+        expect("三向：副本被污染 → C 类命中", tw["copy_corrupt"] == ["scripts/a.py"])
+        expect("三向：副本被污染但真源没动 → A 类不得命中", tw["source_changed"] == [])
+
+        # 负样本 D：三方全改
+        r, sr, snap = _mk("all")
+        (r / "scripts" / "a.py").write_text("NEW\n", encoding="utf-8")
+        shutil.move(str(snap / "scripts" / "a.py"), str(td / "gone-all-a.py"))
+        (snap / "scripts" / "b.py").write_text("TAMPER\n", encoding="utf-8")
+        tw = three_way(snap, r)
+        expect("三向：三方全改 → A/B/C 三类齐发",
+               tw["source_changed"] == ["scripts/a.py"]
+               and tw["copy_missing"] == ["scripts/a.py"]
+               and tw["copy_corrupt"] == ["scripts/b.py"], str(tw))
+
+        # restore 负样本：副本被污染 → 拒绝，且绝不能把坏字节写进真源
+        r, sr, snap = _mk("r-tamper")
+        (r / "scripts" / "a.py").write_text("LIVE\n", encoding="utf-8")
+        (snap / "scripts" / "a.py").write_text("TAMPER\n", encoding="utf-8")
+        expect("restore：副本被污染 → 拒绝（rc=1）",
+               _quiet(restore, "latest", root=r, snap_root=sr, apply=True) == 1)
+        expect("restore：拒绝时真源未被坏副本写坏",
+               (r / "scripts" / "a.py").read_text(encoding="utf-8") == "LIVE\n")
+
+        # restore 负样本：副本缺件 → 整体拒绝（防半新半旧）
+        r, sr, snap = _mk("r-missing")
+        shutil.move(str(snap / "scripts" / "b.py"), str(td / "gone-rmiss-b.py"))
+        (r / "scripts" / "a.py").write_text("LIVE2\n", encoding="utf-8")
+        expect("restore：副本缺件 → 整体拒绝（rc=1）",
+               _quiet(restore, "latest", root=r, snap_root=sr, apply=True) == 1)
+        expect("restore：缺件拒绝时真源同样未被改动",
+               (r / "scripts" / "a.py").read_text(encoding="utf-8") == "LIVE2\n")
+
+        # restore 负样本：默认 dry-run 不写盘
+        r, sr, snap = _mk("r-dry")
+        (r / "scripts" / "a.py").write_text("CHANGED\n", encoding="utf-8")
+        expect("restore：默认 dry-run → rc=0 但真源不动",
+               _quiet(restore, "latest", root=r, snap_root=sr) == 0
+               and (r / "scripts" / "a.py").read_text(encoding="utf-8") == "CHANGED\n")
+
+        # restore 正样本：干净副本 + --apply → 写回且 readback 通过
+        expect("restore：干净副本 + --apply → rc=0（正样本）",
+               _quiet(restore, "latest", root=r, snap_root=sr, apply=True) == 0)
+        expect("restore：写后真源 == 快照（readback 校验）",
+               (r / "scripts" / "a.py").read_text(encoding="utf-8") == "A\n")
+        expect("restore：回滚后再 verify → rc=0",
+               _quiet(verify, snap_root=sr, root=r) == 0)
+
+        # restore 负样本：目标不存在 / 无快照 → rc=2（环境错误，与"拒绝"区分）
+        expect("restore：目标快照不存在 → rc=2",
+               _quiet(restore, "no-such-snapshot", root=r, snap_root=sr, apply=True) == 2)
+        expect("verify：无快照目录 → rc=2",
+               _quiet(verify, snap_root=td / "no-such-dir", root=r) == 2)
+
     print()
     if fails:
         print(f"[FAIL] 自检未通过：{len(fails)}/{n_ok + len(fails)} 项失败")
@@ -518,7 +785,12 @@ def self_test():
 
 def main():
     ap = argparse.ArgumentParser(description="真源快照 / 差异核验")
-    ap.add_argument("--verify", action="store_true", help="对比最近快照")
+    ap.add_argument("--verify", action="store_true",
+                    help="三向比对（索引 ↔ 副本字节 ↔ 真源）")
+    ap.add_argument("--restore", nargs="?", const="latest", default=None, metavar="NAME",
+                    help="把快照副本写回真源（默认 latest；先 dry-run，加 --apply 才写）")
+    ap.add_argument("--apply", action="store_true",
+                    help="配合 --restore：真正写回（默认只 dry-run）")
     ap.add_argument("--list", action="store_true", help="列出已有快照")
     ap.add_argument("--label", default="", help="给快照加标签（如：改口径）")
     ap.add_argument("--mirror", default="", metavar="DIR",
@@ -540,6 +812,11 @@ def main():
     if not (ROOT / "scripts").is_dir():
         print(f"[ERR] 目录缺失: {ROOT / 'scripts'}", file=sys.stderr)
         return 2
+    if args.apply and args.restore is None:
+        print("[ERR] --apply 只在 --restore 时有意义", file=sys.stderr)
+        return 2
+    if args.restore is not None:
+        return restore(args.restore, apply=args.apply)
     if args.list:
         return listing()
     if args.mirror:
