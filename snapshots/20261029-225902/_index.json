@@ -1,5 +1,5 @@
 {
- "created_at": "2026-10-29T22:54:04",
+ "created_at": "2026-10-29T22:59:02",
  "label": "",
  "file_count": 368,
  "files": {
@@ -1424,8 +1424,8 @@
    "bytes": 2179
   },
   ".learnings/L-0038-打印进程参数前必须过滤凭据.md": {
-   "sha256": "93206f9ae14c6b5bed6db92aa500d6ab70d09406165aa8857c134ad15e08df14",
-   "bytes": 2258
+   "sha256": "e39296aff10fb2fa7d8e5dd3b49c859fa34df6dffb64fc7a556b921f1a3d5ece",
+   "bytes": 3355
   },
   ".github/workflows/selftest.yml": {
    "sha256": "893c6a49f1dba12a21eab68aa70321572c78730e5985acc00c73753938a83b2f",
@@ -1477,8 +1477,8 @@
   }
  },
  "caller": {
-  "pid": 23927,
-  "ppid": 23925,
+  "pid": 28162,
+  "ppid": 28160,
   "parent_cmd": "/Library/Developer/CommandLineTools/usr/bin/make snapshot"
  }
 }
