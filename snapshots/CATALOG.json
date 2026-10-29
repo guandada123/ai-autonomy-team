@@ -3,9 +3,9 @@
  "_generated_by": "scripts/snapshot_sources.py --catalog",
  "count": {
   "in_git": 3,
-  "archived": 251,
+  "archived": 252,
   "missing": 0,
-  "total": 254
+  "total": 255
  },
  "snapshots": [
   {
@@ -2018,8 +2018,8 @@
   },
   {
    "name": "20261029-172333-对话审计",
-   "location": "snapshots",
-   "in_git": true,
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
    "label": "对话审计",
    "created_at": "2026-10-29T17:23:33",
    "file_count": 364
@@ -2038,6 +2038,14 @@
    "in_git": true,
    "label": "审计修复落地",
    "created_at": "2026-10-29T18:04:45",
+   "file_count": 364
+  },
+  {
+   "name": "20261029-180920-a48ac7e结案",
+   "location": "snapshots",
+   "in_git": true,
+   "label": "a48ac7e结案",
+   "created_at": "2026-10-29T18:09:21",
    "file_count": 364
   }
  ]

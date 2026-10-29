@@ -1,6 +1,6 @@
 {
- "created_at": "2026-10-29T17:23:33",
- "label": "对话审计",
+ "created_at": "2026-10-29T18:09:21",
+ "label": "a48ac7e结案",
  "file_count": 364,
  "files": {
   "scripts/build_package.py": {
@@ -548,8 +548,8 @@
    "bytes": 7350
   },
   "audit/AUDIT-20261029-对话全程审计.md": {
-   "sha256": "3a69fb9a760bc0801345c0e31eefe7bcf29e3351dcbb998eb36c31b629a186d2",
-   "bytes": 9038
+   "sha256": "bb9456ee84d7ebbe59238cc9c27fa74ee19b7b50e555f7fbceced99515810b8d",
+   "bytes": 9333
   },
   "audit/CODE-REVIEW-20261028-对话代码变更审查.md": {
    "sha256": "4d8601112019ce823c4ba54b22bb3f3fc3e08d3414f7912d85e631e1610e5ae5",
@@ -1428,8 +1428,8 @@
    "bytes": 3
   },
   "tools/coverage_gate.sh": {
-   "sha256": "c7ca78294960790870fdf6fe03bfa7aec18d3bea2ede35b93483aa84e42db322",
-   "bytes": 1157
+   "sha256": "24a575225e512513d0a4edc313feda119d8ea9404701021f58d23fba2b53daa1",
+   "bytes": 2896
   },
   "tools/coverage_run.sh": {
    "sha256": "1e49a55fdc3bcd9f60a39a3c7b72ecde984db67089a475fed41720adf6e3590a",
@@ -1440,8 +1440,8 @@
    "bytes": 923
   },
   "Makefile": {
-   "sha256": "3b36bc9e9957c0e3d598769db5287d871082a7e1782d05c9122c1769ee28cc7b",
-   "bytes": 11869
+   "sha256": "824c35ebf2b56e82bbaab22afb97bb745a9f94d134b8bcd288b12227951716e3",
+   "bytes": 12628
   },
   "README.md": {
    "sha256": "1428e6f00374bcf74d6d035dd7e06acaec436cc8910a67ca6f76138f057c864b",
@@ -1461,8 +1461,8 @@
   }
  },
  "caller": {
-  "pid": 15474,
-  "ppid": 15307,
-  "parent_cmd": "/bin/zsh -c . '/Users/guan/.workbuddy/shell-snapshots/snapshot-zsh-1793265278247-ctwvu5.sh' && if [ -n \"${CODEBUDDY_SAFE_DELETE_BIN_DIR:-}\" ]; then unalias rm unlink rmdir 2>/dev/null || true; unset -"
+  "pid": 44837,
+  "ppid": 44835,
+  "parent_cmd": "/bin/zsh -c . '/Users/guan/.workbuddy/shell-snapshots/snapshot-zsh-1793268449426-ruhv2y.sh' && if [ -n \"${CODEBUDDY_SAFE_DELETE_BIN_DIR:-}\" ]; then unalias rm unlink rmdir 2>/dev/null || true; unset -"
  }
 }
