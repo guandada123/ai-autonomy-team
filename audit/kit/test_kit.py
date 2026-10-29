@@ -1507,6 +1507,64 @@ def _():
         assert report["changed_under_allow"] == [], report    # allow 域只对照不判定
 
 
+@check("check_docs_consistency: G 类正文裸计数禁区（正样本必拦／负样本必放）")
+def _():
+    import importlib.util
+    spec = importlib.util.spec_from_file_location(
+        "cdc_ut", ROOT / "scripts/check_docs_consistency.py")
+    cdc = importlib.util.module_from_spec(spec)
+    sys.modules["cdc_ut"] = cdc
+    spec.loader.exec_module(cdc)
+    with tempfile.TemporaryDirectory() as td:
+        d = Path(td)
+        # 正样本：四种裸计数都必须被拦（对应 2026-10-29 审计 P0 的四条真实错法）
+        bad = d / "交接摘要-bad.md"
+        bad.write_text(
+            "| kit 自测 | **75/75 通过** |\n"
+            "（20 bundle + 12 tar，约 885 MB）\n"
+            "| `_trash` 唯一副本 | 254 目录 |\n"
+            "（254 个历史快照，138 个 git 里没有）\n"
+            "自检总量约 388 项\n",
+            encoding="utf-8")
+        probs = []
+        n = cdc.check_forbidden_counts(probs, docs=[bad])
+        assert n >= 4 and len(probs) >= 4, (n, probs)
+        assert all(k == "G" for k, _, _ in probs), probs
+        assert any("kit 自测" in w for _, w, _ in probs), probs
+        assert any("目录" in w or "快照" in w for _, w, _ in probs), probs
+
+        # 负样本：指向生成块 / 带时点 / 历史叙述句，一律放行（否则检查变成"什么都拦"）
+        good = d / "交接摘要-good.md"
+        good.write_text(
+            "| kit 自测 | 全通过（项数以文末生成块为准） |\n"
+            "（21 bundle + 13 tar，约 1003 MB；10-29 22:36 实测）\n"
+            "| `_trash` 唯一副本 | 258 目录（10-29 22:36 实测） |\n"
+            "其后 kit 自测 64→75→**83**（diff 记录）\n",
+            encoding="utf-8")
+        probs2 = []
+        cdc.check_forbidden_counts(probs2, docs=[good])
+        assert not probs2, f"负样本被误报：{probs2}"
+
+        # 变异击破①：把「时点豁免」写坏 → 带时点的负样本必须变红（证明豁免真的在起作用）
+        saved = cdc.STAMP_RE
+        cdc.STAMP_RE = cdc.re.compile(r"(?!)")            # 永不匹配 = 时点豁免失效
+        try:
+            probs3 = []
+            cdc.check_forbidden_counts(probs3, docs=[good])
+            assert probs3, "变异未被击破：时点豁免失效后，带时点的裸计数仍被放行"
+        finally:
+            cdc.STAMP_RE = saved
+        # 变异击破②：删掉 2 个禁用模式 → 正样本必须漏拦（证明模式表是承重的）
+        saved_pats = cdc.FORBIDDEN_PATTERNS
+        cdc.FORBIDDEN_PATTERNS = saved_pats[:2]
+        try:
+            probs4 = []
+            cdc.check_forbidden_counts(probs4, docs=[bad])
+            assert len(probs4) < len(probs), "变异未被击破：删掉模式后命中数没减少"
+        finally:
+            cdc.FORBIDDEN_PATTERNS = saved_pats
+
+
 # ── 运行器 ───────────────────────────────────────────────────────────────
 
 def main() -> int:

@@ -104,6 +104,9 @@ selftest:
 	@echo "── 交接摘要数字生成器自检（emit/check 往返）──"
 	$(PY) $(SCRIPTS)/handover_facts.py --self-test
 	@echo ""
+	@echo "── 脱敏工具自检（Bearer / token= / URL 凭据 / 幂等）──"
+	$(PY) $(SCRIPTS)/mask_secrets.py --self-test
+	@echo ""
 	@echo ""
 	@echo "── 回归运行保障自检（超时 / 进程组 / scratch 隔离 / 防回退）──"
 	$(PY) $(SCRIPTS)/regress.py --self-test

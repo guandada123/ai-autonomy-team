@@ -79,6 +79,20 @@ PAIR_MARKERS = [
     (re.compile(r"接手自检|handover"), "handover"),
 ]
 
+# G 项豁免判据（提为模块常量：自检要能「写坏它」证明豁免真的在起作用）
+HIST_RE = re.compile(r"原始|原为|审计时|对齐前|此前|当时|→")
+STAMP_RE = re.compile(r"\d{2}-\d{2}[ T]\d{2}:\d{2}")     # 时点标注：10-29 22:36
+
+# G 项规则：交接摘要正文不得出现「裸易变计数」（判据与豁免见 check_forbidden_counts）
+FORBIDDEN_PATTERNS = [
+    (re.compile(r"kit 自测\s*\|?\s*\**\s*\d+\s*/\s*\d+"), "kit 自测配对计数"),
+    (re.compile(r"kit 自测 \d+ 项"), "kit 自测单项计数"),
+    (re.compile(r"\d+ bundle \+ \d+ tar"), "备份产物计数"),
+    (re.compile(r"\d+\+? 个历史快照"), "_trash 快照计数"),
+    (re.compile(r"唯一副本\s*\|\s*\**\s*\d+\+?\s*目录"), "_trash 目录计数"),
+    (re.compile(r"约 \d+ 项"), "聚合总数声明"),
+]
+
 
 def load_json(p):
     try:
@@ -296,6 +310,49 @@ def check_generated_blocks(problems):
     return n
 
 
+def check_forbidden_counts(problems, docs=None):
+    """G. 正文易变计数禁区：交接摘要正文不得出现「裸计数」。
+
+    ★ 2026-10-29 审计 P0-1 的根治。背景：交接摘要正文写死「kit 自测 75/75」，
+      实际已 83；而本脚本的 D/E 类只扫 STATUS_DOCS（README/ARCHITECTURE/DEPENDENCIES），
+      F 类只校验生成块 —— 正文是纯盲区，于是同一根因一天内复发三次。
+
+    判据不是「把正文也纳入比对」（那要维护第二套真源），而是：
+      **易变计数要么带时点（`10-29 22:36 实测`），要么指向生成块**，否则就是裸数字 →
+      明天必过期 → 报红，逼作者改成"项数以文末生成块为准"。
+
+    允许的两种写法（负样本，不得误报）：
+      | kit 自测 | 全通过（项数以文末生成块为准） |
+      （21 bundle + 13 tar，约 1003 MB；10-29 22:36 实测，复算 …）
+    历史叙述句（含 → / 原始 / 当时 等）一律跳过 —— 与 A/D/E 类同一口径。
+    """
+    if docs is not None:
+        targets = list(docs)
+    else:
+        # 只扫**当前**交接摘要（文件名日期最大者）：被取代的旧摘要属时点文件，
+        # 与审计记录同理，永不回写、也不受本项约束。
+        all_docs = sorted(DOCS.glob("交接摘要-*.md"))
+        targets = all_docs[-1:] if all_docs else []
+    checked = 0
+    for p in targets:
+        p = Path(p)
+        try:
+            text = p.read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            continue
+        for lineno, line in enumerate(text.splitlines(), 1):
+            for rx, label in FORBIDDEN_PATTERNS:
+                if not rx.search(line):
+                    continue
+                checked += 1
+                if HIST_RE.search(line) or STAMP_RE.search(line):
+                    continue                                     # 历史句 / 带时点 → 放行
+                problems.append(
+                    ("G", f"{p.name}:{lineno} 正文裸{label}",
+                     "易变计数必须带时点（如 10-29 22:36 实测）或指向文末 handover-facts 生成块"))
+    return checked
+
+
 def main():
     ap = argparse.ArgumentParser(description="文档与磁盘一致性校验（只读）")
     ap.add_argument("--strict", action="store_true", help="存在不一致时 exit 1（CI 用）")
@@ -326,6 +383,7 @@ def main():
     d = check_count_claims(problems)
     e = check_paired_counts(problems, expects)
     f = check_generated_blocks(problems)
+    g = check_forbidden_counts(problems)
 
     if not args.quiet:
         print("[check_docs_consistency] 文档 ↔ 磁盘一致性")
@@ -335,6 +393,7 @@ def main():
         print(f"  D. 计数声明        : 校验 {d} 处")
         print(f"  E. 配对计数        : 校验 {e} 处" + ("" if expects else "（未传 --expect，已跳过）"))
         print(f"  F. 生成块          : 校验 {f} 处")
+        print(f"  G. 正文裸计数禁区  : 命中 {g} 处（带时点或指向生成块者放行）")
         print()
 
     if problems:
@@ -348,8 +407,9 @@ def main():
         if "F" in kinds:
             print("[F 类可自动修复] python3 scripts/handover_facts.py --emit docs/交接摘要-20261029.md",
                   file=sys.stderr)
-        if kinds & {"B", "C", "D", "E"}:
-            print("[B/C/D/E 类需人工] B=索引行数，C=契约版本，D=计数声明，E=配对计数，\n"
+        if kinds & {"B", "C", "D", "E", "G"}:
+            print("[B/C/D/E/G 类需人工] B=索引行数，C=契约版本，D=计数声明，E=配对计数，\n"
+                  "G=正文裸计数（改成「以文末生成块为准」或补时点）；\n"
                   "除 B 需重跑索引外，其余一律改文档数字去匹配实跑结果，别反过来凑",
                   file=sys.stderr)
         if args.strict:

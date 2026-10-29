@@ -3,9 +3,9 @@
  "_generated_by": "scripts/snapshot_sources.py --catalog",
  "count": {
   "in_git": 3,
-  "archived": 260,
+  "archived": 264,
   "missing": 0,
-  "total": 263
+  "total": 267
  },
  "snapshots": [
   {
@@ -2090,27 +2090,59 @@
   },
   {
    "name": "20261029-201341",
-   "location": "snapshots",
-   "in_git": true,
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
    "label": "",
    "created_at": "2026-10-29T20:13:41",
    "file_count": 366
   },
   {
    "name": "20261029-223714",
-   "location": "snapshots",
-   "in_git": true,
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
    "label": "",
    "created_at": "2026-10-29T22:37:14",
    "file_count": 367
   },
   {
    "name": "20261029-223741",
-   "location": "snapshots",
-   "in_git": true,
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
    "label": "",
    "created_at": "2026-10-29T22:37:42",
    "file_count": 367
+  },
+  {
+   "name": "20261029-225243",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "",
+   "created_at": "2026-10-29T22:52:43",
+   "file_count": 368
+  },
+  {
+   "name": "20261029-225404",
+   "location": "snapshots",
+   "in_git": true,
+   "label": "",
+   "created_at": "2026-10-29T22:54:04",
+   "file_count": 368
+  },
+  {
+   "name": "20261029-225505",
+   "location": "snapshots",
+   "in_git": true,
+   "label": "",
+   "created_at": "2026-10-29T22:55:05",
+   "file_count": 368
+  },
+  {
+   "name": "20261029-225531",
+   "location": "snapshots",
+   "in_git": true,
+   "label": "",
+   "created_at": "2026-10-29T22:55:32",
+   "file_count": 368
   }
  ]
 }
