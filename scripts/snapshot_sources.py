@@ -75,7 +75,7 @@ ARCHIVE_ROOT = ROOT / "_trash" / "snapshots-archive"
 #   H 项对它们零约束（F6 实测：一次改了 12 个文件，只有 5 个被 H 约束）。
 #   outputs/ 是机器产出、runs/ 是业务数据，均刻意不入快照（真源 = 可执行代码 + 判据 + 决策 + 文档）。
 SOURCES = ["scripts", "docs/protocol", "docs/decisions", "templates",
-           "audit", ".learnings", ".github/workflows"]
+           "audit", ".learnings", ".github/workflows", "tools"]
 # 根级单文件（SOURCES 只支持目录，单文件走这里）
 ROOT_FILES = ["Makefile", "README.md", "ARCHITECTURE.md", "DEPENDENCIES.md", "M4-接续指南.md"]
 SKIP_SUFFIX = {".pyc", ".bak"}

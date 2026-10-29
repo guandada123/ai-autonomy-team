@@ -1,6 +1,6 @@
 {
- "created_at": "2026-10-29T11:23:38",
- "label": "审计行恢复",
+ "created_at": "2026-10-29T14:45:11",
+ "label": "",
  "file_count": 357,
  "files": {
   "scripts/build_package.py": {
@@ -552,8 +552,8 @@
    "bytes": 12762
   },
   "audit/TEST-AUDIT-20261028.md": {
-   "sha256": "999dec29a98f0b9ab298ec9395ca5ea2146bdc59e8d666680ac7b2dae37188e7",
-   "bytes": 18551
+   "sha256": "52254449ea1b30613e0fc7aa7bcdd25a8dd3bbb89346de4a9084d15a0050f65a",
+   "bytes": 20367
   },
   "audit/baseline/PROTOCOL-席位禁读边界-v1.md": {
    "sha256": "cd50dbf0dc2e222f6d1cfd85bb53c52b363f5783de32a0b7878c800f0d5d2b52",
@@ -1252,8 +1252,8 @@
    "bytes": 3156
   },
   "audit/kit/test_kit.py": {
-   "sha256": "7840f9ea67d5943eac23f7bd867b176d73c5abdf199a16be4f22964b5b1f8688",
-   "bytes": 19719
+   "sha256": "4297752b0320e71e9195a87df50789cb0bf5b92d99d0483ab67e34d2eafa868d",
+   "bytes": 32374
   },
   "audit/probes/premise/spec-cases.json": {
    "sha256": "d552c79e28bd10e2b02f776f31f49df6b24cce34618e8d489214d93d29cded41",
@@ -1412,8 +1412,8 @@
    "bytes": 1528
   },
   "Makefile": {
-   "sha256": "0f099fcf1f09c463ac13c6d76c8c2e683361cf559eb690d7a2fc7d9dc700b7ec",
-   "bytes": 11848
+   "sha256": "3b36bc9e9957c0e3d598769db5287d871082a7e1782d05c9122c1769ee28cc7b",
+   "bytes": 11869
   },
   "README.md": {
    "sha256": "1428e6f00374bcf74d6d035dd7e06acaec436cc8910a67ca6f76138f057c864b",
@@ -1433,8 +1433,8 @@
   }
  },
  "caller": {
-  "pid": 89771,
-  "ppid": 89768,
-  "parent_cmd": "/bin/zsh -c . '/Users/guan/.workbuddy/shell-snapshots/snapshot-zsh-1793243766888-exvh1o.sh' && if [ -n \"${CODEBUDDY_SAFE_DELETE_BIN_DIR:-}\" ]; then unalias rm unlink rmdir 2>/dev/null || true; unset -"
+  "pid": 8009,
+  "ppid": 8008,
+  "parent_cmd": "/Library/Developer/CommandLineTools/usr/bin/make snapshot"
  }
 }

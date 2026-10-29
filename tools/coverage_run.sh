@@ -44,7 +44,13 @@ make selftest
 
 echo
 echo "── 合并子进程数据 ──"
-"$COV_PY" -m coverage combine "$DATA_DIR"
+# ★ 2026-10-29：combine/report 必须显式带 --rcfile（rc 在 tools/ 下、不在 cwd，
+#   不带的话 [report]/[paths] 两段从未生效 —— omit 恰好在采集期生效才没露馅）。
+"$COV_PY" -m coverage combine --rcfile="$ROOT/tools/.coveragerc" "$DATA_DIR"
 BASE=$(basename "$ROOT")
-"$COV_PY" -m coverage report \
-    --include="*/$BASE/scripts/*,*/$BASE/migration-package/*"
+# ★ 2026-10-29：scripts/metrics.py 与 scripts/fsutil.py 是包内同构副本的镜像，
+#   [paths] 按文件映射无效（见 .coveragerc 注释），报告期直接省略，
+#   以包内副本（真正被执行的份）为准，避免 38% 的假低分行。
+"$COV_PY" -m coverage report --rcfile="$ROOT/tools/.coveragerc" \
+    --include="*/$BASE/scripts/*,*/$BASE/migration-package/*" \
+    --omit="*/scripts/metrics.py,*/scripts/fsutil.py"

@@ -27,8 +27,8 @@
 | 判据自检 | `judges/verify.py --self-test` | 27 | 门禁 C |
 | 脚本自检 | `make selftest` 聚合 | new_round 33 / octagon 46 / redact 5 / pre_push 18 / make_backup **10** / test_kit **35** | CI / 手动 |
 | 快照自检 | `snapshot_sources --self-test` | 17（仅 prune+catalog） | 仅手动 |
-| 实验判分 | `audit/kit/test_kit.py` 35 项 + `paired_compare` 冻结自校验 | — | 仅 selftest |
-| 覆盖率 | `make coverage`（tools/coverage_run.sh） | 10-23 基线 73%（已过期 5 天，回归 51→56） | 仅手动 |
+| 实验判分 | `audit/kit/test_kit.py`（项数以脚本自报为准，10-29 时点 **53** 项）+ `paired_compare` 冻结自校验 | — | 仅 selftest |
+| 覆盖率 | `make coverage`（tools/coverage_run.sh） | **10-29 重测：TOTAL 70%**（9106 语句）。与 10-23 的 73% 不可直接比：期间代码净增（F3/F7/F8 的自检代码本身占数百行）。低分文件：verify_handover 22%、pre_push_scan 34%、seat_check/scripts 副本 38%、metrics/scripts 副本 38%（后两者与包内副本是同一模块被分开学）| 仅手动 |
 
 **零测试触达的 scripts**：canon.py、field_provenance.py、fsutil.py、inspect_agent_routing.py（文档声明人工）、夹具生成器 ×3、real_recon.py、team_metrics.py、sync_doc_numbers.py（均为合理豁免或间接覆盖；**夹具生成器无自检**意味着"夹具坏了"只能靠下游判据间接暴露）。
 
@@ -117,6 +117,10 @@ Phase 1 未逐条清点 octagon/redact_report/pre_push_scan/new_round 内部项�
 | F8 新旧对照 | ✅ 已实证 | 同场对照：旧实现（HEAD）3 并发 → **3/3 全红**（红在第 11/46/49/52 项）；新实现 3 并发 → **3/3 全绿**，各自独立 run 目录 |
 | **F6**（P2） | ✅ 已实施 | 活表面计数/时长声明与实测对齐，共 **23 处 / 12 文件**：README 1、ARCHITECTURE 6（含「约 60 秒」时长声明 → 实测本地 7s / CI 全程 17s）、M4-接续指南 4（含 50–56 项沿革补全）、Makefile 2（kit-test 30→**38** 项、60 秒→15 秒）、CI 步骤名 1（50→**56** 项）、make_transfer 1、pre_release_check docstring 1、regress docstring/argparse/注释 3、check_docs_consistency 示例 2、verify_handover 判据表 1、包内 README 1（已重建 MANIFEST）。**方法**：先全库清点「声明数 vs 实测数」对表再改，每处替换带命中断言。**刻意不动**：docs/ 下带日期的历史记录（审计/交接/发布说明里的 50/50），按「不回溯改判」（D-0057）保留；回归项号类注释（第 50/54 项等）是真实项号，非漂移 |
 | **H 快照覆盖盲区**（F8 后新发现） | ✅ 已实施 | `SOURCES` 从 4 个目录扩到 7（+`audit/`、`.learnings/`、`.github/workflows`）+ 根级单文件 `Makefile/README/ARCHITECTURE/DEPENDENCIES/M4-接续指南`（`iter_sources` 支持文件项）。依据：F6 一次改 12 个文件只有 5 个被 H 约束。自检 36 → **39 项**（+3：索引含根文件与 audit、防回退契约、根文件/audit 被改 → A 类命中——旧范围在此**假绿**），变异「把 audit 移出 SOURCES」被 3 条红灯击破。快照 134 → **357 文件 / 2.4MB**；生效证据：改 `ARCHITECTURE.md` 后 H 当场红（旧范围下永不红）。ARCHITECTURE §四同步改写（旧段落连"理由"一起过期） |
+| **F4**（P1-3） | ✅ 已实施 | item_gate 补行为测试 **8 条**（全走真实 CLI + 临时目录夹具）：单席 acc=0.750 钉死 resolve 单票语义（历史事故 0.500→0.000 的方向）、三席 2/3 多数票 0.750≠unanimity、--as-repeat 的 pass^1/pass^k 分算 + 自稳分支、饱和/全错/常数胜出三条 FAIL 路、非法 `--arm` 拒绝、--json 通道。**教训**：单臂永远过不了准入闸（对题=饱和、错题=全错），PASS 用例必须双臂；夹具作答格式必须与真实基线一致（`{题: {"verdict": …}}`，字符串值=未作答）。test_kit 38 → **53** 项 |
+| **F9**（P2） | ✅ 已实施 | 守夜脚本告警侧补 **4 条**：PASS 正样本（报告在且含日期）、冒名报告转入缺失分支复检、**FAIL 分支 → exit 2 → alert() 真实执行**（webhook 指向必失败地址，断言「告警发送失败」落日志且不吞异常、LOG 落盘）、无 webhook 降级路径。check_c1/c2/c3 打桩（C2 判据活性已由回归第 54 项合成 runs 实测），本组测的是 main 的分发与告警通道 |
+| **F10**（P2） | ✅ 已实施 | ①grade 负样本 3 条：作答非 dict 不崩溃、summarize 缺 falsification 的题**不计分母**（n 缩小而非虚低均分）、danger 方向钉死（风险关键词命中≠危险）。②baseline 进门禁 compile：**已由门禁 C 天然满足**（`audit/**/*.py` glob 覆盖 baseline 下 12 个 .py，实测全可 compile），无需新增 |
+
 | 新发现计数漂移 | ⬜ 待 F6 | Makefile help 文本「kit-test（30 项）」实为 **38** 项 —— 第 5 处漂移，留给 F6 与其余 4 处统一修，不在此轮夹带 |
 | **门禁自检**（R2 补，原「新发现盲区」） | ✅ 已实施 | `pre_release_check.py --self-test` **43 项**，全部在 `TemporaryDirectory` 假仓库内构造（不碰真源）。8 个检查项逐项配正负样本：E（4 目录各藏密钥）、G（顶层/子目录/根级/豁免面未扩大）、F（缺失/未建标注/根级范围）、D（缺文件/count 不符/字段名回退历史 bug）、B（55/56、EXIT=1、输出不可解析）、C（40/41、不可解析、audit 语法错）、H（无目录/空目录/rc=2 语义/三向命中/兜底/rc=0）、A（ctx 四项 --expect 真传下去、失败透出具体行）。另加契约 3 项（固定 8 项 / 字母 A–H / 无重名）与聚合 5 项（exit 0、exit 1 点名、单项抛异常不整体崩、`-q` 不刷明细、包目录缺失 exit 2）。**已收编进 `make selftest`**（全量 11s，rc=0） |
 | 门禁自检可证伪性 | ✅ 已验证 | **函数级注入 8/8 全被击破**（8 个 `chk_*` 逐个改成「永远通过」，红灯数 2–6 条不等，exit 均为 1）；**源码级变异 6/6 全被击破**（M1 删 `audit/` 扫描范围、M2 G 退回顶层非递归、M3 聚合不记失败、M4 `rc=2` 分支失效、M5 `chk_regress` 恒返回 True、M6 MANIFEST 读回历史字段 `bytes`），对照组（未变异副本）仍绿 |

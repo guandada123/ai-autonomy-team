@@ -1,0 +1,24 @@
+[run]
+# 每个子进程写自己的数据文件，最后 combine（关键：父进程不追踪子进程）
+parallel = true
+omit =
+    */snapshots/*
+    */.bak*
+    */__pycache__/*
+
+[report]
+sort = Stmts
+skip_empty = false
+exclude_lines =
+    pragma: no cover
+    if __name__ == .__main__.:
+
+[paths]
+# scripts/ 与 migration-package/ 下的 judges/ 副本是同一模块（build_package 逐字节复制）。
+# ★ [paths] 只对「目录前缀」生效：alias 会编译成带尾部分隔符的正则，
+#   对单个 .py 文件（路径末尾没有 /）永远不匹配 —— 别试图按文件映射。
+# 首行 = 规范路径（合并后显示的名字），其后是各前缀。
+same_module =
+    migration-package/judges/
+    migration-package/judges/
+    scripts/judges/

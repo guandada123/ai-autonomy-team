@@ -28,7 +28,7 @@
 | 脚本自检 | `make selftest` 聚合 | new_round 33 / octagon 46 / redact 5 / pre_push 18 / make_backup **10** / test_kit **35** | CI / 手动 |
 | 快照自检 | `snapshot_sources --self-test` | 17（仅 prune+catalog） | 仅手动 |
 | 实验判分 | `audit/kit/test_kit.py`（项数以脚本自报为准，10-29 时点 **53** 项）+ `paired_compare` 冻结自校验 | — | 仅 selftest |
-| 覆盖率 | `make coverage`（tools/coverage_run.sh） | **10-29 重测：TOTAL 70%**（9106 语句）。与 10-23 的 73% 不可直接比：期间代码净增（F3/F7/F8 的自检代码本身占数百行）。低分文件：verify_handover 22%、pre_push_scan 34%、seat_check/scripts 副本 38%、metrics/scripts 副本 38%（后两者与包内副本是同一模块被分开学）| 仅手动 |
+| 覆盖率 | `make coverage`（tools/coverage_run.sh） | **10-29 重测（口径修正后）：TOTAL 79% / 7360 语句**。修正两处统计假象：①combine/report 此前从未加载 rcfile（rc 在 tools/ 不在 cwd），`[report]/[paths]` 段从未生效；②scripts/ 与包内的同构副本（judges、metrics、fsutil）被当两个模块分开统计，产生 38% 假低分——judges/ 已按目录前缀合并（seat_check 两行 70%/38% → 一行 **80%**），metrics/fsutil 镜像行省略以包内为准。低分文件：verify_handover 21%、pre_push_scan 33%、build_package 56% | 仅手动 |
 
 **零测试触达的 scripts**：canon.py、field_provenance.py、fsutil.py、inspect_agent_routing.py（文档声明人工）、夹具生成器 ×3、real_recon.py、team_metrics.py、sync_doc_numbers.py（均为合理豁免或间接覆盖；**夹具生成器无自检**意味着"夹具坏了"只能靠下游判据间接暴露）。
 
