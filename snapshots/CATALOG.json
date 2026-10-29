@@ -3,9 +3,9 @@
  "_generated_by": "scripts/snapshot_sources.py --catalog",
  "count": {
   "in_git": 3,
-  "archived": 252,
+  "archived": 253,
   "missing": 0,
-  "total": 255
+  "total": 256
  },
  "snapshots": [
   {
@@ -2026,8 +2026,8 @@
   },
   {
    "name": "20261029-180353-审计修复",
-   "location": "snapshots",
-   "in_git": true,
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
    "label": "审计修复",
    "created_at": "2026-10-29T18:03:53",
    "file_count": 364
@@ -2046,6 +2046,14 @@
    "in_git": true,
    "label": "a48ac7e结案",
    "created_at": "2026-10-29T18:09:21",
+   "file_count": 364
+  },
+  {
+   "name": "20261029-182852-并行会话定位",
+   "location": "snapshots",
+   "in_git": true,
+   "label": "并行会话定位",
+   "created_at": "2026-10-29T18:28:52",
    "file_count": 364
   }
  ]
