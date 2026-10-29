@@ -441,6 +441,275 @@ def _():
         shutil.rmtree(tmp, ignore_errors=True)
 
 
+# ── 组N：item_gate 行为测试（F4，2026-10-29）─────────────────────────────
+# 此前 item_gate 零测试：它的 FAIL 结论直接拦一批题，而判据本身没人撞过。
+# 全部走**真实 CLI**（临时目录造题集与作答，python3 item_gate.py 实跑），不 mock 内部函数。
+
+GOLD4 = {"Q1": "pass", "Q2": "fail", "Q3": "pass", "Q4": "fail"}
+
+
+def _ig_repo(tmp: Path, golds: dict, arms: dict, as_repeat=False) -> list[str]:
+    """造最小题集与臂作答，返回 item_gate 的 CLI 参数（不含脚本名）。
+
+    arms: {臂名: [作答 dict, ...]}——多个作答文件 + --as-repeat 才算重复运行。
+    """
+    adj = tmp / "adj.json"
+    adj.write_text(json.dumps({"items": {q: {"verdict": v} for q, v in golds.items()}}),
+                   encoding="utf-8")
+    argv = ["--adjudication", str(adj)]
+    for name, runs in arms.items():
+        paths = []
+        for i, answers in enumerate(runs):
+            p = tmp / f"{name}-{i}.json"
+            p.write_text(json.dumps({"answers": answers}), encoding="utf-8")
+            paths.append(str(p))
+        argv += ["--arm", f"{name}={','.join(paths)}"]
+    if as_repeat:
+        argv.append("--as-repeat")
+    return argv
+
+
+def _ig_run(argv: list[str]):
+    import subprocess
+    return subprocess.run([sys.executable, str(HERE / "item_gate.py"), *argv],
+                          capture_output=True, text=True)
+
+
+@check("item_gate: 单席 acc=0.750（历史事故：单席曾被判成 0.000，resolve 语义钉死）")
+def _():
+    with tempfile.TemporaryDirectory() as td:
+        tmp = Path(td)
+        # 3 对 1 错。★ 判据语义：单臂下「所有臂都错」等价于「该臂错」→ Q2 触发全错 →
+        # 准入必然 FAIL（单臂本就该被准入闸盯紧）。本用例钉的是**acc 数值正确**：
+        # 单票必须被 resolve 采用，0.750 不得再崩成历史事故的 0.000。
+        ans = {"Q1": {"verdict": "pass"}, "Q2": {"verdict": "pass"},
+               "Q3": {"verdict": "pass"}, "Q4": {"verdict": "fail"}}
+        r = _ig_run(_ig_repo(tmp, GOLD4, {"single": [ans]}))
+        assert r.returncode == 1, f"exit={r.returncode}\n{r.stdout}{r.stderr}"
+        assert "  single" in r.stdout and "0.750" in r.stdout, r.stdout
+        assert "（未成票" not in r.stdout, r.stdout          # 4 题全部未成票 = 事故复现
+        assert "全错" in r.stdout, r.stdout
+
+
+@check("item_gate: 多席=多数票而非 unanimity（3 席 2/3 成票 → 0.750，历史事故方向）")
+def _():
+    with tempfile.TemporaryDirectory() as td:
+        tmp = Path(td)
+        g = GOLD4
+        anti = {"pass": "fail", "fail": "pass"}
+        # 作答格式必须与真实基线一致：{题号: {"verdict": ...}}（字符串值 = 未作答）
+        wrap = lambda d: {q: {"verdict": v} for q, v in d.items()}
+        # 三席：Q1–Q3 各 2/3 成票且多数=gold，Q4 多数错 → 多数票口径 0.750；
+        # 若按 unanimity（全席对才得分）则 0.000 → 常数胜出 → FAIL
+        A = wrap({"Q1": g["Q1"], "Q2": g["Q2"], "Q3": g["Q3"], "Q4": anti[g["Q4"]]})
+        B = wrap({"Q1": g["Q1"], "Q2": g["Q2"], "Q3": anti[g["Q3"]], "Q4": anti[g["Q4"]]})
+        C = wrap({"Q1": g["Q1"], "Q2": anti[g["Q2"]], "Q3": g["Q3"], "Q4": anti[g["Q4"]]})
+        # ★ 单臂永远过不了准入闸（对题=饱和、错题=全错），必须给第二个臂
+        #   打破跨臂全 1/全 0：seats 答对的三题 M1 全错、Q4 反之（M1 acc 0.25）
+        M1 = wrap({"Q1": anti[g["Q1"]], "Q2": anti[g["Q2"]],
+                   "Q3": anti[g["Q3"]], "Q4": g["Q4"]})
+        r = _ig_run(_ig_repo(tmp, GOLD4, {"seats": [A, B, C], "M1": [M1]}))
+        assert r.returncode == 0, f"exit={r.returncode}\n{r.stdout}{r.stderr}"
+        assert "  seats" in r.stdout and "0.750" in r.stdout, r.stdout
+        assert "PASS" in r.stdout, r.stdout
+
+
+@check("item_gate: --as-repeat 分开算 pass^1/pass^k（1 对 1 错 → 0.500/0.000 且不稳）")
+def _():
+    with tempfile.TemporaryDirectory() as td:
+        tmp = Path(td)
+        ok = {q: {"verdict": v} for q, v in GOLD4.items()}
+        bad = {q: {"verdict": "x"} for q in GOLD4}
+        r = _ig_run(_ig_repo(tmp, GOLD4, {"rep": [ok, bad]}, as_repeat=True))
+        assert r.returncode == 1, f"exit={r.returncode}\n{r.stdout}{r.stderr}"
+        assert "pass^1 0.500" in r.stdout and "pass^k 0.000" in r.stdout, r.stdout
+        assert "答案会变" in r.stdout, r.stdout        # 自稳分支必须被走到
+
+
+@check("item_gate: 饱和题 → FAIL 且列出题号（全对不是好事）")
+def _():
+    with tempfile.TemporaryDirectory() as td:
+        tmp = Path(td)
+        ans = {q: {"verdict": v} for q, v in GOLD4.items()}
+        r = _ig_run(_ig_repo(tmp, GOLD4, {"arm": [ans]}))
+        assert r.returncode == 1, f"exit={r.returncode}\n{r.stdout}{r.stderr}"
+        assert "饱和" in r.stdout and "Q1" in r.stdout, r.stdout
+
+
+@check("item_gate: 全错 → FAIL 并提示先查题面（可能是题坏了，不是模型差）")
+def _():
+    with tempfile.TemporaryDirectory() as td:
+        tmp = Path(td)
+        anti = {"pass": "fail", "fail": "pass"}
+        bad = {q: {"verdict": anti[v]} for q, v in GOLD4.items()}   # 有效标签但全反
+        r = _ig_run(_ig_repo(tmp, GOLD4, {"arm": [bad]}))
+        assert r.returncode == 1, f"exit={r.returncode}\n{r.stdout}{r.stderr}"
+        assert "全错" in r.stdout, r.stdout
+
+
+@check("item_gate: 常数胜出 → FAIL（最好的臂只是永远答多数类）")
+def _():
+    with tempfile.TemporaryDirectory() as td:
+        tmp = Path(td)
+        const = {q: {"verdict": "pass"} for q in GOLD4}   # gold 分布 2 pass / 2 fail
+        r = _ig_run(_ig_repo(tmp, GOLD4, {"arm": [const]}))
+        assert r.returncode == 1, f"exit={r.returncode}\n{r.stdout}{r.stderr}"
+        assert "常数胜出" in r.stdout, r.stdout
+
+
+@check("item_gate: --arm 缺 name= → 拒绝（非法输入不得静默）")
+def _():
+    with tempfile.TemporaryDirectory() as td:
+        tmp = Path(td)
+        adj = tmp / "adj.json"
+        adj.write_text(json.dumps({"items": {q: {"verdict": v} for q, v in GOLD4.items()}}),
+                       encoding="utf-8")
+        r = _ig_run(["--adjudication", str(adj), "--arm", "badformat"])
+        assert r.returncode != 0, r.stdout
+        assert "name=path" in (r.stdout + r.stderr), (r.stdout, r.stderr)
+
+
+@check("item_gate: --json 明细可解析且 constant_wins 为布尔（机器可读通道）")
+def _():
+    with tempfile.TemporaryDirectory() as td:
+        tmp = Path(td)
+        const = {q: {"verdict": "pass"} for q in GOLD4}
+        argv = _ig_repo(tmp, GOLD4, {"arm": [const]})
+        out = tmp / "detail.json"
+        r = _ig_run(argv + ["--json", str(out)])
+        assert r.returncode == 1, r.stdout
+        d = json.loads(out.read_text(encoding="utf-8"))
+        assert d["constant_wins"] is True and d["best_arm"]["acc"] == 0.5, d
+
+
+# ── 组N+1：grade/summarize 负样本（F10，2026-10-29）──────────────────────
+
+@check("grade_one: 作答不是 dict → 未作答而非崩溃（畸形输入负样本）")
+def _():
+    ref = {"verdict": "pass", "key_reasons": [], "top_risk": {}}
+    r = score.grade_one("不是字典", ref)
+    assert r["answered"] is False and r["match"] is False
+    assert r["danger"] is False and r["coverage"] is None
+    r2 = score.grade_one(None, ref)
+    assert r2["answered"] is False
+
+
+@check("summarize: 缺 falsification 的题不计分母（n 缩小，而不是把均分虚拉低）")
+def _():
+    refs = {"Q1": {"verdict": "pass", "top_risk": {"kw": ["爆仓"]}},   # 要求证伪条件
+            "Q2": {"verdict": "pass"}}                                  # 不要求
+    ans = {"Q1": {"verdict": "pass"},                                   # 缺 falsification
+           "Q2": {"verdict": "pass"}}
+    s = score.summarize("arm", ans, refs)
+    assert s["n"] == 1 and s["agree"] == 1 and s["agree_rate"] == 1.0, s
+    assert "Q1" not in s["rows"] or s["rows"]["Q1"]["falsifiable"] is False
+
+
+@check("grade_one: danger 只在「结论错 + 风险关键词未命中」时为真（方向钉死）")
+def _():
+    ref = {"verdict": "pass", "top_risk": {"kw": ["爆仓"]}}
+    hit = score.grade_one({"verdict": "fail", "top_risk": "可能爆仓"}, ref)
+    miss = score.grade_one({"verdict": "fail", "top_risk": "没什么风险"}, ref)
+    assert hit["danger"] is False, hit          # 风险已提示 → 不算危险失误
+    assert miss["danger"] is True, miss         # 结论错且没提示 → 危险
+
+
+# ── 组N+2：守夜脚本告警侧（F9，2026-10-29）───────────────────────────────
+# B7：告警侧分支（FAIL→exit 2→alert）从未被验证过会红。这里直接驱动真实模块，
+# check_c1/c2/c3 用打桩替换（C2 的判据活性已由回归第 54 项用合成 runs 实测）——
+# 本组测的是 main 的**分发与告警通道**，不是判据本身。
+
+def _iw(tmp: Path):
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("iw_under_test", ROOT / "scripts/inspection_watch.py")
+    iw = importlib.util.module_from_spec(spec)
+    sys.modules["iw_under_test"] = iw
+    spec.loader.exec_module(iw)
+    (tmp / "Makefile").write_text("test:\n\techo ok\n", encoding="utf-8")   # E0 守卫需要真根
+    iw.ROOT = tmp                                # 报告与日志都落在临时目录
+    iw.LOG = tmp / "watch.log"
+    iw.RUNS = tmp / "runs"
+    return iw
+
+
+def _iw_run(iw, argv: list[str]) -> tuple[int, str]:
+    import contextlib
+    old = sys.argv
+    sys.argv = ["inspection_watch.py", *argv]
+    buf = io.StringIO()
+    try:
+        with contextlib.redirect_stdout(buf), contextlib.redirect_stderr(buf):
+            rc = iw.main()
+    finally:
+        sys.argv = old
+    return rc, buf.getvalue()
+
+
+@check("inspection_watch: 报告在且含日期 → PASS exit 0（正样本）")
+def _():
+    with tempfile.TemporaryDirectory() as td:
+        tmp = Path(td)
+        (tmp / "outputs").mkdir()
+        (tmp / "outputs" / "inspection-2099-01-01.md").write_text(
+            "# 巡检 · 2099-01-01\n一切正常\n", encoding="utf-8")
+        iw = _iw(tmp)
+        rc, out = _iw_run(iw, ["--date", "2099-01-01"])
+        assert rc == 0, f"exit={rc}\n{out}"
+        assert "PASS" in out, out
+
+
+@check("inspection_watch: 报告在但不含日期 → 判冒名，转入缺失分支复检")
+def _():
+    with tempfile.TemporaryDirectory() as td:
+        tmp = Path(td)
+        (tmp / "outputs").mkdir()
+        (tmp / "outputs" / "inspection-2099-01-01.md").write_text(
+            "# 旧文件冒名\n（正文里没有当天日期）\n", encoding="utf-8")
+        iw = _iw(tmp)
+        iw.check_c1 = lambda: (False, "")
+        iw.check_c2 = lambda: ("GONE", "")
+        iw.check_c3 = lambda: (False, "")
+        rc, out = _iw_run(iw, ["--date", "2099-01-01"])
+        assert rc == 0, f"exit={rc}\n{out}"
+        assert "全部消失" in out, out            # 冒名 → 复检 → 条件已消失 → 不告警
+
+
+@check("inspection_watch: 异常仍在+报告缺失 → exit 2 且告警侧真的执行（B7 假绿方向）")
+def _():
+    with tempfile.TemporaryDirectory() as td:
+        tmp = Path(td)
+        iw = _iw(tmp)
+        iw.check_c1 = lambda: (True, "round2 未终态")
+        iw.check_c2 = lambda: ("STILL", "双边一致")
+        iw.check_c3 = lambda: (False, "")
+        iw.os.environ["FEISHU_WEBHOOK"] = "http://127.0.0.1:9/no-such"   # 必然连接失败
+        try:
+            rc, out = _iw_run(iw, ["--date", "2099-01-01"])
+        finally:
+            iw.os.environ.pop("FEISHU_WEBHOOK", None)
+        assert rc == 2, f"exit={rc}\n{out}"
+        assert "FAIL" in out and "C1=True" in out, out
+        assert "告警发送失败" in out, out        # alert() 被调用且网络异常被记入日志（不吞）
+        assert iw.LOG.is_file() and "FAIL" in iw.LOG.read_text(encoding="utf-8")
+
+
+@check("inspection_watch: 无 webhook 时告警只落日志不抛（降级路径）")
+def _():
+    with tempfile.TemporaryDirectory() as td:
+        tmp = Path(td)
+        iw = _iw(tmp)
+        old = iw.os.environ.pop("FEISHU_WEBHOOK", None)
+        try:
+            buf = io.StringIO()
+            with contextlib.redirect_stdout(buf):
+                iw.alert("测试消息")
+            assert "未设 FEISHU_WEBHOOK" in buf.getvalue(), buf.getvalue()
+        finally:
+            if old is not None:
+                iw.os.environ["FEISHU_WEBHOOK"] = old
+
+
+
 # ── 运行器 ───────────────────────────────────────────────────────────────
 
 def main() -> int:

@@ -3,9 +3,9 @@
  "_generated_by": "scripts/snapshot_sources.py --catalog",
  "count": {
   "in_git": 3,
-  "archived": 237,
+  "archived": 239,
   "missing": 0,
-  "total": 240
+  "total": 242
  },
  "snapshots": [
   {
@@ -1906,16 +1906,16 @@
   },
   {
    "name": "20261029-112050-含根级文档",
-   "location": "snapshots",
-   "in_git": true,
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
    "label": "含根级文档",
    "created_at": "2026-10-29T11:20:50",
    "file_count": 357
   },
   {
    "name": "20261029-112223-声明校准",
-   "location": "snapshots",
-   "in_git": true,
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
    "label": "声明校准",
    "created_at": "2026-10-29T11:22:23",
    "file_count": 357
@@ -1926,6 +1926,22 @@
    "in_git": true,
    "label": "审计行恢复",
    "created_at": "2026-10-29T11:23:38",
+   "file_count": 357
+  },
+  {
+   "name": "20261029-114723-F4F9F10补测",
+   "location": "snapshots",
+   "in_git": true,
+   "label": "F4F9F10补测",
+   "created_at": "2026-10-29T11:47:23",
+   "file_count": 357
+  },
+  {
+   "name": "20261029-114938-F4F9F10收尾",
+   "location": "snapshots",
+   "in_git": true,
+   "label": "F4F9F10收尾",
+   "created_at": "2026-10-29T11:49:38",
    "file_count": 357
   }
  ]
