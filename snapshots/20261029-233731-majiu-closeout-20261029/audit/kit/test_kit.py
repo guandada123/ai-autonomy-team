@@ -1414,6 +1414,56 @@ def _():
         assert ok and len(ok) == 3 and ok[1].isdigit(), ok     # 真仓库三项齐全
 
 
+@check("make_backup: memory_sources 用 glob 解析三源且不写死账号 ID（写死即红）")
+def _():
+    mb = _load_mb()
+    with tempfile.TemporaryDirectory() as td:
+        d = Path(td)
+        # 刻意用一个「非本机真实 ID」：若实现硬编码了某个固定账号 ID 就命中不到 → 红
+        uid = d / ".workbuddy" / "user-deadbeef-0000-1111-2222-333344445555-personal"
+        uid.mkdir(parents=True)
+        (uid / "MEMORY.md").write_bytes(b"u")
+        claw = d / "WorkBuddy" / "Claw" / ".workbuddy" / "memory"
+        claw.mkdir(parents=True)
+        (claw / "MEMORY.md").write_bytes(b"c")
+        (d / ".workbuddy" / "MEMORY.md").write_bytes(b"h")
+        got = mb.memory_sources(base=d)
+        labels = sorted(l for l, _ in got)
+        assert labels == ["claw", "home", "user"], f"三源应全命中，实得 {labels}"
+        assert all(p.is_file() for _, p in got), "返回的每个源都必须是真实文件"
+
+
+@check("make_backup: memory_sources 部分源缺失降级（外置盘未挂载场景不报错）")
+def _():
+    mb = _load_mb()
+    with tempfile.TemporaryDirectory() as td:
+        d = Path(td)
+        # 只造 user，claw/home 缺失 → 应返回 user 而非抛异常/返回假值
+        uid = d / ".workbuddy" / "user-aaaa-1111-personal"
+        uid.mkdir(parents=True)
+        (uid / "MEMORY.md").write_bytes(b"u")
+        got = mb.memory_sources(base=d)
+        assert [l for l, _ in got] == ["user"], f"应只返回存在的 user，实得 {got}"
+        # 全缺 → 空列表（main 据此跳过 MEMORY，不拖垮 bundle）
+        assert mb.memory_sources(base=d / "nonexistent") == [], "全缺必须返回空列表"
+
+
+@check("make_backup: build_memory_tar 打包后改源文件不影响已验证结论（先算 sha 再打包）")
+def _():
+    mb = _load_mb()
+    with tempfile.TemporaryDirectory() as td:
+        d = Path(td)
+        src = d / "MEM.md"
+        src.write_bytes(b"original-content")
+        ok, msg, mt = mb.build_memory_tar(d, "20261029-8888", [("user", src)])
+        assert ok and mt is not None, msg
+        # 打包完成后篡改源（模拟并发写入）；tar 内应保持打包时的内容
+        src.write_bytes(b"CHANGED-after-backup")
+        got = mb.verify_memory_tar(mt, {"user/MEM.md": __import__("hashlib").sha256(
+            b"original-content").hexdigest()})
+        assert got[0], "tar 应保留打包时的快照，不受源后续改动影响"
+
+
 @check("gen_manifest: detect_newline 四态（LF/CRLF/MIXED/NONE，跨平台 sha 的前提）")
 def _():
     gm = _load_gm()

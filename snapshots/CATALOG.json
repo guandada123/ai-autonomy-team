@@ -3,9 +3,9 @@
  "_generated_by": "scripts/snapshot_sources.py --catalog",
  "count": {
   "in_git": 3,
-  "archived": 265,
+  "archived": 267,
   "missing": 0,
-  "total": 268
+  "total": 270
  },
  "snapshots": [
   {
@@ -2130,16 +2130,16 @@
   },
   {
    "name": "20261029-225505",
-   "location": "snapshots",
-   "in_git": true,
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
    "label": "",
    "created_at": "2026-10-29T22:55:05",
    "file_count": 368
   },
   {
    "name": "20261029-225531",
-   "location": "snapshots",
-   "in_git": true,
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
    "label": "",
    "created_at": "2026-10-29T22:55:32",
    "file_count": 368
@@ -2151,6 +2151,22 @@
    "label": "",
    "created_at": "2026-10-29T22:59:02",
    "file_count": 368
+  },
+  {
+   "name": "20261029-233709",
+   "location": "snapshots",
+   "in_git": true,
+   "label": "",
+   "created_at": "2026-10-29T23:37:09",
+   "file_count": 369
+  },
+  {
+   "name": "20261029-233731-majiu-closeout-20261029",
+   "location": "snapshots",
+   "in_git": true,
+   "label": "majiu-closeout-20261029",
+   "created_at": "2026-10-29T23:37:31",
+   "file_count": 369
   }
  ]
 }

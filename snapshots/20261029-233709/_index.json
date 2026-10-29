@@ -1,7 +1,7 @@
 {
- "created_at": "2026-10-29T22:55:32",
+ "created_at": "2026-10-29T23:37:09",
  "label": "",
- "file_count": 368,
+ "file_count": 369,
  "files": {
   "scripts/build_package.py": {
    "sha256": "b2dad8c4b0adc07c8cc367c51c292263c2789cf6501a0a7481c80260de23f494",
@@ -76,8 +76,8 @@
    "bytes": 1750
   },
   "scripts/make_backup.py": {
-   "sha256": "5696d75573addc9dcd67818e4a1496c42e01f7c329072607e3e4c4e9a7f6bd59",
-   "bytes": 23832
+   "sha256": "58891e8c50216224c599800a0e60dc1ee35f6d90753da36eb658a4cbaef07fc0",
+   "bytes": 35151
   },
   "scripts/make_fixtures.py": {
    "sha256": "1f7329d2cc180b6e9bfe982b65b9f519bfb31c513444f5207359faaae4cdff2e",
@@ -376,8 +376,8 @@
    "bytes": 2906
   },
   "docs/decisions/D-0045-仓库整库私有.md": {
-   "sha256": "1a69169043a8ee0d3d25d9099c3a736a521ddd86e91d81246c21afc78358e47c",
-   "bytes": 8091
+   "sha256": "8cd76b3aa0ba567a575c5ae0c856f7d126381b23d20d0dd511c5451e6175fdf0",
+   "bytes": 9910
   },
   "docs/decisions/D-0046-接最小CI与钩子检查.md": {
    "sha256": "b100c8252afba717dd7d9f6d45301cca57506aaa019209aa41a4c70c6adc7454",
@@ -508,8 +508,8 @@
    "bytes": 3508
   },
   "docs/decisions/D-0078-审计遗留四项修复.md": {
-   "sha256": "8675dde70b391850f51932ebd35693f0dbdb57601cffde4196f46e0979bbfa47",
-   "bytes": 8139
+   "sha256": "382a88c0fbe117486a4cceb60b539937811403b8042f5096331f9fd99e03827d",
+   "bytes": 8356
   },
   "docs/decisions/D-0079-题库v1.3并入.md": {
    "sha256": "054aa38237e0c18b148a280bb0eb49c24a4999471c706512f7f4de9242e69b02",
@@ -1264,8 +1264,8 @@
    "bytes": 3156
   },
   "audit/kit/test_kit.py": {
-   "sha256": "c41efd2b9a1a3d03c78124902a7de25bb6ff28555ea5111584829ee47e560639",
-   "bytes": 71593
+   "sha256": "f50eb4dd520eba8c868405e0adcd8bcbc20b51788ffb68ed7b9360a0dd3f8919",
+   "bytes": 74043
   },
   "audit/probes/premise/spec-cases.json": {
    "sha256": "d552c79e28bd10e2b02f776f31f49df6b24cce34618e8d489214d93d29cded41",
@@ -1424,8 +1424,12 @@
    "bytes": 2179
   },
   ".learnings/L-0038-打印进程参数前必须过滤凭据.md": {
-   "sha256": "93206f9ae14c6b5bed6db92aa500d6ab70d09406165aa8857c134ad15e08df14",
-   "bytes": 2258
+   "sha256": "e39296aff10fb2fa7d8e5dd3b49c859fa34df6dffb64fc7a556b921f1a3d5ece",
+   "bytes": 3355
+  },
+  ".learnings/L-0039-软链掩盖物理分布-判断副本冗余必须按卷取证.md": {
+   "sha256": "cdd879a4ce3074560f99df76ec5639bd8195d98648f12b62894ee2647351ade9",
+   "bytes": 3541
   },
   ".github/workflows/selftest.yml": {
    "sha256": "893c6a49f1dba12a21eab68aa70321572c78730e5985acc00c73753938a83b2f",
@@ -1460,11 +1464,11 @@
    "bytes": 12905
   },
   "README.md": {
-   "sha256": "74d17ba42c58950e881b83903e1029f549d807b398d2b7e024ae3597e8e38819",
+   "sha256": "1b9868d850f0588197d9d2c7e9a6811b049d557006f5a187c743d450dab5ef90",
    "bytes": 5071
   },
   "ARCHITECTURE.md": {
-   "sha256": "7708cff01298f6243934b948cc487d9ca19e819df9a870bc9c3b3b5025574552",
+   "sha256": "d74ec0aa282d6ff294cad96995284ec00684cef1d548609ccf8970cbee3310d2",
    "bytes": 24056
   },
   "DEPENDENCIES.md": {
@@ -1477,8 +1481,8 @@
   }
  },
  "caller": {
-  "pid": 25632,
-  "ppid": 25630,
+  "pid": 53837,
+  "ppid": 53835,
   "parent_cmd": "/Library/Developer/CommandLineTools/usr/bin/make snapshot"
  }
 }
