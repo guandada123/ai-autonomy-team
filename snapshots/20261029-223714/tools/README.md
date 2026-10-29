@@ -68,3 +68,18 @@ make coverage                 # 或 tools/coverage_run.sh
 
 `premise_probe.py` 原为 **0%**——L3 前提审查是方案里唯一的新意，却没有任何自动测试，
 只有 `--calibrate` 的 20 条**自标**样本（2026-10-23 扩到 36 条，并补了回归第 51 项守着它不退化）。已补回归第 50 项（坏卡命中 3 条 / 好卡 0 命中）。
+
+### 复现与口径（2026-10-29 补，审计 P2）
+
+基线 83 的来源与复现方式（此前未记录，导致数字不可复核）：
+
+```bash
+ls /tmp/cov-venv/bin/python || (python3 -m venv /tmp/cov-venv && /tmp/cov-venv/bin/pip install coverage)
+PATH="/tmp/cov-venv/bin:$PATH" ./tools/coverage_run.sh    # 内含子进程记账 + combine + gate 比较
+```
+
+**口径注意**：
+- 基线是**单次实测**（TOTAL 83%，7488 语句 / 1244 未覆盖），不是多次采样中位数。
+  `coverage_gate.sh` 用 -2 容差吸收抖动；若将来抖动超过 2pp，应改为 3 次取中位数再抬基线。
+- `make coverage` 目标本身要求已装 coverage 的解释器；未装时该目标只打印说明，不静默通过。
+- 抬基线前必须先跑出**更高**的 TOTAL，禁止凭估算改 `coverage-baseline.txt`（ratchet 只许上）。

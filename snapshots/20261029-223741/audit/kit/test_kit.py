@@ -1313,14 +1313,38 @@ def _():
 # 口径：只测纯函数与临时目录 I/O 路径；make_backup 自身 --self-test（13 项）已覆盖
 # verify/classify 正负样本，这里补「工具入口层」——do_list / do_retention /
 # _backup_files / human / git_facts 与 gen_manifest 的 newline / 过滤 / 写入域往返。
+#
+# ★ 2026-10-29 审计修复：原实现靠前一用例写入 sys.modules 再用 sys.modules[...] 取，
+#   单跑第二项即 KeyError 'mb_ut'（用例隐式耦合，筛选/重排就炸）。改为幂等 loader。
+
+def _load_mb():
+    """幂等加载 make_backup（可被任一用例单独调用）。"""
+    import importlib.util
+    mod = sys.modules.get("mb_ut")
+    if mod is None:
+        spec = importlib.util.spec_from_file_location("mb_ut", ROOT / "scripts/make_backup.py")
+        mod = importlib.util.module_from_spec(spec)
+        sys.modules["mb_ut"] = mod
+        spec.loader.exec_module(mod)
+    return mod
+
+
+def _load_gm():
+    """幂等加载 gen_manifest（同上）。"""
+    import importlib.util
+    mod = sys.modules.get("gm_ut")
+    if mod is None:
+        spec = importlib.util.spec_from_file_location(
+            "gm_ut", ROOT / "migration-package/gen_manifest.py")
+        mod = importlib.util.module_from_spec(spec)
+        sys.modules["gm_ut"] = mod
+        spec.loader.exec_module(mod)
+    return mod
+
 
 @check("make_backup: human 三档与 KB 边界（人读单位算错=给错清理依据）")
 def _():
-    import importlib.util
-    spec = importlib.util.spec_from_file_location("mb_ut", ROOT / "scripts/make_backup.py")
-    mb = importlib.util.module_from_spec(spec)
-    sys.modules["mb_ut"] = mb
-    spec.loader.exec_module(mb)
+    mb = _load_mb()
     assert mb.human(0) == "0.0 B", mb.human(0)
     assert mb.human(1023) == "1023.0 B", mb.human(1023)
     assert mb.human(1024) == "1.0 KB", mb.human(1024)
@@ -1330,7 +1354,7 @@ def _():
 
 @check("make_backup: _backup_files 只认两种产物名（.DS_Store 不得抢「最新一份」）")
 def _():
-    mb = sys.modules["mb_ut"]
+    mb = _load_mb()
     with tempfile.TemporaryDirectory() as td:
         d = Path(td)
         names = ["ai-autonomy-team-20261001-0001.bundle",
@@ -1349,7 +1373,7 @@ def _():
 def _():
     import contextlib
     import io as _io
-    mb = sys.modules["mb_ut"]
+    mb = _load_mb()
     with tempfile.TemporaryDirectory() as td:
         d = Path(td)
         # 不存在 → ERR(2)
@@ -1383,7 +1407,7 @@ def _():
 @check("make_backup: git_facts 对非仓库目录返回 None（不可用≠可用的假值）")
 def _():
     import subprocess as _sp
-    mb = sys.modules["mb_ut"]
+    mb = _load_mb()
     with tempfile.TemporaryDirectory() as td:
         assert mb.git_facts(Path(td)) is None, "非 git 目录必须返回 None"
         ok = mb.git_facts(ROOT)
@@ -1392,11 +1416,7 @@ def _():
 
 @check("gen_manifest: detect_newline 四态（LF/CRLF/MIXED/NONE，跨平台 sha 的前提）")
 def _():
-    import importlib.util
-    spec = importlib.util.spec_from_file_location("gm_ut", ROOT / "migration-package/gen_manifest.py")
-    gm = importlib.util.module_from_spec(spec)
-    sys.modules["gm_ut"] = gm
-    spec.loader.exec_module(gm)
+    gm = _load_gm()
     with tempfile.TemporaryDirectory() as td:
         d = Path(td)
         cases = {"lf.txt": b"a\nb\n", "crlf.txt": b"a\r\nb\r\n",
@@ -1412,7 +1432,7 @@ def _():
 
 @check("gen_manifest: build 过滤与相对化（SKIP 名单/MANIFEST 自身排除/prefix 后 rel 仍相对 root）")
 def _():
-    gm = sys.modules["gm_ut"]
+    gm = _load_gm()
     with tempfile.TemporaryDirectory() as td:
         d = Path(td)
         (d / "a").mkdir()
@@ -1433,7 +1453,7 @@ def _():
 
 @check("gen_manifest: load_domain_config 占位符归一（截断到第一个 '{' 前 + 去重）")
 def _():
-    gm = sys.modules["gm_ut"]
+    gm = _load_gm()
     with tempfile.TemporaryDirectory() as td:
         cfg = Path(td) / "cfg.json"
         cfg.write_text(json.dumps({
@@ -1450,7 +1470,7 @@ def _():
 def _():
     import contextlib
     import io as _io
-    gm = sys.modules["gm_ut"]
+    gm = _load_gm()
     with tempfile.TemporaryDirectory() as td:
         d = Path(td)
         (d / "runs" / "round1" / "S1").mkdir(parents=True)

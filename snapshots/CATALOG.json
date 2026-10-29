@@ -3,9 +3,9 @@
  "_generated_by": "scripts/snapshot_sources.py --catalog",
  "count": {
   "in_git": 3,
-  "archived": 258,
+  "archived": 260,
   "missing": 0,
-  "total": 261
+  "total": 263
  },
  "snapshots": [
   {
@@ -2074,16 +2074,16 @@
   },
   {
    "name": "20261029-195012",
-   "location": "snapshots",
-   "in_git": true,
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
    "label": "",
    "created_at": "2026-10-29T19:50:12",
    "file_count": 366
   },
   {
    "name": "20261029-201245",
-   "location": "snapshots",
-   "in_git": true,
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
    "label": "",
    "created_at": "2026-10-29T20:12:45",
    "file_count": 366
@@ -2095,6 +2095,22 @@
    "label": "",
    "created_at": "2026-10-29T20:13:41",
    "file_count": 366
+  },
+  {
+   "name": "20261029-223714",
+   "location": "snapshots",
+   "in_git": true,
+   "label": "",
+   "created_at": "2026-10-29T22:37:14",
+   "file_count": 367
+  },
+  {
+   "name": "20261029-223741",
+   "location": "snapshots",
+   "in_git": true,
+   "label": "",
+   "created_at": "2026-10-29T22:37:42",
+   "file_count": 367
   }
  ]
 }

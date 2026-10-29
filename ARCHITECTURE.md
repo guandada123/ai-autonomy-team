@@ -192,7 +192,7 @@ ai-autonomy-team/
 │   ├── protocol/              ← 7 份工作协议（规范正文）
 │   ├── decisions/             ← 79 份决策记录（编号到 D-0080；D-0017 未建）
 │   └── *.md                   ← 32 份分析/审计/复盘（历史存档）
-├── .learnings/                ← 37 条经验教训（L-XXXX，跨项目通用）
+├── .learnings/                ← 38 条经验教训（L-XXXX，跨项目通用）
 ├── templates/                 ← 席位提示词模板（new_round 渲染用）
 ├── fixtures/frozen/           ← ★ 冻结基线（regress 第 8 项依赖，必须入库）
 ├── snapshots/                 ← ★ 真源快照（H 项依赖；默认留最近 3 个，超出自动归档）

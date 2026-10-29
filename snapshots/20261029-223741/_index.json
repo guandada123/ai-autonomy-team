@@ -1,7 +1,7 @@
 {
- "created_at": "2026-10-29T19:50:12",
+ "created_at": "2026-10-29T22:37:42",
  "label": "",
- "file_count": 366,
+ "file_count": 367,
  "files": {
   "scripts/build_package.py": {
    "sha256": "b2dad8c4b0adc07c8cc367c51c292263c2789cf6501a0a7481c80260de23f494",
@@ -552,8 +552,8 @@
    "bytes": 7350
   },
   "audit/AUDIT-20261029-对话全程审计.md": {
-   "sha256": "f28658974309e2fcf41f058e61e66015dfc143f6ecea5847467b22a73058e322",
-   "bytes": 10269
+   "sha256": "4cf3b6ac2ab4df2d9d5b2d48737a0c54b47dea984d825fc1c666639af554862f",
+   "bytes": 10415
   },
   "audit/CODE-REVIEW-20261028-对话代码变更审查.md": {
    "sha256": "4d8601112019ce823c4ba54b22bb3f3fc3e08d3414f7912d85e631e1610e5ae5",
@@ -1260,8 +1260,8 @@
    "bytes": 3156
   },
   "audit/kit/test_kit.py": {
-   "sha256": "39aa6408b1bc12967f4833a00466c0628f03de8a84c4f8150418b36ab1226693",
-   "bytes": 59665
+   "sha256": "20c9e6f9b5639da477c5d7e9a59766841fec5e5748aa1ad0048231ad7a55501c",
+   "bytes": 68728
   },
   "audit/probes/premise/spec-cases.json": {
    "sha256": "d552c79e28bd10e2b02f776f31f49df6b24cce34618e8d489214d93d29cded41",
@@ -1416,8 +1416,12 @@
    "bytes": 4191
   },
   ".learnings/L-0037-造工具前先查仓库已有实现.md": {
-   "sha256": "5160b890f2f44dc5be02f404cba6ba423211822c19b4ccfd216b90620d798fe1",
-   "bytes": 2128
+   "sha256": "f23d3fc71e7d85f9544d93fdbc63732affeb039f93ccd333656947786f5990ea",
+   "bytes": 2179
+  },
+  ".learnings/L-0038-打印进程参数前必须过滤凭据.md": {
+   "sha256": "93206f9ae14c6b5bed6db92aa500d6ab70d09406165aa8857c134ad15e08df14",
+   "bytes": 2258
   },
   ".github/workflows/selftest.yml": {
    "sha256": "893c6a49f1dba12a21eab68aa70321572c78730e5985acc00c73753938a83b2f",
@@ -1428,11 +1432,11 @@
    "bytes": 777
   },
   "tools/README.md": {
-   "sha256": "7c8ba7a8bd93015cf175353c6edaa6076053bf54554d50cb27b8f028171dbc2d",
-   "bytes": 3166
+   "sha256": "4a97c163b6e6c88b2a80d88fbb54bc5eb2cbdea0486662eaa6879a48d07677e8",
+   "bytes": 4020
   },
   "tools/coverage-baseline.txt": {
-   "sha256": "6950980e3aca96f4dc400eb2e47cc5c343e0d3f483a4e70adcae1d7e6bb22d9c",
+   "sha256": "f1769867b0abc7068f5cb7dd41574a420b3cfa4553856f459857ff8e5a525b13",
    "bytes": 3
   },
   "tools/coverage_gate.sh": {
@@ -1452,11 +1456,11 @@
    "bytes": 12765
   },
   "README.md": {
-   "sha256": "2108b5d7ba7c24e936f6e6c41ee3f64b937fa5122e76db9b867cde9533bed9f7",
+   "sha256": "74d17ba42c58950e881b83903e1029f549d807b398d2b7e024ae3597e8e38819",
    "bytes": 5071
   },
   "ARCHITECTURE.md": {
-   "sha256": "7916a7bb9523bbcc2cbf94208dd69b4beabaf356851aeb472f7e83ff97581fc4",
+   "sha256": "7708cff01298f6243934b948cc487d9ca19e819df9a870bc9c3b3b5025574552",
    "bytes": 24056
   },
   "DEPENDENCIES.md": {
@@ -1469,8 +1473,8 @@
   }
  },
  "caller": {
-  "pid": 10969,
-  "ppid": 10967,
+  "pid": 8639,
+  "ppid": 8637,
   "parent_cmd": "/Library/Developer/CommandLineTools/usr/bin/make snapshot"
  }
 }
