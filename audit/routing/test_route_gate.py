@@ -20,6 +20,10 @@ route_gate 的三个退出码分别对应「放行 / 拦批 / 打回」，判错
 | 接线 | A5 | manifest-v1.3 的 qid 逐个字面出现在 questions-v1.3.md（缺失即 fail 并列出） |
 | fuzz | A6 | 合法 manifest 逐个删除必填字段（qid/level/route/ref_label/verification）→ 每次 exit 2 |
 | 负样本 | A1 | L3 / 误标 verification / route 矛盾 / 空批 / 坏 JSON / 文件不存在 / 顶层非对象 → exit 2；均衡 L2 → exit 0 且 skew PASS |
+| 输出 | A7 | exit 0 批写出 decision-table（25 题逐题含 level/route/answer/veto/debate + aggregate 契约） |
+| 输出 | A8 | exit 1/2 批拒绝写出 decision-table（不产出脏表） |
+| 真源 | A9 | skew 占比与 kit.item_gate.constant_baseline 同源同值（不是本地复制的第二份判据） |
+| 计数 | A10 | 脏 item（缺 route）报错且不计入 routes 计数 |
 
 A5 裁决记录（2026-10-30，主理人裁决「豁免区间写法，检查器展开」）：questions-v1.3.md
 的 A 组用「T06–T09、Q14、Q15」区间写法，T07/T08 字面不存在。裁决为检查器先把文本中
@@ -274,6 +278,70 @@ def test_neg_balanced_l2_pass_exit0():
     assert d["routes"]["L2"] == 8 and d["errors"] == [], d
 
 
+# ── v0.1 增补：decision-table 输出 / 判据真源 / 脏 item 计数 ──────────────
+
+@case("A7: --emit-decision-table 在 exit 0 批写出下游可消费的表（每题含 level/route/answer/veto/debate）")
+def test_a7_decision_table_emitted_on_exit0():
+    with tempfile.TemporaryDirectory(prefix="rg-dt-") as td:
+        out = Path(td) / "decision-table.json"
+        r = subprocess.run([sys.executable, str(GATE), "--manifest", str(M_L1),
+                            "--json", "--emit-decision-table", str(out)],
+                           capture_output=True, text=True)
+        assert r.returncode == 0, r.stdout + r.stderr
+        d = json.loads(r.stdout)
+        assert d["decision_table"] == str(out), d.get("decision_table")
+        assert out.exists(), "decision-table 未写出"
+        dt = json.loads(out.read_text(encoding="utf-8"))
+        assert dt["manifest"].endswith("manifest-v1.3-L1.json"), dt["manifest"]
+        assert len(dt["items"]) == 25, len(dt["items"])
+        for qid, row in dt["items"].items():
+            assert row["level"] == "L1" and row["route"] == "single", (qid, row)
+            assert row["answer"] is None and row["veto"] is None and row["debate"] is False, (qid, row)
+            assert "aggregate_seats.py" in dt["aggregate_contract"]["seats_input"], dt["aggregate_contract"]
+
+
+@case("A8: 红批/坏批拒绝写出 decision-table（exit 非 0 不产出脏表）")
+def test_a8_decision_table_refused_when_not_exit0():
+    with tempfile.TemporaryDirectory(prefix="rg-dt-") as td:
+        out = Path(td) / "dt-red.json"
+        # exit 1：v3 偏斜批
+        r1 = subprocess.run([sys.executable, str(GATE), "--manifest", str(M_L2),
+                             "--json", "--emit-decision-table", str(out)],
+                            capture_output=True, text=True)
+        assert r1.returncode == 1, r1.stdout + r1.stderr
+        assert not out.exists(), "偏斜批不得写出 decision-table"
+        # exit 2：缺字段批
+        rc2, d2, out2 = _run_obj({"items": [{"qid": "Q90", "level": "L2", "route": "multi-role"}]})
+        assert rc2 == 2, out2
+        assert not out.exists(), "坏输入批不得写出 decision-table"
+
+
+@case("A9: S1 占比与 kit.item_gate.constant_baseline 同源（不是本地复制的第二份判据）")
+def test_a9_skew_reuses_constant_baseline():
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "kit"))
+    from item_gate import constant_baseline
+    labels = ["A"] * 7 + ["C"] * 2 + ["B"]
+    base = constant_baseline(labels)
+    assert base["top_label"] == "A" and round(base["top_share"], 4) == 0.7, base
+    # 同一批标签交给 route_gate，两份结果必须一致
+    items = [dict(L2_ITEM, qid=f"Q{i:02d}", ref_label=lab) for i, lab in enumerate(labels, 1)]
+    rc, d, out = _run_obj({"items": items})
+    assert rc == 1, out
+    sk = d["skew"]
+    assert sk["max_label"] == base["top_label"], (sk, base)
+    assert sk["max_share"] == round(base["top_share"], 4), (sk, base)
+    assert sk["distribution"] == base["distribution"], (sk, base)
+
+
+@case("A10: 脏 item 不计入 routes 计数（缺 route 的 item 报错且不计档）")
+def test_a10_dirty_item_not_counted():
+    bad = {"qid": "Q91", "level": "L1", "verification": "machine"}   # 缺 route
+    rc, d, out = _run_obj({"items": [dict(L1_ITEM), bad]})
+    assert rc == 2, out
+    assert any("缺 route" in e for e in d["errors"]), d["errors"]
+    assert d["routes"]["L1"] == 1, f"只有 1 个干净 item 应被计数：{d['routes']}"
+
+
 # ── 独立运行器（pytest 不可用时的主通道；风格随 test_kit.py）──────────────
 
 def main() -> int:
@@ -287,7 +355,7 @@ def main() -> int:
     for n, e in fails:
         print(f"  🔴 {n}\n     {e}")
     if not fails:
-        print("  ✅ 全部通过（A1–A6 验收项 + fail-safe 负样本全绿）")
+        print("  ✅ 全部通过（A1–A10 验收项 + fail-safe 负样本全绿）")
     return 1 if fails else 0
 
 
@@ -295,8 +363,7 @@ if __name__ == "__main__":
     raise SystemExit(main())
 
 # ── 遗留（验收时点记录，非本套件职责）────────────────────────────────────
-# 1. route_gate.py line 81：item 缺 route 时报错并 exit 2，但 routes[level] 仍 +1
-#    ——退出码语义不受影响，但 --json 的 routes 计数含脏 item；若后续有下游消费
-#    routes 计数需留意（2026-10-30 验收观察，主理人裁决：记录不改）。
-# 2. pytest 本环境不可用：本套件写成 pytest 兼容（函数式 test_*，无模块级副作用），
+# 1. pytest 本环境不可用：本套件写成 pytest 兼容（函数式 test_*，无模块级副作用），
 #    但 pytest 通道未实测，独立运行为主通道。
+# 2. 已闭环（2026-10-30 v0.1）：原「脏 item 仍计入 routes」已修并由 A10 钉死；
+#    原 S1 判据本地实现已改为复用 kit.item_gate.constant_baseline（A9 钉死同源）。

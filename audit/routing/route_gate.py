@@ -21,19 +21,17 @@ audit/routing/DESIGN-v0-路由与四角色编排.md §二（三档判据表）�
     1 = S1 偏斜预筛报红（批次不可入库）
     2 = 输入/判据自身问题（manifest 缺字段、schema 违规、无法解析、item_gate 不可用等）
 
-## 与 item_gate 的关系（不复制判据）
+## 与 item_gate 的关系（同一真源，不复制判据）
 
-常数基准判定的宿主是 audit/kit/item_gate.py。实测其可导入，但该判定内联在
-main() 里（需要判分答案文件，路由时点尚不存在），没有可复用的独立函数。
-因此 v0 只做**可用性探测**：import 失败 → exit 2（依赖被移动/改名时闸门必须
-哑火而不是静默放行）。S1 偏斜占比按 DESIGN §2.1 本地实现——它是路由层判据
-（对 ref_label 分布），与 item_gate 的 constant_wins（对臂得分）输入不同。
-待 item_gate 把常数基准抽取为 constant_baseline(labels) 之类的可导入函数后，
-此处应改为 import 复用，删除本地实现。
+S1 的判据是「最挤的那个标签占了多大比例」，与 audit/kit/item_gate.py 常数基准
+（constant_wins）是同一个判据。2026-10-30 已把该判据从 item_gate 的 main() 里
+抽出为可导入的 `constant_baseline(labels)`，本文件改为**真复用**——import 失败
+即 exit 2（依赖被移动/改名时闸门必须哑火，而不是静默放行）。
 
 ## 用法
 
     python3 audit/routing/route_gate.py --manifest audit/routing/manifest-v1.3-L1.json [--json]
+    python3 audit/routing/route_gate.py --manifest <path> --emit-decision-table <out.json>
 """
 from __future__ import annotations
 
@@ -41,14 +39,16 @@ import argparse
 import json
 import sys
 from collections import Counter
+from datetime import datetime
 from pathlib import Path
 
-# ── item_gate 可用性探测（见 docstring「与 item_gate 的关系」）────────────────
+# ── 判据真源：item_gate.constant_baseline（见 docstring「与 item_gate 的关系」）──
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "kit"))
 try:
-    import item_gate  # noqa: F401
+    from item_gate import constant_baseline
     _ITEM_GATE_OK, _ITEM_GATE_ERR = True, ""
 except Exception as e:  # 闸门依赖缺失必须报 exit 2，不能静默放行
+    constant_baseline = None
     _ITEM_GATE_OK, _ITEM_GATE_ERR = False, f"{type(e).__name__}: {e}"
 
 LEVEL_ROUTE = {"L1": "single", "L2": "multi-role"}
@@ -56,12 +56,13 @@ L1_VERIFICATIONS = {"machine", "attested"}
 S1_THRESHOLD = 0.5  # 主理人裁决 #4：固定 0.5，不按批次放宽
 
 
-def _share(n: int, total: int) -> float:
-    return round(n / total, 4) if total else 0.0
-
-
 def validate_items(items, errors: list[str]) -> Counter:
-    """逐 item 做必填字段 + 档位判据校验；返回各档位计数。"""
+    """逐 item 做必填字段 + 档位判据校验；返回各档位计数。
+
+    计数口径：只对**无错**的 item 计数（2026-10-30 修）。此前缺 route 的脏 item
+    也会被计进 routes[type]，虽然退出码仍是 2、不影响判定，但 --json 的 routes
+    会被下游消费，把脏 item 计进去等于输出一份自相矛盾的结果。
+    """
     routes = Counter({"L1": 0, "L2": 0, "L3": 0})
     for idx, it in enumerate(items):
         if not isinstance(it, dict):
@@ -71,6 +72,7 @@ def validate_items(items, errors: list[str]) -> Counter:
         if not isinstance(qid, str) or not qid.strip():
             errors.append(f"items[{idx}]: 缺 qid 或非字符串")
             qid = f"items[{idx}]"
+        mark = len(errors)  # 该 item 校验前的错误数，用于判断它是否脏
         level = it.get("level")
         route = it.get("route")
         if level not in LEVEL_ROUTE and level != "L3":
@@ -78,7 +80,8 @@ def validate_items(items, errors: list[str]) -> Counter:
             continue
         if not isinstance(route, str) or not route.strip():
             errors.append(f"{qid}: 缺 route")
-        routes[level] += 1
+        if len(errors) == mark:
+            routes[level] += 1
         if level == "L3":
             errors.append(f"{qid}: L3 未启用（判据未定，暂空不接入，见 DESIGN §2.1）")
             continue
@@ -99,15 +102,18 @@ def validate_items(items, errors: list[str]) -> Counter:
 
 
 def skew_precheck(l2_items: list[dict]) -> dict | None:
-    """S1：整批 L2 的 ref_label 分布，任一标签占比 > 0.5 → RED（DESIGN §2.1）。"""
+    """S1：整批 L2 的 ref_label 分布，任一标签占比 > 0.5 → RED（DESIGN §2.1）。
+
+    占比计算复用 kit.item_gate.constant_baseline（与常数基准同一真源），不在本地
+    另写一份 Counter/most_common。
+    """
     if not l2_items:
         return None
     labels = [it["ref_label"].strip() for it in l2_items]
-    dist = Counter(labels)
-    top_label, top_n = dist.most_common(1)[0]
-    top_share = _share(top_n, len(labels))
-    return {"n_l2": len(labels), "distribution": dict(dist),
-            "max_label": top_label, "max_share": top_share,
+    base = constant_baseline(labels)
+    top_share = round(base["top_share"], 4)
+    return {"n_l2": base["n"], "distribution": base["distribution"],
+            "max_label": base["top_label"], "max_share": top_share,
             "threshold": S1_THRESHOLD,
             "verdict": "RED" if top_share > S1_THRESHOLD else "PASS"}
 
@@ -116,6 +122,9 @@ def main() -> int:
     ap = argparse.ArgumentParser(description="任务路由分诊器 v0（三档判据 + S1 偏斜预筛）")
     ap.add_argument("--manifest", required=True, help="路由标注 manifest（JSON）路径")
     ap.add_argument("--json", dest="json_out", action="store_true", help="输出机器可读 JSON")
+    ap.add_argument("--emit-decision-table", dest="decision_table", default="",
+                    help="路由成功（exit 0）时写出 decision-table，供 downstream 的 "
+                         "aggregate_seats / paired_compare.grade 消费；非 0 退出码拒绝写出")
     args = ap.parse_args()
 
     errors: list[str] = []
@@ -152,10 +161,35 @@ def main() -> int:
     else:
         exit_code = 0
 
+    # ── decision-table：只在路由成功时写出（红批/坏输入不产出，防止下游拿到脏表）──
+    dt_path = ""
+    if args.decision_table:
+        if exit_code != 0:
+            print(f"⛔ 未写出 decision-table：exit={exit_code}（只有 exit 0 的批次可下游消费）")
+        else:
+            dt = {"manifest": str(Path(args.manifest).resolve()),
+                  "generated_at": datetime.now().astimezone().isoformat(timespec="seconds"),
+                  "aggregate_contract": {"seats_input": "aggregate_seats.py",
+                                         "grade": "paired_compare.grade"},
+                  "items": {}}
+            for it in items:
+                if not isinstance(it, dict):
+                    continue
+                qid = str(it.get("qid"))
+                dt["items"][qid] = {"level": it.get("level"), "route": it.get("route"),
+                                    "answer": None,        # 路由阶段尚无作答，由 R4 席位填充
+                                    "veto": None,          # 由 R3 风险裁判填充
+                                    "debate": False,       # 由 P2 交叉比对填充
+                                    "source_manifest": str(Path(args.manifest).resolve())}
+            Path(args.decision_table).write_text(
+                json.dumps(dt, ensure_ascii=False, indent=2), encoding="utf-8")
+            dt_path = str(args.decision_table)
+
     if args.json_out:
         print(json.dumps({"exit": exit_code, "n_items": len(items),
                           "routes": {"L1": routes["L1"], "L2": routes["L2"], "L3": routes["L3"]},
-                          "skew": skew, "errors": errors},
+                          "skew": skew, "errors": errors,
+                          "decision_table": dt_path or None},
                          ensure_ascii=False, indent=2))
         return exit_code
 
