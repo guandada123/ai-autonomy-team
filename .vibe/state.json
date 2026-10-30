@@ -2,14 +2,23 @@
   "methodology_step": 3,
   "methodology_step_source": "scan_inferred",
   "current_stage": "MVP 定义",
-  "last_activity": "2026-10-30T21:40:00+08:00",
+  "last_activity": "2026-10-30T22:53:23+08:00",
   "milestones": [
     {
       "date": "2026-10-30",
       "event": "tutor-init（分支 B）：整仓 scan 推断第 12 步，用户确认以 route_gate v1 子项目口径从第 3 步起跑；D-0081 设计定稿为输入"
+    },
+    {
+      "date": "2026-10-30",
+      "event": "route_gate v0 编码完成（backend 交付 + qa 13/13 验收 + 主理人独立复核）；nice_to_have decision-table 输出与 item_gate constant_baseline 抽取留 v0.1"
     }
   ],
   "feedback_log": [],
   "scope_creep_history": [],
-  "test_history": []
+  "test_history": [
+    {
+      "date": "2026-10-30",
+      "event": "route_gate v0 三项 must_have 完成：验收套件 13/13（含负样本注入报红 + A5 区间裁决），独立运行 exit 0"
+    }
+  ]
 }
