@@ -1,7 +1,7 @@
 {
- "created_at": "2026-10-29T23:37:09",
- "label": "",
- "file_count": 369,
+ "created_at": "2026-10-30T21:21:15",
+ "label": "routing-design-v0-20261030",
+ "file_count": 373,
  "files": {
   "scripts/build_package.py": {
    "sha256": "b2dad8c4b0adc07c8cc367c51c292263c2789cf6501a0a7481c80260de23f494",
@@ -518,6 +518,10 @@
   "docs/decisions/D-0080-禁读边界固化进协议.md": {
    "sha256": "78e62e7b9002867188f0a867d017f3023c97c53d8e0c13070569ad0c14570446",
    "bytes": 2733
+  },
+  "docs/decisions/D-0081-路由层与四角色编排v0.md": {
+   "sha256": "8e80050eb7068e2746e3a9ee7cd062300d81e8e80a077fac108972f76f2c6323",
+   "bytes": 2583
   },
   "docs/decisions/TEMPLATE.md": {
    "sha256": "0bbc33940a540ae0e983817d9b1cf6daf6502ff233074d5023a3466511867e6e",
@@ -1271,6 +1275,18 @@
    "sha256": "d552c79e28bd10e2b02f776f31f49df6b24cce34618e8d489214d93d29cded41",
    "bytes": 10091
   },
+  "audit/routing/DESIGN-v0-路由与四角色编排.md": {
+   "sha256": "8e5ed070d291f007766ae6bae8e8621b3948d1d2e9d0159edeea1c9614f8f316",
+   "bytes": 12745
+  },
+  "audit/routing/manifest-v1.3-L1.json": {
+   "sha256": "a3208e3d8f5cf43c594a75885c67064999da6e2c303cead8ea037fd96aa30bec",
+   "bytes": 3727
+  },
+  "audit/routing/manifest-v3-L2.json": {
+   "sha256": "29096187873220850c4d7b4bbea3edd3b1fa9aeb7a9504ba24532f4cd8bd9907",
+   "bytes": 1584
+  },
   "audit/对话审计-20261021.md": {
    "sha256": "6b0a20a4f20f5f58db056bccede6a09d424eec97291a3ce482a37ad6cd90189f",
    "bytes": 17129
@@ -1464,11 +1480,11 @@
    "bytes": 12905
   },
   "README.md": {
-   "sha256": "1b9868d850f0588197d9d2c7e9a6811b049d557006f5a187c743d450dab5ef90",
+   "sha256": "8f8abae1ae96e701576854fb280ef24b4beeaa7684c0e5f0e63aaeb51b1a78cf",
    "bytes": 5071
   },
   "ARCHITECTURE.md": {
-   "sha256": "d74ec0aa282d6ff294cad96995284ec00684cef1d548609ccf8970cbee3310d2",
+   "sha256": "bb034e04569c6ac3569a97bab6856251c92eda85342cea9ca726bca859aca6df",
    "bytes": 24056
   },
   "DEPENDENCIES.md": {
@@ -1481,8 +1497,8 @@
   }
  },
  "caller": {
-  "pid": 53837,
-  "ppid": 53835,
-  "parent_cmd": "/Library/Developer/CommandLineTools/usr/bin/make snapshot"
+  "pid": 47350,
+  "ppid": 47348,
+  "parent_cmd": "/bin/zsh -c . '/Users/guan/.workbuddy/shell-snapshots/snapshot-zsh-1793365926038-3ui6kh.sh' && if [ -n \"${CODEBUDDY_SAFE_DELETE_BIN_DIR:-}\" ]; then unalias rm unlink rmdir 2>/dev/null || true; unset -"
  }
 }
