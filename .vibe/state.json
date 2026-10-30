@@ -1,0 +1,15 @@
+{
+  "methodology_step": 3,
+  "methodology_step_source": "scan_inferred",
+  "current_stage": "MVP 定义",
+  "last_activity": "2026-10-30T21:40:00+08:00",
+  "milestones": [
+    {
+      "date": "2026-10-30",
+      "event": "tutor-init（分支 B）：整仓 scan 推断第 12 步，用户确认以 route_gate v1 子项目口径从第 3 步起跑；D-0081 设计定稿为输入"
+    }
+  ],
+  "feedback_log": [],
+  "scope_creep_history": [],
+  "test_history": []
+}

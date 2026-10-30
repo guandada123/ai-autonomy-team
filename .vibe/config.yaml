@@ -1,0 +1,50 @@
+# Vibe Tutor 项目配置
+# 方法论版本: 14 步 Vibe Coding
+# 初始化: 2026-10-30（tutor-init 分支 B，scan_inferred + 用户确认）
+
+project:
+  name: "ai-autonomy-team 路由层（route_gate v1）"
+  description: "按任务类型路由三档（L1 单席核查 / L2 多角色评审 / L3 暂空），承接 D-0081 已定稿设计"
+  created_at: "2026-10-30"
+
+iteration:
+  version: 1
+
+problem:
+  pain_point: "任务无路由层：简单事实核查也全队上（6 倍 token 零增量），判断类任务缺乏选项偏斜预筛（v3 死因：常数基准 0.700 覆盖两臂）"
+  frequency: "每轮评审/实验都会碰到（v1.1–v1.3 三轮实证触顶）"
+  current_solution: "六席同质表决或单席裸跑，路由靠人工临场判断"
+
+validation:
+  self_use: true
+  competitors: "无外部竞品；判据惯例参照 τ-bench（pass^k）与本仓 paired_compare/item_gate"
+  differentiation: "判据可证伪（负样本注入必须报红）+ item_gate 前置入库闸 + 与现有判分/聚合零改动衔接"
+
+mvp:
+  deadline: "2026-11-13"
+  features:
+    - name: "route_gate.py：读 manifest 按三档判据路由，退出码 0/1/2（路由成功/预筛报红/判据自身问题）"
+      priority: "must_have"
+      status: "pending"
+    - name: "S1 偏斜预筛（阈值 0.5）+ item_gate.py import 复用（禁止复制判据）"
+      priority: "must_have"
+      status: "pending"
+    - name: "A1–A6 机检验收用例：负样本注入必须报红（v3 原题集 S1 RED、字段缺失 fuzz、L1 误标 L3 拦截）"
+      priority: "must_have"
+      status: "pending"
+    - name: "路由结果输出 decision-table 兼容格式（对接 aggregate_seats / paired_compare.grade）"
+      priority: "nice_to_have"
+      status: "pending"
+  out_of_scope:
+    - "L3 完整流水线启用（无真实多步任务流量，YAGNI）"
+    - "四角色运行时编排执行器（本轮只落协议 DESIGN §四）"
+    - "判断类题库出题（等用户对 v2 方向 A/B/C 拍板）"
+    - "pass^k 执行器（k 值待拍板）"
+
+tech_stack:
+  language: "Python"
+  framework: "stdlib（沿用仓库脚本惯例，不引新依赖）"
+  platform: "local-cli（scan 误报 web，按仓库实际修正）"
+
+settings:
+  language: "zh-CN"
