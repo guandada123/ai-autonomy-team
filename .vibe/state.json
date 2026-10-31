@@ -2,7 +2,7 @@
   "methodology_step": 3,
   "methodology_step_source": "scan_inferred",
   "current_stage": "MVP 定义",
-  "last_activity": "2026-10-31T15:29:24+08:00",
+  "last_activity": "2026-10-31T19:22:06+08:00",
   "milestones": [
     {
       "date": "2026-10-30",
@@ -73,6 +73,10 @@
     {
       "date": "2026-10-31",
       "event": "M-004 外推盲验：5 道新题（新行业）+ 2 独立判者，判者间 5/5、与期望 5/5；固化回归集 golden/m004-boundary-5.json"
+    },
+    {
+      "date": "2026-10-31",
+      "event": "跨模型盲验：用户切换模型后，2 名新模型判者 5 题边界集 5/5 四方一致；25 题库盲答 23/25（92%），2 处非一致均为缺口径（V2-12/21），0 violates；RESULT-xmodel-20261031.md"
     }
   ]
 }

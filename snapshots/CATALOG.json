@@ -3,9 +3,9 @@
  "_generated_by": "scripts/snapshot_sources.py --catalog",
  "count": {
   "in_git": 3,
-  "archived": 290,
+  "archived": 291,
   "missing": 0,
-  "total": 293
+  "total": 294
  },
  "snapshots": [
   {
@@ -2330,8 +2330,8 @@
   },
   {
    "name": "20261031-151702-caliber-m004-20261031",
-   "location": "snapshots",
-   "in_git": true,
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
    "label": "caliber-m004-20261031",
    "created_at": "2026-10-31T15:17:03",
    "file_count": 432
@@ -2351,6 +2351,14 @@
    "label": "m004-user-validated-20261031",
    "created_at": "2026-10-31T19:09:58",
    "file_count": 439
+  },
+  {
+   "name": "20261031-192207-xmodel-validated-20261031",
+   "location": "snapshots",
+   "in_git": true,
+   "label": "xmodel-validated-20261031",
+   "created_at": "2026-10-31T19:22:07",
+   "file_count": 443
   }
  ]
 }
