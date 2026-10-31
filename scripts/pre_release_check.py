@@ -638,6 +638,33 @@ def self_test():
     return 0
 
 
+def _fingerprint() -> str:
+    """git 版本 + 关键文件内容哈希：结论可回溯到具体版本，避免"报告与代码错位"。"""
+    import hashlib
+    rev, dirty = "unknown", "?"
+    try:
+        r = subprocess.run(["git", "-C", str(ROOT), "rev-parse", "--short", "HEAD"],
+                           capture_output=True, text=True, timeout=10)
+        if r.returncode == 0:
+            rev = r.stdout.strip()
+        st = subprocess.run(["git", "-C", str(ROOT), "status", "--porcelain"],
+                            capture_output=True, text=True, timeout=10)
+        if st.returncode == 0:
+            dirty = "yes" if st.stdout.strip() else "no"
+    except Exception:
+        pass
+    parts = [f"git={rev}", f"dirty={dirty}"]
+    for rel in ("audit/kit/item_review.py", "audit/kit/caliber_lib.py",
+                "audit/baseline/v2/caliber-library.json", "docs/protocol/08-出题质检协议-v1.md"):
+        f = ROOT / rel
+        if f.exists():
+            h = hashlib.sha256(f.read_bytes()).hexdigest()[:8]
+            parts.append(f"{f.name}={h}")
+        else:
+            parts.append(f"{f.name}=MISSING")
+    return " | ".join(parts)
+
+
 def main():
     ap = argparse.ArgumentParser(description="发布前一键检查（只读）")
     ap.add_argument("-q", "--quiet", action="store_true")
@@ -651,6 +678,13 @@ def main():
     if not PKG.is_dir():
         print(f"[ERR] 包目录缺失: {PKG}", file=sys.stderr)
         return 2
+
+    # ── 结论指纹（2026-10-31）：任何一次门禁结果都必须能回溯到"哪一版代码/哪一版口径库"。
+    # 本项目被"报告绑错版本"坑过三次（R1 误读已修订的题面、QA 用旧快照判未实现、门禁结论与代码不同步）。
+    if not args.quiet:
+        fp = _fingerprint()
+        print(f"[指纹] {fp}")
+        print("")
 
     # 执行顺序：A（文档一致性）放最后 —— 它要用 B/C 的实测项数校验文档里的 N/N 声明。
     # 打印顺序仍按 CHECKS 原序（A→H），对外看起来没变。

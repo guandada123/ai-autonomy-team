@@ -1,0 +1,123 @@
+{
+ "role": "R2",
+ "batch": "mixed-10",
+ "items": [
+  {
+   "qid": "M-01",
+   "axis": "single_axis",
+   "len": {"A": 36, "B": 35, "C": 36, "D": 33},
+   "ratio": 1.09,
+   "correct_unique_longest": false,
+   "leak": "none",
+   "verdict": "true_dispute",
+   "caliber_refs": ["C-001"],
+   "detail": "题干已明示'财务要求全额入账'，B(延后)/C(抹零)/D(不计)均可凭 C-001 定性排除，正确项 A 无需计算 1,716 即可选出；C 的 1,710(差6元)是冗余算术陷阱，删掉数字不影响作答。"
+  },
+  {
+   "qid": "M-02",
+   "axis": "single_axis",
+   "len": {"A": 35, "B": 35, "C": 33, "D": 31},
+   "ratio": 1.13,
+   "correct_unique_longest": false,
+   "leak": "none",
+   "verdict": "true_dispute",
+   "caliber_refs": ["C-003"],
+   "detail": "A(假设系数全量重算)/C(单边认定平台为准)/D(攒样本搁置)均被 C-003 直接禁止，B 凭'计入+标注待验证+持续比对'选出，全程无需计算；A 的 ×0.98 恰为'算得近似对但处理错'型，但不构成必要算数步骤。"
+  },
+  {
+   "qid": "M-03",
+   "axis": "single_axis",
+   "len": {"A": 34, "B": 36, "C": 38, "D": 36},
+   "ratio": 1.12,
+   "correct_unique_longest": false,
+   "leak": "none",
+   "verdict": "true_dispute",
+   "caliber_refs": ["E-001", "C-003", "M-001"],
+   "detail": "真正的判别轴是 E-001(系统缺字段+可修复→先补字段暂停统计)覆盖 C-003：A 是'只引原则不引例外'的陷阱(M-001 考点)，设计好；但选 B 无需任何计算(159/95,400 均装饰)，159 为奇数使'各半'不可能只是冗余算术暗雷。"
+  },
+  {
+   "qid": "M-04",
+   "axis": "single_axis",
+   "len": {"A": 35, "B": 34, "C": 34, "D": 38},
+   "ratio": 1.12,
+   "correct_unique_longest": false,
+   "leak": "detail_asymmetry",
+   "verdict": "new_leak",
+   "caliber_refs": ["C-005", "M-004"],
+   "detail": "B(删除违C-005)/C(转附注违M-004③)/D(改写销毁矛盾记录违C-005)均可凭口径排除，A 凭 C-005+M-004⑤ 选出无需算数；但 A 是唯一带括号内注'(60对45)、计值待查'的选项(轻度措辞指纹)，且 D 埋了 4,200−3,150=1,050≠1,150 的算术错——属'处理错且算错'的复合陷阱而非必要算数步骤。"
+  },
+  {
+   "qid": "M-05",
+   "axis": "single_axis",
+   "len": {"A": 30, "B": 33, "C": 30, "D": 31},
+   "ratio": 1.10,
+   "correct_unique_longest": false,
+   "leak": "none",
+   "verdict": "true_dispute",
+   "caliber_refs": ["M-004", "E-002", "C-005"],
+   "detail": "题干已给齐 M-004 三判据(无未完成核实/原因已查明/有固定归档表)，D 应当归档可纯口径推出；A(删除)/B(追讨已退款)/C('已解释'空壳结论违M-004②)均定性排除，4×20=80 仅装饰。"
+  },
+  {
+   "qid": "M-06",
+   "axis": "single_axis",
+   "len": {"A": 34, "B": 33, "C": 33, "D": 33},
+   "ratio": 1.03,
+   "correct_unique_longest": false,
+   "leak": "none",
+   "verdict": "true_dispute",
+   "caliber_refs": ["C-004"],
+   "detail": "归属期歧义→C-004 不单边结案：A(改单价结案)/B(不计不挂)/C(并入10月结案)均可定性排除，D 凭'挂跨期跟进+次期复核'选出，无需计算；四选项长度极均匀(33-34)是该题优点，A 的 6×900 单价错为冗余陷阱。"
+  },
+  {
+   "qid": "M-07",
+   "axis": "single_axis",
+   "len": {"A": 33, "B": 35, "C": 34, "D": 39},
+   "ratio": 1.18,
+   "correct_unique_longest": false,
+   "leak": "none",
+   "verdict": "true_dispute",
+   "caliber_refs": ["E-003", "C-002"],
+   "detail": "书面确认+对方已建承接记录→E-003 命中：C(转入承接清单)可纯口径选出；A(口头依据+单价70错)/B(删除无承接载体)/D(有承接方仍不移出违E-003)均定性排除，78×60=4,680 仅装饰；D 是全场最长项(39字)且为错误项——反泄漏上反而是优点。"
+  },
+  {
+   "qid": "M-08",
+   "axis": "single_axis",
+   "len": {"A": 34, "B": 32, "C": 32, "D": 33},
+   "ratio": 1.06,
+   "correct_unique_longest": false,
+   "leak": "detail_asymmetry",
+   "verdict": "new_leak",
+   "caliber_refs": ["M-004", "E-002"],
+   "detail": "D 文字复述 M-004 三判据'无未完成核实、含原因分类、逐条保留'——正确项自带口径背书，是本批次最明显的措辞指纹；B(每月重查)/C('已确认无差异'空壳违M-004②)可排除，A 的 56×300=16,600 算术错与题干'差额600'直接矛盾(读题即可见，无需计算)。"
+  },
+  {
+   "qid": "M-09",
+   "axis": "single_axis",
+   "len": {"A": 35, "B": 33, "C": 33, "D": 32},
+   "ratio": 1.09,
+   "correct_unique_longest": false,
+   "leak": "none",
+   "verdict": "true_dispute",
+   "caliber_refs": ["C-002"],
+   "detail": "仅口头确认→C-002 不算闭环：A(电话认可即闭环)/B(口头未落实就重算结案)/D(转背景说明违M-004③)均定性排除，C 凭'改回待跟进+须补书面确认'选出，无需计算；B 的 15×60=900 系单价错(应为80)的冗余陷阱。"
+  },
+  {
+   "qid": "M-10",
+   "axis": "single_axis",
+   "len": {"A": 33, "B": 35, "C": 31, "D": 32},
+   "ratio": 1.13,
+   "correct_unique_longest": false,
+   "leak": "detail_asymmetry",
+   "verdict": "new_leak",
+   "caliber_refs": ["M-004", "C-003"],
+   "detail": "M-004④ 的关键判据'修复权'已在题干明示(采购部有权限推动供应商补字段)且 A 括号复述'(有修复推动权)'——题干交底+选项自证，退化为阅读理解；B(假设系数重算违C-003)/C(背景说明违M-004③)/D(暂停不催办)定性排除，8,080 等数字全装饰。"
+  }
+ ],
+ "summary": {
+  "n_mixed": 0,
+  "n_single_axis": 10,
+  "max_ratio": 1.18,
+  "n_new_leak": 3,
+  "n_collision": 0
+ }
+}

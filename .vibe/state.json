@@ -2,7 +2,7 @@
   "methodology_step": 3,
   "methodology_step_source": "scan_inferred",
   "current_stage": "MVP 定义",
-  "last_activity": "2026-10-31T21:12:46+08:00",
+  "last_activity": "2026-10-31T23:20:00+08:00",
   "milestones": [
     {
       "date": "2026-10-30",
@@ -85,6 +85,10 @@
     {
       "date": "2026-10-31",
       "event": "混合轴 10 题三闸终检：item_review exit 0 / route_gate PASS / item_gate FAIL(10/10 饱和)；口径证据审计 20/20 充分；E-001~003 加 derived_from"
+    },
+    {
+      "date": "2026-10-31",
+      "event": "三项裁决落地：①来源题标 blind_eligible:false（22/25 可盲测）+协议条款；②跨模型结论降级为『独立会话（模型家族待确认）』；③门禁输出头加结论指纹（git rev+四文件 sha）"
     }
   ]
 }

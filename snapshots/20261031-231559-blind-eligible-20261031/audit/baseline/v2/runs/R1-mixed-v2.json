@@ -1,0 +1,131 @@
+{
+ "role": "R1",
+ "batch": "mixed-10-v2",
+ "items": [
+  {
+   "qid": "M-01",
+   "arithmetic": "1,240+380=1,620；1,240+380+96=1,716；题面自洽",
+   "trap_option": "C（1,715，按 1,240+380+95，把 96 误录为 95）",
+   "trap_valid": true,
+   "issue_type": "none",
+   "verdict": "corroborated",
+   "caliber_refs": ["C-001"],
+   "exception_hit": null,
+   "axis": "mixed",
+   "detail": "C 补记方向合规但合计 1,715 与题面 96 元推算的 1,716 不符，必须算数才能与 A 区分；B/D 违反 C-001（不得因金额小延后/挂待定）。"
+  },
+  {
+   "qid": "M-02",
+   "arithmetic": "52,000−50,943=1,057；1,057/52,000≈2.03%，题面『约 2%』自洽",
+   "trap_option": "A（差额误录 1,043，应为 1,057）",
+   "trap_valid": true,
+   "issue_type": "none",
+   "verdict": "corroborated",
+   "caliber_refs": ["C-003"],
+   "exception_hit": null,
+   "axis": "mixed",
+   "detail": "A 处理方向（标注口径差、待验证、持续比对）与 B 一致但差额数字错，须减法排除；C/D 违反 C-003（不得单边结案/攒样本搁置）。E-001 不命中：根源是服务费口径差而非系统缺字段。"
+  },
+  {
+   "qid": "M-03",
+   "arithmetic": "348−189=159；159×600=95,400；348×600=208,800 与 189×600=113,400 均自洽",
+   "trap_option": "A（348−188=160 节，应为 159）",
+   "trap_valid": true,
+   "issue_type": "none",
+   "verdict": "corroborated",
+   "caliber_refs": ["C-003", "E-001"],
+   "exception_hit": "E-001 命中：小程序导出缺『门店 ID』字段且 IT 评估一周内可上线——A/B 的『补字段、暂停分店统计』方向即来自此例外",
+   "axis": "mixed",
+   "detail": "A 方向合规（补字段+暂停统计）但缺口数 160 与题面 159 不符，须算数排除；C 计入单店、D 擅改单价 500 元均违反处理方向。"
+  },
+  {
+   "qid": "M-04",
+   "arithmetic": "60×70=4,200；45×70=3,150；均自洽",
+   "trap_option": "B（按 45×70=3,250 元暂估，应为 3,150）",
+   "trap_valid": true,
+   "issue_type": "none",
+   "verdict": "corroborated",
+   "caliber_refs": ["C-005", "M-004"],
+   "exception_hit": null,
+   "axis": "mixed",
+   "detail": "B 保留+标注方向合规但暂估金额 3,250 与 45×70=3,150 不符，须算数排除；C 转附注违反 M-004③；D 按 1,150 补单据属把残留记录误当账单差异。"
+  },
+  {
+   "qid": "M-05",
+   "arithmetic": "6,240−6,160=80；4 条退款明细，每条 20 元",
+   "trap_option": "A（注明差额 70 元，应为 80 元）",
+   "trap_valid": true,
+   "issue_type": "none",
+   "verdict": "corroborated",
+   "caliber_refs": ["C-005", "E-002", "M-004"],
+   "exception_hit": "E-002 命中：存在固定维护的『异常数据归档表』承接载体——A/D 的转归档方向即来自此例外",
+   "axis": "mixed",
+   "detail": "A 归档方向合规但差额 70 与题面 80 不符，须算数排除；C『已解释后移出结案』违反 M-004②（V2-06 型）；B 向持卡人追讨已退款费用方向反。"
+  },
+  {
+   "qid": "M-06",
+   "arithmetic": "38×850=32,300；44×850=37,400；44−38=6，6×850=5,100；均自洽",
+   "trap_option": "B（44−38=7 班→7×850=5,950，减法错，应为 6 班 5,100）",
+   "trap_valid": true,
+   "issue_type": "none",
+   "verdict": "corroborated",
+   "caliber_refs": ["C-004"],
+   "exception_hit": null,
+   "axis": "mixed",
+   "detail": "B 挂跨期跟进方向合规但班次差 7 与 44−38=6 不符，须算数排除；A 单边计 10 月结案、D 按预开账单结案均违反 C-004。"
+  },
+  {
+   "qid": "M-07",
+   "arithmetic": "9×60=540；87−9=78，78×60=4,680；均自洽",
+   "trap_option": "B（9×70=630 元转入，单价误录 70，应为 60/单共 540）",
+   "trap_valid": true,
+   "issue_type": "none",
+   "verdict": "corroborated",
+   "caliber_refs": ["C-002", "E-003"],
+   "exception_hit": "E-003 命中：供应商已书面确认并自建承接记录，9 单转出、78 单留台账可接受",
+   "axis": "mixed",
+   "detail": "B 转入供应商清单方向合规但金额 630 与 9×60=540 不符，须算数排除；A 口头核销违反 C-002；D 不移出违反 E-003 的例外处理。"
+  },
+  {
+   "qid": "M-08",
+   "arithmetic": "58×300=17,400；17,400−16,800=600；2×300=600；均自洽",
+   "trap_option": "C（2×350=700 元，单价误录 350，应为 300/单共 600）",
+   "trap_valid": true,
+   "issue_type": "none",
+   "verdict": "corroborated",
+   "caliber_refs": ["C-005", "E-002", "M-004"],
+   "exception_hit": "E-002 命中：『储值支付归档表』为固定承接载体，扣减记录完整、无未完成核实，满足 M-004①②③，应当归档",
+   "axis": "mixed",
+   "detail": "C 归档方向合规但抵扣金额 700 与 2×300=600 不符，须算数排除；A 漏记 1 单方向反；B 无限期挂清单违反 M-004 应当归档推论。"
+  },
+  {
+   "qid": "M-09",
+   "arithmetic": "1,800+1,200+15×80(=1,200)=4,200；15×60=900、3,900 内部一致但单价与题面 80 不符",
+   "trap_option": "D（保留待书面确认方向合规，但金额按 3,900 登记，应为 4,200）",
+   "trap_valid": true,
+   "issue_type": "none",
+   "verdict": "corroborated",
+   "caliber_refs": ["C-002"],
+   "exception_hit": null,
+   "axis": "mixed",
+   "detail": "D 补书面确认方向合规但金额 3,900 与题面推算 4,200 不符，须算数排除；B 亦为 3,900 且『无需书面确认结案』处理反向；A 口头认可闭环违反 C-002。"
+  },
+  {
+   "qid": "M-10",
+   "arithmetic": "3,120+1,160+3,800=8,080；与供应商对账单一致；B 的 3,120+1,160+3,700=7,980 内部一致但与题面复印纸 3,800 矛盾",
+   "trap_option": "B（本月按 7,980 暂记，复印纸误录 3,700，应为 8,080）",
+   "trap_valid": true,
+   "issue_type": "none",
+   "verdict": "corroborated",
+   "caliber_refs": ["M-004"],
+   "exception_hit": null,
+   "axis": "mixed",
+   "detail": "B 转办补字段方向合规但暂记 7,980 与题面 8,080 不符，须算数排除；C 写背景说明不再跟进违反 M-004③；D 暂停对账且不催办违反修复义务。题面明确金额无差异，转办不得转出核对义务（M-004④），A 合规。"
+  }
+ ],
+ "summary": {
+  "n_mixed": 10,
+  "n_single_axis": 0,
+  "n_fact_issue": 0
+ }
+}
