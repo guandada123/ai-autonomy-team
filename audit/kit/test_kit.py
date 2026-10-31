@@ -39,6 +39,7 @@ from __future__ import annotations
 import contextlib
 import io
 import json
+import re
 import sys
 import tempfile
 from pathlib import Path
@@ -751,14 +752,22 @@ def _():
     assert vh._is_stdlib("coverage") is False            # 本 venv 装了它 → site-packages
 
 
-@check("verify_handover: chk_manifest 正样本（真包声明=实际）")
+@check("verify_handover: chk_manifest 正样本（真包声明=实际，不断言快照数字）")
 def _():
     import importlib.util
     spec = importlib.util.spec_from_file_location("vh_t2", ROOT / "scripts/verify_handover.py")
     vh = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(vh)
     ok, detail = vh.chk_manifest()
-    assert ok is True and "声明 1121" in detail, detail
+    # 断言「性质」而非「快照数字」：原先写死 "声明 1121"，本批新增 item_review.py /
+    # test_item_review.py / 协议 08 后重打包变 1122 就红——而 chk_manifest 本身没错。
+    # 写死派生数字的真实代价：每次正常加文件都要改测试，久而久之大家会顺手把数字改大
+    # 而不再看断言在验什么，回归保护就这样失效。改为解析出两个计数并断言它们相等，
+    # 无论包多大都成立，且仍能抓住"声明≠实际"（负样本另有 file_count=99 一例兜底）。
+    assert ok is True, detail
+    m = re.search(r"声明 (\d+) 条 / (\d+) 字节；实际 (\d+) 个文件", detail)
+    assert m is not None, f"detail 格式不可解析（若文案变了请同步本断言）：{detail}"
+    assert m.group(1) == m.group(3), f"声明文件数与实际不符：{detail}"
 
 
 @check("verify_handover: chk_manifest 三条负样本（坏 JSON/计数不符/缓存残留）")

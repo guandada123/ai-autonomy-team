@@ -15,7 +15,7 @@
 | 发布门禁 | A–H 全过（8/8） |
 | 全量回归 | 56/56 |
 | 源码规模 | 29 个脚本（`scripts/` 27 + `judges/` 2）/ 约 13,900 行 |
-| 已有资产 | 34 轮运行记录 · 83 份决策 · 41 条经验教训 · 7 份协议 |
+| 已有资产 | 34 轮运行记录 · 84 份决策 · 41 条经验教训 · 8 份协议 |
 | 问题反馈 | GitHub Issues（本仓库）｜路由判据/门禁误报请附 manifest 与复现命令 |
 
 ---
@@ -68,7 +68,7 @@ make test           # 等价于 python3 scripts/regress.py
 | 想知道**怎么用** | 本文件 + `make help` |
 | 想知道**为什么这样设计**、模块边界在哪 | [ARCHITECTURE.md](./ARCHITECTURE.md) |
 | 想知道**依赖与环境**、怎么迁移 | [DEPENDENCIES.md](./DEPENDENCIES.md) |
-| 想知道**判据口径**（什么算合格） | `docs/protocol/` 7 份协议，先读 `05-工作协议.md` |
+| 想知道**判据口径**（什么算合格） | `docs/protocol/` 8 份协议，先读 `05-工作协议.md` |
 | 想知道**某个决定为什么这么定** | `docs/decisions/` 45 份，按编号搜 |
 | 想知道**踩过什么坑** | `.learnings/` 12 条，`grep -r "关键词" .learnings/` |
 | 想知道**评审框架整体方案** | `docs/自治团队-最终方案-20261022.md` |
@@ -81,7 +81,7 @@ make test           # 等价于 python3 scripts/regress.py
 scripts/               ★ 唯一源码树（24 个脚本 + judges/ 2 个）
 migration-package/config/  契约参数（★ 在包内，工作区根没有；改这个 = 改判据口径）
 docs/protocol/         7 份工作协议
-docs/decisions/        83 份决策记录（编号到 D-0081；D-0017 未建，以文件数为准）
+docs/decisions/        84 份决策记录（编号到 D-0081；D-0017 未建，以文件数为准）
 .learnings/            41 条经验教训（L-XXXX）
 templates/             席位提示词模板
 fixtures/frozen/       冻结基线（回归第 8 项依赖，不可删）

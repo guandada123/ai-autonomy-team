@@ -86,6 +86,9 @@ selftest:
 	@echo "── 判定工具自检（多数票边界 / 覆盖率语义 / κ 已知值 / 与 score_v2 交叉）──"
 	$(PY) audit/kit/test_kit.py
 	@echo ""
+	@echo "── 出题质检闸自检（C1–C6 + C0 哈希绑定 / 正负样本 / 压线边界）──"
+	$(PY) audit/kit/test_item_review.py
+	@echo ""
 	@echo "── 真源快照自检（三向比对 / restore 正负样本）──"
 	$(PY) $(SCRIPTS)/snapshot_sources.py --self-test
 	@echo ""
@@ -196,6 +199,12 @@ brief-lint:
 # 含与历史 score_v2.py 的交叉验证——两处多数票实现若走偏，这里立刻红。
 kit-test:
 	$(PY) audit/kit/test_kit.py
+	$(PY) audit/kit/test_item_review.py
+
+# 出题质检闸：只看命题本身（题面/选项/结构），不看答题结果。
+# 与 item_gate（答题侧区分度）、route_gate（路由/偏斜）串联：命题可信 → 路由合规 → 实验 → 区分度。
+item-review:
+	$(PY) audit/kit/item_review.py --dossier audit/baseline/v2/dossier-v2.json
 
 # 标注集饱和检查：一套标注能不能验证规则（满分/阈值不敏感/两集同源三条判据）。
 # 与 item-gate、brief-lint 并列，三者分工：题面能否入库 / 题有无区分度 / 标注能否验规则。
