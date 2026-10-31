@@ -123,6 +123,44 @@ def check_library(path: Path = LIB) -> tuple[list[str], list[str]]:
     return errs, warns
 
 
+# ---------------------------------------------------------------- 引用判据（单一真源）
+# L-0040：判据不能留两份真源。--audit-review（闸门）与 cite_rate.py（指标）曾各写一套
+# 例外识别/范围判定，结果是同一份报告两个工具给出相反结论（2026-11-01 实测）。
+# 此后两边都必须调用 check_item_refs，不得各自重新实现。
+SCOPE_RE = re.compile(r"命中|适用|范围|场景")
+EXC_HIT_ID_RE = re.compile(r"\b([CEM]-\d{3})\b")
+
+
+def load_lib_ids(lib_path: Path = LIB) -> dict:
+    """{id: entry}；库不可读时抛错（不静默降级，否则会算出假的 100%）。"""
+    d = json.loads(lib_path.read_text(encoding="utf-8"))
+    return {e["id"]: e for e in d.get("entries", [])}
+
+
+def check_item_refs(item: dict, lib_ids: dict, alias: bool = False) -> dict:
+    """判定单条结论的引用是否合格。闸门与指标共用此函数。
+
+    alias=True 时接受历史报告的同义字段 refs（协议字段为 caliber_refs）。
+    """
+    refs = item.get("caliber_refs")
+    if refs is None and alias:
+        refs = item.get("refs")
+    refs = list(refs or [])
+    good = [r for r in refs if r in lib_ids]
+    bad = [r for r in refs if r not in lib_ids]
+    valid = bool(refs) and len(good) == len(refs)   # 含任一编造编号 → 整条无效
+    exc = [r for r in refs if lib_ids.get(r, {}).get("type") == "exception"]
+    scope = str(item.get("exception_hit") or "") + " " + str(item.get("detail") or "")
+    scope_ok = bool(SCOPE_RE.search(scope)) if exc else None
+    # 声明了 exception_hit 却没把该例外写进 caliber_refs → 引用集合不完整（下游会漏判）
+    declared = EXC_HIT_ID_RE.findall(str(item.get("exception_hit") or ""))
+    declared_missing = sorted(set(declared) - set(refs))
+    return {"refs": refs, "good": good, "bad": bad, "valid": valid,
+            "exception_ids": exc, "scope_ok": scope_ok,
+            "declared_exception_ids": declared,
+            "declared_not_cited": declared_missing}
+
+
 def audit_review(paths: list[Path], lib_path: Path = LIB) -> tuple[list[str], list[str], int]:
     """检查审查报告是否给了可引用的口径证据。返回 (问题, 提示, 条目数)。"""
     try:
@@ -143,18 +181,19 @@ def audit_review(paths: list[Path], lib_path: Path = LIB) -> tuple[list[str], li
         for it in items:
             qid = it.get("qid", "?")
             total += 1
-            refs = it.get("caliber_refs") or []
-            if not refs:
+            c = check_item_refs(it, lib_ids)
+            if not c["refs"]:
                 problems.append(f"{qid}: 口径证据不足——无 caliber_refs（M-001：只写『存在歧义』不算证据）")
                 continue
-            bad = [r for r in refs if r not in lib_ids]
-            if bad:
-                problems.append(f"{qid}: 引用了不存在的条目 {bad}")
-            exc = [r for r in refs if lib_ids.get(r, {}).get("type") == "exception"]
-            if exc:
-                scope = str(it.get("exception_hit") or "") + " " + str(it.get("detail") or "")
-                if not re.search(r"命中|适用|范围|场景", scope):
-                    problems.append(f"{qid}: 引用例外 {exc} 但未说明命中范围（M-002）")
+            if c["bad"]:
+                problems.append(f"{qid}: 引用了不存在的条目 {c['bad']}")
+            if c["exception_ids"] and not c["scope_ok"]:
+                problems.append(f"{qid}: 引用例外 {c['exception_ids']} 但未说明命中范围（M-002）")
+            # 2026-11-01 新增：声明了例外命中却未写进引用列表，下游按引用集合判断会漏判
+            if c["declared_not_cited"]:
+                problems.append(
+                    f"{qid}: 声明命中 {c['declared_not_cited']} 但未写入 caliber_refs"
+                    f"（引用集合不完整，下游按引用判断会漏判）")
     if problems:
         notes.append("以上为「证据不足」项：这类结论不能作为口径证据使用")
     return problems, notes, total

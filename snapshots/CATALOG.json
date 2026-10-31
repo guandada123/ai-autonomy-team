@@ -3,9 +3,9 @@
  "_generated_by": "scripts/snapshot_sources.py --catalog",
  "count": {
   "in_git": 3,
-  "archived": 298,
+  "archived": 299,
   "missing": 0,
-  "total": 301
+  "total": 302
  },
  "snapshots": [
   {
@@ -2394,8 +2394,8 @@
   },
   {
    "name": "20261031-232610-model-log-20261031b",
-   "location": "snapshots",
-   "in_git": true,
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
    "label": "model-log-20261031b",
    "created_at": "2026-10-31T23:26:10",
    "file_count": 462
@@ -2415,6 +2415,14 @@
    "label": "ablation-20261101",
    "created_at": "2026-11-01T00:49:41",
    "file_count": 468
+  },
+  {
+   "name": "20261101-070851-cite-rate-20261101",
+   "location": "snapshots",
+   "in_git": true,
+   "label": "cite-rate-20261101",
+   "created_at": "2026-11-01T07:08:52",
+   "file_count": 472
   }
  ]
 }

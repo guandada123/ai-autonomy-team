@@ -1,5 +1,5 @@
 {
- "_note": "M-004 边界回归样例集（2026-10-31）。5 道新题，不参与任何用户裁决；expected 为作者按 M-004 推导，经 2 名独立判者盲判 5/5 一致。**口径库任何条目变更后，必须重跑这 5 题并核对答案不变**；若变化，说明规则被动过。 2026-10-31 用户裁决：N1D/N2B/N3C/**N4 B**/N5A（4/5 与规则推导一致）。N4 差异暴露第(2)条过严（把『已确认』一律禁止），已收窄为『须含原因/依据且已核实』。 2026-10-31 用户裁决后 5/5 对齐（N-04 经条款收窄 + 选项修正）；本集标记 validated-by-user，口径库变更后须重跑核对。 2026-10-31 跨模型盲验：2 名新模型家族判者 5/5 与 golden/用户一致（RESULT-xmodel-20261031.md）；模型家族确认依赖用户声明。",
+ "_note": "M-004 边界回归样例集（2026-10-31）。5 道新题，不参与任何用户裁决；expected 为作者按 M-004 推导，经 2 名独立判者盲判 5/5 一致。**口径库任何条目变更后，必须重跑这 5 题并核对答案不变**；若变化，说明规则被动过。 2026-10-31 用户裁决：N1D/N2B/N3C/**N4 B**/N5A（4/5 与规则推导一致）。N4 差异暴露第(2)条过严（把『已确认』一律禁止），已收窄为『须含原因/依据且已核实』。 2026-10-31 用户裁决后 5/5 对齐（N-04 经条款收窄 + 选项修正）；本集标记 validated-by-user，口径库变更后须重跑核对。 2026-10-31 跨模型盲验：2 名新模型家族判者 5/5 与 golden/用户一致（RESULT-xmodel-20261031.md）；模型家族确认依赖用户声明。 2026-11-01 更正：跨模型臂为 GLM-5.3-flash（xjudge-A/B，新版题面 5/5）；DeepSeek 臂 judge-1/judge-2 答的是 N-04 旧版题面（4/5，N-04 答 D），两者在其余 4 题完全一致——差异属题面版本而非模型。详见 RESULT-xmodel §四点七。 2026-11-01 消融：无库臂 N-noLib 5/5，与有库臂逐题相同 → 库在本题集无增量（命中预注册 N=5/5 档）。见 RESULT-ablation-20261101.md。",
  "batch": "m004-boundary-5",
  "items": [
   {
@@ -30,7 +30,8 @@
    },
    "judges": {
     "J1": "D",
-    "J2": "D"
+    "J2": "D",
+    "N-noLib": "D"
    },
    "user_answer": "D",
    "match_expected": true,
@@ -68,7 +69,8 @@
    },
    "judges": {
     "J1": "B",
-    "J2": "B"
+    "J2": "B",
+    "N-noLib": "B"
    },
    "user_answer": "B",
    "match_expected": true,
@@ -104,7 +106,8 @@
    },
    "judges": {
     "J1": "C",
-    "J2": "C"
+    "J2": "C",
+    "N-noLib": "C"
    },
    "user_answer": "C",
    "match_expected": true,
@@ -141,7 +144,8 @@
    },
    "judges": {
     "J1": "D",
-    "J2": "D"
+    "J2": "D",
+    "N-noLib": "B"
    },
    "user_answer": "B",
    "match_expected": true,
@@ -179,7 +183,8 @@
    },
    "judges": {
     "J1": "A",
-    "J2": "A"
+    "J2": "A",
+    "N-noLib": "A"
    },
    "user_answer": "A",
    "match_expected": true,
@@ -189,5 +194,28 @@
    }
   }
  ],
- "validated_by_user": "2026-10-31"
+ "validated_by_user": "2026-10-31",
+ "cross_model": {
+  "families": [
+   "DeepSeek-V4.1-Flash",
+   "GLM-5.3-flash"
+  ],
+  "comparable_items": 4,
+  "agreement": "4/4",
+  "incomparable": [
+   "N-04：题面版本差"
+  ],
+  "source": "RESULT-xmodel-20261031.md §四点七"
+ },
+ "ablation": {
+  "pre_reg": "runs/ablation-prereg.json",
+  "no_library_arm": "N-noLib",
+  "result": {
+   "no_lib": "5/5",
+   "with_lib_A": "5/5",
+   "with_lib_B": "5/5",
+   "identical": true
+  },
+  "conclusion": "天花板，库无增量；confound=两臂模型不同但均触顶，不影响该结论"
+ }
 }
