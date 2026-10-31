@@ -1,7 +1,7 @@
 {
- "created_at": "2026-10-31T23:24:00",
- "label": "model-log-20261031",
- "file_count": 462,
+ "created_at": "2026-11-01T00:49:41",
+ "label": "ablation-20261101",
+ "file_count": 468,
  "files": {
   "scripts/build_package.py": {
    "sha256": "270d99bebfffeeaadfb2e904f6b3230ace8048136854e0a0faca4fdb2cbbcfcb",
@@ -136,8 +136,8 @@
    "bytes": 5795
   },
   "scripts/record_model.py": {
-   "sha256": "fcafd33ecdec01178a7a60c270e9f7d46572279c8cdb0da68355803396ebbae5",
-   "bytes": 4718
+   "sha256": "64d9f6da729f37fafc257378e5b35ac48f0d84f05cac97ff5625e80f5dca0b63",
+   "bytes": 6897
   },
   "scripts/redact_report.py": {
    "sha256": "f9e0297831274a53e3252a75191e8e28ac8d86dc8f489b24bfecf74ada6144ba",
@@ -168,8 +168,8 @@
    "bytes": 13505
   },
   "scripts/test_record_model.py": {
-   "sha256": "faeb6a8afeb1a37d04e36665ddc25d496d5e1e391215a6074996ff75849ea87d",
-   "bytes": 3881
+   "sha256": "d027ba1a493fb62d36dbd086cb2874eb6089722b29e8aeec9926e54f10b548f3",
+   "bytes": 6039
   },
   "scripts/upgrade_status.py": {
    "sha256": "639b9ce1769fdf7064c6712f50e327213dbd509ffdbab7b8bc0ba94a658156d6",
@@ -536,8 +536,8 @@
    "bytes": 2583
   },
   "docs/decisions/D-0082-判断类题库v2方向拍板.md": {
-   "sha256": "75f3e6655750fd7c60470ce71fdc24b84f764d0ba545bef53995b8ea485007d8",
-   "bytes": 5350
+   "sha256": "e31a4caace06bee3877d11c45ba205940cc5ca8f4beba49b8b151e326c0fba82",
+   "bytes": 6127
   },
   "docs/decisions/D-0083-四角色解冻与v2对照实验.md": {
    "sha256": "ae3e667f9fe36421f594ded6f98ccc9a46857f3bed1a9f0b6fd59701155b536f",
@@ -552,8 +552,8 @@
    "bytes": 4912
   },
   "docs/decisions/D-0086-口径库接入审查员.md": {
-   "sha256": "a643e25a9adf430d1dec5b995d64d4e31c19e01ef500654295826698403ee89f",
-   "bytes": 5630
+   "sha256": "cb79697521f2872480aeb6fd0eb7353966fcb742d0287f7e525e846be9d586fe",
+   "bytes": 6557
   },
   "docs/decisions/D-0087-选项均衡化改造.md": {
    "sha256": "035ace7e859e335bcc7c4d297fd608dea1a34a5ca66a89d90d88ed5c781f694c",
@@ -640,8 +640,8 @@
    "bytes": 3118
   },
   "audit/baseline/model-log.jsonl": {
-   "sha256": "59fd5cfdb2512cc68a82e4289fdaa0e4e40407332d4e267a35573ead4c236a4f",
-   "bytes": 288
+   "sha256": "b2dff69481ee82b6eda238c08b27c7552b89515a1fe69601c096bc0c22d7895b",
+   "bytes": 730
   },
   "audit/baseline/multi/RESULT-multi-20261024.md": {
    "sha256": "9699079fd6deea52ef07bb46c8a79cfe3c3417eec1f7bc639420797768143706",
@@ -843,6 +843,10 @@
    "sha256": "b7e0b943daac73af0e3d3ba14856967e3f2e5a8ab8f9810ec7d4ed6265f1e2f7",
    "bytes": 2050
   },
+  "audit/baseline/v2/RESULT-ablation-20261101.md": {
+   "sha256": "4deca81928cb1ff618f5eaed52e3c4de80c0bfded62d52ee832b17a3dd61ec3a",
+   "bytes": 4705
+  },
   "audit/baseline/v2/RESULT-m004-blind-20261031.md": {
    "sha256": "8e2b1751d0cda3fa00bd361389ab09a4010f34d9530e86fc434bc1228c65a18c",
    "bytes": 5246
@@ -880,8 +884,8 @@
    "bytes": 6769
   },
   "audit/baseline/v2/RESULT-xmodel-20261031.md": {
-   "sha256": "bdf855c27b837dca5ee613379575a92e34d328bf76a787e2a6c87b314f2338fb",
-   "bytes": 6008
+   "sha256": "8bf292ff9f802e0f68dc3ed8d13bdaee001b60a0941aa26d2113fff5935f48b6",
+   "bytes": 8913
   },
   "audit/baseline/v2/V2-PROPOSAL-方向提案-20261028.md": {
    "sha256": "58facc7f75c422ea223d87dc5d357ff7dcb50ac107f23000058efb7f8d573642",
@@ -948,8 +952,8 @@
    "bytes": 26541
   },
   "audit/baseline/v2/golden/m004-boundary-5.json": {
-   "sha256": "2da628582ad0c9bdd50117e9a1330fca3926fd6ed794f346c0119ac91bdc4653",
-   "bytes": 7946
+   "sha256": "923934c09afa95ffaba47c056500188d680bbc03bfb290e9829b1c3c5c60450e",
+   "bytes": 9037
   },
   "audit/baseline/v2/golden/mixed-axis-10.json": {
    "sha256": "ef971b2cd06887f2e0bdd4d31fae4b2dafb68f2c470f099de1b7fc158b8ed958",
@@ -1207,9 +1211,17 @@
    "sha256": "c7599d9365a317533dad1b97197de3ec3e5b9e1a0fc67f73811f8ee1c9100b19",
    "bytes": 3449
   },
+  "audit/baseline/v2/runs/ablation-prereg.json": {
+   "sha256": "281a44a8d7755f0963b2bf8853e6d8e12d514bb7b8ef68e1f905d10f41414b0d",
+   "bytes": 1284
+  },
   "audit/baseline/v2/runs/arm-blind-mixed.json": {
    "sha256": "51fb0c03b4202a62c13ba6eb7a1bba94a7e2376fe18f83d57c0af67735ad9aa4",
    "bytes": 4201
+  },
+  "audit/baseline/v2/runs/boundary5-blind.json": {
+   "sha256": "a97d4d99062cc7af74b715fdb0b9c2534138408cd9e06df4ec1f27ee61ba5906",
+   "bytes": 5540
   },
   "audit/baseline/v2/runs/judge-1.json": {
    "sha256": "ba27d1037b7383dff37809f1057348325cce96ee05482e39bdb8f2077528440a",
@@ -1235,9 +1247,17 @@
    "sha256": "2e2a659cb803203a521ceeb4f54145a9559a2d0cb598917c50628c2794f835ae",
    "bytes": 27454
   },
+  "audit/baseline/v2/runs/nolib-5.json": {
+   "sha256": "b73f02608015b936cdd8699f207dd3e227df04839751bef22b7c6b093cd47d0a",
+   "bytes": 1429
+  },
   "audit/baseline/v2/runs/r4-cross.json": {
    "sha256": "84cf9159ee238d79cfe9fa68713e267b10090e2cbd7c4515c75ccb997af66fb6",
    "bytes": 5249
+  },
+  "audit/baseline/v2/runs/r4-mixed-ds.json": {
+   "sha256": "069e519dffc6647e642ad7b24f056797dbab09e786e0f201e1ba5c721a1d2749",
+   "bytes": 5482
   },
   "audit/baseline/v2/runs/r4-mixed-v2.json": {
    "sha256": "479f2c36067eed32b6267f8dc2ab35632c86b8636b534d59a701d0ea0ebf0637",
@@ -1803,6 +1823,10 @@
    "sha256": "3e0d5580747ee04b3894c74bccd0c3d6a98b1204074ab544a26f63382aa67b1c",
    "bytes": 3512
   },
+  ".learnings/L-0044-规则的价值只在规则未参与命题的题上可测.md": {
+   "sha256": "1a96ffc91b7c0743bbc7843e2b281a83de4388060175be90f61f9b32046f7c80",
+   "bytes": 2988
+  },
   ".github/workflows/selftest.yml": {
    "sha256": "893c6a49f1dba12a21eab68aa70321572c78730e5985acc00c73753938a83b2f",
    "bytes": 2140
@@ -1832,15 +1856,15 @@
    "bytes": 923
   },
   "Makefile": {
-   "sha256": "163500e6bc0c2e0c9c015bf7f61b2c1dd1eca1e2238666a96d398cc16507b9dd",
-   "bytes": 14127
+   "sha256": "7dd9f59e94b1b814ae2e8f666f84ef17de75ccbac775da911eaa22a7e5f414c0",
+   "bytes": 14268
   },
   "README.md": {
-   "sha256": "ce2a113483e4d6533ed7f0e20df46c20b590118370c9483d9f2dc2853a389f36",
+   "sha256": "a538cc5591c64f91fff870cd08963b8b7fa1b7e5d827082d4c56dbc391ed0dec",
    "bytes": 5178
   },
   "ARCHITECTURE.md": {
-   "sha256": "53398079075bbb8e6bdd89a415f41276a051e6df6a12d1d11773739101898001",
+   "sha256": "35e1eb4a5bca61a1a46191109ba19cd8191367bcb0d8d88cc3bb474067094748",
    "bytes": 24056
   },
   "DEPENDENCIES.md": {
@@ -1853,8 +1877,8 @@
   }
  },
  "caller": {
-  "pid": 81245,
-  "ppid": 81237,
-  "parent_cmd": "/bin/zsh -c . '/Users/guan/.workbuddy/shell-snapshots/snapshot-zsh-1793460001897-pojkva.sh' && if [ -n \"${CODEBUDDY_SAFE_DELETE_BIN_DIR:-}\" ]; then unalias rm unlink rmdir 2>/dev/null || true; unset -"
+  "pid": 39390,
+  "ppid": 39380,
+  "parent_cmd": "/bin/zsh -c . '/Users/guan/.workbuddy/shell-snapshots/snapshot-zsh-1793465188632-g1usen.sh' && if [ -n \"${CODEBUDDY_SAFE_DELETE_BIN_DIR:-}\" ]; then unalias rm unlink rmdir 2>/dev/null || true; unset -"
  }
 }
