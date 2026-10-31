@@ -3,9 +3,9 @@
  "_generated_by": "scripts/snapshot_sources.py --catalog",
  "count": {
   "in_git": 3,
-  "archived": 288,
+  "archived": 289,
   "missing": 0,
-  "total": 291
+  "total": 292
  },
  "snapshots": [
   {
@@ -2314,8 +2314,8 @@
   },
   {
    "name": "20261031-140055-caliber-lib-20261031",
-   "location": "snapshots",
-   "in_git": true,
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
    "label": "caliber-lib-20261031",
    "created_at": "2026-10-31T14:00:55",
    "file_count": 421
@@ -2335,6 +2335,14 @@
    "label": "caliber-m004-20261031",
    "created_at": "2026-10-31T15:17:03",
    "file_count": 432
+  },
+  {
+   "name": "20261031-152925-m004-blind-20261031",
+   "location": "snapshots",
+   "in_git": true,
+   "label": "m004-blind-20261031",
+   "created_at": "2026-10-31T15:29:25",
+   "file_count": 438
   }
  ]
 }

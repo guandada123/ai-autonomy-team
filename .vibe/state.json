@@ -2,7 +2,7 @@
   "methodology_step": 3,
   "methodology_step_source": "scan_inferred",
   "current_stage": "MVP 定义",
-  "last_activity": "2026-10-31T14:01:46+08:00",
+  "last_activity": "2026-10-31T15:29:24+08:00",
   "milestones": [
     {
       "date": "2026-10-30",
@@ -69,6 +69,10 @@
     {
       "date": "2026-10-31",
       "event": "口径库 v1 接入审查员：11 条（5 原则+3 例外+3 元规则），caliber_lib.py --check/--audit-review 全绿；试点 R1/R2 各 6 题 12/12 带 id 引用（接库前 50/50 无引用）"
+    },
+    {
+      "date": "2026-10-31",
+      "event": "M-004 外推盲验：5 道新题（新行业）+ 2 独立判者，判者间 5/5、与期望 5/5；固化回归集 golden/m004-boundary-5.json"
     }
   ]
 }

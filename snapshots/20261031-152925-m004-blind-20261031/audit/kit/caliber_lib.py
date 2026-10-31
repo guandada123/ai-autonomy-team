@@ -107,6 +107,16 @@ def check_library(path: Path = LIB) -> tuple[list[str], list[str]]:
     if LEAK_RE.search(raw):
         errs.append("反泄露：库内出现「用户裁A/D」类答案字母复述（会把答案带进审查）")
 
+    # 手册↔JSON 一致性：人读手册漏写条目 = 审查员看不到规则（2026-10-31 实测 M-003 曾漏）
+    md = path.with_name("CALIBER-LIBRARY.md")
+    if md.exists():
+        md_txt = md.read_text(encoding="utf-8")
+        for eid in ids:
+            if eid not in md_txt:
+                errs.append(f"{eid}: 人读手册 CALIBER-LIBRARY.md 未收录该条目（手册与 JSON 不一致）")
+    else:
+        warns.append("未找到人读手册 CALIBER-LIBRARY.md，无法校验手册一致性")
+
     n_exc = sum(1 for e in ids.values() if e["type"] == "exception")
     if n_exc == 0:
         warns.append("库内无例外条目：原则冲突时无优先级可用（M-001 空转）")
