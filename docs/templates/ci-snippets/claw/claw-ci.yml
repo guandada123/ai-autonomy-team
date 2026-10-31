@@ -1,0 +1,345 @@
+# ============================================================
+# Claw CI — v2.0 (Unified Standard)
+# Phases: Lint → Type Check → Test → Security
+# ============================================================
+name: Claw CI
+
+# 2026-10-28 降本（用户决策：不升 Pro，靠降频+并发取消）：
+# 事故证据 —— 本月实测 606 次 run、wall-clock 合计 3325 分钟（≥ 免费额度 2000 的 166%，
+# 且 wall-clock 只是**下界**：Actions 按 job 累加计时，并行 job 的真实账单更高）。
+# 直接后果：job 全部 steps=0、无 runner 分配、3 秒失败（annotations 原文：
+# "The job was not started because recent account payments have failed or your
+#  spending limit needs to be increased"），**门禁整体瘫痪而本地全绿**。
+#
+# 原配置的硬缺陷：**完全没有 concurrency 段**。同一分支连续 push（本项目一天几十次
+# 自动产物提交）会把每个中间提交的 7 个 job 全部跑完 —— 只有最新提交的结论有意义，
+# 中间提交的 run 是纯浪费。加并发取消后，同分支只保留最新一次。
+#
+# 语义取舍（改前必读）：取消的 run 结论是 `cancelled` 而非 `failure`，巡检
+# check_qts_pmf_ci / check_ci_gate 都只把 `failure` 计为红灯，故不会制造假红。
+# 门禁契约因此变为「**最新提交**必须绿」——中间提交不再各自取证，这是降本的前提。
+concurrency:
+  group: claw-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  # 2026-10-26 降本（用户决策 B+C）：GitHub Actions 分钟数按 job 累加，
+  # 实测 10-23 单日 43 次 run ≈ 300+ 分钟，直接吃光免费额度导致门禁瘫痪。
+  # 三处收紧：① 排除纯文档/数据目录（它们不改变可执行行为，改了也不必跑全套）；
+  # ② 新增 schedule 供 benchmark 降频（见该 job 的 if）；③ paths 保留代码面不变。
+  # 2026-10-26 二次收紧（用户决策：不升级 Pro，靠降频）：把泛化的 `.workbuddy/**`
+  # 换成**只列真含可执行代码的子目录**。依据（实测文件/代码数）：scripts 249/232、
+  # tests 12/12、lib 4/4、deploy 6/3、hooks 2/2 是代码；而 inspection_hub(46)、
+  # reports(32)、data(29)、memory(21)、docs(14) 等 12 个子目录**零代码**（纯文档/配置/数据）。
+  # 此前改为「只改 calibration json / proposals 也跑全套 7 job」——纯浪费。
+  # 唯一例外：inspection_hub/registry.json 被多个测试读取（schema/声明审计），
+  # 其变更必须验，故单独保留。
+  pull_request:
+    paths:
+      - ".workbuddy/scripts/**"
+      - ".workbuddy/lib/**"
+      - ".workbuddy/tests/**"
+      - ".workbuddy/deploy/**"
+      - ".workbuddy/hooks/**"
+      - ".workbuddy/inspection_hub/registry.json"
+      - "tests/**"
+      - "src/**"
+      - "scripts/**"
+      - ".github/workflows/**"
+      - "ruff.toml"
+      - ".pre-commit-config.yaml"
+      - "pyproject.toml"
+  push:
+    branches: [main]
+    paths:
+      - ".workbuddy/scripts/**"
+      - ".workbuddy/lib/**"
+      - ".workbuddy/tests/**"
+      - ".workbuddy/deploy/**"
+      - ".workbuddy/hooks/**"
+      - ".workbuddy/inspection_hub/registry.json"
+      - "tests/**"
+      - "src/**"
+      - "scripts/**"
+      - ".github/workflows/**"
+      - "ruff.toml"
+      - ".pre-commit-config.yaml"
+      - "pyproject.toml"
+  schedule:
+    - cron: "0 2 * * 1" # 每周一 02:00 UTC —— 仅 benchmark 与全量回归用
+  workflow_dispatch:
+
+env:
+  # 2026-10-18（PA-026）：3.12 → 3.13，与本地 venv 及 pyproject 的 mypy target 对齐。
+  # 此前 CI 跑 3.12、本地跑 3.13，属"声明-本地-CI"之外的最后一条漂移轴。
+  PYTHON_VERSION: "3.13"
+  RUFF_CONFIG: ruff.toml
+  # 两个 test job 的覆盖率基准差异大（.workbuddy/tests ≈3%、根 tests ≈20%），
+  # 暂不设统一门禁（仅上报、不阻塞）。抬门禁前须先对齐口径并扩大测试面。
+  COV_FAIL_UNDER: 0
+
+jobs:
+  pre-commit:
+    name: Pre-commit Hooks
+    runs-on: ubuntu-latest
+    # 2026-10-28 降本：job 默认超时 360 分钟 —— 一次卡死能烧掉整月额度。
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: "pyproject.toml"
+      - name: Install pre-commit
+        run: pip install pre-commit
+      - name: Run pre-commit hooks
+        run: pre-commit run --all-files --show-diff-on-failure
+
+  lint:
+    name: Lint & Format
+    runs-on: ubuntu-latest
+    # 2026-10-28 降本：job 默认超时 360 分钟 —— 一次卡死能烧掉整月额度。
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: "pyproject.toml"
+      - name: Install ruff
+        run: pip install ruff==0.15.17  # 锁定与本地/根 pre-commit 一致的版本，避免新版规则(如 PLR0917)漂移致 CI 红灯
+      - name: Ruff lint
+        # 2026-09-29：扫描面由 .workbuddy/ 扩到**全仓** —— 工程质量报告已连续在多处发现
+        # tests/ 的 N802/S108（tests/ 从不在门禁内，只在报告里出现 → 靠人记得去改）。
+        # 实测全仓 `ruff check .` 0 命中，扩面零风险；format 仍只扫 .workbuddy/
+        # （全仓有 116 个文件会被重排，那是另一件事，别混进来）。
+        run: ruff check . --config ${{ env.RUFF_CONFIG }}
+      - name: Ruff format check
+        run: ruff format --check .workbuddy/ --config ${{ env.RUFF_CONFIG }}
+
+  type-check:
+    name: Type Check (mypy)
+    runs-on: ubuntu-latest
+    # 2026-10-28 降本：job 默认超时 360 分钟 —— 一次卡死能烧掉整月额度。
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: "pyproject.toml"
+      - name: Install mypy
+        run: pip install mypy
+      - name: Type check
+        run: |
+          cd .workbuddy
+          mypy scripts/ lib/ \
+            --ignore-missing-imports \
+            --check-untyped-defs \
+            --warn-return-any \
+            --warn-redundant-casts || echo "::warning::mypy 发现类型提示问题（非阻塞）"
+
+  test:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    # 2026-10-28 降本：job 默认超时 360 分钟 —— 一次卡死能烧掉整月额度。
+    timeout-minutes: 25
+    needs: lint
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: "pyproject.toml"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          # 依赖唯一真源（2026-10-18 见 PA-026）：按 .workbuddy/requirements.lock 装**确切版本**。
+          # 此前这里是 `pip install numpy pandas ...`（不锁版本）→ CI 实测拿到 pandas 3.0.6，
+          # 而本地是 2.3.3：两套环境互不相等，且没有任何地方记录"哪套才是验证过的"。
+          # lock 里写的版本 = 本地跑通全量测试的确切版本（维护规则见文件头注释）。
+          pip install -r .workbuddy/requirements.lock
+          # psycopg2 刻意不在 lock 里（本地未装、需 pg_config），CI 单独装以覆盖 PG 落库路径。
+          pip install psycopg2
+      - name: Print resolved versions (依赖指纹)
+        # 把"这次 CI 实际用了哪些版本"打进日志：否则出了差异无法回溯是哪套环境跑出来的。
+        # 刻意用 pip list + grep 而非 python -c/heredoc —— 后者在 YAML 块标量里极易踩缩进坑。
+        run: |
+          echo "=== 依赖指纹（CI 实际解析到的版本）==="
+          pip list 2>/dev/null | grep -iE "^(pandas|numpy|akshare|httpx|requests|jsonschema|scipy) " || true
+
+      - name: Run tests with coverage (.workbuddy/tests)
+        # 代码包为 scripts/（非 lib/）；当前单测仅覆盖部分脚本，覆盖率门禁设为 0（仅上报，不阻塞），
+        # 待测试面扩大后逐步抬高 COV_FAIL_UNDER。
+        # 两个目录拆独立 pytest 进程：test_router 在模块顶层注入 sys.modules mock，
+        # 若与根 tests/ 同进程会跨文件污染（如 test_local_model）。分进程隔离，零污染。
+        run: |
+          cd .workbuddy && python -m pytest tests/ -v --tb=short \
+            --cov=scripts \
+            --cov-report=term-missing \
+            --cov-fail-under=${{ env.COV_FAIL_UNDER }}
+      - name: Run root tests/ (CI 覆盖补全)
+        # 根 tests/ 含 42 个核心逻辑测试（advisor_rules/cost_tracker/price_sanity 等），
+        # 此前 CI 未覆盖（仅本地 pytest 跑）。独立进程跑，避免被 test_router 的 sys.modules mock 污染。
+        #
+        # 覆盖率口径：real code 在 .workbuddy/scripts/（脚本层 scripts/ 下同名文件是 30 行
+        # AUTO-GENERATED 转发薄壳，见 safe_dedup.py）。此前此处写 --cov=scripts 且 cwd=仓库根，
+        # 统计到的是 Claw/scripts/ 薄壳目录，与另一个 job（cd .workbuddy && --cov=scripts）
+        # 口径不一致、数字虚高。统一为真码目录。
+        run: |
+          python -m pytest tests/ -v --tb=short \
+            --cov=.workbuddy/scripts \
+            --cov-report=term-missing \
+            --cov-fail-under=${{ env.COV_FAIL_UNDER }}
+
+  isolation:
+    # 为什么独立出来一个作业（2026-10-23 两次实证）：
+    #   ① 同日 `test_enrich_attaches_sentiment` 本地绿 / CI 恒红 —— 它靠本机 QTS PG(15432)
+    #      或外网腾讯兜底喂出 technical 维度，CI 两者皆无 → 恒空；
+    #   ② Unit Tests 长期 11 分钟，真因不是机器慢：本地把 PG 指向死端口后同样变 397s，
+    #      `--durations` 点名三条用例各 108s（板块强弱层全市场取数 + 每只都重试）。
+    # 结论：**「测试通过」不等于「测试与环境无关」**。这个作业把四个环境维度全部掐断，
+    # 任何新写测试若偷偷依赖本机资源，红在这里而不是红在某个没人在看的时刻。
+    name: Test Isolation (no PG / home / SDK / network)
+    runs-on: ubuntu-latest
+    # 2026-10-28 降本：job 默认超时 360 分钟 —— 一次卡死能烧掉整月额度。
+    timeout-minutes: 25
+    needs: lint
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: "pyproject.toml"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r .workbuddy/requirements.lock
+          pip install psycopg2
+      - name: Root tests under hostile env (四维掐断)
+        # 四维：无 PG(QTS_PG_PORT=1) / 空 HOME / 空资料库 SDK / 网络指向死端口。
+        # 判据不是"变快了"，而是与常规作业**同样全绿** —— 绿了才算与环境解耦。
+        run: |
+          env HOME="$(mktemp -d)" \
+              LIBRARY_SKILL_DIR="$(mktemp -d)" \
+              QTS_PG_PORT=1 \
+              HTTP_PROXY=http://127.0.0.1:1 HTTPS_PROXY=http://127.0.0.1:1 \
+              ALL_PROXY=http://127.0.0.1:1 NO_PROXY= no_proxy= \
+            python -m pytest tests/ -q --tb=short
+      - name: .workbuddy/tests under hostile env
+        # 为什么另起一步、且必须独立进程：test_router 在模块顶层注入 sys.modules mock，
+        # 与根 tests 同进程会跨文件污染。四维同上；本套 199 例实测 17.8s 即可跑完。
+        run: |
+          cd .workbuddy && env HOME="$(mktemp -d)" \
+              LIBRARY_SKILL_DIR="$(mktemp -d)" \
+              QTS_PG_PORT=1 \
+              HTTP_PROXY=http://127.0.0.1:1 HTTPS_PROXY=http://127.0.0.1:1 \
+              ALL_PROXY=http://127.0.0.1:1 NO_PROXY= no_proxy= \
+            python -m pytest tests/ -q --tb=short
+
+  benchmark:
+    name: Benchmark Regression Check
+    # 2026-10-26 降本：性能基准回归不需要每次 push 都跑（它跑的是固定基准，
+    # 只有依赖/算法变动才可能漂移）。降为「每周 schedule + 手动 dispatch」。
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    # 2026-10-28 降本：job 默认超时 360 分钟 —— 一次卡死能烧掉整月额度。
+    timeout-minutes: 20
+    needs: lint
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: "pyproject.toml"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest pytest-benchmark
+      - name: Restore benchmark history
+        uses: actions/cache@v6
+        with:
+          path: .workbuddy/.benchmarks
+          key: benchmark-${{ github.ref_name }}-${{ github.sha }}
+          restore-keys: benchmark-${{ github.ref_name }}-
+      - name: Run benchmark
+        run: |
+          if [ -f .workbuddy/tests/test_benchmark.py ]; then
+            cd .workbuddy && python -m pytest tests/test_benchmark.py --benchmark-only --benchmark-json=../benchmark-results.json -v
+          else
+            echo "::warning::tests/test_benchmark.py 不存在，跳过基准回归检测（新增该文件即自动启用）"
+          fi
+      - name: Compare with baseline (warning only)
+        run: |
+          if [ -f .workbuddy/.benchmarks/baseline.json ]; then
+            python .workbuddy/scripts/benchmark_compare.py .workbuddy/.benchmarks/baseline.json benchmark-results.json || echo "::warning::性能回归检测：部分测试变慢，请检查"
+          else
+            echo "No baseline found, skipping comparison"
+          fi
+      - name: Save baseline (main branch only)
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: |
+          if [ -f benchmark-results.json ]; then
+            cp benchmark-results.json .workbuddy/.benchmarks/baseline.json
+            echo "Baseline updated on main"
+          else
+            echo "::warning::无基准结果（test_benchmark.py 缺失或未运行），跳过 baseline 保存"
+          fi
+
+  security:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    # 2026-10-28 降本：job 默认超时 360 分钟 —— 一次卡死能烧掉整月额度。
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          # ⚠️ 2026-10-26 必需：下方「Secret history scan」要遍历 git 历史 blob。
+          # checkout 默认 fetch-depth: 1（浅克隆）→ 历史对象压根没拉下来，
+          # 扫描器会报「✅ 历史干净」但那是**假绿**（实测：depth=1 克隆 1 个提交时
+          # 旧 key 的 blob 不可达、扫描 0 命中；全克隆 848 提交同样 0 命中但结论可信）。
+          # 只本 job 拉全历史（其余 job 仍默认浅克隆，省时）。
+          fetch-depth: 0
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: "pyproject.toml"
+      - name: Install scanners
+        run: pip install bandit safety
+      - name: Bandit (code-level scan)
+        run: bandit -r .workbuddy/scripts/ .workbuddy/lib/ -ll --skip B101,B324,B310,B108,B306
+      - name: Safety (dependency scan)
+        run: safety check --full-report || true
+      - name: Secret history scan (git 全历史)
+        # 2026-10-26 接线（此前工具存在但从未被任何门禁调用 = 摆设）：
+        # gitleaks 只看工作区/HEAD，**历史 blob 完全没有覆盖**——本仓 2026-08 的历史里
+        # 就曾躺着一把 DEEPSEEK 旧键（后来核实为死键，已登记 secret_history_allowlist.json）。
+        # 教训原文见 .learnings/2026-10-12-content-secret-survives-name-level-fix.md：
+        # 「从 HEAD 移除 ≠ 修复」。全历史扫描实测 5s（848 提交），成本可忽略。
+        run: python .workbuddy/scripts/scan_git_history_secrets.py
+      - name: Secret scan
+        run: |
+          # 判据（2026-10-11 两层，互补 —— 改任一层前先读这里，别只改一处）：
+          #  ① 源头约定（更严，由 tests/test_secret_scan_selfcheck.py 强制）：
+          #     `.workbuddy/scripts/` 与 `.workbuddy/lib/` 里**不得出现完整 PEM 标记字面量**；
+          #     检测器要匹配它时按 `"PRIVATE" + " KEY-----"` 拆开拼接。
+          #  ② 本步兜底（防的是一整类，不只是一次事故）：关键词命中**且不是模式定义行**
+          #     （`grep -v "re\.compile"`）才算真密钥。实例：新增一个密钥检测脚本，其
+          #     `re.compile(...)` 里写着完整 PEM 头 → 被本步当成真密钥判红（2026-10-11 实测，
+          #     把 Claw CI 的 Security Scan 打红）。真密钥不会长在模式串里。
+          #     `-I` 忽略二进制（本地 `__pycache__/*.pyc` 会以 "Binary file matches" 命中）。
+          # 真正会拦人的是 Security Scan 工作流里的 gitleaks；本步只是廉价冒烟。
+          HITS=$(grep -rnI "PRIVATE KEY\|-----BEGIN RSA\|-----BEGIN OPENSSH" .workbuddy/scripts/ .workbuddy/lib/ 2>/dev/null | grep -v "re\.compile" || true)
+          if [ -n "$HITS" ]; then
+            echo "$HITS"
+            echo "::error::Private key detected in source code"
+            exit 1
+          fi
+          echo "No secrets found"

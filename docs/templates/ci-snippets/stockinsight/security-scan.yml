@@ -1,0 +1,131 @@
+# ============================================================
+# StockInsight — Security Scan (Unified Standard)
+# Runs: weekly schedule + on dep/code change + manual
+#
+# 🔴 2026-10-11 审计整改（P1-6）：
+#   · 原 `safety check ... || true` 的 scanner 已失效（safety 3.x 需账号鉴权），
+#     产出的是**空报告**，而 Summary 用 `|| echo 0` 把它显示成「0 vulnerabilities」
+#     —— 典型的「扫描器静默失效 + 假 0」。已换为 **pip-audit**（免费、无需鉴权）。
+#   · bandit 原为 `|| true` + continue-on-error（永不阻断）。基线实测 0 命中，
+#     故改为**阻塞式**：新增 MEDIUM+ 问题即红。
+#   · NODE_VERSION 由 20 对齐到 22（与 stockinsight-ci.yml 一致；Node 20 已 EOL）。
+# ============================================================
+# 2026-10-29 降本（账号级共享额度）：移除 `on.push.branches:[main]` 触发，
+# push main 不再即时跑安全扫描；保留 schedule（每周一）+ pull_request + workflow_dispatch 兜底。
+# 目的：每次 push main 从 3 个 workflow 降到 1 个（与 Claw 一致）。可逆：恢复上面的 push 块即可。
+# ============================================================
+name: Security Scan
+
+# 2026-10-28 降本（账号级共享额度）：本仓此前无 concurrency。
+# 同分支连续 push/PR 事件会把每个中间提交的全套 job 都跑完，而只有最新提交的结论有意义。
+# 取消的 run 记为 cancelled（不是 failure），巡检的红灯判据只认 failure，不会制造假红。
+concurrency:
+  group: stockinsight-security-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  schedule:
+    - cron: "0 8 * * 1"  # 每周一 8:00 UTC
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  PYTHON_VERSION: "3.12"
+  NODE_VERSION: "22"
+
+jobs:
+  dep-scan:
+    name: Dependency Scan (pip-audit)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: "requirements*.txt"
+      - name: Install pip-audit
+        run: pip install pip-audit
+      # 审计 requirements.lock（可复现口径 = 锁文件里记录的版本集合）。
+      # 阻塞式：锁文件存在已知漏洞即红（修复 = 升级对应 pin，一行改动）。
+      - name: pip-audit (lock)
+        run: pip-audit -r requirements.lock --progress-spinner off -f json -o pip-audit-report.json
+      - name: Upload report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: stockinsight-pip-audit-report
+          path: pip-audit-report.json
+      # 注意：本步骤只在扫描成功时才有意义；扫描失败时上一步已失败（不掩盖）。
+      - name: Summary
+        if: always()
+        run: |
+          python3 - <<'PY'
+          import json, os
+          summary = os.environ["GITHUB_STEP_SUMMARY"]
+          try:
+              deps = json.load(open("pip-audit-report.json")).get("dependencies", [])
+          except Exception as e:
+              with open(summary, "a") as f:
+                  f.write("## Dependency Scan (pip-audit)\n\n")
+                  f.write(f"> ⚠️ **报告不可解析**（{e}）—— 扫描未成功，**不等于无漏洞**\n")
+              raise SystemExit(0)
+          vulns = [d for d in deps if d.get("vulns")]
+          total = sum(len(d["vulns"]) for d in vulns)
+          with open(summary, "a") as f:
+              f.write("## Dependency Scan (pip-audit)\n\n")
+              f.write(f"受影响包：**{len(vulns)}** ｜ 漏洞条目：**{total}**\n\n")
+              for d in vulns:
+                  fixes = sorted({v for vv in d["vulns"] for v in (vv.get("fix_versions") or [])})
+                  f.write(f"- `{d['name']}` {d['version']} × {len(d['vulns'])} → 修复版本 {fixes}\n")
+          PY
+
+  bandit:
+    name: Code Scan (bandit, 阻塞式)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: "requirements*.txt"
+      - name: Install bandit
+        run: pip install bandit[toml]
+      # 阻塞式（2026-10-11 起）：基线为 0 命中（-ll = MEDIUM+ 严重度与置信度）
+      - name: Bandit scan
+        run: |
+          bandit -r backend/ backend/services/ stock_analyzer/ -f json -o bandit-report.json \
+            -ll --skip B101 --exclude '*/tests/*'
+      - name: Upload bandit report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: stockinsight-bandit-report
+          path: bandit-report.json
+      - name: Summary
+        if: always()
+        run: |
+          COUNT=$(python3 -c "
+          import json
+          with open('bandit-report.json') as f:
+              data = json.load(f)
+          print(len(data.get('results', [])))
+          " 2>/dev/null) || COUNT="(报告不可解析)"
+          {
+            echo "## Bandit Code Scan (阻塞式)"
+            echo ""
+            echo "Issues found: **${COUNT}**"
+          } >> $GITHUB_STEP_SUMMARY
+
+  secret-scan:
+    name: Secret Detection (gitleaks)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: gitleaks/gitleaks-action@v3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,7 +1,7 @@
 {
- "created_at": "2026-11-01T07:08:52",
- "label": "cite-rate-20261101",
- "file_count": 472,
+ "created_at": "2026-11-01T07:53:16",
+ "label": "materials-20261101",
+ "file_count": 474,
  "files": {
   "scripts/build_package.py": {
    "sha256": "270d99bebfffeeaadfb2e904f6b3230ace8048136854e0a0faca4fdb2cbbcfcb",
@@ -179,6 +179,10 @@
    "sha256": "1e9f5983ee6e486e80c98daad83f876c1c99a53b82d95ed100a24d562d25868b",
    "bytes": 10989
   },
+  "scripts/verify_materials.py": {
+   "sha256": "7f75c79119815e5438f75d4aa2c06ebbe23d311de78d60917a194b5ea3b5bfdf",
+   "bytes": 3986
+  },
   "scripts/veto_sweep.py": {
    "sha256": "72e0f40cf7e3b4f0c46f04ccc3580b1af6a3baba153cb82d21c783b05437ee34",
    "bytes": 8816
@@ -212,8 +216,8 @@
    "bytes": 23046
   },
   "docs/protocol/08-出题质检协议-v1.md": {
-   "sha256": "1aa6a7c9ac41225031b36d4b5fbbbfd4f92cb7da15673dc3246df4fce46c1b84",
-   "bytes": 21895
+   "sha256": "e1a09aea9384467fa351e3e69a84feb80599fcc742dd703863b8f2c7cc122f18",
+   "bytes": 23074
   },
   "docs/decisions/D-0001-架构与定位决策.md": {
    "sha256": "ed1cfbed14493959fcd248bf64e7054d56275a1c034325ac7efe6c2185d7bc59",
@@ -640,8 +644,8 @@
    "bytes": 3118
   },
   "audit/baseline/model-log.jsonl": {
-   "sha256": "b2dff69481ee82b6eda238c08b27c7552b89515a1fe69601c096bc0c22d7895b",
-   "bytes": 730
+   "sha256": "ea1f789fcd00f5895ac94745b0714e7a83847fdd0bb3cbd14fb66609c9714b77",
+   "bytes": 1250
   },
   "audit/baseline/multi/RESULT-multi-20261024.md": {
    "sha256": "9699079fd6deea52ef07bb46c8a79cfe3c3417eec1f7bc639420797768143706",
@@ -819,6 +823,10 @@
    "sha256": "64247507b594c8a442f4a91766ad021092d39d36a8e3b0ec9849af4535321e39",
    "bytes": 7343
   },
+  "audit/baseline/v2/CITE-DEFECTS-20261101.md": {
+   "sha256": "670243fe5dfba8fe83d7522615267978f59a4bd6d80baef809fab73bb392ae71",
+   "bytes": 2406
+  },
   "audit/baseline/v2/DESIGN-v2.1.md": {
    "sha256": "167eecf9c5f098a483e07514892429652f35e45be0ba98ae3bf1ad2231d0eec6",
    "bytes": 4142
@@ -848,8 +856,8 @@
    "bytes": 4705
   },
   "audit/baseline/v2/RESULT-cite-rate-20261101.md": {
-   "sha256": "da2b880f23f3d0786b21b4b722c5a57f944b65573cbc9c1dc0a29f409b644f79",
-   "bytes": 4756
+   "sha256": "e04e1effde55fda2adca55148e930f7e56dd5f0ab6a49a2c89d3e8fbb49c5ca5",
+   "bytes": 4835
   },
   "audit/baseline/v2/RESULT-m004-blind-20261031.md": {
    "sha256": "8e2b1751d0cda3fa00bd361389ab09a4010f34d9530e86fc434bc1228c65a18c",
@@ -1580,8 +1588,8 @@
    "bytes": 11351
   },
   "audit/kit/cite_rate.py": {
-   "sha256": "e9c161e502ce6ee8d3ae531babe53598279349673009037bbc93f847e77ff06d",
-   "bytes": 8285
+   "sha256": "a0e5634ba469c95c46b459fd233eb71d1ee3554755a42dc680b1345df1ed586a",
+   "bytes": 9779
   },
   "audit/kit/item_gate.py": {
    "sha256": "e006af8ea70167445b7706e784c534bcb71c187500b9e77795e07262751254b8",
@@ -1616,8 +1624,8 @@
    "bytes": 3156
   },
   "audit/kit/test_cite_rate.py": {
-   "sha256": "8e3cbc2a9382d73760ce21c44dbfb63d1b18d457ddc6dd975642f480929e0809",
-   "bytes": 9075
+   "sha256": "70317618c72b897aedbb7cac29936a8d1f0cdff0a1f61db088cad55a05231b96",
+   "bytes": 10120
   },
   "audit/kit/test_item_review.py": {
    "sha256": "d79ab66d307803f83cdf2d8b41dab718d72c33ddf89eacb7a30c28c27ba01ad4",
@@ -1872,8 +1880,8 @@
    "bytes": 923
   },
   "Makefile": {
-   "sha256": "cbc6f550333f684fe9539690978005e7e442744868cf487231223ea83f3e8df8",
-   "bytes": 14399
+   "sha256": "ada57471c885359e0382add397f86a4773fcf98a80376475e6ee5f23c420afc5",
+   "bytes": 15126
   },
   "README.md": {
    "sha256": "a538cc5591c64f91fff870cd08963b8b7fa1b7e5d827082d4c56dbc391ed0dec",
@@ -1893,8 +1901,8 @@
   }
  },
  "caller": {
-  "pid": 62778,
-  "ppid": 62769,
-  "parent_cmd": "/bin/zsh -c . '/Users/guan/.workbuddy/shell-snapshots/snapshot-zsh-1793487259947-v5b9yc.sh' && if [ -n \"${CODEBUDDY_SAFE_DELETE_BIN_DIR:-}\" ]; then unalias rm unlink rmdir 2>/dev/null || true; unset -"
+  "pid": 99800,
+  "ppid": 99789,
+  "parent_cmd": "/bin/zsh -c . '/Users/guan/.workbuddy/shell-snapshots/snapshot-zsh-1793490528664-7qc61y.sh' && if [ -n \"${CODEBUDDY_SAFE_DELETE_BIN_DIR:-}\" ]; then unalias rm unlink rmdir 2>/dev/null || true; unset -"
  }
 }

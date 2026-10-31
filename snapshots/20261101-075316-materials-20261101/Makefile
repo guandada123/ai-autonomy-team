@@ -95,6 +95,9 @@ selftest:
 	@echo "── 可举证率指标（含闸门与指标不得分歧的守卫）──"
 	$(PY) audit/kit/test_cite_rate.py
 	@echo ""
+	@echo "── 外部素材（哈希一致 + 未被启用）──"
+	$(PY) scripts/verify_materials.py --quiet
+	@echo ""
 	@echo "── 模型留痕（口述不冒充机器证据 / 去重不被口述干扰）──"
 	$(PY) scripts/test_record_model.py
 	@echo ""
@@ -231,6 +234,20 @@ endif
 # 留痕工具的验收（含变异测试，见 .learnings/L-0043 与 L-0042）。
 model-log-test:
 	$(PY) scripts/test_record_model.py
+# 外部素材复核：哈希一致 + 未被启用（见 docs/templates/MATERIALS-SOURCES.md）
+materials-check:
+	$(PY) scripts/verify_materials.py
+
+# 可举证率：新批次审查报告入库前的准入门槛（协议 §2）。
+# 用法：make cite-rate REPORTS="audit/baseline/v2/runs/R1-post.json audit/baseline/v2/runs/R2-post.json"
+# 带门槛（不达标 exit 1）：make cite-rate REPORTS="..." THRESH=1
+cite-rate:
+ifdef THRESH
+	$(PY) audit/kit/cite_rate.py --alias --min-cite 0.90 --min-consistency 0.90 --reports $(REPORTS)
+else
+	$(PY) audit/kit/cite_rate.py --alias --reports $(REPORTS)
+endif
+
 
 # 标注集饱和检查：一套标注能不能验证规则（满分/阈值不敏感/两集同源三条判据）。
 # 与 item-gate、brief-lint 并列，三者分工：题面能否入库 / 题有无区分度 / 标注能否验规则。

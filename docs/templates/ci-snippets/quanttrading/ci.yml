@@ -1,0 +1,40 @@
+name: CI - Quality Gate
+
+on:
+  pull_request:
+    branches: [ main ]
+  push:
+    branches: [ main ]
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  quality-gate:
+    # v2 是坏版本（quality-gate.yml YAML 非法 → 启动即失败，2026-10-02 起红了 8 天）；
+    # 有效版本见 engineering-audit-kit README 的 tag 表，当前 = v3。
+    uses: guandada123/engineering-audit-kit/.github/workflows/quality-gate.yml@v3
+    with:
+      run-python: "on"
+      run-php: "off"
+      run-eslint: false
+      run-prettier: false
+      npm-audit-level: high
+    secrets: inherit
+
+  # 2026-10-16 加：由 execution-service 崩溃循环 3 天反查出的门禁
+  dependency-consistency:
+    name: Dependency Consistency
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: 依赖清单一致性 + shared/ 影响面
+        run: python3 scripts/check_dependency_consistency.py
+
+concurrency:
+  group: ci-quality-gate-${{ github.ref }}
+  cancel-in-progress: true

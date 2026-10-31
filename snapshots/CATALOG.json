@@ -3,9 +3,9 @@
  "_generated_by": "scripts/snapshot_sources.py --catalog",
  "count": {
   "in_git": 3,
-  "archived": 301,
+  "archived": 302,
   "missing": 0,
-  "total": 304
+  "total": 305
  },
  "snapshots": [
   {
@@ -2418,8 +2418,8 @@
   },
   {
    "name": "20261101-070851-cite-rate-20261101",
-   "location": "snapshots",
-   "in_git": true,
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
    "label": "cite-rate-20261101",
    "created_at": "2026-11-01T07:08:52",
    "file_count": 472
@@ -2439,6 +2439,14 @@
    "label": "cite-gate-20261101",
    "created_at": "2026-11-01T07:24:21",
    "file_count": 473
+  },
+  {
+   "name": "20261101-075316-materials-20261101",
+   "location": "snapshots",
+   "in_git": true,
+   "label": "materials-20261101",
+   "created_at": "2026-11-01T07:53:16",
+   "file_count": 474
   }
  ]
 }

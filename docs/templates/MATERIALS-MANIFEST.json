@@ -1,0 +1,147 @@
+{
+ "_note": "外部素材导入清单（2026-11-01）。全部按 commit 取字节，sha256 与源一致；activated=false 表示未启用。",
+ "generated_by": "主理人手工编排（用户指定 EAK + Claw/QTS/StockInsight 的 CI 片段）",
+ "policy": "只导入不启用：不改 .github/workflows、不装 pre-commit 钩子、不改 CI 行为",
+ "items": [
+  {
+   "source_repo": "https://github.com/guandada123/engineering-audit-kit.git",
+   "source_commit": "368f4d8",
+   "source_path": ".pre-commit-config.yaml",
+   "target_path": ".pre-commit-config.yaml",
+   "bytes": 1019,
+   "sha256": "64a77207a947f29a9f3948ef75e2d7a9533574707eb9116920d06491bd10292b",
+   "purpose": "填缺口：本项目无 pre-commit。标准钩子+ruff+本地 gitleaks（未启用，需 pre-commit install）",
+   "activated": false
+  },
+  {
+   "source_repo": "https://github.com/guandada123/engineering-audit-kit.git",
+   "source_commit": "368f4d8",
+   "source_path": ".gitleaks.toml",
+   "target_path": ".gitleaks.toml",
+   "bytes": 840,
+   "sha256": "11d875b2b4ac74242e762aab5ce22c9c72c024f3eaaa5dabc7cc1e51a7fd532d",
+   "purpose": "填缺口：本项目无 gitleaks 规则；已有自定义 E 密钥闸，此为补充规则集（未启用）",
+   "activated": false
+  },
+  {
+   "source_repo": "https://github.com/guandada123/engineering-audit-kit.git",
+   "source_commit": "368f4d8",
+   "source_path": "configs/CODEOWNERS.sample",
+   "target_path": "CODEOWNERS.sample",
+   "bytes": 358,
+   "sha256": "de302efc11637d0e1a639258603fca56615ebf4b7011c8c5996707ce211eecf1",
+   "purpose": "填缺口：本项目无 CODEOWNERS；保留 .sample 后缀避免占位团队生效",
+   "activated": false
+  },
+  {
+   "source_repo": "https://github.com/guandada123/engineering-audit-kit.git",
+   "source_commit": "368f4d8",
+   "source_path": ".github/workflows/eak-ci.yml",
+   "target_path": "docs/templates/audit-kit/workflows/eak-ci.yml",
+   "bytes": 3746,
+   "sha256": "5a779f578b239d966da40e5519f63954e030928e7131f6afc24a0b4a0925403d",
+   "purpose": "参考：ruff+bandit+gitleaks 如何接 CI（本项目 ruff 已配置但 CI 未跑）",
+   "activated": false
+  },
+  {
+   "source_repo": "https://github.com/guandada123/engineering-audit-kit.git",
+   "source_commit": "368f4d8",
+   "source_path": ".github/workflows/quality-gate.yml",
+   "target_path": "docs/templates/audit-kit/workflows/quality-gate.yml",
+   "bytes": 4274,
+   "sha256": "96013ae53fa907081f2c72be0c697ee5f4c6584e3a7dba82f75782cee1f9bffd",
+   "purpose": "参考：质量门禁工作流的编排方式",
+   "activated": false
+  },
+  {
+   "source_repo": "https://github.com/guandada123/engineering-audit-kit.git",
+   "source_commit": "368f4d8",
+   "source_path": ".github/workflows/caller-example.yml",
+   "target_path": "docs/templates/audit-kit/workflows/caller-example.yml",
+   "bytes": 837,
+   "sha256": "d84ec1878c75c1bf9f4064d0ebad3338ee85536925ac940d26e7bfefb0b6e8ea",
+   "purpose": "参考：可复用工作流（workflow_call）的调用方写法",
+   "activated": false
+  },
+  {
+   "source_repo": "https://github.com/guandada123/engineering-audit-kit.git",
+   "source_commit": "368f4d8",
+   "source_path": "playbooks/templates/PROJECT-AUDIT-TEMPLATE.md",
+   "target_path": "docs/templates/audit-kit/PROJECT-AUDIT-TEMPLATE.md",
+   "bytes": 901,
+   "sha256": "8817d4cc01ffabfe4d8ad12eb1e51bf9a5bcd3f351d504db5ed77603b8116b5b",
+   "purpose": "模板：项目审计报告骨架（本项目 RESULT-* 可参考统一格式）",
+   "activated": false
+  },
+  {
+   "source_repo": "https://github.com/guandada123/engineering-audit-kit.git",
+   "source_commit": "368f4d8",
+   "source_path": "pyproject.toml",
+   "target_path": "docs/templates/audit-kit/pyproject.reference.toml",
+   "bytes": 195,
+   "sha256": "47a4cd57e74deca192c23dfa3c7dd4b058cdf38f38b63b985c4e071dd128317d",
+   "purpose": "参考：审计工具的依赖与配置声明（仅参考，不覆盖本项目 pyproject）",
+   "activated": false
+  },
+  {
+   "source_repo": "https://github.com/guandada123/Claw.git",
+   "source_commit": "082cef8",
+   "source_path": ".github/workflows/claw-ci.yml",
+   "target_path": "docs/templates/ci-snippets/claw/claw-ci.yml",
+   "bytes": 18006,
+   "sha256": "8c67f3e63188bfa8226d060c39d183d66d2ea815ea0291b24f387037f96b557b",
+   "purpose": "片段：Claw 真实 CI（已适配过），供本项目参考门禁编排",
+   "activated": false
+  },
+  {
+   "source_repo": "https://github.com/guandada123/Claw.git",
+   "source_commit": "082cef8",
+   "source_path": ".github/workflows/security-scan.yml",
+   "target_path": "docs/templates/ci-snippets/claw/security-scan.yml",
+   "bytes": 10097,
+   "sha256": "36bfc1b30ceb805a8fc9de2f6dee7df5440aa3e565fa23b12c0cd848528ffbee",
+   "purpose": "片段：Claw 真实密钥/漏洞扫描（10KB，版本独立）",
+   "activated": false
+  },
+  {
+   "source_repo": "https://github.com/guandada123/QuantTradingSystem.git",
+   "source_commit": "8cc5e344",
+   "source_path": ".github/workflows/ci.yml",
+   "target_path": "docs/templates/ci-snippets/quanttrading/ci.yml",
+   "bytes": 1099,
+   "sha256": "d5284e9c966431f0d0d9f700919c17a6f58931ac9285011fb91eaeb9a15a8a45",
+   "purpose": "片段：QTS 真实 CI（1KB，最小可用骨架）",
+   "activated": false
+  },
+  {
+   "source_repo": "https://github.com/guandada123/QuantTradingSystem.git",
+   "source_commit": "8cc5e344",
+   "source_path": ".github/workflows/security-scan.yml",
+   "target_path": "docs/templates/ci-snippets/quanttrading/security-scan.yml",
+   "bytes": 12313,
+   "sha256": "78dd0e6a408c19c6ac8facd6b7e04bdf1b51dd3139e113fa8f6077639fcfd69b",
+   "purpose": "片段：QTS 真实扫描（12KB，三种里最全）",
+   "activated": false
+  },
+  {
+   "source_repo": "https://github.com/guandada123/StockInsight.git",
+   "source_commit": "1d8635c",
+   "source_path": ".github/workflows/stockinsight-ci.yml",
+   "target_path": "docs/templates/ci-snippets/stockinsight/stockinsight-ci.yml",
+   "bytes": 11209,
+   "sha256": "d793db00b1bdf8da7243193b6ae5ecc5a7ad276e68388c5e8312fa6822512e17",
+   "purpose": "片段：StockInsight 真实 CI（严格 7-job 门禁）",
+   "activated": false
+  },
+  {
+   "source_repo": "https://github.com/guandada123/StockInsight.git",
+   "source_commit": "1d8635c",
+   "source_path": ".github/workflows/security-scan.yml",
+   "target_path": "docs/templates/ci-snippets/stockinsight/security-scan.yml",
+   "bytes": 5559,
+   "sha256": "f9c31ee44d79cd81cd9bd652ba42385bcf95048f5dc47ba2559b2b64f1968eda",
+   "purpose": "片段：StockInsight 真实扫描（5.5KB，最精简）",
+   "activated": false
+  }
+ ]
+}

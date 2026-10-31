@@ -1,0 +1,228 @@
+# ============================================================
+# Claw — Security Scan (Unified Standard)
+# Runs: weekly schedule + on dep/code change + manual
+# ============================================================
+name: Security Scan
+
+# 2026-10-28 降本（同 claw-ci.yml 的事故背景）：本月实测 606 次 run 里本工作流占 219 次
+# 成功 run × 5 个 job —— 是额度消耗的第二大户，而其中绝大多数是 dependabot 的同一批
+# PR 反复重跑（每次 PR 事件都触发，无并发取消）。
+# 两处收紧：
+#   ① 并发取消：同一分支只保留最新一次（取消的 run 记 cancelled，不是 failure，不会假红）；
+#   ② pull_request 补 paths：原配置 **完全没有 paths 过滤**，任何 PR 改动都跑 5 个 job。
+#      保留依赖/密钥相关文件（这恰是 dependabot PR 会改的面），代码级 bandit 仍由
+#      claw-ci.yml 的 security job 每次 push 覆盖。
+concurrency:
+  group: security-scan-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  schedule:
+    - cron: "0 8 * * 1"  # 每周一 8:00 UTC
+  # 2026-10-26 降本 + 去重：原 paths 含 `**/*.py` —— 任何脚本改动都触发本工作流的
+  # 5 个 job，而 bandit/safety 与 claw-ci.yml 的 security job **完全重复**。
+  # 实测今天 20 次 run 里约 10 次是它（≈2 分钟/次）。改为只在「依赖与密钥相关文件」
+  # 变更时触发（这才是本工作流独有的能力：uv.lock 审计 / pip-audit / gitleaks），
+  # 代码级 bandit 仍由 claw-ci 的 security job 每次 push 覆盖（不丢覆盖面）。
+  push:
+    branches: [main]
+    paths:
+      - "pyproject.toml"
+      - "uv.lock"
+      - ".workbuddy/uv.lock"
+      - ".workbuddy/requirements.lock"
+      - ".workbuddy/lock_audit_allowlist.json"
+      - ".gitleaks.toml"
+      # 2026-10-29：改本工作流自身也要自校验（此前 push 路径漏了它 → 改 YAML 不会跑一遍）
+      - ".github/workflows/**"
+  pull_request:
+    branches: [main]
+    # 2026-10-28：本工作流独有的能力只在依赖/密钥面（uv.lock 审计 / pip-audit / gitleaks），
+    # 与代码无关的 PR（文档、数据、纯脚本改动）不该跑 5 个 job。dependabot PR 仍全量命中。
+    paths:
+      - "pyproject.toml"
+      - "uv.lock"
+      - ".workbuddy/uv.lock"
+      - ".workbuddy/requirements.lock"
+      - ".workbuddy/lock_audit_allowlist.json"
+      - ".gitleaks.toml"
+      - ".github/workflows/**"
+  workflow_dispatch:
+
+env:
+  PYTHON_VERSION: "3.12"
+
+jobs:
+  safety-check:
+    name: Dependency Scan (safety)
+    runs-on: ubuntu-latest
+    # 2026-10-29 降本：job 默认超时 360 分钟，一次卡死吃掉整月额度一大块
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: pyproject.toml
+      - name: Install deps + safety
+        run: |
+          pip install safety
+      - name: Safety check
+        # 新版 safety 中 --full-report 与 --output 互斥（usage error, exit 2），JSON 输出已含完整报告
+        # 2026-10-08: 补 continue-on-error/|| true 与 QTS/StockInsight 的 v2.0 统一标准对齐 ——
+        # 少了它，safety 非零退出（实测 exit 64，且未产出报告）会把整个 Security Scan 打红，
+        # 而它不是本工作流的有效依赖扫描（有效的那个是下面的 pip-audit job）。
+        run: safety check --output json > safety-report.json || true
+        continue-on-error: true
+      - name: Upload safety report
+        uses: actions/upload-artifact@v7
+        with:
+          name: claw-safety-report
+          path: safety-report.json
+      - name: Summary
+        run: |
+          VULN_COUNT=$(python3 -c "
+          import json
+          with open('safety-report.json') as f:
+              data = json.load(f)
+          vulns = data.get('vulnerabilities', [])
+          print(len(vulns))
+          ") || echo "0"
+          echo "## Safety Check" >> $GITHUB_STEP_SUMMARY
+          echo "Vulnerabilities found: **${VULN_COUNT:-0}**" >> $GITHUB_STEP_SUMMARY
+
+  bandit:
+    name: Code Scan (bandit)
+    runs-on: ubuntu-latest
+    # 2026-10-29 降本：job 默认超时 360 分钟，一次卡死吃掉整月额度一大块
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: pyproject.toml
+      - name: Install bandit
+        run: pip install bandit[toml]
+      - name: Bandit scan
+        run: |
+          bandit -r .workbuddy/scripts/ src/claw/ scripts/ -f json -o bandit-report.json \
+            -ll --skip B101,B324,B310,B108,B306
+      - name: Upload bandit report
+        uses: actions/upload-artifact@v7
+        with:
+          name: claw-bandit-report
+          path: bandit-report.json
+      - name: Summary
+        run: |
+          COUNT=$(python3 -c "
+          import json
+          with open('bandit-report.json') as f:
+              data = json.load(f)
+          print(len(data.get('results', [])))
+          ") || echo "0"
+          echo "## Bandit Code Scan" >> $GITHUB_STEP_SUMMARY
+          echo "Issues found: **${COUNT:-0}**" >> $GITHUB_STEP_SUMMARY
+
+  lock-audit:
+    name: Lock Dependency Audit (blocking)
+    runs-on: ubuntu-latest
+    # 2026-10-29 降本：job 默认超时 360 分钟，一次卡死吃掉整月额度一大块
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      # 只依赖标准库（tomllib/urllib），**不装任何第三方包**
+      # —— 刻意不用 pip-audit -r：它会先建 venv(ensurepip) 解析依赖，多一个脆弱点；
+      #    且同一 CVE 会以 GHSA-*/PYSEC-* 双 ID 返回，不去重就是双倍噪音。
+      - name: Audit uv.lock against OSV
+        run: python3 .workbuddy/scripts/audit_locks.py
+      - name: Explain failure mode
+        if: failure()
+        run: |
+          {
+            echo "## 锁文件依赖门禁未通过"
+            echo ""
+            echo "本次判据（刻意「只挡可处置的」）："
+            echo "- **有修复版本**的漏洞 → 挡（这件事你能做）"
+            echo "- **无修复版本** → 只提示不挡（上游没修，红了也变不出补丁）"
+            echo ""
+            echo "两种处置："
+            echo "1. 升级：\`uv lock --upgrade-package <pkg>\`（根与 .workbuddy 两处都要做）"
+            echo "2. 若确有原因暂不升：在 \`.workbuddy/lock_audit_allowlist.json\` 加一条，"
+            echo "   **必须写 reason 与 expires**（到期即失效，逼复审）"
+            echo ""
+            echo "rc=2 表示**无法判定**（OSV 查询失败）—— 重跑即可；持续失败需查 OSV 可用性。"
+          } >> $GITHUB_STEP_SUMMARY
+
+  pip-audit:
+    name: Dependency Audit (pip-audit)
+    runs-on: ubuntu-latest
+    # 2026-10-29 降本：job 默认超时 360 分钟，一次卡死吃掉整月额度一大块
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: pyproject.toml
+      - name: Install deps + pip-audit
+        run: |
+          pip install -e .
+          pip install pip-audit
+      - name: Run pip-audit
+        # 与 QTS/StockInsight 一致：只出报告 + 摘要，不因漏洞数把 job 打红（计数进 Step Summary 供人工看）
+        #
+        # 🔴 2026-10-23 修：原命令是 `pip-audit --requirement <(pip freeze)`，
+        #   而 `pip install -e .` 会把**项目自己**装进环境，于是 pip freeze 里带出
+        #   `claw @ git+https://github.com/guandada123/Claw`。pip-audit 为解析它去
+        #   匿名 git clone，CI 无凭据 → `fatal: could not read Username for
+        #   'https://github.com'` → 报告文件被 `>` 截断成空 → 下游 Summary 解析
+        #   空 JSON 抛 JSONDecodeError → job 红。
+        #   审计「项目依赖」时把项目自身排掉：它不是自己的依赖，而且它的源码
+        #   就在工作区里，clone 自己毫无意义（且必然失败）。
+        run: |
+          pip freeze | grep -vE '^(-e |claw([=@ ]|$))' > audit-req.txt
+          pip-audit --requirement audit-req.txt --format json > pip-audit-report.json || true
+        continue-on-error: true
+      - name: Upload pip-audit report
+        uses: actions/upload-artifact@v7
+        with:
+          name: claw-pip-audit-report
+          path: pip-audit-report.json
+      - name: Summary
+        run: |
+          echo "## pip-audit Dependency Audit" >> $GITHUB_STEP_SUMMARY
+          # 🔴 用 -s 而不是 -f：`>` 重定向会先创建文件再写，pip-audit 失败时留下的是
+          #   一个**存在的空文件**，-f 判真 → 拿空文件去 json.load 必然崩。
+          #   -s = 存在且非空，才是「有报告」。
+          if [ -s pip-audit-report.json ]; then
+            COUNT=$(python3 -c "
+          import json
+          with open('pip-audit-report.json') as f:
+              data = json.load(f)
+          print(len(data))
+          ")
+            echo "Vulnerabilities found: **${COUNT}**" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "No report generated" >> $GITHUB_STEP_SUMMARY
+          fi
+
+  secret-scan:
+    name: Secret Detection (gitleaks)
+    runs-on: ubuntu-latest
+    # 2026-10-29 降本：job 默认超时 360 分钟，一次卡死吃掉整月额度一大块
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: gitleaks/gitleaks-action@v3
+        # 使用 gitleaks 默认配置
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

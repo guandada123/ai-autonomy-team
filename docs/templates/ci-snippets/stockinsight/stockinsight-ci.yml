@@ -1,0 +1,255 @@
+# ============================================================
+# StockInsight Pro CI — v2.0 (Unified Standard)
+# Phases: Lint → Test → Type Check → Security
+# ============================================================
+name: StockInsight Pro CI
+
+# 2026-10-28 降本（账号级共享额度）：本仓此前无 concurrency。
+# 同分支连续 push/PR 事件会把每个中间提交的全套 job 都跑完，而只有最新提交的结论有意义。
+# 取消的 run 记为 cancelled（不是 failure），巡检的红灯判据只认 failure，不会制造假红。
+concurrency:
+  group: stockinsight-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  PYTHON_VERSION: "3.12"
+  NODE_VERSION: "22"
+  RUFF_CONFIG: ruff.toml
+  # 2026-10-10 CI 口径实测 82.75%，门禁由 70 抬至 75（留 ≥7 点缓冲）
+  # 2026-10-18: 75->84->86（CI 实测 89.49%，补测 advanced/scan/feishu_bot 后
+  # 逐轮 88.53->88.72->89.49 上升；留 3.49 点缓冲；复核点: 依赖大版本升级后回看）
+  COV_FAIL_UNDER: 86
+
+jobs:
+  # ────────────────────────────
+  # Frontend: ESLint + TypeScript
+  # ────────────────────────────
+  frontend-lint:
+    name: Frontend Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: ESLint
+        run: npx eslint src/
+      - name: Prettier check
+        run: npx prettier --check "src/**/*.{ts,tsx,css}"
+      - name: TypeScript check
+        run: npx tsc --noEmit
+
+  # ────────────────────────────
+  # Frontend Tests: Vitest
+  # ────────────────────────────
+  frontend-test:
+    name: Frontend Tests
+    runs-on: ubuntu-latest
+    needs: frontend-lint
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Run vitest
+        run: npx vitest run
+
+  # ────────────────────────────
+  # Pre-commit Hooks Check
+  # ────────────────────────────
+  pre-commit:
+    name: Pre-commit Hooks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: |
+            requirements.txt
+            requirements.lock
+      - name: Install pre-commit
+        run: pip install pre-commit
+      - name: Run pre-commit hooks
+        run: pre-commit run --all-files --show-diff-on-failure
+
+  # ────────────────────────────
+  # Backend: Ruff Lint + Format
+  # ────────────────────────────
+  backend-lint:
+    name: Backend Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: |
+            requirements.txt
+            requirements.lock
+      - name: Install ruff
+        # 2026-10-17 钉死版本（与本地验证口径一致）：浮动版本会随上游发版
+        # 静默改变门禁口径（默认规则集/格式化器行为都会变）。
+        run: pip install "ruff==0.15.17"
+      - name: Ruff lint
+        # 2026-10-17 改为全仓：原只查 backend/ backend/services/ stock_analyzer/，
+        # **cli.py 不在覆盖范围** —— 而 P0-1（退出码）/扫描循环/失败率护栏等
+        # 本轮最大的改动全在 cli.py，CI 的 ruff 从未看过它。
+        # backend/services/ 是 backend/ 的子集，原命令重复传入会自相矛盾。
+        # 本地已验证：ruff check . / ruff format --check . 全绿（149 文件）。
+        run: ruff check . --config ${{ env.RUFF_CONFIG }}
+      - name: Ruff format check
+        run: ruff format --check . --config ${{ env.RUFF_CONFIG }}
+
+  # ────────────────────────────
+  # Backend: Unit Tests
+  # ────────────────────────────
+  backend-test:
+    name: Backend Tests
+    runs-on: ubuntu-latest
+    needs: backend-lint
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: |
+            requirements.txt
+            requirements.lock
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          # 2026-10-18：安装源切 requirements.lock（pip freeze 全量锁定，与本地
+          # 已验证环境对齐）。原先用 requirements.txt 的 `>=` 浮动安装，上游发
+          # 新版会静默改变测试口径（审计口径 pip-audit 用 lock，两边不一致）。
+          # 注意：lock 失败必须红（不加浮动 fallback，否则回到原风险）。
+          # yquoter 为私有包，lock 生成时已排除，CI 上相关用例自动 skip。
+          pip install -r requirements.lock
+      - name: Run tests with coverage
+        run: |
+          python -m pytest stock_analyzer/tests/ backend/tests/ -v --tb=short \
+            --cov=stock_analyzer --cov=backend --cov=backend.services \
+            --cov-report=term-missing \
+            --cov-fail-under=${{ env.COV_FAIL_UNDER }} \
+            --no-cov-on-fail
+
+  # ────────────────────────────
+  # Type Check (mypy)
+  # ────────────────────────────
+  backend-type-check:
+    name: Type Check (mypy)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: |
+            requirements.txt
+            requirements.lock
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          # 2026-10-17 钉死：mypy 2.4.0 为本地验证通过版本，浮动版会静默改变检查口径
+          pip install "mypy==2.4.0"
+          # 2026-10-18：依赖安装源同步切 requirements.lock（与测试/审计口径统一）
+          pip install -r requirements.lock
+      - name: Type check
+        # 2026-10-17 修两处既有瑕疵（本地复现）：
+        # ① 原命令同时传 backend/ 与 backend/services/ → mypy 报
+        #    `Duplicate module named "backend.services"`，**errors prevented
+        #    further checking**，等于这一步从未真正跑过类型检查；
+        #    backend/services/ 本就是 backend/ 的子集，去掉冗余路径。
+        # ② 存量 48 处类型错误已全部清零（mypy 2.4.0、134 文件 0 issues），
+        #    按本文件既定目标（[tool.mypy] "mypy 必须在 CI 中 PASS"）改为**阻塞**。
+        #    回滚方式：行尾加回 `|| echo "::warning::..."` 即退回非阻塞。
+        run: |
+          mypy stock_analyzer/ backend/ \
+            --ignore-missing-imports \
+            --check-untyped-defs \
+            --warn-return-any \
+            --warn-redundant-casts
+
+  # ────────────────────────────
+  # Security Scan
+  # ────────────────────────────
+  security:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: |
+            requirements.txt
+            requirements.lock
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - name: Install scanners
+        run: |
+          pip install bandit pip-audit
+      - name: Bandit (code-level scan)
+        run: bandit -r backend/ backend/services/ stock_analyzer/ -ll --skip B101 --exclude '*/tests/*'
+      # 2026-10-11：原 safety 3.x 需账号鉴权 → 产出空报告却被 Summary 显示成「0 漏洞」（静默失效+假 0）。
+      # 换 pip-audit（免费无鉴权），审计锁文件的可复现口径，阻塞式。
+      - name: pip-audit (dependency scan)
+        run: pip-audit -r requirements.lock --progress-spinner off
+      - name: npm audit（基线豁免式）
+        run: |
+          npm ci
+          npm audit --json > npm-audit.json || true
+          python3 - <<'PY'
+          import json, sys
+
+          # 基线（只许减不许加）：
+          #   · brace-expansion (high) / browserslist (high)：dev-only 构建工具链的**传递**依赖，
+          #     强制 overrides 升级的破坏风险 > 收益。
+          #   · baseline-browser-mapping (moderate)：同上（browserslist 依赖）。
+          # 门禁只对 **high/critical 且未豁免** 的项判红；moderate 不拦（避免告警疲劳）。
+          # 现状（2026-10-11 实测）：2 high + 3 moderate + 0 critical。
+          # 已知未修项 vitest/@vitest/mocker (moderate)：vitest 5 与
+          # @testing-library/jest-dom@7.0.1（已是最新）的类型增强不兼容 → `tsc --noEmit`
+          # 报数十条 TS2339（toBeInTheDocument 不存在）→ 暂留 4.1.10，待生态跟上再升。
+          BASELINE = {
+              "baseline-browser-mapping",  # moderate ← browserslist
+              "brace-expansion",           # high     ← glob/minimatch
+              "browserslist",              # high     ← postcss/autoprefixer
+          }
+          data = json.load(open("npm-audit.json"))
+          offenders = [
+              f"{n} ({v.get('severity')})"
+              for n, v in (data.get("vulnerabilities") or {}).items()
+              if (v.get("severity") or "").lower() in ("high", "critical") and n not in BASELINE
+          ]
+          if offenders:
+              print("::error::npm audit 发现未豁免的 high/critical 漏洞: " + ", ".join(offenders))
+              sys.exit(1)
+          print(f"OK：无未豁免的 high/critical（基线豁免 {len(BASELINE)} 项 dev-only）")
+          PY
+      - name: Secret scan
+        run: |
+          if grep -rn "PRIVATE KEY\|-----BEGIN RSA\|-----BEGIN OPENSSH" backend/ backend/services/ stock_analyzer/ 2>/dev/null; then
+            echo "::error::Private key detected in source code"
+            exit 1
+          fi
+          echo "No secrets found"

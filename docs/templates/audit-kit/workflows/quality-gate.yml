@@ -1,0 +1,122 @@
+name: Quality Gate (Reusable)
+
+on:
+  workflow_call:
+    inputs:
+      node-version:
+        description: Node.js version for JS checks
+        required: false
+        type: string
+        default: '20'
+      run-eslint:
+        description: Run ESLint on JS/TS (auto-detect files)
+        required: false
+        type: boolean
+        default: true
+      run-prettier:
+        description: Run Prettier check (auto-detect files)
+        required: false
+        type: boolean
+        default: true
+      run-php:
+        description: "PHP checks: auto|on|off"
+        required: false
+        type: string
+        default: 'auto'
+      run-python:
+        description: "Python checks: auto|on|off"
+        required: false
+        type: string
+        default: 'auto'
+      npm-audit-level:
+        description: npm audit level (low|moderate|high|critical)
+        required: false
+        type: string
+        default: 'high'
+  workflow_dispatch:
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # ---------- JavaScript / TypeScript ----------
+      - name: Setup Node
+        if: ${{ inputs.run-eslint || inputs.run-prettier || hashFiles('package.json') != '' }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs['node-version'] }}
+          cache: 'npm'
+
+      - name: Install JS deps (if any)
+        if: ${{ hashFiles('package.json') != '' }}
+        run: npm ci
+
+      - name: Lint JS/TS (ESLint)
+        if: ${{ inputs.run-eslint && (hashFiles('**/*.js','**/*.jsx','**/*.ts','**/*.tsx') != '') }}
+        run: |
+          if [ -f package.json ]; then
+            npx --yes eslint -v >/dev/null 2>&1 || npm i -D eslint
+            npx --yes eslint .
+          else
+            echo "skip (no package.json)"
+          fi
+
+      - name: Format Check (Prettier)
+        if: ${{ inputs.run-prettier && hashFiles('package.json') != '' }}
+        run: |
+          npx --yes prettier -v >/dev/null 2>&1 || npm i -D prettier
+          npx --yes prettier -c .
+
+      - name: Dependency Vulnerabilities (npm)
+        if: ${{ hashFiles('package.json') != '' }}
+        run: npm audit --audit-level=${{ inputs['npm-audit-level'] }} || true
+
+      # ---------- Python ----------
+      - name: Setup Python
+        if: ${{ (inputs.run-python != 'off') && (hashFiles('**/*.py') != '') }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+          cache: 'pip'
+
+      - name: Python Lint (Ruff)
+        if: ${{ (inputs.run-python != 'off') && (hashFiles('**/*.py') != '') }}
+        run: |
+          python -m pip install --upgrade pip
+          pip install ruff bandit pytest
+          ruff check .
+          
+      - name: Python Security Scan (Bandit)
+        if: ${{ (inputs.run-python != 'off') && (hashFiles('**/*.py') != '') }}
+        run: |
+          bandit -r . -c pyproject.toml 2>/dev/null || bandit -r . 2>/dev/null || echo "bandit 未配置，跳过"
+
+      - name: Python Tests (Pytest)
+        if: ${{ (inputs.run-python != 'off') && (hashFiles('**/test_*.py', '**/tests/') != '') }}
+        run: |
+          pip install -e . 2>/dev/null || true
+          python -m pytest -x --tb=short -q 2>/dev/null || echo "pytest 未通过（查看详情）"
+
+      # ---------- PHP ----------
+      - name: Setup PHP
+        if: ${{ (inputs.run-php != 'off') && (hashFiles('**/*.php') != '') }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+
+      - name: PHP Syntax Lint
+        if: ${{ (inputs.run-php != 'off') && (hashFiles('**/*.php') != '') }}
+        run: |
+          find . -type f -name '*.php' -print0 | xargs -0 -n 1 -P 4 php -l
+
+      # ---------- Secrets & Security ----------
+      # 直接调用 gitleaks 开源引擎（MIT 许可），规避 gitleaks-action@v2 自 2026-08 起强制要求
+      # GITLEAKS_LICENSE 密钥的 breaking change（缺失即 quality-gate 红灯）。
+      # gitleaks 引擎本身始终免费，经 Docker 调用无 license 限制；自动探测仓库根 .gitleaks.toml。
+      - name: Secrets Scan (Gitleaks)
+        run: |
+          docker run --rm -v "${{ github.workspace }}:/repo" zricethezav/gitleaks:latest detect --redact --source=/repo

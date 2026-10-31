@@ -1,0 +1,260 @@
+# ============================================================
+# QuantTradingSystem — Security Scan (v2.0 Unified Standard)
+# Runs: weekly schedule + on dep/code change + manual
+#
+# ⚠️⚠️ 口径声明（2026-10-10 实测标注，别误读绿灯）⚠️⚠️
+#   本工作流原有 4 个 job 的**扫描步骤全部是「观测项」**，发现任何问题都**不会**判红
+#   （2026-10-11 复核修正：此前写成「只有 gitleaks 会拦」是错的 —— 它的 docker 直调步骤
+#    同样带 `continue-on-error: true`）：
+#     · safety-check  → `|| true` + continue-on-error（该工具新版下实测 exit 64 且不产出报告）
+#     · bandit        → `|| true` + continue-on-error ×3（即便扫出中危也不拦）
+#     · pip-audit     → `|| true` + continue-on-error（只出报告 + Step Summary）
+#     · secret-scan   → docker 直调 gitleaks **也带 continue-on-error**（形同观测）
+#   → 结论要读各 job 的 **Step Summary / artifact**，绿勾只代表「跑完没崩」。
+#   2026-10-11 新增 `lock-audit` job：本工作流**唯一会判红**的门禁（锁文件依赖漏洞）。
+#
+#   对照：Claw 的同名工作流有两条**真门禁**——`bandit -ll`（不抑制）与
+#   `lock-audit`（阻塞式锁审计：只挡有修复版本的漏洞，allowlist 必须带 reason+expires，
+#   OSV 查询失败按 rc=2 视为无法判定）。
+#   本仓目前**没有任何会拦的依赖门禁** → 实测这导致 uv.lock 里 30 条「有修复版本」的漏洞
+#   （含 1 条 CRITICAL）长期无人可见，2026-10-10 才被外部审计发现并修复。
+#   → 2026-10-11 已引入：见本文件末尾 `lock-audit` job（脚本 pin 在 engineering-audit-kit@v5）。
+# ============================================================
+name: Security Scan
+
+# 2026-10-28 降本（账号级共享额度）：本仓此前无 concurrency。
+# 同分支连续 push/PR 事件会把每个中间提交的全套 job 都跑完，而只有最新提交的结论有意义。
+# 取消的 run 记为 cancelled（不是 failure），巡检的红灯判据只认 failure，不会制造假红。
+concurrency:
+  group: qts-security-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  schedule:
+    - cron: "0 8 * * 1"  # 每周一 8:00 UTC
+  push:
+    branches: [main]
+    paths:
+      - "**/requirements*.txt"
+      - "requirements.lock"
+      - "pyproject.toml"
+      - "**/*.py"
+      - "uv.lock"                    # 2026-10-11：锁文件变更必须触发（否则门禁抓不到）
+      - ".github/lock_audit_allowlist.json"
+      - ".github/workflows/security-scan.yml"
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  PYTHON_VERSION: "3.12"
+
+jobs:
+  safety-check:
+    name: Dependency Scan (safety)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: pyproject.toml
+      - name: Install deps + safety
+        run: |
+          pip install -e ".[strategy,execution,ai-scheduler,shared]"
+          pip install safety
+      - name: Safety check
+        run: safety check --full-report --output json > safety-report.json || true
+        continue-on-error: true
+      - name: Upload safety report
+        uses: actions/upload-artifact@v7
+        with:
+          name: qts-safety-report
+          path: safety-report.json
+      - name: Summary
+        run: |
+          VULN_COUNT=$(python3 -c "
+          import json
+          with open('safety-report.json') as f:
+              data = json.load(f)
+          vulns = data.get('vulnerabilities', [])
+          print(len(vulns))
+          ") || echo "0"
+          echo "## Safety Check" >> $GITHUB_STEP_SUMMARY
+          echo "Vulnerabilities found: **${VULN_COUNT:-0}**" >> $GITHUB_STEP_SUMMARY
+
+  bandit:
+    name: Code Scan (bandit)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: pyproject.toml
+      - name: Install bandit
+        run: pip install bandit[toml]
+      - name: Bandit scan (strategy-service)
+        run: bandit -c pyproject.toml -r strategy-service/ -f json -o bandit-strategy.json || true
+        continue-on-error: true
+      - name: Bandit scan (execution-service)
+        run: bandit -c pyproject.toml -r execution-service/ -f json -o bandit-execution.json || true
+        continue-on-error: true
+      - name: Bandit scan (ai-scheduler)
+        run: bandit -c pyproject.toml -r ai-scheduler/ -f json -o bandit-scheduler.json || true
+        continue-on-error: true
+      - name: Upload bandit reports
+        uses: actions/upload-artifact@v7
+        with:
+          name: qts-bandit-reports
+          path: bandit-*.json
+      - name: Summary
+        run: |
+          echo "## Bandit Code Scan" >> $GITHUB_STEP_SUMMARY
+          for f in bandit-*.json; do
+            COUNT=$(python3 -c "
+          import json
+          with open('$f') as fh:
+              data = json.load(fh)
+          results = data.get('results', [])
+          print(len(results))
+          ")
+            echo "- \`$f\`: **${COUNT}** issues" >> $GITHUB_STEP_SUMMARY
+          done
+
+  pip-audit:
+    name: Dependency Audit (pip-audit)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: pyproject.toml
+      - name: Install deps + pip-audit
+        run: |
+          pip install -e ".[strategy,execution,ai-scheduler,shared]"
+          pip install pip-audit
+      # 2026-10-24 修（本 job 此前每轮都红）：
+      #   ① `<(...)` 进程替换交给 pip-audit 当 -r 参数不可靠（/dev/fd/63 会被当成普通路径），
+      #      改为落盘成真实文件；
+      #   ② 原写法 `|| true` 把 pip-audit 的失败吞掉 → report.json 为空 → Summary 里
+      #      `json.load` 抛 JSONDecodeError → **整个 job 判红**（本意是"只出报告"）。
+      #   ③ 更根本的问题：审计跑挂了与"0 个漏洞"在报告里长得一样。故把成败落进
+      #      GITHUB_ENV，让 Summary 显式区分「审计失败」与「零漏洞」。
+      - name: Run pip-audit
+        run: |
+          pip freeze > /tmp/frozen.txt
+          if pip-audit --requirement /tmp/frozen.txt --format json > pip-audit-report.json 2>/tmp/pip-audit.err; then
+            echo "PIP_AUDIT_OK=1" >> "$GITHUB_ENV"
+          else
+            echo "PIP_AUDIT_OK=0" >> "$GITHUB_ENV"
+            echo "::warning::pip-audit 执行失败（报告不代表零漏洞）：$(tail -3 /tmp/pip-audit.err)"
+          fi
+        continue-on-error: true
+      - name: Upload pip-audit report
+        uses: actions/upload-artifact@v7
+        with:
+          name: qts-pip-audit-report
+          path: pip-audit-report.json
+          if-no-files-found: warn
+      - name: Summary
+        run: |
+          echo "## pip-audit Dependency Audit" >> $GITHUB_STEP_SUMMARY
+          if [ "${PIP_AUDIT_OK:-0}" != "1" ]; then
+            echo "⚠️ **审计未完成**（pip-audit 执行失败）—— 这不等于零漏洞，请查 job 日志" >> $GITHUB_STEP_SUMMARY
+            exit 0
+          fi
+          python3 - <<'PYEOF' >> "$GITHUB_STEP_SUMMARY"
+          import json, pathlib
+          p = pathlib.Path("pip-audit-report.json")
+          try:
+              data = json.loads(p.read_text() or "[]")
+          except (json.JSONDecodeError, OSError) as e:
+              print(f"⚠️ 报告无法解析（{e}）—— 不等于零漏洞")
+          else:
+              vulns = [d for d in (data.get("dependencies") or []) if d.get("vulns")] if isinstance(data, dict) else data
+              print(f"受影响依赖：**{len(vulns)}**")
+              for d in vulns[:10]:
+                  if isinstance(d, dict):
+                      print(f"- {d.get('name')} {d.get('version')} → {len(d.get('vulns') or [])} 条")
+          PYEOF
+
+  secret-scan:
+    name: Secret Detection (gitleaks)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      # 2026-08-12: gitleaks-action@v3 强制 GITLEAKS_LICENSE(包装器限制, 引擎本身 MIT 免费)
+      # 改为 Docker 直调开源引擎, 与 quality-gate/eak-ci 统一方案(见 .learnings ★升级候选)
+      - name: Detect secrets (Docker 直调 gitleaks 开源引擎)
+        run: |
+          docker run --rm -v "${{ github.workspace }}:/repo" \
+            zricethezav/gitleaks:latest detect --redact --source=/repo \
+            --config=/repo/.gitleaks.toml
+        continue-on-error: true
+      - name: Gitleaks summary
+        run: |
+          echo "## Secret Detection (gitleaks)" >> $GITHUB_STEP_SUMMARY
+          echo "Docker 直调开源引擎 zricethezav/gitleaks:latest, 无 license 依赖" >> $GITHUB_STEP_SUMMARY
+
+  lock-audit:
+    name: Lock Dependency Audit (blocking)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}   # 需 3.11+（脚本用 tomllib 解析 uv.lock）
+      # 脚本单源放在 engineering-audit-kit，按 **pin 住的 tag** 拉取执行；
+      # 不在本仓复制一份（避免两份判据漂移）。升级脚本 = 改这里的 tag。
+      # v5（2026-10-13）起同时覆盖 requirements.lock（pip freeze 格式）——
+      # 本仓两个锁文件都会被审计，防止双锁漂移。
+      - name: Fetch gate script (pinned tag)
+        run: |
+          curl -fsSL -o /tmp/audit_locks.py \
+            https://raw.githubusercontent.com/guandada123/engineering-audit-kit/v5/scripts/audit_locks.py
+          sha256sum /tmp/audit_locks.py
+      # 判据（刻意只挡「可处置的」）：
+      #   · 有修复版本的漏洞 → FAIL（这件事你能做）
+      #   · 无修复版本      → WARN，不挡（上游没修，红了也变不出补丁）
+      #   · allowlist 命中且未过期 → 跳过；已过期 → FAIL（逼复审）
+      #   · OSV 查询失败    → rc=2 FAIL（判不了就说判不了，不静默放过）
+      # 2026-10-24：先校验派生锁文件与 uv.lock 一致，再审计。
+      # 为什么要有这一步：requirements.lock 是 uv.lock 的**派生视图**，但此前没有
+      # 任何工具维护它 —— 改了 uv.lock 忘了同步，audit 就会持续报「已修复的漏洞」
+      # （实测：uv.lock 已升 aiohttp 3.14.5，requirements.lock 仍 3.14.3，门禁照旧判红）。
+      # 顺序刻意在 audit 之前：先告诉他「你的两份清单不一致」，比让他去追一条已修好的 CVE 有用。
+      - name: Check derived lock is in sync
+        run: python3 scripts/sync_requirements_lock.py --check
+      - name: Audit uv.lock against OSV
+        run: python3 /tmp/audit_locks.py --root . --allowlist .github/lock_audit_allowlist.json
+      - name: Explain failure mode
+        if: failure()
+        run: |
+          {
+            echo "## 锁文件依赖门禁未通过"
+            echo ""
+            echo "先看上一步输出："
+            echo "- 若打印了 \`🔴 CVE-… → 升级到 […]\` → **有修复版本**，请升级："
+            echo "  \`uv lock --upgrade-package <pkg>\`（改完提交 uv.lock）"
+            echo "- 若 \`rc=2\` / 提示无法判定 → OSV 查询失败，重跑即可"
+            echo "- 若确认暂不能升：在 \`.github/lock_audit_allowlist.json\` 加一条，"
+            echo "  **必须写 reason 与 expires**（到期即失效，逼复审）"
+            echo "- 若是拉取脚本失败（curl）→ 检查 pin 的 tag 是否还在："
+            echo "  \`engineering-audit-kit@v4\` 的 scripts/audit_locks.py"
+          } >> $GITHUB_STEP_SUMMARY
