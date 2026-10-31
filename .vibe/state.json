@@ -2,7 +2,7 @@
   "methodology_step": 3,
   "methodology_step_source": "scan_inferred",
   "current_stage": "MVP 定义",
-  "last_activity": "2026-10-31T19:22:06+08:00",
+  "last_activity": "2026-10-31T21:12:46+08:00",
   "milestones": [
     {
       "date": "2026-10-30",
@@ -77,6 +77,10 @@
     {
       "date": "2026-10-31",
       "event": "跨模型盲验：用户切换模型后，2 名新模型判者 5 题边界集 5/5 四方一致；25 题库盲答 23/25（92%），2 处非一致均为缺口径（V2-12/21），0 violates；RESULT-xmodel-20261031.md"
+    },
+    {
+      "date": "2026-10-31",
+      "event": "混合轴 10 题管线首跑全通：出题→打回→重造→R1/R2 复检 10/10 mixed→R3 零否决→闸门 exit 0→用户裁决 10/10；回归集 2 固化"
     }
   ]
 }

@@ -3,9 +3,9 @@
  "_generated_by": "scripts/snapshot_sources.py --catalog",
  "count": {
   "in_git": 3,
-  "archived": 291,
+  "archived": 292,
   "missing": 0,
-  "total": 294
+  "total": 295
  },
  "snapshots": [
   {
@@ -2338,8 +2338,8 @@
   },
   {
    "name": "20261031-152925-m004-blind-20261031",
-   "location": "snapshots",
-   "in_git": true,
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
    "label": "m004-blind-20261031",
    "created_at": "2026-10-31T15:29:25",
    "file_count": 438
@@ -2359,6 +2359,14 @@
    "label": "xmodel-validated-20261031",
    "created_at": "2026-10-31T19:22:07",
    "file_count": 443
+  },
+  {
+   "name": "20261031-211246-mixed10-validated-20261031",
+   "location": "snapshots",
+   "in_git": true,
+   "label": "mixed10-validated-20261031",
+   "created_at": "2026-10-31T21:12:46",
+   "file_count": 455
   }
  ]
 }

@@ -1,0 +1,71 @@
+{
+ "role": "R3",
+ "batch": "mixed-10-v2",
+ "vetoes": [
+  {
+   "qid": "M-01",
+   "veto": false,
+   "basis": null,
+   "reason": "题面数字自洽（1,240+380+96=1,716），陷阱 C 的 1,715 为设计意图；B/D 违 C-001 可区分，无歧义。"
+  },
+  {
+   "qid": "M-02",
+   "veto": false,
+   "basis": null,
+   "reason": "52,000−50,943=1,057 可唯一确定，A/B 最小对靠减法即可定序；C/D 违 C-003 可区分。"
+  },
+  {
+   "qid": "M-03",
+   "veto": false,
+   "basis": null,
+   "reason": "348−189=159 唯一，E-001 例外已声明；A 的 160 陷阱为设计意图，C/D 方向违规可排除。"
+  },
+  {
+   "qid": "M-04",
+   "veto": false,
+   "basis": null,
+   "reason": "45×70=3,150 自洽，B 暂估 3,250 属设计陷阱；R2 所提『暂估补记依据略不足』为局部瑕疵，不达否决级。"
+  },
+  {
+   "qid": "M-05",
+   "veto": false,
+   "basis": null,
+   "reason": "6,240−6,160=80 唯一，E-002 例外已声明；A/D 最小对靠减法定序，B/C 各落不同规则可区分。"
+  },
+  {
+   "qid": "M-06",
+   "veto": false,
+   "basis": null,
+   "reason": "44−38=6、6×850=5,100 题面自洽；B 的 7 班为设计陷阱，A/D 违 C-004 可区分。"
+  },
+  {
+   "qid": "M-07",
+   "veto": false,
+   "basis": null,
+   "reason": "9×60=540 自洽，E-003 例外已声明；B 的 630 为设计陷阱，A 违 C-002、D 违 E-003 可排除。"
+  },
+  {
+   "qid": "M-08",
+   "veto": false,
+   "basis": null,
+   "reason": "2×300=600 自洽，E-002 归档路径明确；C 的 700 为设计陷阱，正确项非唯一极端。"
+  },
+  {
+   "qid": "M-09",
+   "veto": false,
+   "basis": null,
+   "reason": "15×80=1,200、合计 4,200 自洽；D 的 3,900 为设计陷阱且处理方向可辨；R2 所提正确项唯一最短差 1 字属噪声，非判据内泄漏。"
+  },
+  {
+   "qid": "M-10",
+   "veto": false,
+   "basis": null,
+   "reason": "合计 8,080 与对账单一致；B 的 7,980 为设计陷阱，E-001/M-004④ 已声明，A/B 残余指纹属噪声不达判据。"
+  }
+ ],
+ "summary": {
+  "n_total": 10,
+  "n_veto": 0,
+  "note": "题面自身数字与合计均自洽，无 forbidden_read；干扰项算术错误均为设计意图；同构最小对均可经题面算术唯一定序，无 ambiguous_gate；无 unfalsifiable。"
+ }
+}
