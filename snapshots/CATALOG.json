@@ -3,9 +3,9 @@
  "_generated_by": "scripts/snapshot_sources.py --catalog",
  "count": {
   "in_git": 3,
-  "archived": 275,
+  "archived": 276,
   "missing": 0,
-  "total": 278
+  "total": 279
  },
  "snapshots": [
   {
@@ -2210,8 +2210,8 @@
   },
   {
    "name": "20261031-091022-learnings-l0040-41-20261031",
-   "location": "snapshots",
-   "in_git": true,
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
    "label": "learnings-l0040-41-20261031",
    "created_at": "2026-10-31T09:10:22",
    "file_count": 377
@@ -2231,6 +2231,14 @@
    "label": "v2-questions-draft-20261031b",
    "created_at": "2026-10-31T10:52:54",
    "file_count": 380
+  },
+  {
+   "name": "20261031-121404-v2-adjudicated-20261031",
+   "location": "snapshots",
+   "in_git": true,
+   "label": "v2-adjudicated-20261031",
+   "created_at": "2026-10-31T12:14:04",
+   "file_count": 381
   }
  ]
 }
