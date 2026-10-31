@@ -35,6 +35,7 @@
 """
 import argparse
 import json
+import os
 import re
 import subprocess
 import sys
@@ -654,6 +655,10 @@ def _fingerprint() -> str:
     except Exception:
         pass
     parts = [f"git={rev}", f"dirty={dirty}"]
+    # 模型标识（2026-10-31）：门禁结论也要能回答"这是哪个模型跑出来的"。
+    # 只读身份变量，不碰任何 *_KEY/*_TOKEN/*_PROXY。
+    model_id = os.environ.get("CODEBUDDY_CURRENT_MODEL_ID", "")
+    parts.append(f"model={model_id or 'UNKNOWN'}")
     for rel in ("audit/kit/item_review.py", "audit/kit/caliber_lib.py",
                 "audit/baseline/v2/caliber-library.json", "docs/protocol/08-出题质检协议-v1.md"):
         f = ROOT / rel

@@ -213,6 +213,19 @@ item-review:
 caliber-check:
 	$(PY) audit/kit/caliber_lib.py --check
 
+# 模型留痕：切换模型后跑一次，模型变化才追加（结论标签的强度由日志决定，不由记忆决定）。
+# 查看历史：make model-log SHOW=1
+model-log:
+ifdef SHOW
+	$(PY) scripts/record_model.py --show
+else
+	$(PY) scripts/record_model.py
+endif
+
+# 留痕工具的验收（含变异测试，见 .learnings/L-0043 与 L-0042）。
+model-log-test:
+	$(PY) scripts/test_record_model.py
+
 # 标注集饱和检查：一套标注能不能验证规则（满分/阈值不敏感/两集同源三条判据）。
 # 与 item-gate、brief-lint 并列，三者分工：题面能否入库 / 题有无区分度 / 标注能否验规则。
 # ★ 当前必然命中（校准集与留出集都 1.00，留出集 9 个阈值点不变）——如实报告。

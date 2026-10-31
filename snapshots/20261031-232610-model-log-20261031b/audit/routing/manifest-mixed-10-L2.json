@@ -1,0 +1,78 @@
+{
+ "batch": "mixed-axis-10",
+ "_note": "混合轴 10 题路由标注（L2 判断题，用户已裁决）",
+ "expected_route": "multi-role",
+ "n": 10,
+ "items": [
+  {
+   "qid": "M-01",
+   "level": "L2",
+   "route": "multi-role",
+   "ref_label": "A",
+   "industry": "物业管理"
+  },
+  {
+   "qid": "M-02",
+   "level": "L2",
+   "route": "multi-role",
+   "ref_label": "B",
+   "industry": "广告投放对账"
+  },
+  {
+   "qid": "M-03",
+   "level": "L2",
+   "route": "multi-role",
+   "ref_label": "B",
+   "industry": "健身房私教课"
+  },
+  {
+   "qid": "M-04",
+   "level": "L2",
+   "route": "multi-role",
+   "ref_label": "A",
+   "industry": "绿植租摆"
+  },
+  {
+   "qid": "M-05",
+   "level": "L2",
+   "route": "multi-role",
+   "ref_label": "D",
+   "industry": "门禁卡工本费"
+  },
+  {
+   "qid": "M-06",
+   "level": "L2",
+   "route": "multi-role",
+   "ref_label": "C",
+   "industry": "企业班车"
+  },
+  {
+   "qid": "M-07",
+   "level": "L2",
+   "route": "multi-role",
+   "ref_label": "C",
+   "industry": "样品寄送运费"
+  },
+  {
+   "qid": "M-08",
+   "level": "L2",
+   "route": "multi-role",
+   "ref_label": "D",
+   "industry": "宠物寄养"
+  },
+  {
+   "qid": "M-09",
+   "level": "L2",
+   "route": "multi-role",
+   "ref_label": "C",
+   "industry": "婚庆布置"
+  },
+  {
+   "qid": "M-10",
+   "level": "L2",
+   "route": "multi-role",
+   "ref_label": "A",
+   "industry": "打印耗材"
+  }
+ ]
+}

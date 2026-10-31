@@ -3,9 +3,9 @@
  "_generated_by": "scripts/snapshot_sources.py --catalog",
  "count": {
   "in_git": 3,
-  "archived": 294,
+  "archived": 296,
   "missing": 0,
-  "total": 297
+  "total": 299
  },
  "snapshots": [
   {
@@ -2362,16 +2362,16 @@
   },
   {
    "name": "20261031-211246-mixed10-validated-20261031",
-   "location": "snapshots",
-   "in_git": true,
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
    "label": "mixed10-validated-20261031",
    "created_at": "2026-10-31T21:12:46",
    "file_count": 455
   },
   {
    "name": "20261031-230535-mixed10-gates-20261031",
-   "location": "snapshots",
-   "in_git": true,
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
    "label": "mixed10-gates-20261031",
    "created_at": "2026-10-31T23:05:35",
    "file_count": 458
@@ -2383,6 +2383,22 @@
    "label": "blind-eligible-20261031",
    "created_at": "2026-10-31T23:15:59",
    "file_count": 458
+  },
+  {
+   "name": "20261031-232359-model-log-20261031",
+   "location": "snapshots",
+   "in_git": true,
+   "label": "model-log-20261031",
+   "created_at": "2026-10-31T23:24:00",
+   "file_count": 462
+  },
+  {
+   "name": "20261031-232610-model-log-20261031b",
+   "location": "snapshots",
+   "in_git": true,
+   "label": "model-log-20261031b",
+   "created_at": "2026-10-31T23:26:10",
+   "file_count": 462
   }
  ]
 }
