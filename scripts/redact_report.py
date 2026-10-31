@@ -39,7 +39,12 @@ from pathlib import Path
 
 # 关联信息（默认必抹）：切断「券商 + 代码 + 路径」这条反查链
 LINKAGE = [
+    # 2026-10-31 迁出会话目录：真实路径变为 /WorkBuddy/ai-autonomy-team。
+    # 旧路径保留一条（会话目录内的同名路径现为软链，历史报告里仍可能出现）。
+    ("/Volumes/ZHITAI/WorkBuddy/ai-autonomy-team", "<PROJECT>"),
     ("/Volumes/ZHITAI/WorkBuddy/2026-10-19-22-33-38/ai-autonomy-team", "<PROJECT>"),
+    ("/Users/guan/WorkBuddy/2026-10-19-22-33-38/ai-autonomy-team", "<PROJECT>"),
+    ("/Users/guan/WorkBuddy/ai-autonomy-team", "<PROJECT>"),
     ("/Volumes/ZHITAI/WorkBuddy/Claw", "<CLAW>"),
     ("/Volumes/ZHITAI/WorkBuddy", "<WORKSPACE>"),
     ("/Volumes/ZHITAI", "<EXTERNAL_DISK>"),
