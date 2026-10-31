@@ -1,7 +1,7 @@
 {
- "created_at": "2026-11-01T00:49:41",
- "label": "ablation-20261101",
- "file_count": 468,
+ "created_at": "2026-11-01T07:24:21",
+ "label": "cite-gate-20261101",
+ "file_count": 473,
  "files": {
   "scripts/build_package.py": {
    "sha256": "270d99bebfffeeaadfb2e904f6b3230ace8048136854e0a0faca4fdb2cbbcfcb",
@@ -212,8 +212,8 @@
    "bytes": 23046
   },
   "docs/protocol/08-出题质检协议-v1.md": {
-   "sha256": "1aa6a7c9ac41225031b36d4b5fbbbfd4f92cb7da15673dc3246df4fce46c1b84",
-   "bytes": 21895
+   "sha256": "e1a09aea9384467fa351e3e69a84feb80599fcc742dd703863b8f2c7cc122f18",
+   "bytes": 23074
   },
   "docs/decisions/D-0001-架构与定位决策.md": {
    "sha256": "ed1cfbed14493959fcd248bf64e7054d56275a1c034325ac7efe6c2185d7bc59",
@@ -640,8 +640,8 @@
    "bytes": 3118
   },
   "audit/baseline/model-log.jsonl": {
-   "sha256": "b2dff69481ee82b6eda238c08b27c7552b89515a1fe69601c096bc0c22d7895b",
-   "bytes": 730
+   "sha256": "2ac5b81cf311322227a9b24488b932513468303a895677a93cb4d2d48ad3f346",
+   "bytes": 1037
   },
   "audit/baseline/multi/RESULT-multi-20261024.md": {
    "sha256": "9699079fd6deea52ef07bb46c8a79cfe3c3417eec1f7bc639420797768143706",
@@ -819,6 +819,10 @@
    "sha256": "64247507b594c8a442f4a91766ad021092d39d36a8e3b0ec9849af4535321e39",
    "bytes": 7343
   },
+  "audit/baseline/v2/CITE-DEFECTS-20261101.md": {
+   "sha256": "670243fe5dfba8fe83d7522615267978f59a4bd6d80baef809fab73bb392ae71",
+   "bytes": 2406
+  },
   "audit/baseline/v2/DESIGN-v2.1.md": {
    "sha256": "167eecf9c5f098a483e07514892429652f35e45be0ba98ae3bf1ad2231d0eec6",
    "bytes": 4142
@@ -846,6 +850,10 @@
   "audit/baseline/v2/RESULT-ablation-20261101.md": {
    "sha256": "4deca81928cb1ff618f5eaed52e3c4de80c0bfded62d52ee832b17a3dd61ec3a",
    "bytes": 4705
+  },
+  "audit/baseline/v2/RESULT-cite-rate-20261101.md": {
+   "sha256": "e04e1effde55fda2adca55148e930f7e56dd5f0ab6a49a2c89d3e8fbb49c5ca5",
+   "bytes": 4835
   },
   "audit/baseline/v2/RESULT-m004-blind-20261031.md": {
    "sha256": "8e2b1751d0cda3fa00bd361389ab09a4010f34d9530e86fc434bc1228c65a18c",
@@ -1223,6 +1231,10 @@
    "sha256": "a97d4d99062cc7af74b715fdb0b9c2534138408cd9e06df4ec1f27ee61ba5906",
    "bytes": 5540
   },
+  "audit/baseline/v2/runs/cite-rate-prereg.json": {
+   "sha256": "fd3e4b9f44829a76116f2e1ec0ac38d27ddd52f09a2f37f692d74e629e691ece",
+   "bytes": 2421
+  },
   "audit/baseline/v2/runs/judge-1.json": {
    "sha256": "ba27d1037b7383dff37809f1057348325cce96ee05482e39bdb8f2077528440a",
    "bytes": 2731
@@ -1568,8 +1580,12 @@
    "bytes": 6286
   },
   "audit/kit/caliber_lib.py": {
-   "sha256": "276b2763dfd703b2f221fae1b5558edbd14d69034fa8c4f4087a50a22c642002",
-   "bytes": 9193
+   "sha256": "d0faad0964f3881618cac8cf3475dee45f1859954e70bee0ccbef0210ebfa0c4",
+   "bytes": 11351
+  },
+  "audit/kit/cite_rate.py": {
+   "sha256": "a0e5634ba469c95c46b459fd233eb71d1ee3554755a42dc680b1345df1ed586a",
+   "bytes": 9779
   },
   "audit/kit/item_gate.py": {
    "sha256": "e006af8ea70167445b7706e784c534bcb71c187500b9e77795e07262751254b8",
@@ -1602,6 +1618,10 @@
   "audit/kit/sync_score.sh": {
    "sha256": "452b33f4a0c0644bd2a2e312747804734c74fe51955a13e58f19875987b54d22",
    "bytes": 3156
+  },
+  "audit/kit/test_cite_rate.py": {
+   "sha256": "70317618c72b897aedbb7cac29936a8d1f0cdff0a1f61db088cad55a05231b96",
+   "bytes": 10120
   },
   "audit/kit/test_item_review.py": {
    "sha256": "d79ab66d307803f83cdf2d8b41dab718d72c33ddf89eacb7a30c28c27ba01ad4",
@@ -1856,8 +1876,8 @@
    "bytes": 923
   },
   "Makefile": {
-   "sha256": "7dd9f59e94b1b814ae2e8f666f84ef17de75ccbac775da911eaa22a7e5f414c0",
-   "bytes": 14268
+   "sha256": "82793a35c3100d5706b06bc1130c2e39444ac8ff7eaf5938e1854f8c624d2359",
+   "bytes": 14856
   },
   "README.md": {
    "sha256": "a538cc5591c64f91fff870cd08963b8b7fa1b7e5d827082d4c56dbc391ed0dec",
@@ -1877,8 +1897,8 @@
   }
  },
  "caller": {
-  "pid": 39390,
-  "ppid": 39380,
-  "parent_cmd": "/bin/zsh -c . '/Users/guan/.workbuddy/shell-snapshots/snapshot-zsh-1793465188632-g1usen.sh' && if [ -n \"${CODEBUDDY_SAFE_DELETE_BIN_DIR:-}\" ]; then unalias rm unlink rmdir 2>/dev/null || true; unset -"
+  "pid": 73654,
+  "ppid": 73638,
+  "parent_cmd": "/bin/zsh -c . '/Users/guan/.workbuddy/shell-snapshots/snapshot-zsh-1793488844263-25wcrg.sh' && if [ -n \"${CODEBUDDY_SAFE_DELETE_BIN_DIR:-}\" ]; then unalias rm unlink rmdir 2>/dev/null || true; unset -"
  }
 }

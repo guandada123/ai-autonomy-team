@@ -123,6 +123,22 @@ def upper_bound_3_over_n(misses: int, n: int) -> float:
     return 1.0 if n == 0 else min(1.0, 3.0 / n)
 
 
+def check_thresholds(agg: dict, min_cite: float | None, min_consistency: float | None) -> list[str]:
+    """批次准入门槛（协议 §2）。返回未达标说明；空列表 = 通过。
+
+    分母为 0（rate=None）时**不判失败**——无样本不该被当成不合规，
+    也不能被当成合规：由调用方决定是否另行检查样本量。
+    """
+    out = []
+    if min_cite is not None and agg["cite_rate_conservative"] is not None \
+            and agg["cite_rate_conservative"] < min_cite:
+        out.append(f"可举证率·保守 {agg['cite_rate_conservative']:.0%} < 门槛 {min_cite:.0%}")
+    if min_consistency is not None and agg["declared_consistency"] is not None \
+            and agg["declared_consistency"] < min_consistency:
+        out.append(f"例外命中一致率 {agg['declared_consistency']:.0%} < 门槛 {min_consistency:.0%}")
+    return out
+
+
 def fmt(rate) -> str:
     """分母为 0 时显示 n/a——显示成 0% 会被误读成「全部不合格」。"""
     return "  n/a" if rate is None else f"{rate:>5.0%}"
@@ -133,6 +149,8 @@ def main() -> int:
     ap.add_argument("--reports", nargs="+", required=True, help="审查报告路径（可多个）")
     ap.add_argument("--json", default="", help="把逐份与汇总结果写入 JSON")
     ap.add_argument("--lib", default=str(LIB))
+    ap.add_argument("--min-cite", type=float, default=None, help="批次门槛：可举证率·保守下限（如 0.90）")
+    ap.add_argument("--min-consistency", type=float, default=None, help="批次门槛：例外命中一致率下限")
     ap.add_argument("--alias", action="store_true",
                     help="同时接受历史报告的同义字段 refs（宽松口径；与严格口径对照出数）")
     args = ap.parse_args()
@@ -176,6 +194,13 @@ def main() -> int:
     print(f"未引用 {misses}/{agg['total']}；若按 0 失败估计，未引用率上界 ≈ {ub:.3f}（3/n）")
     bad = sorted({b for v in scores.values() for b in v["bad_ids"]})
     print(f"编造编号：{'无 ✓' if not bad else '🔴 ' + str(bad)}")
+
+    thr = check_thresholds(agg, args.min_cite, args.min_consistency)
+    if thr:
+        print("🔴 未达批次门槛：" + "；".join(thr) + "（该批报告不得进 dossier 判分，先补引用再入库）")
+        return 1
+    if thr == [] and (args.min_cite is not None or args.min_consistency is not None):
+        print("✅ 达到批次门槛")
 
     if args.json:
         Path(args.json).write_text(

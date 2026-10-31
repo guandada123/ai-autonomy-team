@@ -9,7 +9,8 @@ from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
-from cite_rate import score_report, aggregate, upper_bound_3_over_n  # noqa: E402
+from cite_rate import (score_report, aggregate, upper_bound_3_over_n,  # noqa: E402
+                       check_thresholds)
 from caliber_lib import load_lib_ids, audit_review  # noqa: E402
 
 # 判据单一真源后，lib_ids 统一为 {id: entry} 形态
@@ -108,6 +109,19 @@ def main() -> int:
     check("n=50 → 0.06", abs(upper_bound_3_over_n(0, 50) - 0.06) < 1e-9,
           str(upper_bound_3_over_n(0, 50)))
     check("n=0 → 1.0（无样本不给假安心）", upper_bound_3_over_n(0, 0) == 1.0)
+
+    print("用例 8b：批次门槛（分母为 0 不判失败，也不算合规）")
+    ok = aggregate({"x": score_report(rep([{"qid": "A", "issue_type": "caliber",
+                                            "caliber_refs": ["E-001"],
+                                            "exception_hit": "E-001，命中：内部系统"}]), LIB_IDS)})
+    bad = aggregate({"y": score_report(rep([{"qid": "A", "issue_type": "caliber",
+                                             "caliber_refs": []}]), LIB_IDS)})
+    check("达标批次无未达标项", check_thresholds(ok, 0.90, 0.90) == [], str(check_thresholds(ok, 0.9, 0.9)))
+    check("不达标批次被拦下", len(check_thresholds(bad, 0.90, 0.90)) == 1,
+          str(check_thresholds(bad, 0.9, 0.9)))
+    none_agg = {"cite_rate_conservative": None, "declared_consistency": None}
+    check("分母为 0 不判失败（无样本不是不合规）", check_thresholds(none_agg, 0.90, 0.90) == [],
+          str(check_thresholds(none_agg, 0.9, 0.9)))
 
     print("用例 9：库不可读必须抛错，不静默降级")
     try:
