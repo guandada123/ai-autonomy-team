@@ -1,7 +1,7 @@
 {
- "created_at": "2026-10-31T14:51:20",
- "label": "v2-rewrite-20261031",
- "file_count": 430,
+ "created_at": "2026-10-31T19:09:58",
+ "label": "m004-user-validated-20261031",
+ "file_count": 439,
  "files": {
   "scripts/build_package.py": {
    "sha256": "270d99bebfffeeaadfb2e904f6b3230ace8048136854e0a0faca4fdb2cbbcfcb",
@@ -544,12 +544,12 @@
    "bytes": 4912
   },
   "docs/decisions/D-0086-口径库接入审查员.md": {
-   "sha256": "eb178949b23b4db7dcc594619e8399233e1374ef8c27bf363e06591f29aec28f",
-   "bytes": 4830
+   "sha256": "e9ef20ed3b25c69e2a79e316bc99f730a506c42a4a0080bc0146a962afeb2a89",
+   "bytes": 5275
   },
   "docs/decisions/D-0087-选项均衡化改造.md": {
-   "sha256": "a5682996ea5778a3e46434a0a8a705d98e11cb8007c2639c20271395cc268c82",
-   "bytes": 2404
+   "sha256": "c25215100f44e232828b7f8157be13af16f8cf2dbd9e90c32d4c9cf8720373ca",
+   "bytes": 2591
   },
   "docs/decisions/TEMPLATE.md": {
    "sha256": "0bbc33940a540ae0e983817d9b1cf6daf6502ff233074d5023a3466511867e6e",
@@ -804,8 +804,8 @@
    "bytes": 3507
   },
   "audit/baseline/v2/CALIBER-LIBRARY.md": {
-   "sha256": "b61ac415d7fbbb91cfb8848f1aa6d16af3641f2d05f789ae3b6e0744bb761ce9",
-   "bytes": 5253
+   "sha256": "64247507b594c8a442f4a91766ad021092d39d36a8e3b0ec9849af4535321e39",
+   "bytes": 7343
   },
   "audit/baseline/v2/DESIGN-v2.1.md": {
    "sha256": "167eecf9c5f098a483e07514892429652f35e45be0ba98ae3bf1ad2231d0eec6",
@@ -820,20 +820,24 @@
    "bytes": 4186
   },
   "audit/baseline/v2/QUESTIONS-v2-blind.md": {
-   "sha256": "186d4b7a6e714ad4f500b1b52dce4fec9bf210eb85423ef2cb5c2a47fa21ad55",
-   "bytes": 17720
+   "sha256": "c6c99c981b731667b71c6db4f7c30e8ff96c1268577714f5a765f7f49813b46c",
+   "bytes": 17729
   },
   "audit/baseline/v2/QUESTIONS-v2-draft-20261031.md": {
-   "sha256": "64808c2dd072dbda213d6ac6ac181d1f70e3941c319c327e5b70fe3dfd02d635",
-   "bytes": 32815
+   "sha256": "c17eb04f442ebe15ad3f5c4806f00f0404e637bed53e7aa707161844bee0ca7d",
+   "bytes": 32824
   },
   "audit/baseline/v2/README.md": {
    "sha256": "b7e0b943daac73af0e3d3ba14856967e3f2e5a8ab8f9810ec7d4ed6265f1e2f7",
    "bytes": 2050
   },
+  "audit/baseline/v2/RESULT-m004-blind-20261031.md": {
+   "sha256": "8e2b1751d0cda3fa00bd361389ab09a4010f34d9530e86fc434bc1228c65a18c",
+   "bytes": 5246
+  },
   "audit/baseline/v2/RESULT-rewrite-20261031.md": {
-   "sha256": "b9942e482993c0c3bf313ffd0a50eef3f758561d619c903583d54f2650cafdca",
-   "bytes": 4598
+   "sha256": "c8941de1103b3159a6619d45dc72404bcc80b66d03238b3666a0764794fd56af",
+   "bytes": 6429
   },
   "audit/baseline/v2/RESULT-v2-20261024.md": {
    "sha256": "022ff80c5938cf506645e34bedf580e325dcb8ba4a84fdd6f9ee8e3cda2ee65d",
@@ -904,16 +908,20 @@
    "bytes": 4544
   },
   "audit/baseline/v2/caliber-library.json": {
-   "sha256": "deeaab17f4f7b15780cae82634707075206106de1a09f8f53963fc16ad89d7d8",
-   "bytes": 8713
+   "sha256": "6e9e32ed349d8ff0e5097aba7085f51b499ba23831a18ba59ba1ccae91720b43",
+   "bytes": 11453
   },
   "audit/baseline/v2/dossier-v2-rewritten.json": {
-   "sha256": "b694fe34bf728202770ffc20dc695dcef982461b57d07ad9f3777269df47efa6",
-   "bytes": 35783
+   "sha256": "6acc648c1862f429f23585ee3bd3277f49e15d707d692982ba085c911b356a7a",
+   "bytes": 34729
   },
   "audit/baseline/v2/dossier-v2.json": {
    "sha256": "3a5cb762906020c2ea05878fa63f51c0c99704bc5894b03c1a5198c6e415c34b",
    "bytes": 26541
+  },
+  "audit/baseline/v2/golden/m004-boundary-5.json": {
+   "sha256": "399a93ebe192e750d11b968fc76bb18e4fb20b131ce2eaf87bbbb48ea3498d64",
+   "bytes": 7534
   },
   "audit/baseline/v2/label-sensitivity.json": {
    "sha256": "4199ac2bf667e9bf5c64f440297fbbd527311829004308f8b9f4325941cee477",
@@ -1147,6 +1155,22 @@
    "sha256": "c7599d9365a317533dad1b97197de3ec3e5b9e1a0fc67f73811f8ee1c9100b19",
    "bytes": 3449
   },
+  "audit/baseline/v2/runs/judge-1.json": {
+   "sha256": "ba27d1037b7383dff37809f1057348325cce96ee05482e39bdb8f2077528440a",
+   "bytes": 2731
+  },
+  "audit/baseline/v2/runs/judge-2.json": {
+   "sha256": "b46ebb6bd6efe842125436bda81fd8309b9fef24945647cd3779b2b70ade9385",
+   "bytes": 2749
+  },
+  "audit/baseline/v2/runs/new-batch-5-blind.json": {
+   "sha256": "14672a39d26472b6bc47443052a0bc3c8bad696822aaf568996a89a75333badc",
+   "bytes": 5525
+  },
+  "audit/baseline/v2/runs/new-batch-5.json": {
+   "sha256": "4ac698c55712b7da19b3794ad57f6add09c62d163d0b3b48ff163b83c3171dcd",
+   "bytes": 8131
+  },
   "audit/baseline/v2/runs/r4-post.json": {
    "sha256": "fa0c3d33d9badb72047a094ce73b5402f2febd749518ef7616b03bc7f883d623",
    "bytes": 4592
@@ -1175,6 +1199,10 @@
    "sha256": "9bc62c4a3b6c7467afcae5e55771a41a84cc8eb560f813e9df370d14ec762e59",
    "bytes": 8930
   },
+  "audit/baseline/v2/runs/rejudge.json": {
+   "sha256": "6b034a2569d4af41d9fb8fc257c2262865ad6f358910991faa7137dabee7d41f",
+   "bytes": 1836
+  },
   "audit/baseline/v2/runs/single-r1.json": {
    "sha256": "8b340a78f449eaf37f4a2e4541c5af76e78bd71748446a4bc4552fbdb74d501e",
    "bytes": 4917
@@ -1187,9 +1215,17 @@
    "sha256": "f695004fe548729fd40a7b4bcc1e01de2c448be827fc6209feba9f61a0eeaff2",
    "bytes": 6483
   },
+  "audit/baseline/v2/runs/verify-2.json": {
+   "sha256": "20962873dd2ca6473730fa3728692e5cb1d3df3f17cadecfb1985bc8eef7cf22",
+   "bytes": 3012
+  },
   "audit/baseline/v2/runs/verify-4.json": {
    "sha256": "538d797ee31c073de4972ed57c61754da4dad1c2630773a629e6a6500fb1b6f1",
    "bytes": 2802
+  },
+  "audit/baseline/v2/runs/verify-M004.json": {
+   "sha256": "b7852abc566fa7d6c4fe1ca00fcf5c7c6e8dea8953d8dcb1527b2390141d70c6",
+   "bytes": 5410
   },
   "audit/baseline/v2/score-summary-secondcheck.json": {
    "sha256": "e5379a8aa58c777393ea2e7b66400c76f5cf2e186a7534991daaef12b3720fee",
@@ -1428,8 +1464,8 @@
    "bytes": 6286
   },
   "audit/kit/caliber_lib.py": {
-   "sha256": "118214e7992c3fdef3c813660980270e923bc0eef39e760806be61dab23183d8",
-   "bytes": 8675
+   "sha256": "276b2763dfd703b2f221fae1b5558edbd14d69034fa8c4f4087a50a22c642002",
+   "bytes": 9193
   },
   "audit/kit/item_gate.py": {
    "sha256": "e006af8ea70167445b7706e784c534bcb71c187500b9e77795e07262751254b8",
@@ -1725,8 +1761,8 @@
   }
  },
  "caller": {
-  "pid": 49733,
-  "ppid": 49720,
+  "pid": 9280,
+  "ppid": 9271,
   "parent_cmd": "/bin/zsh -c . '/Users/guan/.workbuddy/shell-snapshots/snapshot-zsh-1793421390946-9acsm5.sh' && if [ -n \"${CODEBUDDY_SAFE_DELETE_BIN_DIR:-}\" ]; then unalias rm unlink rmdir 2>/dev/null || true; unset -"
  }
 }

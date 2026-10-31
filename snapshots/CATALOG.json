@@ -3,9 +3,9 @@
  "_generated_by": "scripts/snapshot_sources.py --catalog",
  "count": {
   "in_git": 3,
-  "archived": 289,
+  "archived": 290,
   "missing": 0,
-  "total": 292
+  "total": 293
  },
  "snapshots": [
   {
@@ -2322,8 +2322,8 @@
   },
   {
    "name": "20261031-145120-v2-rewrite-20261031",
-   "location": "snapshots",
-   "in_git": true,
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
    "label": "v2-rewrite-20261031",
    "created_at": "2026-10-31T14:51:20",
    "file_count": 430
@@ -2343,6 +2343,14 @@
    "label": "m004-blind-20261031",
    "created_at": "2026-10-31T15:29:25",
    "file_count": 438
+  },
+  {
+   "name": "20261031-190958-m004-user-validated-20261031",
+   "location": "snapshots",
+   "in_git": true,
+   "label": "m004-user-validated-20261031",
+   "created_at": "2026-10-31T19:09:58",
+   "file_count": 439
   }
  ]
 }
