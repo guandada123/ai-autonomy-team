@@ -3,9 +3,9 @@
  "_generated_by": "scripts/snapshot_sources.py --catalog",
  "count": {
   "in_git": 3,
-  "archived": 281,
+  "archived": 284,
   "missing": 0,
-  "total": 284
+  "total": 287
  },
  "snapshots": [
   {
@@ -2258,27 +2258,51 @@
   },
   {
    "name": "20261031-130750-v2-secondcheck-20261031",
-   "location": "snapshots",
-   "in_git": true,
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
    "label": "v2-secondcheck-20261031",
    "created_at": "2026-10-31T13:07:50",
    "file_count": 408
   },
   {
    "name": "20261031-134441-v2-qc-pipeline-20261031",
-   "location": "snapshots",
-   "in_git": true,
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
    "label": "v2-qc-pipeline-20261031",
    "created_at": "2026-10-31T13:44:41",
    "file_count": 414
   },
   {
    "name": "20261031-134608-v2-qc-pipeline-20261031b",
-   "location": "snapshots",
-   "in_git": true,
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
    "label": "v2-qc-pipeline-20261031b",
    "created_at": "2026-10-31T13:46:09",
    "file_count": 414
+  },
+  {
+   "name": "20261031-134847-v2-qc-final-20261031",
+   "location": "snapshots",
+   "in_git": true,
+   "label": "v2-qc-final-20261031",
+   "created_at": "2026-10-31T13:48:47",
+   "file_count": 414
+  },
+  {
+   "name": "20261031-135021-v2-qc-final2-20261031",
+   "location": "snapshots",
+   "in_git": true,
+   "label": "v2-qc-final2-20261031",
+   "created_at": "2026-10-31T13:50:21",
+   "file_count": 414
+  },
+  {
+   "name": "20261031-135123-v2-qc-final3-20261031",
+   "location": "snapshots",
+   "in_git": true,
+   "label": "v2-qc-final3-20261031",
+   "created_at": "2026-10-31T13:51:23",
+   "file_count": 415
   }
  ]
 }

@@ -43,6 +43,9 @@ from pathlib import Path
 #     不要因为「唯一源应该在 scripts/ 那边」而把它们搬出来 —— 那会触发
 #     MANIFEST 重建与多处路径引用改写，收益小于代价（见 D-0003 同条记录）。
 
+# 刻意不入包（2026-10-31 D-0085 裁决）：
+#   audit/kit/ —— 出题质检闸 item_review.py 等依赖 audit/baseline/ 与 dossier 生成链，
+#   包内无输入即无意义；单带闸门会让人误以为可跑。闸门仅源机可用。
 FIXED_MAPPING = [
     ("scripts/judges/verify.py", "migration-package/judges/verify.py"),
     ("scripts/judges/seat_check.py", "migration-package/judges/seat_check.py"),
