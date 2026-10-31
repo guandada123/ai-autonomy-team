@@ -1,7 +1,7 @@
 {
- "created_at": "2026-10-31T13:50:21",
- "label": "v2-qc-final2-20261031",
- "file_count": 414,
+ "created_at": "2026-10-31T14:00:55",
+ "label": "caliber-lib-20261031",
+ "file_count": 421,
  "files": {
   "scripts/build_package.py": {
    "sha256": "270d99bebfffeeaadfb2e904f6b3230ace8048136854e0a0faca4fdb2cbbcfcb",
@@ -204,8 +204,8 @@
    "bytes": 23046
   },
   "docs/protocol/08-出题质检协议-v1.md": {
-   "sha256": "72c4188e4a3d220c804d88dc11843e861205298efcb4273a5663e34e37ce6f79",
-   "bytes": 19911
+   "sha256": "7c66a2ec3953409d05e0f8abe4de8137d20b7a9c905c9241f27981646eefc9a8",
+   "bytes": 21393
   },
   "docs/decisions/D-0001-架构与定位决策.md": {
    "sha256": "ed1cfbed14493959fcd248bf64e7054d56275a1c034325ac7efe6c2185d7bc59",
@@ -543,6 +543,10 @@
    "sha256": "f77e4ed852c097dcadb161daf278c19b0f7fa7bb9824cd36119de27630231cba",
    "bytes": 4912
   },
+  "docs/decisions/D-0086-口径库接入审查员.md": {
+   "sha256": "eb178949b23b4db7dcc594619e8399233e1374ef8c27bf363e06591f29aec28f",
+   "bytes": 4830
+  },
   "docs/decisions/TEMPLATE.md": {
    "sha256": "0bbc33940a540ae0e983817d9b1cf6daf6502ff233074d5023a3466511867e6e",
    "bytes": 856
@@ -795,6 +799,10 @@
    "sha256": "f2dbc80696241426fdb5f91af45ffa19703d3ec67c5049ca71fc8b7b5ffd91da",
    "bytes": 3507
   },
+  "audit/baseline/v2/CALIBER-LIBRARY.md": {
+   "sha256": "b61ac415d7fbbb91cfb8848f1aa6d16af3641f2d05f789ae3b6e0744bb761ce9",
+   "bytes": 5253
+  },
   "audit/baseline/v2/DESIGN-v2.1.md": {
    "sha256": "167eecf9c5f098a483e07514892429652f35e45be0ba98ae3bf1ad2231d0eec6",
    "bytes": 4142
@@ -886,6 +894,10 @@
   "audit/baseline/v2/arm-M1.json": {
    "sha256": "fa50487e20347314d07eb820665899c9dfbb1ff41c6644318255e911874c5605",
    "bytes": 4544
+  },
+  "audit/baseline/v2/caliber-library.json": {
+   "sha256": "ff29b197067726fed9722d4bccdf37d08da888492c9205d34f76d25f37b5494f",
+   "bytes": 8442
   },
   "audit/baseline/v2/dossier-v2.json": {
    "sha256": "3a5cb762906020c2ea05878fa63f51c0c99704bc5894b03c1a5198c6e415c34b",
@@ -1063,6 +1075,10 @@
    "sha256": "c09bf987f13d3f2e26fc8a5c6f2b2d4e99ce1ef4040c14261af0ff4def72099d",
    "bytes": 10538
   },
+  "audit/baseline/v2/runs/R1-caliber-pilot.json": {
+   "sha256": "74aa9e0ec117177d35e11e9000b31b38fc5d169c7051c654348be22066a9de3d",
+   "bytes": 7584
+  },
   "audit/baseline/v2/runs/R1-r1.json": {
    "sha256": "45082e86faf0a389c3d4713162a2bc7422c9700790ed2d66305611604aca1feb",
    "bytes": 4132
@@ -1074,6 +1090,10 @@
   "audit/baseline/v2/runs/R1-r3.json": {
    "sha256": "c317c8fcaf2ef337c1e268aefa26c250c5131fd2c4c292fae06f5ec4834b3d67",
    "bytes": 3718
+  },
+  "audit/baseline/v2/runs/R2-caliber-pilot.json": {
+   "sha256": "d4b0a39a4fee09b23479cd5ee9d4d560e73730f6a76511c5c4404de78d8edbbb",
+   "bytes": 9415
   },
   "audit/baseline/v2/runs/R2-r1.json": {
    "sha256": "4d1ce5a3da8bf832bce41fb9e416a0b359ed6bd84d6c8c8b5afc0ade52a1cbbe",
@@ -1371,6 +1391,10 @@
    "sha256": "9d840ece7c820fdbea307d0168dfe14ff0dbace1a14421563f130bc2c2e061a8",
    "bytes": 6286
   },
+  "audit/kit/caliber_lib.py": {
+   "sha256": "118214e7992c3fdef3c813660980270e923bc0eef39e760806be61dab23183d8",
+   "bytes": 8675
+  },
   "audit/kit/item_gate.py": {
    "sha256": "e006af8ea70167445b7706e784c534bcb71c187500b9e77795e07262751254b8",
    "bytes": 10878
@@ -1611,6 +1635,10 @@
    "sha256": "1a1f31b4358f4134116af0448a42e26e9eb799a8517787d898b6147f76ae5396",
    "bytes": 1925
   },
+  ".learnings/L-0042-用例必须被反证过才算覆盖.md": {
+   "sha256": "9bf9b3fad2fb532808d7e63e56090821e5f414cc6cc107fe7aceafc7f7d86d5c",
+   "bytes": 6125
+  },
   ".github/workflows/selftest.yml": {
    "sha256": "893c6a49f1dba12a21eab68aa70321572c78730e5985acc00c73753938a83b2f",
    "bytes": 2140
@@ -1640,15 +1668,15 @@
    "bytes": 923
   },
   "Makefile": {
-   "sha256": "a7449a3d433e0c53e9eeba6fa0429e85370bd1f49252c328e2e94236f1ddab8f",
-   "bytes": 13411
+   "sha256": "7e4b6f80b76591d26b9122bb4ec907381dc329155bd2abde65ec8afe405564e5",
+   "bytes": 13717
   },
   "README.md": {
-   "sha256": "e2df10e11427362459bfa1809bc72683f7710b54c16b98853b21a845fbfcc87e",
+   "sha256": "902e4b79172ddcf4b3262d8a29d9db1e2c316671c0ea90ac2a2ef616e8897a5f",
    "bytes": 5178
   },
   "ARCHITECTURE.md": {
-   "sha256": "e21ac5c67a7db2eedc80f6a79dec0fb4a0794a4abf4a931316b04fd16a617328",
+   "sha256": "dc8ee5df0083bb5fd58005fb94551daa70addf76e6249dd7f83079d364183255",
    "bytes": 24056
   },
   "DEPENDENCIES.md": {
@@ -1661,8 +1689,8 @@
   }
  },
  "caller": {
-  "pid": 2968,
-  "ppid": 2950,
+  "pid": 13556,
+  "ppid": 13544,
   "parent_cmd": "/bin/zsh -c . '/Users/guan/.workbuddy/shell-snapshots/snapshot-zsh-1793421390946-9acsm5.sh' && if [ -n \"${CODEBUDDY_SAFE_DELETE_BIN_DIR:-}\" ]; then unalias rm unlink rmdir 2>/dev/null || true; unset -"
  }
 }

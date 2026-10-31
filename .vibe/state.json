@@ -2,7 +2,7 @@
   "methodology_step": 3,
   "methodology_step_source": "scan_inferred",
   "current_stage": "MVP 定义",
-  "last_activity": "2026-10-31T13:40:40+08:00",
+  "last_activity": "2026-10-31T14:01:46+08:00",
   "milestones": [
     {
       "date": "2026-10-30",
@@ -27,6 +27,10 @@
     {
       "date": "2026-10-31",
       "event": "D-0085 闭环：出题侧质检可执行（命题可信→路由→实验→区分度 四段串联）；四代答题侧实验资产转为题库品质资产"
+    },
+    {
+      "date": "2026-10-31",
+      "event": "D-0086：审查员获得口径证据源（规则可见/答案不可见）；R4 不接库（避免把判据前置给被考者）"
     }
   ],
   "feedback_log": [
@@ -61,6 +65,10 @@
     {
       "date": "2026-10-31",
       "event": "四角色转岗出题质检落成：协议 v1.1 + item_review.py(C0–C6) + 35 项验收 + 25 题质检报告（REJECT 22/WARN 13，SAT 22/25 长度泄漏）"
+    },
+    {
+      "date": "2026-10-31",
+      "event": "口径库 v1 接入审查员：11 条（5 原则+3 例外+3 元规则），caliber_lib.py --check/--audit-review 全绿；试点 R1/R2 各 6 题 12/12 带 id 引用（接库前 50/50 无引用）"
     }
   ]
 }
