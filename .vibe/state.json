@@ -81,6 +81,10 @@
     {
       "date": "2026-10-31",
       "event": "混合轴 10 题管线首跑全通：出题→打回→重造→R1/R2 复检 10/10 mixed→R3 零否决→闸门 exit 0→用户裁决 10/10；回归集 2 固化"
+    },
+    {
+      "date": "2026-10-31",
+      "event": "混合轴 10 题三闸终检：item_review exit 0 / route_gate PASS / item_gate FAIL(10/10 饱和)；口径证据审计 20/20 充分；E-001~003 加 derived_from"
     }
   ]
 }

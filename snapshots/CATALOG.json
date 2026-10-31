@@ -3,9 +3,9 @@
  "_generated_by": "scripts/snapshot_sources.py --catalog",
  "count": {
   "in_git": 3,
-  "archived": 292,
+  "archived": 293,
   "missing": 0,
-  "total": 295
+  "total": 296
  },
  "snapshots": [
   {
@@ -2346,8 +2346,8 @@
   },
   {
    "name": "20261031-190958-m004-user-validated-20261031",
-   "location": "snapshots",
-   "in_git": true,
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
    "label": "m004-user-validated-20261031",
    "created_at": "2026-10-31T19:09:58",
    "file_count": 439
@@ -2367,6 +2367,14 @@
    "label": "mixed10-validated-20261031",
    "created_at": "2026-10-31T21:12:46",
    "file_count": 455
+  },
+  {
+   "name": "20261031-230535-mixed10-gates-20261031",
+   "location": "snapshots",
+   "in_git": true,
+   "label": "mixed10-gates-20261031",
+   "created_at": "2026-10-31T23:05:35",
+   "file_count": 458
   }
  ]
 }
