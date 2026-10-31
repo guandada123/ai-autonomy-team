@@ -1,0 +1,31 @@
+{
+  "role": "R1",
+  "round": 2,
+  "claims": [
+    {"qid": "V2-01", "verdict": "corroborated", "detail": "52.00+35.40=87.40，分项与合计自洽，规则表述与选项无冲突。"},
+    {"qid": "V2-02", "verdict": "corroborated", "detail": "63.50 对应 4 笔垫付无算术矛盾；选项 A 的 100 元门槛为题面新增条件，但与题面数字不冲突。"},
+    {"qid": "V2-03", "verdict": "corroborated", "detail": "41.80+26.00=67.80，数字自洽。"},
+    {"qid": "V2-04", "verdict": "corroborated", "detail": "58.60 单笔金额自洽，规则与选项无冲突。"},
+    {"qid": "V2-05", "verdict": "corroborated", "detail": "33.30+4.90=38.20，与选项 C、D 引用金额一致。"},
+    {"qid": "V2-06", "verdict": "corroborated", "detail": "15=12 已说明+3 未说明，分项合计自洽。"},
+    {"qid": "V2-07", "verdict": "corroborated", "detail": "11 条中 8 条在途所致，分项不超总数，自洽。"},
+    {"qid": "V2-08", "verdict": "corroborated", "detail": "9=6 客户代收+3 其他，自洽。"},
+    {"qid": "V2-09", "verdict": "corroborated", "detail": "7 条中 5 条已解释；选项 B 的 3+2=5 与该 5 条吻合，自洽。"},
+    {"qid": "V2-10", "verdict": "corroborated", "detail": "14 条中 9 条有说明；选项 D 的 3+6=9 吻合，自洽。"},
+    {"qid": "V2-11", "verdict": "unverifiable", "detail": "「差额恰好等于按斤/公斤换算的数值」未给出换算方向与差额符号（仓库数−供应商数未指明），斤/公斤两个方向假设均可套入 46 这一数值，存在口径歧义。"},
+    {"qid": "V2-12", "verdict": "corroborated", "detail": "312 公斤=包装物重量，毛重申报/净重记录假设与差额方向自洽，选项 B 的 156=312/2 算术正确。"},
+    {"qid": "V2-13", "verdict": "corroborated", "detail": "差额=订单金额×6% 关系自洽；题面未给绝对金额，本文件内无可核算数字，但无内部矛盾。"},
+    {"qid": "V2-14", "verdict": "unverifiable", "detail": "「使用面积与建筑面积的比例差（约 12%）」未定义比例的分子分母口径（(使用−建筑)/建筑 或 使用/建筑−1），同一表述可支持两种比例定义，存在口径歧义。"},
+    {"qid": "V2-15", "verdict": "corroborated", "detail": "应发−社保个人缴存=实发，差额=社保个人缴存额的推断链自洽。"},
+    {"qid": "V2-16", "verdict": "contradicted", "detail": "题面「月末盘点截点为 30 日 24:00」与 V2-19 中「31 日上夜班」互斥：若当月为 31 天，30 日并非月末截点；若 30 天，则截点成立但 V2-19 的 31 日无效，日期体系不自洽。"},
+    {"qid": "V2-17", "verdict": "corroborated", "detail": "3,200 元、发票 3/28 与培训 4/8 跨季事实自洽，无算术矛盾。"},
+    {"qid": "V2-18", "verdict": "contradicted", "detail": "「月末截点为 30 日 24:00」与 V2-19 的 31 日事件互斥，同库月份天数口径不一致；30/31 日 23:40→次月 00:15 时序本身无矛盾。"},
+    {"qid": "V2-19", "verdict": "contradicted", "detail": "「31 日 22:00 上夜班」与 V2-16/V2-18「月末截点为 30 日 24:00」冲突：31 天月份的月末应为 31 日 24:00，题库内月末日期口径互相矛盾。"},
+    {"qid": "V2-20", "verdict": "contradicted", "detail": "选项 B「按 24 个月服务期均摊」引入题面未给出的 24 个月参数——题面服务期 10/15 至次年 10/14 仅 12 个月，且未说明首期款覆盖的服务范围。"},
+    {"qid": "V2-21", "verdict": "corroborated", "detail": "5 条零金额条目数量自洽，赠品未计值示例与题面描述一致。"},
+    {"qid": "V2-22", "verdict": "corroborated", "detail": "4 条零费用条目；选项 A 的 1+3=4 吻合，自洽。"},
+    {"qid": "V2-23", "verdict": "corroborated", "detail": "6 条零金额条目；选项 C 的 2+4=6 吻合，自洽。"},
+    {"qid": "V2-24", "verdict": "corroborated", "detail": "3 条零时长条目；选项 B 的 1+2=3 吻合，自洽。"},
+    {"qid": "V2-25", "verdict": "unverifiable", "detail": "「基准金额仍为 0」中「基准金额」未定义，与「无违约金」（违约金数额为 0）是否同口径不明；题面可同时支持「金额为 0」与「条款实质变更」两种解读，存在口径歧义。"}
+  ]
+}

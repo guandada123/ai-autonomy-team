@@ -37,9 +37,10 @@ mvp:
       status: "done"
   out_of_scope:
     - "L3 完整流水线启用（无真实多步任务流量，YAGNI）"
-    - "四角色运行时编排执行器（本轮只落协议 DESIGN §四）"
-    - "判断类题库出题（等用户对 v2 方向 A/B/C 拍板）"
-    - "pass^k 执行器（k 值待拍板）"
+    - "四角色运行时编排执行器代码化（实验由主理人编排子代理完成，执行器待实验证明价值后立项）"
+
+# 2026-10-31 用户拍板「解冻开跑」：判断类出题（D-0082 已完成）与 pass^k=3 对照实验（D-0083）
+# 从 out_of_scope 移入本轮执行，实验产物见 audit/baseline/v2/runs/ 与 RESULT-v2
 
 tech_stack:
   language: "Python"

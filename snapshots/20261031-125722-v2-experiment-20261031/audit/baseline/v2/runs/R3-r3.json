@@ -1,0 +1,31 @@
+{
+  "role": "R3",
+  "round": 3,
+  "vetoes": [
+    {"qid": "V2-01", "veto": false, "basis": null, "reason": "R1 corroborated；R2 仅 reverse_inferable，不属否决判据"},
+    {"qid": "V2-02", "veto": false, "basis": null, "reason": "R1 corroborated；R2 reverse_inferable 及选项 A 无据属干扰项瑕疵，不影响作答"},
+    {"qid": "V2-03", "veto": false, "basis": null, "reason": "R1 corroborated；R2 reverse_inferable 为措辞诱导，非判据内问题"},
+    {"qid": "V2-04", "veto": false, "basis": null, "reason": "R1 corroborated；R2 仅 reverse_inferable"},
+    {"qid": "V2-05", "veto": false, "basis": null, "reason": "R1 corroborated；R2 reverse_inferable 不构成 ambiguous_gate"},
+    {"qid": "V2-06", "veto": false, "basis": null, "reason": "R1 corroborated；R2 篇幅不对称属诱导性瑕疵，证据链仍唯一"},
+    {"qid": "V2-07", "veto": false, "basis": null, "reason": "R1 corroborated；R2 reverse_inferable 非预注册判据"},
+    {"qid": "V2-08", "veto": false, "basis": null, "reason": "R1 corroborated；R2 reverse_inferable 非预注册判据"},
+    {"qid": "V2-09", "veto": false, "basis": null, "reason": "R1 corroborated；R2 reverse_inferable 非预注册判据"},
+    {"qid": "V2-10", "veto": false, "basis": null, "reason": "R1 corroborated；R2 reverse_inferable 非预注册判据"},
+    {"qid": "V2-11", "veto": false, "basis": null, "reason": "R1 corroborated 且题面已限定样本 2 笔、情景完整；R2 的 ambiguity 为措辞含糊，未达'同一证据链支持≥2选项无法作答'门槛"},
+    {"qid": "V2-12", "veto": false, "basis": null, "reason": "R1 corroborated；R2 reverse_inferable 非预注册判据"},
+    {"qid": "V2-13", "veto": false, "basis": null, "reason": "R1 corroborated；R2 reverse_inferable 非预注册判据"},
+    {"qid": "V2-14", "veto": false, "basis": null, "reason": "R1 corroborated；R2 reverse_inferable 非预注册判据"},
+    {"qid": "V2-15", "veto": false, "basis": null, "reason": "R1 corroborated；R2 reverse_inferable 非预注册判据"},
+    {"qid": "V2-16", "veto": false, "basis": null, "reason": "R1 corroborated（跨期歧义为题面设计、时间线自洽）；R2 none"},
+    {"qid": "V2-17", "veto": false, "basis": null, "reason": "R1 corroborated（跨季歧义设计自洽）；R2 none"},
+    {"qid": "V2-18", "veto": false, "basis": null, "reason": "R1 corroborated（跨月歧义设计自洽）；R2 none"},
+    {"qid": "V2-19", "veto": false, "basis": null, "reason": "R1 corroborated（8 小时工时自洽）；R2 none"},
+    {"qid": "V2-20", "veto": false, "basis": null, "reason": "R1 指出选项 B 期数（24 个月）与题面（12 个月）矛盾，但属单一选项局部瑕疵，其余选项仍可正常判断，不构成 forbidden_read 的'无法作答'"},
+    {"qid": "V2-21", "veto": false, "basis": null, "reason": "R1 corroborated；R2 reverse_inferable 非预注册判据"},
+    {"qid": "V2-22", "veto": false, "basis": null, "reason": "R1 corroborated；R2 reverse_inferable 非预注册判据"},
+    {"qid": "V2-23", "veto": false, "basis": null, "reason": "R1 corroborated；R2 reverse_inferable 非预注册判据"},
+    {"qid": "V2-24", "veto": false, "basis": null, "reason": "R1 corroborated；R2 reverse_inferable 非预注册判据"},
+    {"qid": "V2-25", "veto": false, "basis": null, "reason": "R1 corroborated；R2 reverse_inferable 及'略有跳步'均不属预注册判据"}
+  ]
+}

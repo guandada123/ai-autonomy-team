@@ -1,0 +1,31 @@
+{
+  "role": "R3",
+  "round": 2,
+  "vetoes": [
+    {"qid": "V2-01", "veto": false, "basis": null, "reason": "R1 corroborated、R2 仅 reverse_inferable，未命中任一否决判据。"},
+    {"qid": "V2-02", "veto": false, "basis": null, "reason": "R1 corroborated；R2 的模式线索不属预注册判据。"},
+    {"qid": "V2-03", "veto": false, "basis": null, "reason": "R1 corroborated、R2 仅报措辞可识别，无口径歧义或致命矛盾。"},
+    {"qid": "V2-04", "veto": false, "basis": null, "reason": "R1 corroborated，R2 发现不属三项判据。"},
+    {"qid": "V2-05", "veto": false, "basis": null, "reason": "R1 corroborated，无否决依据。"},
+    {"qid": "V2-06", "veto": false, "basis": null, "reason": "R1 corroborated；R2 报 none，仅长短线索不构成否决。"},
+    {"qid": "V2-07", "veto": false, "basis": null, "reason": "双方均报结构良好，仅轻微模式线索。"},
+    {"qid": "V2-08", "veto": false, "basis": null, "reason": "双方均无可否决发现。"},
+    {"qid": "V2-09", "veto": false, "basis": null, "reason": "R1 corroborated、R2 报 none 且互斥性可接受。"},
+    {"qid": "V2-10", "veto": false, "basis": null, "reason": "双方均无致命发现。"},
+    {"qid": "V2-11", "veto": false, "basis": null, "reason": "R1 报换算方向歧义（unverifiable），但 R2 报选项互斥、需原则推理可作答；歧义未达'≥2 个选项无法作答'门槛，不确信不否决。"},
+    {"qid": "V2-12", "veto": false, "basis": null, "reason": "R1 corroborated；R2 仅报跨题模板漂移且明确单题结构良好，不属三项判据。"},
+    {"qid": "V2-13", "veto": false, "basis": null, "reason": "双方均无否决级发现。"},
+    {"qid": "V2-14", "veto": false, "basis": null, "reason": "R1 报比例定义口径歧义（unverifiable），但 R2 报结构良好、立场覆盖完整可作答；未达 ambiguous_gate 门槛。"},
+    {"qid": "V2-15", "veto": false, "basis": null, "reason": "R1 corroborated、R2 报 none。"},
+    {"qid": "V2-16", "veto": false, "basis": null, "reason": "R1 报跨题日期体系矛盾（contradicted），但矛盾在题库背景而非选项层；R2 明确给出单一可推路径（C），未证明矛盾导致无法作答。"},
+    {"qid": "V2-17", "veto": false, "basis": null, "reason": "R1 corroborated、R2 仅 reverse_inferable。"},
+    {"qid": "V2-18", "veto": false, "basis": null, "reason": "R1 的跨题日期矛盾未达'无法作答'程度，R2 仍给出单一可推路径（D）。"},
+    {"qid": "V2-19", "veto": false, "basis": null, "reason": "R1 报与 V2-16/18 日期口径冲突，但 R2 报 A 为唯一不自相矛盾选项可推；矛盾非选项层多解，不足以否决。"},
+    {"qid": "V2-20", "veto": false, "basis": null, "reason": "R1 报选项 B 引入题面未给的 24 个月参数，属选项局部瑕疵，其余选项仍可正常判断（R2 给出 C 可推），按判据③括号说明不否决。"},
+    {"qid": "V2-21", "veto": false, "basis": null, "reason": "R1 corroborated、R2 仅 reverse_inferable。"},
+    {"qid": "V2-22", "veto": false, "basis": null, "reason": "R1 corroborated、R2 仅 reverse_inferable。"},
+    {"qid": "V2-23", "veto": false, "basis": null, "reason": "R1 corroborated、R2 仅 reverse_inferable。"},
+    {"qid": "V2-24", "veto": false, "basis": null, "reason": "R1 corroborated、R2 仅 reverse_inferable。"},
+    {"qid": "V2-25", "veto": false, "basis": null, "reason": "R1 报'基准金额'未定义（unverifiable），但 R2 报 D 论据为题面字面直接给出、可作答；两种解读未证明对应两个选项并致无法作答。"}
+  ]
+}

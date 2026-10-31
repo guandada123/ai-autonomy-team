@@ -1,0 +1,31 @@
+{
+  "role": "R1",
+  "round": 1,
+  "claims": [
+    {"qid": "V2-01", "verdict": "corroborated", "detail": "52.00+35.40=87.40，合计自洽；规则'实际发生均计入'与选项 D 一致，无冲突。"},
+    {"qid": "V2-02", "verdict": "corroborated", "detail": "总额 63.50 与'4 笔'表述自洽；但题面未列出各笔明细金额，选项 A 的'100 元门槛'与 D 的'单笔超过 20 元的 2 笔'在题面中无依据，属选项自设标准，仅可作干扰项理解，不构成题面内部矛盾。"},
+    {"qid": "V2-03", "verdict": "corroborated", "detail": "41.80+26.00=67.80，合计自洽，选项 A 数字一致。"},
+    {"qid": "V2-04", "verdict": "corroborated", "detail": "58.60 单笔金额前后一致，无冲突。"},
+    {"qid": "V2-05", "verdict": "corroborated", "detail": "33.30+4.90=38.20，选项 C/D 数字与题面一致。"},
+    {"qid": "V2-06", "verdict": "corroborated", "detail": "12+3=15，条目数自洽，无口径冲突。"},
+    {"qid": "V2-07", "verdict": "corroborated", "detail": "11 条中 8 条在途所致，剩余 3 条未说明但不矛盾，数字自洽。"},
+    {"qid": "V2-08", "verdict": "corroborated", "detail": "9 条中 6 条客户代收，数字自洽，无冲突。"},
+    {"qid": "V2-09", "verdict": "corroborated", "detail": "7 条中 5 条已解释，数字自洽；'口头解释'与选项 D'书面落实'的对比逻辑一致。"},
+    {"qid": "V2-10", "verdict": "corroborated", "detail": "14 条中 9 条已说明，数字自洽，无冲突。"},
+    {"qid": "V2-11", "verdict": "corroborated", "detail": "两笔合计 46 与'斤/公斤'换算推断表述相容；题面明确样本仅 2 笔且无口径字段，选项表述无内部矛盾。"},
+    {"qid": "V2-12", "verdict": "corroborated", "detail": "选项 B 的 156=312/2，数字自洽；'毛重/净重'推断与题面条件一致。"},
+    {"qid": "V2-13", "verdict": "corroborated", "detail": "6% 比例表述与'含/不含服务费'口径推断相容，题面未给绝对金额故无从验算，但无内部矛盾。"},
+    {"qid": "V2-14", "verdict": "corroborated", "detail": "'约 12%'为近似值且题面已注明'约'，口径推断与选项表述相容，无矛盾。"},
+    {"qid": "V2-15", "verdict": "corroborated", "detail": "'应发/实发'口径推断与社保个人缴存额解释自洽，选项无冲突。"},
+    {"qid": "V2-16", "verdict": "corroborated", "detail": "截点 30 日 24:00 与发货 22:50、到货次月 1 日 09:00 的时间线自洽，歧义描述成立。"},
+    {"qid": "V2-17", "verdict": "corroborated", "detail": "3 月 28 日开票、4 月 8 日培训，跨一季度/二季度歧义成立，金额 3,200 无冲突。"},
+    {"qid": "V2-18", "verdict": "corroborated", "detail": "30 日 23:40 出站、次月 1 日 00:15 到达，跨月歧义成立，1,850 元无冲突。"},
+    {"qid": "V2-19", "verdict": "corroborated", "detail": "31 日 22:00 至次月 1 日 06:00 恰为 8 小时，时长自洽；跨月归属歧义描述成立。"},
+    {"qid": "V2-20", "verdict": "contradicted", "detail": "题面服务期为'10 月 15 日至次年 10 月 14 日'，即 12 个月；但选项 B 写'按 24 个月服务期均摊到两个年度'，服务期时长与题面矛盾（12 个月 vs 24 个月）。"},
+    {"qid": "V2-21", "verdict": "corroborated", "detail": "5 条零金额条目与赠品未计值示例相容，'零金额仍暴露口径矛盾'的逻辑与选项 B 一致，无冲突。"},
+    {"qid": "V2-22", "verdict": "corroborated", "detail": "4 条零费用条目与免费补发示例相容，选项 D 表述与题面逻辑一致。"},
+    {"qid": "V2-23", "verdict": "corroborated", "detail": "6 条零金额条目与'餐费标注的 0 元会议场地'示例相容，无内部矛盾。"},
+    {"qid": "V2-24", "verdict": "corroborated", "detail": "3 条'有审批、零时长'条目描述自洽，与选项 C 的口径矛盾表述一致。"},
+    {"qid": "V2-25", "verdict": "corroborated", "detail": "2 条偏差（'无违约金'改为具体天数与计算方式、基准金额仍为 0）描述自洽，选项 D 表述与题面逻辑一致。"}
+  ]
+}
