@@ -3,9 +3,9 @@
  "_generated_by": "scripts/snapshot_sources.py --catalog",
  "count": {
   "in_git": 3,
-  "archived": 286,
+  "archived": 287,
   "missing": 0,
-  "total": 289
+  "total": 290
  },
  "snapshots": [
   {
@@ -2298,8 +2298,8 @@
   },
   {
    "name": "20261031-135123-v2-qc-final3-20261031",
-   "location": "snapshots",
-   "in_git": true,
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
    "label": "v2-qc-final3-20261031",
    "created_at": "2026-10-31T13:51:23",
    "file_count": 415
@@ -2319,6 +2319,14 @@
    "label": "caliber-lib-20261031",
    "created_at": "2026-10-31T14:00:55",
    "file_count": 421
+  },
+  {
+   "name": "20261031-145120-v2-rewrite-20261031",
+   "location": "snapshots",
+   "in_git": true,
+   "label": "v2-rewrite-20261031",
+   "created_at": "2026-10-31T14:51:20",
+   "file_count": 430
   }
  ]
 }

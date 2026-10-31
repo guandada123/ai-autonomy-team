@@ -1,0 +1,206 @@
+{
+  "role": "R1",
+  "round": "post-rewrite",
+  "items": [
+    {
+      "qid": "V2-01",
+      "issue_type": "caliber",
+      "verdict": "corroborated",
+      "caliber_refs": ["C-001"],
+      "exception_hit": null,
+      "detail": "52.00+35.40=87.40，与 D 的数字一致；A 延后补记、B 只计 52.00、C 以 90.00 估算均属 C-001 禁止的不实计/延后，口径映射唯一。"
+    },
+    {
+      "qid": "V2-02",
+      "issue_type": "caliber",
+      "verdict": "corroborated",
+      "caliber_refs": ["C-001"],
+      "exception_hit": null,
+      "detail": "63.50 与 4 笔自洽，B 凑 65.00 的 1.50 差额可算；C 按 4 笔全额入表合规，A 虚构'100 元门槛'+整笔不计、D 按 20 元切分只计 2 笔均违 C-001。"
+    },
+    {
+      "qid": "V2-03",
+      "issue_type": "caliber",
+      "verdict": "corroborated",
+      "caliber_refs": ["C-001"],
+      "exception_hit": null,
+      "detail": "41.80+26.00=67.80 与 A 一致；D 两笔都不计、B 只计 26.00、C 按 70.00 估算均违 C-001，映射唯一。"
+    },
+    {
+      "qid": "V2-04",
+      "issue_type": "caliber",
+      "verdict": "corroborated",
+      "caliber_refs": ["C-001"],
+      "exception_hit": null,
+      "detail": "58.60 与 B 一致，C 的 60.00 定额差 1.40 可算；A 另立工具科目分开核算实为不计入、C 用定额替代实际、D 年末一次性归集，均违 C-001。"
+    },
+    {
+      "qid": "V2-05",
+      "issue_type": "caliber",
+      "verdict": "corroborated",
+      "caliber_refs": ["C-001"],
+      "exception_hit": null,
+      "detail": "33.30+4.90=38.20 与 C 一致；B 舍 4.90、D 按 38.00 取整、A 两笔全不计均违 C-001，映射唯一。"
+    },
+    {
+      "qid": "V2-06",
+      "issue_type": "caliber",
+      "verdict": "corroborated",
+      "caliber_refs": ["C-002"],
+      "exception_hit": null,
+      "detail": "12+3=15 自洽；B 全量保留、核实不缺勤后才移出，合 C-002；D 的'已说明存档表'不属 E-002 覆盖范围（E-002 只覆盖 C-005 零金额场景），未核实即移出仍违 C-002，但建议题面加注'归档不替代核实'，否则易被读成双解。"
+    },
+    {
+      "qid": "V2-07",
+      "issue_type": "caliber",
+      "verdict": "contradicted",
+      "caliber_refs": ["C-002"],
+      "exception_hit": "E-003，命中：移交采购部门跟进、仓库清单不再显示，属'有明确责任方的承接人+退出本清单'",
+      "detail": "8+3=11 自洽；A 按 C-002 走在途确认流程、账实一致后关闭；但 D 命中 E-003（M-001 例外优先）为可接受处理，A 与 D 各自有明确条目支持、属并列型双解，单解性破裂。"
+    },
+    {
+      "qid": "V2-08",
+      "issue_type": "caliber",
+      "verdict": "corroborated",
+      "caliber_refs": ["C-002"],
+      "exception_hit": null,
+      "detail": "6+3=9 自洽，B 的 2+4=6 也可算；C 逐条确认包裹送达收件人后才关闭合 C-002；D 同时写'移除这 6 条'与'电话回访核实无异常后结案'，前段违 C-002、后段合口径且时序倒置（先移出后核实），改造后该干扰项内部张力明显，建议改为'保留至回访完成再移出'。"
+    },
+    {
+      "qid": "V2-09",
+      "issue_type": "caliber",
+      "verdict": "corroborated",
+      "caliber_refs": ["C-002"],
+      "exception_hit": null,
+      "detail": "5+2=7、B 的 3+2=5 均自洽；D 以补充协议等书面形式落实才闭环合 C-002；A/B 以口头解释或抽检闭环违 C-002，C 打标签隐藏并从待办视图隐藏属无明确归档载体的移出，仍违 C-002（若被认定为归档载体则触 E-002 边界，需明确）。"
+    },
+    {
+      "qid": "V2-10",
+      "issue_type": "caliber",
+      "verdict": "corroborated",
+      "caliber_refs": ["C-002"],
+      "exception_hit": null,
+      "detail": "14 条中 9 条口头说明，D 的 3+6=9 可算；B 保留 9 条、补书面凭证并逐条核实后才闭环合 C-002；A/C 以口头说明即闭环、D 按比例抽留均违 C-002。"
+    },
+    {
+      "qid": "V2-11",
+      "issue_type": "caliber",
+      "verdict": "corroborated",
+      "caliber_refs": ["C-003"],
+      "exception_hit": "E-001，未命中（范围限'系统缺字段且可工程化修复'）：本题缺的是供应商发货明细的计量口径标注，且四个选项均无'先补字段+期间暂停'组合",
+      "detail": "46 的量差与题面自洽；A 计入并标注换算假设、持续比对合 C-003；B 待补样本暂不计、D 攒满 10 笔再纳入（自设门槛）均属搁置、C 直接改仓库单位字段重录属篡改源数据，三选项实质落在同一条'搁置/绕过'规则上；与 V2-12 同构却结论相反，建议统一口径。"
+    },
+    {
+      "qid": "V2-12",
+      "issue_type": "caliber",
+      "verdict": "contradicted",
+      "caliber_refs": ["C-003"],
+      "exception_hit": "E-001，命中存疑：题面只给'称重系统无毛重/净重口径字段'，未交代补字段可行性/认领方，例外前提依赖推定",
+      "detail": "312 与 156=312/2 自洽；D 按 C-003 计入并标注假设、C 暂不入统计观察后续；A 为'暂停统计、先推称重系统补字段再纳入'——若 E-001 前提成立（可工程化且有认领方）则 A 唯一，该例外明文排除'先按假设计入'；若前提不成立则 A 只是可无限期挂起的搁置。答案取决于题面未写明的条件，属互斥型双解；且同构的 V2-11 无'补字段'选项，两题选项集合不对称导致同构不同解。"
+    },
+    {
+      "qid": "V2-13",
+      "issue_type": "caliber",
+      "verdict": "corroborated",
+      "caliber_refs": ["C-003"],
+      "exception_hit": "E-001，未命中（报价单为单据未标注，非系统缺字段、无可工程化修复路径）",
+      "detail": "两笔差额恰为 6% 自洽；C 计入并标注服务费口径假设、逐笔核对合 C-003；D 用 6% 系数追溯全量重算违 C-003；A'暂不计入、仅备查处标注'与 B'冻结待书面确认'落在同一条搁置规则上，两干扰项口径重叠、区分度不足。"
+    },
+    {
+      "qid": "V2-14",
+      "issue_type": "caliber",
+      "verdict": "corroborated",
+      "caliber_refs": ["C-003"],
+      "exception_hit": "E-001，未命中（合同未写明面积口径，非系统字段问题）",
+      "detail": "两月差额约 12% 自洽；B 计入差异并标注面积口径假设、逐月跟踪合 C-003；A 两口径各计一半、C 不入统计、D 按 12% 系数重算全年均违 C-003，映射唯一。"
+    },
+    {
+      "qid": "V2-15",
+      "issue_type": "caliber",
+      "verdict": "corroborated",
+      "caliber_refs": ["C-003"],
+      "exception_hit": "E-001，未命中（审批单未标注口径，属单据表述问题）",
+      "detail": "两笔差额等于社保个人缴存额、算术自洽；A 计入差异清单并标注应发/实发假设、下月继续比对合 C-003；C 按比例全量重算违 C-003；B'暂不计入仅备查'与 D'挂起等说明、期间不比对'同属搁置，两干扰项重叠。"
+    },
+    {
+      "qid": "V2-16",
+      "issue_type": "caliber",
+      "verdict": "corroborated",
+      "caliber_refs": ["C-004"],
+      "exception_hit": null,
+      "detail": "28,400 元与发货 30 日 22:50、入库次月 1 日 09:00 自洽；C 挂跨期归属条目、次月按实际核对并持续跟踪合 C-004；A 按有利方向结案、B 50/50 拆分、D 按单据日期单边结案均违 C-004。"
+    },
+    {
+      "qid": "V2-17",
+      "issue_type": "caliber",
+      "verdict": "corroborated",
+      "caliber_refs": ["C-004"],
+      "exception_hit": null,
+      "detail": "3,200 元与发票 3/28、实际发生 4/8 自洽；B 挂跨季度跟进、二季度按实际核对合 C-004；A 与 D 为方向相反的同一种单边结案、C 对半拆分，均违 C-004（A/D 落同一条规则，属设计内重复）。"
+    },
+    {
+      "qid": "V2-18",
+      "issue_type": "caliber",
+      "verdict": "corroborated",
+      "caliber_refs": ["C-004"],
+      "exception_hit": null,
+      "detail": "1,850 元与 30 日 23:40 出站、次月 1 日 00:15 到达自洽；D 挂跨月跟进、次月结合时效口径核对合 C-004；A 出站归当月、C 到达归次月、B 对半拆分均违 C-004。"
+    },
+    {
+      "qid": "V2-19",
+      "issue_type": "caliber",
+      "verdict": "corroborated",
+      "caliber_refs": ["C-004"],
+      "exception_hit": null,
+      "detail": "31 日 22:00 至次月 1 日 06:00 恰为 8 小时，与题面一致，C 的 4+4 拆分也可算；A 挂跨月归属、次月结合工时口径核对合 C-004；B 按排班、C 平均拆分、D 按下班打卡单边归属均违 C-004。"
+    },
+    {
+      "qid": "V2-20",
+      "issue_type": "caliber",
+      "verdict": "corroborated",
+      "caliber_refs": ["C-004"],
+      "exception_hit": null,
+      "detail": "96,000÷12=8,000/月，B 的均摊金额可算；C 挂跨年度跟进、次年结合服务期口径核对合 C-004；B 虽为分期摊销但附'假设不再跟踪'、A 按付款年度、D 按服务起始年度单边归属，均违 C-004。"
+    },
+    {
+      "qid": "V2-21",
+      "issue_type": "fact",
+      "verdict": "contradicted",
+      "caliber_refs": ["C-005"],
+      "exception_hit": "E-002，命中：转入零金额归档表，条目本体与'零金额但字段有差异'的定性一并保留、有固定查阅路径（措辞层面未取消分类，与 V2-25 A 的'不作为偏差条目'相反）",
+      "detail": "题面 5 条金额均为 0，C 却要求'保留金额影响最大的 1 条'，全体为 0 时不存在可比较的大小，选项与题面设定自相矛盾（改造补理由从句后仍保留该表述）；同时 D 的零金额归档表命中 E-002（条目与'零金额但字段有差异'的定性一并搬运），与 B 的全量保留形成并列型双解。"
+    },
+    {
+      "qid": "V2-22",
+      "issue_type": "caliber",
+      "verdict": "corroborated",
+      "caliber_refs": ["C-005"],
+      "exception_hit": "E-002，命中不足（月度报告附注仅为汇总留痕，无逐条归档载体）",
+      "detail": "4 条零费用自洽，A 的 1+3 可算；D 全量保留并指出补发计费口径矛盾合 C-005；B 转月度报告附注会压缩掉逐条明细、非 C-005 要求的条目保留；C 全删、A 只留 1 条抽检均违 C-005。"
+    },
+    {
+      "qid": "V2-23",
+      "issue_type": "caliber",
+      "verdict": "corroborated",
+      "caliber_refs": ["C-005"],
+      "exception_hit": null,
+      "detail": "6 条零金额自洽，C 的 2+4 可算；A 全量保留并暴露类别映射口径矛盾合 C-005；B 合并为 1 条汇总备注会丢失 6 条明细、非归档载体、不命中 E-002；C 抽检留 2、D 全删均违 C-005。"
+    },
+    {
+      "qid": "V2-24",
+      "issue_type": "caliber",
+      "verdict": "contradicted",
+      "caliber_refs": ["C-005"],
+      "exception_hit": "E-003，命中：转交审批流程负责人承接、退出本清单、由承接方负责跟进核实",
+      "detail": "3 条'有审批零时长'自洽，B 的 1+2 可算；C 全量保留并暴露审批与打卡系统口径矛盾合 C-005；但 A 命中 E-003（明确承接方+承接方继续跟进核实，定性未被抹掉），按 M-001 亦属可接受处理，C 与 A 并列双解。"
+    },
+    {
+      "qid": "V2-25",
+      "issue_type": "caliber",
+      "verdict": "corroborated",
+      "caliber_refs": ["C-005"],
+      "exception_hit": "E-002，未命中：'信息不删'条件可读为不成立——A 只保留合同文本、抹去'这是偏差'的定性",
+      "detail": "2 条零金额条款偏差自洽，B 的 1+1 可算；D 全量保留并指出违约责任口径变化（无违约金→有具体天数与计算方式）合 C-005；A 未命中 E-002，判据写在选项原句而非例外推定——A 明写'不作为偏差条目'，是对分类的显式取消，归档只搬走文本、搬不走定性；对照 V2-21 D 的'转入零金额归档表'并未取消分类、条目本体与'零金额+字段有差异'的信息完整在册，两题差异可由措辞自证。附带建议：E-002 宜补'归档须保留条目与定性/分类字段'，使判据与措辞层对齐。"
+    }
+  ]
+}

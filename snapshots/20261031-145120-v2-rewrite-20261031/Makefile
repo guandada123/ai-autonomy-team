@@ -89,6 +89,9 @@ selftest:
 	@echo "── 出题质检闸自检（C1–C6 + C0 哈希绑定 / 正负样本 / 压线边界）──"
 	$(PY) audit/kit/test_item_review.py
 	@echo ""
+	@echo "── 口径库校验（审查员证据源）──"
+	$(PY) audit/kit/caliber_lib.py --check
+	@echo ""
 	@echo "── 真源快照自检（三向比对 / restore 正负样本）──"
 	$(PY) $(SCRIPTS)/snapshot_sources.py --self-test
 	@echo ""
@@ -205,6 +208,10 @@ kit-test:
 # 与 item_gate（答题侧区分度）、route_gate（路由/偏斜）串联：命题可信 → 路由合规 → 实验 → 区分度。
 item-review:
 	$(PY) audit/kit/item_review.py --dossier audit/baseline/v2/dossier-v2.json
+
+# 口径库校验：审查员举证的唯一证据源，自己也要有闸门（id 唯一/来源可追/例外须带范围/反泄露）。
+caliber-check:
+	$(PY) audit/kit/caliber_lib.py --check
 
 # 标注集饱和检查：一套标注能不能验证规则（满分/阈值不敏感/两集同源三条判据）。
 # 与 item-gate、brief-lint 并列，三者分工：题面能否入库 / 题有无区分度 / 标注能否验规则。

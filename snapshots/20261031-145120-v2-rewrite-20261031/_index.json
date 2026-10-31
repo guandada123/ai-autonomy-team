@@ -1,7 +1,7 @@
 {
- "created_at": "2026-10-31T13:51:23",
- "label": "v2-qc-final3-20261031",
- "file_count": 415,
+ "created_at": "2026-10-31T14:51:20",
+ "label": "v2-rewrite-20261031",
+ "file_count": 430,
  "files": {
   "scripts/build_package.py": {
    "sha256": "270d99bebfffeeaadfb2e904f6b3230ace8048136854e0a0faca4fdb2cbbcfcb",
@@ -204,8 +204,8 @@
    "bytes": 23046
   },
   "docs/protocol/08-出题质检协议-v1.md": {
-   "sha256": "72c4188e4a3d220c804d88dc11843e861205298efcb4273a5663e34e37ce6f79",
-   "bytes": 19911
+   "sha256": "7c66a2ec3953409d05e0f8abe4de8137d20b7a9c905c9241f27981646eefc9a8",
+   "bytes": 21393
   },
   "docs/decisions/D-0001-架构与定位决策.md": {
    "sha256": "ed1cfbed14493959fcd248bf64e7054d56275a1c034325ac7efe6c2185d7bc59",
@@ -543,6 +543,14 @@
    "sha256": "f77e4ed852c097dcadb161daf278c19b0f7fa7bb9824cd36119de27630231cba",
    "bytes": 4912
   },
+  "docs/decisions/D-0086-口径库接入审查员.md": {
+   "sha256": "eb178949b23b4db7dcc594619e8399233e1374ef8c27bf363e06591f29aec28f",
+   "bytes": 4830
+  },
+  "docs/decisions/D-0087-选项均衡化改造.md": {
+   "sha256": "a5682996ea5778a3e46434a0a8a705d98e11cb8007c2639c20271395cc268c82",
+   "bytes": 2404
+  },
   "docs/decisions/TEMPLATE.md": {
    "sha256": "0bbc33940a540ae0e983817d9b1cf6daf6502ff233074d5023a3466511867e6e",
    "bytes": 856
@@ -795,6 +803,10 @@
    "sha256": "f2dbc80696241426fdb5f91af45ffa19703d3ec67c5049ca71fc8b7b5ffd91da",
    "bytes": 3507
   },
+  "audit/baseline/v2/CALIBER-LIBRARY.md": {
+   "sha256": "b61ac415d7fbbb91cfb8848f1aa6d16af3641f2d05f789ae3b6e0744bb761ce9",
+   "bytes": 5253
+  },
   "audit/baseline/v2/DESIGN-v2.1.md": {
    "sha256": "167eecf9c5f098a483e07514892429652f35e45be0ba98ae3bf1ad2231d0eec6",
    "bytes": 4142
@@ -808,16 +820,20 @@
    "bytes": 4186
   },
   "audit/baseline/v2/QUESTIONS-v2-blind.md": {
-   "sha256": "e8c22d6d3326ffe9e84f8a6fd15af6944e35c764750ef534ee32747479d39660",
-   "bytes": 14803
+   "sha256": "186d4b7a6e714ad4f500b1b52dce4fec9bf210eb85423ef2cb5c2a47fa21ad55",
+   "bytes": 17720
   },
   "audit/baseline/v2/QUESTIONS-v2-draft-20261031.md": {
-   "sha256": "c20e11bcb3af7290f34af98a5c9be264f5ecc61cb920d6b9f346a73e70d20eee",
-   "bytes": 29898
+   "sha256": "64808c2dd072dbda213d6ac6ac181d1f70e3941c319c327e5b70fe3dfd02d635",
+   "bytes": 32815
   },
   "audit/baseline/v2/README.md": {
    "sha256": "b7e0b943daac73af0e3d3ba14856967e3f2e5a8ab8f9810ec7d4ed6265f1e2f7",
    "bytes": 2050
+  },
+  "audit/baseline/v2/RESULT-rewrite-20261031.md": {
+   "sha256": "b9942e482993c0c3bf313ffd0a50eef3f758561d619c903583d54f2650cafdca",
+   "bytes": 4598
   },
   "audit/baseline/v2/RESULT-v2-20261024.md": {
    "sha256": "022ff80c5938cf506645e34bedf580e325dcb8ba4a84fdd6f9ee8e3cda2ee65d",
@@ -886,6 +902,14 @@
   "audit/baseline/v2/arm-M1.json": {
    "sha256": "fa50487e20347314d07eb820665899c9dfbb1ff41c6644318255e911874c5605",
    "bytes": 4544
+  },
+  "audit/baseline/v2/caliber-library.json": {
+   "sha256": "deeaab17f4f7b15780cae82634707075206106de1a09f8f53963fc16ad89d7d8",
+   "bytes": 8713
+  },
+  "audit/baseline/v2/dossier-v2-rewritten.json": {
+   "sha256": "b694fe34bf728202770ffc20dc695dcef982461b57d07ad9f3777269df47efa6",
+   "bytes": 35783
   },
   "audit/baseline/v2/dossier-v2.json": {
    "sha256": "3a5cb762906020c2ea05878fa63f51c0c99704bc5894b03c1a5198c6e415c34b",
@@ -1047,6 +1071,10 @@
    "sha256": "a9d4f337a1156dd07ab6ebe8a1f5eabdc3b8e780e735f24203fd8f19cbc2faf7",
    "bytes": 589
   },
+  "audit/baseline/v2/options-rewrite-v2.json": {
+   "sha256": "ec015ec610041fa08252c24cfe2122d41c9fd302c7f1e123d5b14bfb60f4bb99",
+   "bytes": 13820
+  },
   "audit/baseline/v2/r4-M1.json": {
    "sha256": "d9ad6c2036eb7c44fe54ba714350f8411f160be6be114ff64fa04bbb6d1e569f",
    "bytes": 10474
@@ -1063,6 +1091,14 @@
    "sha256": "c09bf987f13d3f2e26fc8a5c6f2b2d4e99ce1ef4040c14261af0ff4def72099d",
    "bytes": 10538
   },
+  "audit/baseline/v2/runs/R1-caliber-pilot.json": {
+   "sha256": "74aa9e0ec117177d35e11e9000b31b38fc5d169c7051c654348be22066a9de3d",
+   "bytes": 7584
+  },
+  "audit/baseline/v2/runs/R1-post.json": {
+   "sha256": "c69b5951b7d992a64fc6317cf51090786e923f2156620638b771467ee78d75a7",
+   "bytes": 12229
+  },
   "audit/baseline/v2/runs/R1-r1.json": {
    "sha256": "45082e86faf0a389c3d4713162a2bc7422c9700790ed2d66305611604aca1feb",
    "bytes": 4132
@@ -1074,6 +1110,14 @@
   "audit/baseline/v2/runs/R1-r3.json": {
    "sha256": "c317c8fcaf2ef337c1e268aefa26c250c5131fd2c4c292fae06f5ec4834b3d67",
    "bytes": 3718
+  },
+  "audit/baseline/v2/runs/R2-caliber-pilot.json": {
+   "sha256": "d4b0a39a4fee09b23479cd5ee9d4d560e73730f6a76511c5c4404de78d8edbbb",
+   "bytes": 9415
+  },
+  "audit/baseline/v2/runs/R2-post.json": {
+   "sha256": "522d17dd5044605fc264b1ea3085b689636645f2807fc65733f0f13abf456090",
+   "bytes": 18393
   },
   "audit/baseline/v2/runs/R2-r1.json": {
    "sha256": "4d1ce5a3da8bf832bce41fb9e416a0b359ed6bd84d6c8c8b5afc0ade52a1cbbe",
@@ -1087,6 +1131,10 @@
    "sha256": "de0d2866632f9e8ef5c186bf280b32e7cb4a435429478795a353527756b1794d",
    "bytes": 5026
   },
+  "audit/baseline/v2/runs/R3-post.json": {
+   "sha256": "1302bb7edeb27927f3ac39b0a1c5d028cf72134449f751e8e6daf87fc75d0ce9",
+   "bytes": 7581
+  },
   "audit/baseline/v2/runs/R3-r1.json": {
    "sha256": "6cd3c6c8efaf0576e2ed5ed7f6724c411fb979101839c3055081b4f1a1fcf45b",
    "bytes": 4919
@@ -1098,6 +1146,10 @@
   "audit/baseline/v2/runs/R3-r3.json": {
    "sha256": "c7599d9365a317533dad1b97197de3ec3e5b9e1a0fc67f73811f8ee1c9100b19",
    "bytes": 3449
+  },
+  "audit/baseline/v2/runs/r4-post.json": {
+   "sha256": "fa0c3d33d9badb72047a094ce73b5402f2febd749518ef7616b03bc7f883d623",
+   "bytes": 4592
   },
   "audit/baseline/v2/runs/r4-r1.json": {
    "sha256": "c8acae30b63a776ec4f372288dc8135e6bc763a13bd1f2a2e859c91ae787f096",
@@ -1134,6 +1186,10 @@
   "audit/baseline/v2/runs/single-r3.json": {
    "sha256": "f695004fe548729fd40a7b4bcc1e01de2c448be827fc6209feba9f61a0eeaff2",
    "bytes": 6483
+  },
+  "audit/baseline/v2/runs/verify-4.json": {
+   "sha256": "538d797ee31c073de4972ed57c61754da4dad1c2630773a629e6a6500fb1b6f1",
+   "bytes": 2802
   },
   "audit/baseline/v2/score-summary-secondcheck.json": {
    "sha256": "e5379a8aa58c777393ea2e7b66400c76f5cf2e186a7534991daaef12b3720fee",
@@ -1370,6 +1426,10 @@
   "audit/kit/brief_lint.py": {
    "sha256": "9d840ece7c820fdbea307d0168dfe14ff0dbace1a14421563f130bc2c2e061a8",
    "bytes": 6286
+  },
+  "audit/kit/caliber_lib.py": {
+   "sha256": "118214e7992c3fdef3c813660980270e923bc0eef39e760806be61dab23183d8",
+   "bytes": 8675
   },
   "audit/kit/item_gate.py": {
    "sha256": "e006af8ea70167445b7706e784c534bcb71c187500b9e77795e07262751254b8",
@@ -1644,15 +1704,15 @@
    "bytes": 923
   },
   "Makefile": {
-   "sha256": "a7449a3d433e0c53e9eeba6fa0429e85370bd1f49252c328e2e94236f1ddab8f",
-   "bytes": 13411
+   "sha256": "7e4b6f80b76591d26b9122bb4ec907381dc329155bd2abde65ec8afe405564e5",
+   "bytes": 13717
   },
   "README.md": {
-   "sha256": "ff9cdb7cb749bbd78929e6c6e5f7c2a42c93de1f0f56517292a9b9ecf9a40083",
+   "sha256": "ce2a113483e4d6533ed7f0e20df46c20b590118370c9483d9f2dc2853a389f36",
    "bytes": 5178
   },
   "ARCHITECTURE.md": {
-   "sha256": "4e31977d429493b9846f4134eb347f8aa741c67ac8e2d95f9c51986de3de4a0a",
+   "sha256": "53398079075bbb8e6bdd89a415f41276a051e6df6a12d1d11773739101898001",
    "bytes": 24056
   },
   "DEPENDENCIES.md": {
@@ -1665,8 +1725,8 @@
   }
  },
  "caller": {
-  "pid": 4845,
-  "ppid": 4802,
+  "pid": 49733,
+  "ppid": 49720,
   "parent_cmd": "/bin/zsh -c . '/Users/guan/.workbuddy/shell-snapshots/snapshot-zsh-1793421390946-9acsm5.sh' && if [ -n \"${CODEBUDDY_SAFE_DELETE_BIN_DIR:-}\" ]; then unalias rm unlink rmdir 2>/dev/null || true; unset -"
  }
 }
