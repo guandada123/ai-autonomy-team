@@ -47,10 +47,12 @@ S1 偏斜预筛（L2 必过）：参考答案在各选项上的占比上限 0.5�
 | A5 | 题库接线 | audit/baseline/v1.3/questions-v1.3.md 及 v3/QUESTIONS.md 每题含 route/level 标注字段 |
 | A6 | 现有自检不回退 | `make selftest` 全绿（项数以生成块为准） |
 
-### 2.5 实施所需（待拍板后开工）
+### 2.5 实施状态（2026-10-30 v0 已交付 + v0.1 增补）
 
-- **route_gate.py**（新建）：读 manifest → 按三档判据路由 + S1/item_gate 预筛 → 输出路由结果与退出码（0 全部路由成功；1 预筛报红；2 判据自身问题，参照 paired_compare 退出码惯例）；复用 import `audit/` 下 item_gate.py，不复制判据。
+- **route_gate.py**（已交付）：读 manifest → 按三档判据路由 + S1 预筛 → 退出码 0/1/2；附加 `--emit-decision-table`（仅 exit 0 写出下游可消费的表）。
+- **判据真源**：2026-10-30 把常数基准判定从 `audit/kit/item_gate.py` 的 main() 抽出为 `constant_baseline(labels)`，route_gate 由「可用性探测 + 本地复制」升级为** import 真复用**（A9 钉死同源同值）。
 - **manifest 产出责任人**：出题管线入库时同步生成（qa 定义 schema；主理人裁决：放 `audit/routing/`，字段以 qa 定义为准）。
+- **验收套件**：`audit/routing/test_route_gate.py`，17 条用例全绿（A1–A10），真实 CLI 实跑不 mock。
 
 ## 三、路由标注产物（主理人本轮执行，对应 A4）
 

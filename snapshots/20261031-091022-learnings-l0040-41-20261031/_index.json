@@ -1,7 +1,7 @@
 {
- "created_at": "2026-10-30T21:42:01",
- "label": "vibe-init-20261030",
- "file_count": 373,
+ "created_at": "2026-10-31T09:10:22",
+ "label": "learnings-l0040-41-20261031",
+ "file_count": 377,
  "files": {
   "scripts/build_package.py": {
    "sha256": "b2dad8c4b0adc07c8cc367c51c292263c2789cf6501a0a7481c80260de23f494",
@@ -1240,8 +1240,8 @@
    "bytes": 6286
   },
   "audit/kit/item_gate.py": {
-   "sha256": "4ad09490ebaa6e4130122ad885e8b2bb45fa19b1a7643ee1a31d6279236c4eaf",
-   "bytes": 9689
+   "sha256": "e006af8ea70167445b7706e784c534bcb71c187500b9e77795e07262751254b8",
+   "bytes": 10878
   },
   "audit/kit/kappa_labels.py": {
    "sha256": "2e5c1acae37b073e9f14c2527c1ea78eff727623e00e9d7321ec2fe708fcc52d",
@@ -1276,8 +1276,8 @@
    "bytes": 10091
   },
   "audit/routing/DESIGN-v0-路由与四角色编排.md": {
-   "sha256": "8e5ed070d291f007766ae6bae8e8621b3948d1d2e9d0159edeea1c9614f8f316",
-   "bytes": 12745
+   "sha256": "1486a29d36b4373dc24c507b34eb23657c7ec5d3c4d17572c468dbc104c2f18b",
+   "bytes": 13019
   },
   "audit/routing/manifest-v1.3-L1.json": {
    "sha256": "a3208e3d8f5cf43c594a75885c67064999da6e2c303cead8ea037fd96aa30bec",
@@ -1286,6 +1286,14 @@
   "audit/routing/manifest-v3-L2.json": {
    "sha256": "29096187873220850c4d7b4bbea3edd3b1fa9aeb7a9504ba24532f4cd8bd9907",
    "bytes": 1584
+  },
+  "audit/routing/route_gate.py": {
+   "sha256": "1fea1ca0a0bf14227d0043cd44a0b579f73c805ec71a241d8c2709c6a1d8e101",
+   "bytes": 10794
+  },
+  "audit/routing/test_route_gate.py": {
+   "sha256": "b97b77509a11f12b57ec347a0a218d11f7d76926a8ee2e200141c1ec6917c26e",
+   "bytes": 18224
   },
   "audit/对话审计-20261021.md": {
    "sha256": "6b0a20a4f20f5f58db056bccede6a09d424eec97291a3ce482a37ad6cd90189f",
@@ -1447,6 +1455,14 @@
    "sha256": "cdd879a4ce3074560f99df76ec5639bd8195d98648f12b62894ee2647351ade9",
    "bytes": 3541
   },
+  ".learnings/L-0040-判据不能留两份真源-先抽函数再改调用方.md": {
+   "sha256": "74255353bda0478403a1d09bf161e47bae961fcbc12484463a814a42e9a63ef7",
+   "bytes": 2226
+  },
+  ".learnings/L-0041-接线检查的字面匹配会误报区间写法-展开而非改历史.md": {
+   "sha256": "1a1f31b4358f4134116af0448a42e26e9eb799a8517787d898b6147f76ae5396",
+   "bytes": 1925
+  },
   ".github/workflows/selftest.yml": {
    "sha256": "893c6a49f1dba12a21eab68aa70321572c78730e5985acc00c73753938a83b2f",
    "bytes": 2140
@@ -1480,11 +1496,11 @@
    "bytes": 12905
   },
   "README.md": {
-   "sha256": "8f8abae1ae96e701576854fb280ef24b4beeaa7684c0e5f0e63aaeb51b1a78cf",
-   "bytes": 5071
+   "sha256": "293417f9652c5c0ea755eae1c956cac768dd64bba2ab5ab4a1c507d745a49382",
+   "bytes": 5178
   },
   "ARCHITECTURE.md": {
-   "sha256": "bb034e04569c6ac3569a97bab6856251c92eda85342cea9ca726bca859aca6df",
+   "sha256": "a149da582c21189d6209e99266592772e488cf356b3ef5a3ca5745536b541a1c",
    "bytes": 24056
   },
   "DEPENDENCIES.md": {
@@ -1497,8 +1513,8 @@
   }
  },
  "caller": {
-  "pid": 62214,
-  "ppid": 62212,
-  "parent_cmd": "/bin/zsh -c . '/Users/guan/.workbuddy/shell-snapshots/snapshot-zsh-1793367322324-4mzu7h.sh' && if [ -n \"${CODEBUDDY_SAFE_DELETE_BIN_DIR:-}\" ]; then unalias rm unlink rmdir 2>/dev/null || true; unset -"
+  "pid": 93296,
+  "ppid": 93294,
+  "parent_cmd": "/bin/zsh -c . '/Users/guan/.workbuddy/shell-snapshots/snapshot-zsh-1793408841130-3ei7wk.sh' && if [ -n \"${CODEBUDDY_SAFE_DELETE_BIN_DIR:-}\" ]; then unalias rm unlink rmdir 2>/dev/null || true; unset -"
  }
 }

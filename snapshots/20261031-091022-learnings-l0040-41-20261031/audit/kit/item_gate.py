@@ -59,6 +59,25 @@ def verdict_of(ans) -> str:
     return str(ans.get("verdict", "")).strip().lower()
 
 
+def constant_baseline(labels) -> dict:
+    """常数基准：不看材料、永远答同一个标签时的准确率与分布。
+
+    抽成独立函数的理由（2026-10-30）：route_gate 的 S1 偏斜预筛与这里的
+    constant_wins 用的是同一个判据——「最挤的那个标签占了多大比例」。此前它内联在
+    main() 里（依赖判分答案文件，而路由时点还没有任何臂作答），route_gate 只能
+    本地照抄一份 → 两处各写一遍同样的规则，正是本项目反复吃亏的「双真源」结构
+    （item_gate 内联多数票已吃过一次亏，注释见文件头）。抽出后两处同一真源：
+    main() 用它算 constant_wins，route_gate 用它算 S1 占比。
+    """
+    values = [str(x).strip() for x in labels if str(x).strip()]
+    if not values:
+        return {"n": 0, "distribution": {}, "top_label": None, "top_share": 0.0}
+    dist = Counter(values)
+    top_label, top_hits = dist.most_common(1)[0]
+    return {"n": len(values), "distribution": dict(dist),
+            "top_label": top_label, "top_share": top_hits / len(values)}
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description="题目准入闸：饱和 / 全错 / 常数胜出 / pass^k")
     ap.add_argument("--adjudication", required=True)
@@ -121,9 +140,11 @@ def main() -> int:
 
     # ── 常数基准：不看材料、永远答同一个标签 ────────────────────────────────
     n = len(refs)
-    dist = Counter(r["verdict"].strip().lower() for r in refs.values())
-    const_label, const_hits = dist.most_common(1)[0]
-    const_acc = const_hits / n
+    base = constant_baseline(r["verdict"].strip().lower() for r in refs.values())
+    dist = base["distribution"]
+    const_label = base["top_label"]
+    const_hits = dist.get(const_label, 0)
+    const_acc = base["top_share"]
     arm_acc = {name: acc_of(name) for name in groups}
     best_arm = max(arm_acc, key=lambda k: arm_acc[k]) if arm_acc else None
     best_acc = arm_acc.get(best_arm, 0.0)

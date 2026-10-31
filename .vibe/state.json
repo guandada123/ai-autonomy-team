@@ -2,7 +2,7 @@
   "methodology_step": 3,
   "methodology_step_source": "scan_inferred",
   "current_stage": "MVP 定义",
-  "last_activity": "2026-10-30T23:07:11+08:00",
+  "last_activity": "2026-10-31T09:10:07+08:00",
   "milestones": [
     {
       "date": "2026-10-30",
@@ -17,7 +17,13 @@
       "event": "route_gate MVP 四项功能全部完成（含 nice_to_have）；剩余事项转为人工拍板类"
     }
   ],
-  "feedback_log": [],
+  "feedback_log": [
+    {
+      "date": "2026-10-31",
+      "source": "self",
+      "note": "route_gate v0.1 自评：三档路由+S1 预筛+decision-table 已可用，验收 17/17；不足——routes 计数曾含脏 item（已修）、item_gate 曾双真源（已收敛）；下一迭代候选见 .vibe out_of_scope 与 DESIGN 待拍板清单"
+    }
+  ],
   "scope_creep_history": [],
   "test_history": [
     {
@@ -27,6 +33,10 @@
     {
       "date": "2026-10-30",
       "event": "v0.1 增补：item_gate 抽 constant_baseline() 真复用（A9）、脏 item 计数修复（A10）、decision-table 输出（A7/A8）；套件 17/17"
+    },
+    {
+      "date": "2026-10-31",
+      "event": "ship-check 机检 1-9：✓6/⚠3/❌0；learnings L-0040/41 落档，计数 39→41 三处同步 + handover-facts 重生成"
     }
   ]
 }

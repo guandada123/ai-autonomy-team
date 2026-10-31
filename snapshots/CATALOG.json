@@ -3,9 +3,9 @@
  "_generated_by": "scripts/snapshot_sources.py --catalog",
  "count": {
   "in_git": 3,
-  "archived": 272,
+  "archived": 273,
   "missing": 0,
-  "total": 275
+  "total": 276
  },
  "snapshots": [
   {
@@ -2186,8 +2186,8 @@
   },
   {
    "name": "20261030-214201-vibe-init-20261030",
-   "location": "snapshots",
-   "in_git": true,
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
    "label": "vibe-init-20261030",
    "created_at": "2026-10-30T21:42:01",
    "file_count": 373
@@ -2207,6 +2207,14 @@
    "label": "routegate-v01-20261030",
    "created_at": "2026-10-30T23:07:16",
    "file_count": 375
+  },
+  {
+   "name": "20261031-091022-learnings-l0040-41-20261031",
+   "location": "snapshots",
+   "in_git": true,
+   "label": "learnings-l0040-41-20261031",
+   "created_at": "2026-10-31T09:10:22",
+   "file_count": 377
   }
  ]
 }
