@@ -1,7 +1,7 @@
 {
- "created_at": "2026-10-31T23:15:59",
- "label": "blind-eligible-20261031",
- "file_count": 458,
+ "created_at": "2026-11-01T00:36:03",
+ "label": "xmodel-settled-20261101",
+ "file_count": 463,
  "files": {
   "scripts/build_package.py": {
    "sha256": "270d99bebfffeeaadfb2e904f6b3230ace8048136854e0a0faca4fdb2cbbcfcb",
@@ -120,8 +120,8 @@
    "bytes": 11650
   },
   "scripts/pre_release_check.py": {
-   "sha256": "00a0a332e0a7bae1b76b1cc6c0df3ad697690dd77c53850d15c44ef29b4708b5",
-   "bytes": 35390
+   "sha256": "6a99e3d64da068c4c553441ede8d336d666cb732d773463a53e10c66a4599480",
+   "bytes": 35680
   },
   "scripts/premise_probe.py": {
    "sha256": "80b7312d4ebb3049afe46ee757cdefc907a620a060b2c3b159a2447a796e19f7",
@@ -134,6 +134,10 @@
   "scripts/recompute_watch.py": {
    "sha256": "e2da244c2224098133a1cda05d5a5e62731e731364ac53a3c268f51b2290d99f",
    "bytes": 5795
+  },
+  "scripts/record_model.py": {
+   "sha256": "64d9f6da729f37fafc257378e5b35ac48f0d84f05cac97ff5625e80f5dca0b63",
+   "bytes": 6897
   },
   "scripts/redact_report.py": {
    "sha256": "f9e0297831274a53e3252a75191e8e28ac8d86dc8f489b24bfecf74ada6144ba",
@@ -162,6 +166,10 @@
   "scripts/team_metrics.py": {
    "sha256": "65607e125e4966898b120291a45b438d129663ace21048bafa8d77ebc11fb094",
    "bytes": 13505
+  },
+  "scripts/test_record_model.py": {
+   "sha256": "d027ba1a493fb62d36dbd086cb2874eb6089722b29e8aeec9926e54f10b548f3",
+   "bytes": 6039
   },
   "scripts/upgrade_status.py": {
    "sha256": "639b9ce1769fdf7064c6712f50e327213dbd509ffdbab7b8bc0ba94a658156d6",
@@ -544,8 +552,8 @@
    "bytes": 4912
   },
   "docs/decisions/D-0086-口径库接入审查员.md": {
-   "sha256": "a643e25a9adf430d1dec5b995d64d4e31c19e01ef500654295826698403ee89f",
-   "bytes": 5630
+   "sha256": "981c8d343510985ed04d8aab940656387dd192c42bcc26c983f539a2dcf60457",
+   "bytes": 5803
   },
   "docs/decisions/D-0087-选项均衡化改造.md": {
    "sha256": "035ace7e859e335bcc7c4d297fd608dea1a34a5ca66a89d90d88ed5c781f694c",
@@ -630,6 +638,10 @@
   "audit/baseline/judge_baseline.py": {
    "sha256": "5c1aefc6694a2ae8c51714f6dd40663fc8a083039f3c9e79d8864590f660ccfd",
    "bytes": 3118
+  },
+  "audit/baseline/model-log.jsonl": {
+   "sha256": "b2dff69481ee82b6eda238c08b27c7552b89515a1fe69601c096bc0c22d7895b",
+   "bytes": 730
   },
   "audit/baseline/multi/RESULT-multi-20261024.md": {
    "sha256": "9699079fd6deea52ef07bb46c8a79cfe3c3417eec1f7bc639420797768143706",
@@ -868,8 +880,8 @@
    "bytes": 6769
   },
   "audit/baseline/v2/RESULT-xmodel-20261031.md": {
-   "sha256": "10857fc653364571838e42da2bebd7ddf07e7677831e0ebc26a3f68963b43d11",
-   "bytes": 3931
+   "sha256": "8bf292ff9f802e0f68dc3ed8d13bdaee001b60a0941aa26d2113fff5935f48b6",
+   "bytes": 8913
   },
   "audit/baseline/v2/V2-PROPOSAL-方向提案-20261028.md": {
    "sha256": "58facc7f75c422ea223d87dc5d357ff7dcb50ac107f23000058efb7f8d573642",
@@ -936,8 +948,8 @@
    "bytes": 26541
   },
   "audit/baseline/v2/golden/m004-boundary-5.json": {
-   "sha256": "2da628582ad0c9bdd50117e9a1330fca3926fd6ed794f346c0119ac91bdc4653",
-   "bytes": 7946
+   "sha256": "d5df04822643d88ebd43bd7e90101808d3ad32a07e0a80784febf2064f34f1c6",
+   "bytes": 8465
   },
   "audit/baseline/v2/golden/mixed-axis-10.json": {
    "sha256": "ef971b2cd06887f2e0bdd4d31fae4b2dafb68f2c470f099de1b7fc158b8ed958",
@@ -1226,6 +1238,10 @@
   "audit/baseline/v2/runs/r4-cross.json": {
    "sha256": "84cf9159ee238d79cfe9fa68713e267b10090e2cbd7c4515c75ccb997af66fb6",
    "bytes": 5249
+  },
+  "audit/baseline/v2/runs/r4-mixed-ds.json": {
+   "sha256": "069e519dffc6647e642ad7b24f056797dbab09e786e0f201e1ba5c721a1d2749",
+   "bytes": 5482
   },
   "audit/baseline/v2/runs/r4-mixed-v2.json": {
    "sha256": "479f2c36067eed32b6267f8dc2ab35632c86b8636b534d59a701d0ea0ebf0637",
@@ -1787,6 +1803,10 @@
    "sha256": "9bf9b3fad2fb532808d7e63e56090821e5f414cc6cc107fe7aceafc7f7d86d5c",
    "bytes": 6125
   },
+  ".learnings/L-0043-身份类结论必须取自运行时注入字段.md": {
+   "sha256": "3e0d5580747ee04b3894c74bccd0c3d6a98b1204074ab544a26f63382aa67b1c",
+   "bytes": 3512
+  },
   ".github/workflows/selftest.yml": {
    "sha256": "893c6a49f1dba12a21eab68aa70321572c78730e5985acc00c73753938a83b2f",
    "bytes": 2140
@@ -1816,15 +1836,15 @@
    "bytes": 923
   },
   "Makefile": {
-   "sha256": "7e4b6f80b76591d26b9122bb4ec907381dc329155bd2abde65ec8afe405564e5",
-   "bytes": 13717
+   "sha256": "7dd9f59e94b1b814ae2e8f666f84ef17de75ccbac775da911eaa22a7e5f414c0",
+   "bytes": 14268
   },
   "README.md": {
-   "sha256": "ce2a113483e4d6533ed7f0e20df46c20b590118370c9483d9f2dc2853a389f36",
+   "sha256": "8ee50316015d78fa3b06d57bd142327461841d75b7362e6ca370f7c100667056",
    "bytes": 5178
   },
   "ARCHITECTURE.md": {
-   "sha256": "53398079075bbb8e6bdd89a415f41276a051e6df6a12d1d11773739101898001",
+   "sha256": "f69549e8bbb72641045818b4a43142ce68b72a5a2088e6bda67419830b7d000a",
    "bytes": 24056
   },
   "DEPENDENCIES.md": {
@@ -1837,8 +1857,8 @@
   }
  },
  "caller": {
-  "pid": 74386,
-  "ppid": 74299,
-  "parent_cmd": "/bin/zsh -c . '/Users/guan/.workbuddy/shell-snapshots/snapshot-zsh-1793421390946-9acsm5.sh' && if [ -n \"${CODEBUDDY_SAFE_DELETE_BIN_DIR:-}\" ]; then unalias rm unlink rmdir 2>/dev/null || true; unset -"
+  "pid": 28732,
+  "ppid": 28706,
+  "parent_cmd": "/bin/zsh -c . '/Users/guan/.workbuddy/shell-snapshots/snapshot-zsh-1793464314635-qojqdo.sh' && if [ -n \"${CODEBUDDY_SAFE_DELETE_BIN_DIR:-}\" ]; then unalias rm unlink rmdir 2>/dev/null || true; unset -"
  }
 }

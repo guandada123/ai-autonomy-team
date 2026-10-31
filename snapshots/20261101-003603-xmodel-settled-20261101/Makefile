@@ -92,6 +92,9 @@ selftest:
 	@echo "── 口径库校验（审查员证据源）──"
 	$(PY) audit/kit/caliber_lib.py --check
 	@echo ""
+	@echo "── 模型留痕（口述不冒充机器证据 / 去重不被口述干扰）──"
+	$(PY) scripts/test_record_model.py
+	@echo ""
 	@echo "── 真源快照自检（三向比对 / restore 正负样本）──"
 	$(PY) $(SCRIPTS)/snapshot_sources.py --self-test
 	@echo ""
@@ -212,6 +215,19 @@ item-review:
 # 口径库校验：审查员举证的唯一证据源，自己也要有闸门（id 唯一/来源可追/例外须带范围/反泄露）。
 caliber-check:
 	$(PY) audit/kit/caliber_lib.py --check
+
+# 模型留痕：切换模型后跑一次，模型变化才追加（结论标签的强度由日志决定，不由记忆决定）。
+# 查看历史：make model-log SHOW=1
+model-log:
+ifdef SHOW
+	$(PY) scripts/record_model.py --show
+else
+	$(PY) scripts/record_model.py
+endif
+
+# 留痕工具的验收（含变异测试，见 .learnings/L-0043 与 L-0042）。
+model-log-test:
+	$(PY) scripts/test_record_model.py
 
 # 标注集饱和检查：一套标注能不能验证规则（满分/阈值不敏感/两集同源三条判据）。
 # 与 item-gate、brief-lint 并列，三者分工：题面能否入库 / 题有无区分度 / 标注能否验规则。

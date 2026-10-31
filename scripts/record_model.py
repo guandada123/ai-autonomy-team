@@ -8,6 +8,8 @@
 用法：
     python3 scripts/record_model.py            # 检查并记录（模型有变化才追加）
     python3 scripts/record_model.py --show     # 只查看历史，不写入
+    python3 scripts/record_model.py --history "A>B>A" --note "用户口述"
+                                               # 回填机器查不到的过去（标为口述、未机器验证）
     python3 scripts/record_model.py --note "用户切到 X；子代理探测见 RESULT-xmodel §四点六"
 
 退出码：0=正常（无论是否新增）；1=读不到模型标识（视为取证失败，不静默放过）。
@@ -68,9 +70,15 @@ def show(rows: list[dict]) -> None:
         return
     print(f"共 {len(rows)} 条记录：")
     for r in rows:
-        mark = "← 首次变化" if r.get("changed") else "（首条基线）"
-        print(f"  {r.get('ts','?'):<20} {r.get('model_id') or '(空)':<28} "
-              f"git={r.get('git_rev','?'):<8} {mark}")
+        if r.get("type") == "history-testimony":
+            seq = " → ".join(r.get("history") or [])
+            print(f"  {r.get('ts','?'):<20} [口述历史·未机器验证] {seq}")
+            if r.get("note"):
+                print(f"      备注：{r['note']}")
+            continue
+        mark = "← 变化" if r.get("changed") else "（基线）"
+        print(f"  {r.get('ts','?'):<20} {r.get('model_id') or '(空)':<24} "
+              f"git={r.get('git_rev','?'):<8} [机器验证] {mark}")
         if r.get("note"):
             print(f"      备注：{r['note']}")
 
@@ -79,6 +87,8 @@ def main() -> int:
     ap = argparse.ArgumentParser(description="模型留痕：模型变化时追加一条历史记录")
     ap.add_argument("--show", action="store_true", help="只查看历史，不写入")
     ap.add_argument("--note", default="", help="给本条记录加备注（如切换原因）")
+    ap.add_argument("--history", default="",
+                    help="回填口述模型历史，格式 \"A>B>A\"（标为未机器验证，用于机器查不到的过去）")
     ap.add_argument("--log", default=str(LOG), help="日志路径（测试用；默认 audit/baseline/model-log.jsonl）")
     args = ap.parse_args()
     log_path = Path(args.log)
@@ -88,13 +98,41 @@ def main() -> int:
         show(rows)
         return 0
 
+    # 口述历史：机器上查不到的过去（谁在什么时候换了什么模型），只能由用户提供。
+    # 这类记录必须与机器探测分开标注——口述是线索，不是证据（见 .learnings/L-0043）。
+    if args.history:
+        seq = [s.strip() for s in args.history.replace("->", ">").split(">") if s.strip()]
+        if len(seq) < 2:
+            print("🔴 --history 至少需要两段，格式如 \"deepseek-v4.1-flash>GLM-5.3-flash\"",
+                  file=sys.stderr)
+            return 1
+        entry = {
+            "ts": datetime.datetime.now().astimezone().isoformat(timespec="seconds"),
+            "type": "history-testimony",
+            "evidence": "user-testimony",
+            "machine_verified": False,
+            "history": seq,
+            "from_model": seq[0],
+            "to_model": seq[-1],
+            "note": args.note,
+        }
+        log_path.parent.mkdir(parents=True, exist_ok=True)
+        with log_path.open("a", encoding="utf-8") as f:
+            f.write(json.dumps(entry, ensure_ascii=False) + "\n")
+        print(f"✅ 已记录口述历史：{' → '.join(seq)}")
+        print("   注意：本条为用户口述，未机器验证；精确时间未知，故不写 ts 到历史内部。")
+        return 0
+
     cur = current_model()
     if not cur["model_id"]:
         print("🔴 取证失败：读不到 CODEBUDDY_CURRENT_MODEL_ID——"
               "无法确认运行时模型。请勿在报告中写具体模型名。", file=sys.stderr)
         return 1
 
-    last = rows[-1] if rows else None
+    # 去重只跟"机器探测"记录比：口述历史条目没有 model_id，
+    # 若把它当成 last，会把同一个模型重复记成"变化"。
+    probes = [r for r in rows if r.get("type") != "history-testimony"]
+    last = probes[-1] if probes else None
     if last and last.get("model_id") == cur["model_id"]:
         print(f"未变化：{cur['model_id']}（上次记录 {last.get('ts','?')}）")
         return 0

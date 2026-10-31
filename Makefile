@@ -92,6 +92,9 @@ selftest:
 	@echo "── 口径库校验（审查员证据源）──"
 	$(PY) audit/kit/caliber_lib.py --check
 	@echo ""
+	@echo "── 模型留痕（口述不冒充机器证据 / 去重不被口述干扰）──"
+	$(PY) scripts/test_record_model.py
+	@echo ""
 	@echo "── 真源快照自检（三向比对 / restore 正负样本）──"
 	$(PY) $(SCRIPTS)/snapshot_sources.py --self-test
 	@echo ""

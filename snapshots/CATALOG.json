@@ -3,9 +3,9 @@
  "_generated_by": "scripts/snapshot_sources.py --catalog",
  "count": {
   "in_git": 3,
-  "archived": 296,
+  "archived": 297,
   "missing": 0,
-  "total": 299
+  "total": 300
  },
  "snapshots": [
   {
@@ -2378,8 +2378,8 @@
   },
   {
    "name": "20261031-231559-blind-eligible-20261031",
-   "location": "snapshots",
-   "in_git": true,
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
    "label": "blind-eligible-20261031",
    "created_at": "2026-10-31T23:15:59",
    "file_count": 458
@@ -2399,6 +2399,14 @@
    "label": "model-log-20261031b",
    "created_at": "2026-10-31T23:26:10",
    "file_count": 462
+  },
+  {
+   "name": "20261101-003603-xmodel-settled-20261101",
+   "location": "snapshots",
+   "in_git": true,
+   "label": "xmodel-settled-20261101",
+   "created_at": "2026-11-01T00:36:03",
+   "file_count": 463
   }
  ]
 }
