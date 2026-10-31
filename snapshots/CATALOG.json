@@ -3,9 +3,9 @@
  "_generated_by": "scripts/snapshot_sources.py --catalog",
  "count": {
   "in_git": 3,
-  "archived": 284,
+  "archived": 285,
   "missing": 0,
-  "total": 287
+  "total": 288
  },
  "snapshots": [
   {
@@ -2282,8 +2282,8 @@
   },
   {
    "name": "20261031-134847-v2-qc-final-20261031",
-   "location": "snapshots",
-   "in_git": true,
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
    "label": "v2-qc-final-20261031",
    "created_at": "2026-10-31T13:48:47",
    "file_count": 414
@@ -2302,6 +2302,14 @@
    "in_git": true,
    "label": "v2-qc-final3-20261031",
    "created_at": "2026-10-31T13:51:23",
+   "file_count": 415
+  },
+  {
+   "name": "20261031-135422-v2-qc-final4-20261031",
+   "location": "snapshots",
+   "in_git": true,
+   "label": "v2-qc-final4-20261031",
+   "created_at": "2026-10-31T13:54:22",
    "file_count": 415
   }
  ]

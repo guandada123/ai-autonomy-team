@@ -1,7 +1,7 @@
 {
- "created_at": "2026-10-31T13:48:47",
- "label": "v2-qc-final-20261031",
- "file_count": 414,
+ "created_at": "2026-10-31T13:54:22",
+ "label": "v2-qc-final4-20261031",
+ "file_count": 415,
  "files": {
   "scripts/build_package.py": {
    "sha256": "270d99bebfffeeaadfb2e904f6b3230ace8048136854e0a0faca4fdb2cbbcfcb",
@@ -204,8 +204,8 @@
    "bytes": 23046
   },
   "docs/protocol/08-出题质检协议-v1.md": {
-   "sha256": "03d5747fd3164307707f04b6e30d141362fcbcf699ad88cbd5bf65aeca4517c9",
-   "bytes": 19626
+   "sha256": "732b6e1a2b5d4b4b5eda16b3918302f33b6f88c3b6c064aec570baaab7994fc8",
+   "bytes": 20223
   },
   "docs/decisions/D-0001-架构与定位决策.md": {
    "sha256": "ed1cfbed14493959fcd248bf64e7054d56275a1c034325ac7efe6c2185d7bc59",
@@ -1611,6 +1611,10 @@
    "sha256": "1a1f31b4358f4134116af0448a42e26e9eb799a8517787d898b6147f76ae5396",
    "bytes": 1925
   },
+  ".learnings/L-0042-用例必须被反证过才算覆盖.md": {
+   "sha256": "9bf9b3fad2fb532808d7e63e56090821e5f414cc6cc107fe7aceafc7f7d86d5c",
+   "bytes": 6125
+  },
   ".github/workflows/selftest.yml": {
    "sha256": "893c6a49f1dba12a21eab68aa70321572c78730e5985acc00c73753938a83b2f",
    "bytes": 2140
@@ -1644,11 +1648,11 @@
    "bytes": 13411
   },
   "README.md": {
-   "sha256": "e2df10e11427362459bfa1809bc72683f7710b54c16b98853b21a845fbfcc87e",
+   "sha256": "ff9cdb7cb749bbd78929e6c6e5f7c2a42c93de1f0f56517292a9b9ecf9a40083",
    "bytes": 5178
   },
   "ARCHITECTURE.md": {
-   "sha256": "76e71c37ce2963519fb50427847337a896e0729f3b8f866533ca221ee993c1bf",
+   "sha256": "4e31977d429493b9846f4134eb347f8aa741c67ac8e2d95f9c51986de3de4a0a",
    "bytes": 24056
   },
   "DEPENDENCIES.md": {
@@ -1661,8 +1665,8 @@
   }
  },
  "caller": {
-  "pid": 280,
-  "ppid": 252,
+  "pid": 7940,
+  "ppid": 7932,
   "parent_cmd": "/bin/zsh -c . '/Users/guan/.workbuddy/shell-snapshots/snapshot-zsh-1793421390946-9acsm5.sh' && if [ -n \"${CODEBUDDY_SAFE_DELETE_BIN_DIR:-}\" ]; then unalias rm unlink rmdir 2>/dev/null || true; unset -"
  }
 }
