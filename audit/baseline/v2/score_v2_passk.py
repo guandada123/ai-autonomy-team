@@ -13,7 +13,9 @@
 """
 from __future__ import annotations
 
+import argparse
 import json
+import sys
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
@@ -62,6 +64,11 @@ def balanced_recall(rows: dict, truth: dict, scored: dict) -> float | None:
 
 
 def main() -> int:
+    ap = argparse.ArgumentParser(description="v2 四角色对照实验 pass^k 汇总")
+    ap.add_argument("--multi-name", default="r4",
+                    help="臂 M 作答文件名前缀：r4=一审，r4b=二审（默认 r4）")
+    ap.add_argument("--out", default="score-summary.json", help="输出文件名（相对本目录）")
+    args = ap.parse_args()
     adj = json.loads((HERE / "adjudication-v2.json").read_text(encoding="utf-8"))
     truth = {qid: it["verdict"].strip().upper() for qid, it in adj["items"].items()}
     if len(truth) != N_Q:
@@ -74,7 +81,7 @@ def main() -> int:
     for r in ROUNDS:
         try:
             s = load_answers(HERE / f"runs/single-r{r}.json")
-            m = load_answers(HERE / f"runs/r4-r{r}.json")
+            m = load_answers(HERE / f"runs/{args.multi_name}-r{r}.json")
             veto = load_vetoes(HERE / f"runs/R3-r{r}.json")
         except FileNotFoundError as e:
             errs.append(str(e))
@@ -126,7 +133,8 @@ def main() -> int:
         "acceptance": ("multi_better" if -net_m_loss >= 2 else
                        "non_inferior" if net_m_loss <= 1 else "inferior"),
     }
-    (HERE / "score-summary.json").write_text(
+    summary["multi_name"] = args.multi_name
+    (HERE / args.out).write_text(
         json.dumps(summary, ensure_ascii=False, indent=1), encoding="utf-8")
     print(json.dumps(summary, ensure_ascii=False, indent=1))
     return 0

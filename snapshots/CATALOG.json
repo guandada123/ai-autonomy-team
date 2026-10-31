@@ -3,9 +3,9 @@
  "_generated_by": "scripts/snapshot_sources.py --catalog",
  "count": {
   "in_git": 3,
-  "archived": 278,
+  "archived": 279,
   "missing": 0,
-  "total": 281
+  "total": 282
  },
  "snapshots": [
   {
@@ -2234,8 +2234,8 @@
   },
   {
    "name": "20261031-121404-v2-adjudicated-20261031",
-   "location": "snapshots",
-   "in_git": true,
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
    "label": "v2-adjudicated-20261031",
    "created_at": "2026-10-31T12:14:04",
    "file_count": 381
@@ -2255,6 +2255,14 @@
    "label": "v2-experiment-20261031b",
    "created_at": "2026-10-31T12:59:02",
    "file_count": 402
+  },
+  {
+   "name": "20261031-130750-v2-secondcheck-20261031",
+   "location": "snapshots",
+   "in_git": true,
+   "label": "v2-secondcheck-20261031",
+   "created_at": "2026-10-31T13:07:50",
+   "file_count": 408
   }
  ]
 }

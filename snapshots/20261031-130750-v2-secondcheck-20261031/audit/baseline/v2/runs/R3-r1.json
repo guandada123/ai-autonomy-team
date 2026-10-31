@@ -1,0 +1,31 @@
+{
+  "role": "R3",
+  "round": 1,
+  "vetoes": [
+    {"qid": "V2-01", "veto": false, "basis": null, "reason": "R1 corroborated；R2 仅 reverse_inferable（表面线索），未命中三条预注册判据。"},
+    {"qid": "V2-02", "veto": false, "basis": null, "reason": "R1 指出选项自设标准仅属干扰项设计、不构成题面内部矛盾；R2 仅 reverse_inferable，不命中判据。"},
+    {"qid": "V2-03", "veto": false, "basis": null, "reason": "R1 corroborated；R2 仅 reverse_inferable，不命中判据。"},
+    {"qid": "V2-04", "veto": false, "basis": null, "reason": "R1 corroborated；R2 仅 reverse_inferable（稻草人/长度线索），不命中判据。"},
+    {"qid": "V2-05", "veto": false, "basis": null, "reason": "R1 corroborated；R2 仅 reverse_inferable（长度线索），不命中判据。"},
+    {"qid": "V2-06", "veto": false, "basis": null, "reason": "R1 corroborated；R2 仅 reverse_inferable（表面特征线索），不命中判据。"},
+    {"qid": "V2-07", "veto": false, "basis": null, "reason": "R1 corroborated；R2 仅 reverse_inferable（同构模板线索），不命中判据。"},
+    {"qid": "V2-08", "veto": false, "basis": null, "reason": "R2 提及 B 与移除立场部分重叠，属干扰项局部互斥性瑕疵，其余选项仍可正常判断，不算无法作答。"},
+    {"qid": "V2-09", "veto": false, "basis": null, "reason": "R2 提及 C 为移除变体与 A 部分重叠，属干扰项局部瑕疵，正确立场仍唯一可辨。"},
+    {"qid": "V2-10", "veto": false, "basis": null, "reason": "R2 的 A/C 立场接近属干扰项局部瑕疵（正确立场为保留+核实闭环，仍唯一）；reverse_inferable 不在判据内。"},
+    {"qid": "V2-11", "veto": true, "basis": "ambiguous_gate", "reason": "R2 报告：'暂不计入'立场被拆分到 B 与 D 两个选项、当下行为完全一致、互斥性受损且 B 含义不明（永不计还是暂时不计），同一证据链支持 ≥2 个选项，导致无法作答。"},
+    {"qid": "V2-12", "veto": false, "basis": null, "reason": "R2 的 A/C 立场重叠属干扰项局部瑕疵；R1 已核验 B（156=312/2）与题面条件一致，正确项仍唯一可辨，可正常作答。"},
+    {"qid": "V2-13", "veto": true, "basis": "ambiguous_gate", "reason": "R2 报告：A'不计入'与 B'冻结待书面确认'当下行为一致、均属暂不计入，立场拆分两处，且无任一报告指认同类中可区分的唯一正确项，同一证据链支持 ≥2 个选项。"},
+    {"qid": "V2-14", "veto": false, "basis": null, "reason": "R2 判定四立场互斥清晰、无结构问题；R1 corroborated，仅轻度自证线索不构成否决。"},
+    {"qid": "V2-15", "veto": true, "basis": "ambiguous_gate", "reason": "R2 报告：B'不计入'与 D'挂起'当下均为不计、立场拆分，且 D 与 B 理由交叉，同一证据链支持 ≥2 个选项，导致无法作答。"},
+    {"qid": "V2-16", "veto": true, "basis": "ambiguous_gate", "reason": "R2 报告：A 与 D 归属结果相同（均为当月），'归当月'立场出现两次、仅理由与是否跟进不同，同一证据链支持 ≥2 个选项，无法在两选项间判定。"},
+    {"qid": "V2-17", "veto": false, "basis": null, "reason": "R2 判定四立场互斥清晰、未发现结构问题；R1 corroborated。"},
+    {"qid": "V2-18", "veto": false, "basis": null, "reason": "R2 判定四立场互斥、未发现结构问题；R1 corroborated。"},
+    {"qid": "V2-19", "veto": false, "basis": null, "reason": "R2 判定四立场互斥完备、未发现结构问题；R1 corroborated（8 小时时长自洽）。"},
+    {"qid": "V2-20", "veto": true, "basis": "ambiguous_gate", "reason": "R2 报告：A 按付款年度与 D 按服务期起始年度的归属结果同为本年度、仅口径理由不同、立场重叠，同一证据链支持 ≥2 个选项；R1 指出的选项 B'24 个月'与题面 12 个月矛盾属选项局部瑕疵，不单独构成否决。"},
+    {"qid": "V2-21", "veto": false, "basis": null, "reason": "R2 指出 C'保留金额影响最大1条'在零金额题面下判据失效，属该干扰项局部不自洽；R1 核验选项 B 与题面一致，其余仍可正常判断。"},
+    {"qid": "V2-22", "veto": false, "basis": null, "reason": "R2 判定四立场互斥清晰（自证式长选项属系统性长度线索，不在判据内）；R1 corroborated。"},
+    {"qid": "V2-23", "veto": false, "basis": null, "reason": "R2 判定保留/汇总备注/抽检/剔除四立场互斥、未发现结构问题；R1 corroborated。"},
+    {"qid": "V2-24", "veto": false, "basis": null, "reason": "R2 指出 B'典型'无判据属选项局部标准模糊；R1 核验选项 C 与题面一致，仍可正常作答。"},
+    {"qid": "V2-25", "veto": false, "basis": null, "reason": "R2 判定四立场互斥清晰、表述瑕疵不影响逻辑；R1 corroborated。"}
+  ]
+}
