@@ -1,0 +1,219 @@
+{
+ "_note": "v2 题库 L2 manifest 预检版（2026-10-31）。ref_label 为出题人预注册位置（QUESTIONS-v2-draft-20261031.md），真值以用户裁决为准，裁决后回填并重跑本门禁。adjudication=PENDING_USER 表示尚未过用户裁决，此 manifest 仅作入库前偏斜预检，不得用于判分。",
+ "source": "audit/baseline/v2/QUESTIONS-v2-draft-20261031.md",
+ "generated_at": "2026-10-31",
+ "expected_route": "multi-role",
+ "n": 25,
+ "skew_precheck": {
+  "label_distribution": {
+   "A": 6,
+   "B": 6,
+   "C": 7,
+   "D": 6
+  },
+  "ref_answer_max_share": 0.28,
+  "s1_threshold": 0.5
+ },
+ "items": [
+  {
+   "qid": "V2-01",
+   "level": "L2",
+   "route": "multi-role",
+   "ref_label": "D",
+   "scenario": "S1",
+   "adjudication": "PENDING_USER"
+  },
+  {
+   "qid": "V2-02",
+   "level": "L2",
+   "route": "multi-role",
+   "ref_label": "C",
+   "scenario": "S1",
+   "adjudication": "PENDING_USER"
+  },
+  {
+   "qid": "V2-03",
+   "level": "L2",
+   "route": "multi-role",
+   "ref_label": "A",
+   "scenario": "S1",
+   "adjudication": "PENDING_USER"
+  },
+  {
+   "qid": "V2-04",
+   "level": "L2",
+   "route": "multi-role",
+   "ref_label": "B",
+   "scenario": "S1",
+   "adjudication": "PENDING_USER"
+  },
+  {
+   "qid": "V2-05",
+   "level": "L2",
+   "route": "multi-role",
+   "ref_label": "C",
+   "scenario": "S1",
+   "adjudication": "PENDING_USER"
+  },
+  {
+   "qid": "V2-06",
+   "level": "L2",
+   "route": "multi-role",
+   "ref_label": "B",
+   "scenario": "S2",
+   "adjudication": "PENDING_USER"
+  },
+  {
+   "qid": "V2-07",
+   "level": "L2",
+   "route": "multi-role",
+   "ref_label": "A",
+   "scenario": "S2",
+   "adjudication": "PENDING_USER"
+  },
+  {
+   "qid": "V2-08",
+   "level": "L2",
+   "route": "multi-role",
+   "ref_label": "C",
+   "scenario": "S2",
+   "adjudication": "PENDING_USER"
+  },
+  {
+   "qid": "V2-09",
+   "level": "L2",
+   "route": "multi-role",
+   "ref_label": "D",
+   "scenario": "S2",
+   "adjudication": "PENDING_USER"
+  },
+  {
+   "qid": "V2-10",
+   "level": "L2",
+   "route": "multi-role",
+   "ref_label": "B",
+   "scenario": "S2",
+   "adjudication": "PENDING_USER"
+  },
+  {
+   "qid": "V2-11",
+   "level": "L2",
+   "route": "multi-role",
+   "ref_label": "A",
+   "scenario": "S3",
+   "adjudication": "PENDING_USER"
+  },
+  {
+   "qid": "V2-12",
+   "level": "L2",
+   "route": "multi-role",
+   "ref_label": "D",
+   "scenario": "S3",
+   "adjudication": "PENDING_USER"
+  },
+  {
+   "qid": "V2-13",
+   "level": "L2",
+   "route": "multi-role",
+   "ref_label": "C",
+   "scenario": "S3",
+   "adjudication": "PENDING_USER"
+  },
+  {
+   "qid": "V2-14",
+   "level": "L2",
+   "route": "multi-role",
+   "ref_label": "B",
+   "scenario": "S3",
+   "adjudication": "PENDING_USER"
+  },
+  {
+   "qid": "V2-15",
+   "level": "L2",
+   "route": "multi-role",
+   "ref_label": "A",
+   "scenario": "S3",
+   "adjudication": "PENDING_USER"
+  },
+  {
+   "qid": "V2-16",
+   "level": "L2",
+   "route": "multi-role",
+   "ref_label": "C",
+   "scenario": "S4",
+   "adjudication": "PENDING_USER"
+  },
+  {
+   "qid": "V2-17",
+   "level": "L2",
+   "route": "multi-role",
+   "ref_label": "B",
+   "scenario": "S4",
+   "adjudication": "PENDING_USER"
+  },
+  {
+   "qid": "V2-18",
+   "level": "L2",
+   "route": "multi-role",
+   "ref_label": "D",
+   "scenario": "S4",
+   "adjudication": "PENDING_USER"
+  },
+  {
+   "qid": "V2-19",
+   "level": "L2",
+   "route": "multi-role",
+   "ref_label": "A",
+   "scenario": "S4",
+   "adjudication": "PENDING_USER"
+  },
+  {
+   "qid": "V2-20",
+   "level": "L2",
+   "route": "multi-role",
+   "ref_label": "C",
+   "scenario": "S4",
+   "adjudication": "PENDING_USER"
+  },
+  {
+   "qid": "V2-21",
+   "level": "L2",
+   "route": "multi-role",
+   "ref_label": "B",
+   "scenario": "S5",
+   "adjudication": "PENDING_USER"
+  },
+  {
+   "qid": "V2-22",
+   "level": "L2",
+   "route": "multi-role",
+   "ref_label": "D",
+   "scenario": "S5",
+   "adjudication": "PENDING_USER"
+  },
+  {
+   "qid": "V2-23",
+   "level": "L2",
+   "route": "multi-role",
+   "ref_label": "A",
+   "scenario": "S5",
+   "adjudication": "PENDING_USER"
+  },
+  {
+   "qid": "V2-24",
+   "level": "L2",
+   "route": "multi-role",
+   "ref_label": "C",
+   "scenario": "S5",
+   "adjudication": "PENDING_USER"
+  },
+  {
+   "qid": "V2-25",
+   "level": "L2",
+   "route": "multi-role",
+   "ref_label": "D",
+   "scenario": "S5",
+   "adjudication": "PENDING_USER"
+  }
+ ]
+}

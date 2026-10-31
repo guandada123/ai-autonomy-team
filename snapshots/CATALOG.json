@@ -3,9 +3,9 @@
  "_generated_by": "scripts/snapshot_sources.py --catalog",
  "count": {
   "in_git": 3,
-  "archived": 273,
+  "archived": 275,
   "missing": 0,
-  "total": 276
+  "total": 278
  },
  "snapshots": [
   {
@@ -2194,16 +2194,16 @@
   },
   {
    "name": "20261030-225323-routegate-v0-20261030",
-   "location": "snapshots",
-   "in_git": true,
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
    "label": "routegate-v0-20261030",
    "created_at": "2026-10-30T22:53:23",
    "file_count": 375
   },
   {
    "name": "20261030-230715-routegate-v01-20261030",
-   "location": "snapshots",
-   "in_git": true,
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
    "label": "routegate-v01-20261030",
    "created_at": "2026-10-30T23:07:16",
    "file_count": 375
@@ -2215,6 +2215,22 @@
    "label": "learnings-l0040-41-20261031",
    "created_at": "2026-10-31T09:10:22",
    "file_count": 377
+  },
+  {
+   "name": "20261031-105110-v2-questions-draft-20261031",
+   "location": "snapshots",
+   "in_git": true,
+   "label": "v2-questions-draft-20261031",
+   "created_at": "2026-10-31T10:51:11",
+   "file_count": 380
+  },
+  {
+   "name": "20261031-105254-v2-questions-draft-20261031b",
+   "location": "snapshots",
+   "in_git": true,
+   "label": "v2-questions-draft-20261031b",
+   "created_at": "2026-10-31T10:52:54",
+   "file_count": 380
   }
  ]
 }
