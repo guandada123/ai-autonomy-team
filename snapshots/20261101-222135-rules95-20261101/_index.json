@@ -1,7 +1,7 @@
 {
- "created_at": "2026-11-01T13:27:30",
- "label": "ruff-ci-20261101c",
- "file_count": 476,
+ "created_at": "2026-11-01T22:21:35",
+ "label": "rules95-20261101",
+ "file_count": 481,
  "files": {
   "scripts/build_package.py": {
    "sha256": "270d99bebfffeeaadfb2e904f6b3230ace8048136854e0a0faca4fdb2cbbcfcb",
@@ -120,8 +120,8 @@
    "bytes": 11650
   },
   "scripts/pre_release_check.py": {
-   "sha256": "6a99e3d64da068c4c553441ede8d336d666cb732d773463a53e10c66a4599480",
-   "bytes": 35680
+   "sha256": "da264916cc414480591275c78e6922ff0ae816e38ffe1e3766f21a42bcbcd5f3",
+   "bytes": 36532
   },
   "scripts/premise_probe.py": {
    "sha256": "80b7312d4ebb3049afe46ee757cdefc907a620a060b2c3b159a2447a796e19f7",
@@ -216,8 +216,8 @@
    "bytes": 23046
   },
   "docs/protocol/08-出题质检协议-v1.md": {
-   "sha256": "e1a09aea9384467fa351e3e69a84feb80599fcc742dd703863b8f2c7cc122f18",
-   "bytes": 23074
+   "sha256": "42b271b9b379df9bbc2d89ff0248cc1d0d633585abd1d0455ef74f2843d43c39",
+   "bytes": 23746
   },
   "docs/decisions/D-0001-架构与定位决策.md": {
    "sha256": "ed1cfbed14493959fcd248bf64e7054d56275a1c034325ac7efe6c2185d7bc59",
@@ -867,6 +867,10 @@
    "sha256": "db2b89510ac6a03021e1f3c5363f7f8b35fca1a5a258c777232f08d539aa1a0f",
    "bytes": 5124
   },
+  "audit/baseline/v2/RESULT-real4-20261101.md": {
+   "sha256": "d08f0dfd02909ff9915ea930ece74199fef1e5747c1135f73afbad3e286d77ef",
+   "bytes": 3918
+  },
   "audit/baseline/v2/RESULT-rewrite-20261031.md": {
    "sha256": "c8941de1103b3159a6619d45dc72404bcc80b66d03238b3666a0764794fd56af",
    "bytes": 6429
@@ -1231,6 +1235,10 @@
    "sha256": "51fb0c03b4202a62c13ba6eb7a1bba94a7e2376fe18f83d57c0af67735ad9aa4",
    "bytes": 4201
   },
+  "audit/baseline/v2/runs/blind-real4.json": {
+   "sha256": "7298d5d403584ec867bafa7dd3278d1a518bb2593b607596e12d182d130e135b",
+   "bytes": 1070
+  },
   "audit/baseline/v2/runs/boundary5-blind.json": {
    "sha256": "a97d4d99062cc7af74b715fdb0b9c2534138408cd9e06df4ec1f27ee61ba5906",
    "bytes": 5540
@@ -1310,6 +1318,14 @@
   "audit/baseline/v2/runs/r4b-r3.json": {
    "sha256": "9bc62c4a3b6c7467afcae5e55771a41a84cc8eb560f813e9df370d14ec762e59",
    "bytes": 8930
+  },
+  "audit/baseline/v2/runs/real-incident-4-blind.json": {
+   "sha256": "1671aef0bc152c4468c2f1ffed562a27457a51df0cc0dae72702bb6335e4fc1b",
+   "bytes": 3912
+  },
+  "audit/baseline/v2/runs/real-incident-4.json": {
+   "sha256": "06fe6933537065440d10e820c5a05e6813b674054e6beebc601995a1945cd02c",
+   "bytes": 7633
   },
   "audit/baseline/v2/runs/rejudge.json": {
    "sha256": "6b034a2569d4af41d9fb8fc257c2262865ad6f358910991faa7137dabee7d41f",
@@ -1586,6 +1602,10 @@
   "audit/kit/caliber_lib.py": {
    "sha256": "d0faad0964f3881618cac8cf3475dee45f1859954e70bee0ccbef0210ebfa0c4",
    "bytes": 11351
+  },
+  "audit/kit/check_stance.py": {
+   "sha256": "b0dda8f363e4575d640494b1606f6d8ba09740b7a92df9ba30896a4fa1df2c04",
+   "bytes": 3347
   },
   "audit/kit/cite_rate.py": {
    "sha256": "a0e5634ba469c95c46b459fd233eb71d1ee3554755a42dc680b1345df1ed586a",
@@ -1888,8 +1908,8 @@
    "bytes": 923
   },
   "Makefile": {
-   "sha256": "e4dbc4475caf3047f246d7e56ea2daccd67c53097a1aa5756592ba757557f6a1",
-   "bytes": 15576
+   "sha256": "25dd1f4690e53c99233ff0c73ba2f492d1943a828b1ca7c448dd6aa00d550afa",
+   "bytes": 15803
   },
   "README.md": {
    "sha256": "6b98cffbb1708485b323473716e9a806a8ceed7e35dc47609111b4fe18a42392",
@@ -1909,8 +1929,8 @@
   }
  },
  "caller": {
-  "pid": 7861,
-  "ppid": 7831,
-  "parent_cmd": "/bin/zsh -c . '/Users/guan/.workbuddy/shell-snapshots/snapshot-zsh-1793510468231-pca25z.sh' && if [ -n \"${CODEBUDDY_SAFE_DELETE_BIN_DIR:-}\" ]; then unalias rm unlink rmdir 2>/dev/null || true; unset -"
+  "pid": 35431,
+  "ppid": 35375,
+  "parent_cmd": "/bin/zsh -c . '/Users/guan/.workbuddy/shell-snapshots/snapshot-zsh-1793542656983-pfslqm.sh' && if [ -n \"${CODEBUDDY_SAFE_DELETE_BIN_DIR:-}\" ]; then unalias rm unlink rmdir 2>/dev/null || true; unset -"
  }
 }

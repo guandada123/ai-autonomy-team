@@ -3,9 +3,9 @@
  "_generated_by": "scripts/snapshot_sources.py --catalog",
  "count": {
   "in_git": 3,
-  "archived": 307,
+  "archived": 308,
   "missing": 0,
-  "total": 310
+  "total": 311
  },
  "snapshots": [
   {
@@ -2466,8 +2466,8 @@
   },
   {
    "name": "20261101-132730-ruff-ci-20261101c",
-   "location": "snapshots",
-   "in_git": true,
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
    "label": "ruff-ci-20261101c",
    "created_at": "2026-11-01T13:27:30",
    "file_count": 476
@@ -2486,6 +2486,14 @@
    "in_git": true,
    "label": "real4-20261101",
    "created_at": "2026-11-01T21:13:20",
+   "file_count": 481
+  },
+  {
+   "name": "20261101-222135-rules95-20261101",
+   "location": "snapshots",
+   "in_git": true,
+   "label": "rules95-20261101",
+   "created_at": "2026-11-01T22:21:35",
    "file_count": 481
   }
  ]
