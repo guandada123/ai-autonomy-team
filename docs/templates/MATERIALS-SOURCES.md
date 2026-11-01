@@ -3,6 +3,12 @@
 按用户指定范围取材：**engineering-audit-kit（EAK）＋ Claw / QuantTradingSystem / StockInsight 的真实 CI 片段**。
 所有素材**按 commit 取字节**（`git show HEAD:<path>`），落盘后 sha256 与源逐一校验一致（见 `MATERIALS-MANIFEST.json`）。
 
+> **2026-11-01 修订（3 件）**：`ci-snippets/quanttrading/ci.yml`、`audit-kit/workflows/caller-example.yml`
+> 的 `quality-gate.yml@v3` 已齐到 `v8`（v4–v8 修了 pytest 假绿灯、新增 `run-pytest` 委托输入、
+> 把 bandit / npm audit 的吞错改成真闸门）；`ci-snippets/quanttrading/security-scan.yml` 的提示文案
+> 由 `@v4` 改为 `@v5`（与实际 pin 一致）。三件的 bytes 与 sha256 已在 `MATERIALS-MANIFEST.json`
+> 按修改后重算，其余 11 件仍与源 commit 逐字节一致。**照抄 v3 会漏掉上述修复。**
+
 **当前状态：只导入，不启用。** `.github/workflows/` 未新增任何文件；未安装 pre-commit 钩子；CI 行为未改。
 
 ---
@@ -26,12 +32,12 @@
 | 3 | engineering-audit-kit | `368f4d8` | `configs/CODEOWNERS.sample` | `CODEOWNERS.sample` | 358 | 填 CODEOWNERS 缺口（保留 `.sample`，见 §四） |
 | 4 | engineering-audit-kit | `368f4d8` | `.github/workflows/eak-ci.yml` | `docs/templates/audit-kit/workflows/eak-ci.yml` | 3746 | 参考：ruff + bandit + gitleaks 如何接 CI |
 | 5 | engineering-audit-kit | `368f4d8` | `.github/workflows/quality-gate.yml` | `docs/templates/audit-kit/workflows/quality-gate.yml` | 4274 | 参考：质量门禁工作流编排 |
-| 6 | engineering-audit-kit | `368f4d8` | `.github/workflows/caller-example.yml` | `docs/templates/audit-kit/workflows/caller-example.yml` | 837 | 参考：`workflow_call` 可复用工作流的调用方写法 |
+| 6 | engineering-audit-kit | `368f4d8` | `.github/workflows/caller-example.yml` | `docs/templates/audit-kit/workflows/caller-example.yml` | 1046 | 参考：`workflow_call` 可复用工作流的调用方写法 |
 | 7 | engineering-audit-kit | `368f4d8` | `playbooks/templates/PROJECT-AUDIT-TEMPLATE.md` | `docs/templates/audit-kit/PROJECT-AUDIT-TEMPLATE.md` | 901 | 模板：项目审计报告骨架 |
 | 8 | engineering-audit-kit | `368f4d8` | `pyproject.toml` | `docs/templates/audit-kit/pyproject.reference.toml` | 195 | 参考：审计工具依赖声明 |
 | 9 | Claw | `082cef8` | `.github/workflows/claw-ci.yml` | `docs/templates/ci-snippets/claw/claw-ci.yml` | 18006 | 参考：真实主干 CI（含多 job 门禁与失败聚合） |
 | 10 | Claw | `082cef8` | `.github/workflows/security-scan.yml` | `docs/templates/ci-snippets/claw/security-scan.yml` | 10097 | 参考：真实密钥/漏洞扫描（版本 A） |
-| 11 | QuantTradingSystem | `8cc5e344` | `.github/workflows/ci.yml` | `docs/templates/ci-snippets/quanttrading/ci.yml` | 1099 | 参考：最小可用 CI 骨架（1KB） |
+| 11 | QuantTradingSystem | `8cc5e344` | `.github/workflows/ci.yml` | `docs/templates/ci-snippets/quanttrading/ci.yml` | 1609 | 参考：最小可用 CI 骨架（1KB） |
 | 12 | QuantTradingSystem | `8cc5e344` | `.github/workflows/security-scan.yml` | `docs/templates/ci-snippets/quanttrading/security-scan.yml` | 12313 | 参考：真实扫描（版本 B，三种里最全） |
 | 13 | StockInsight | `1d8635c` | `.github/workflows/stockinsight-ci.yml` | `docs/templates/ci-snippets/stockinsight/stockinsight-ci.yml` | 11209 | 参考：严格 7-job 门禁编排 |
 | 14 | StockInsight | `1d8635c` | `.github/workflows/security-scan.yml` | `docs/templates/ci-snippets/stockinsight/security-scan.yml` | 5559 | 参考：真实扫描（版本 C，最精简） |

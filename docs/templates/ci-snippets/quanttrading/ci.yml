@@ -13,14 +13,20 @@ permissions:
 jobs:
   quality-gate:
     # v2 是坏版本（quality-gate.yml YAML 非法 → 启动即失败，2026-10-02 起红了 8 天）；
-    # 有效版本见 engineering-audit-kit README 的 tag 表，当前 = v3。
-    uses: guandada123/engineering-audit-kit/.github/workflows/quality-gate.yml@v3
+    # 有效版本见 engineering-audit-kit README 的 tag 表，当前 = v8。
+    # 2026-11-01 同步：本片段快照自 368f4d8 时 pin 的是 v3。v4-v8 陆续修了 pytest 假绿灯、
+    # 加了 run-pytest 委托输入、并把 bandit / npm audit 的 || true 吞错改成真闸门，
+    # 照抄 v3 会把这些修复一起漏掉。多包仓库记得配 run-pytest: "off"。
+    uses: guandada123/engineering-audit-kit/.github/workflows/quality-gate.yml@v8
     with:
       run-python: "on"
       run-php: "off"
       run-eslint: false
       run-prettier: false
       npm-audit-level: high
+      # 本仓（QTS）是多包仓库，根目录 pytest 会撞同名 tests 包，
+      # 测试由 test.yml 的 unit-test 矩阵按服务跑。单包仓库删掉这行即可。
+      run-pytest: "off"
     secrets: inherit
 
   # 2026-10-16 加：由 execution-service 崩溃循环 3 天反查出的门禁

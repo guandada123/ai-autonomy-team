@@ -1,5 +1,5 @@
 {
- "_note": "外部素材导入清单（2026-11-01）。全部按 commit 取字节，sha256 与源一致；activated=false 表示未启用。",
+ "_note": "外部素材导入清单（2026-11-01）。全部按 commit 取字节，sha256 与源一致；activated=false 表示未启用。｜2026-11-01 追加：ci-snippets/quanttrading/ci.yml、audit-kit/workflows/caller-example.yml、ci-snippets/quanttrading/security-scan.yml 三件在导入后被有意修改（版本 pin 齐版/文案修正），bytes 与 sha256 已按修改后重算，见各条目 post_import_edit。",
  "generated_by": "主理人手工编排（用户指定 EAK + Claw/QTS/StockInsight 的 CI 片段）",
  "policy": "只导入不启用：不改 .github/workflows、不装 pre-commit 钩子、不改 CI 行为",
  "items": [
@@ -58,10 +58,11 @@
    "source_commit": "368f4d8",
    "source_path": ".github/workflows/caller-example.yml",
    "target_path": "docs/templates/audit-kit/workflows/caller-example.yml",
-   "bytes": 837,
-   "sha256": "d84ec1878c75c1bf9f4064d0ebad3338ee85536925ac940d26e7bfefb0b6e8ea",
+   "bytes": 1046,
+   "sha256": "8dd260751cd00db552c3ace0bce88ce3c1526178e881eb9ceb5f366cd8951916",
    "purpose": "参考：可复用工作流（workflow_call）的调用方写法",
-   "activated": false
+   "activated": false,
+   "post_import_edit": "2026-11-01 版本齐版：pin v3→v8，补 run-pytest"
   },
   {
    "source_repo": "https://github.com/guandada123/engineering-audit-kit.git",
@@ -108,10 +109,11 @@
    "source_commit": "8cc5e344",
    "source_path": ".github/workflows/ci.yml",
    "target_path": "docs/templates/ci-snippets/quanttrading/ci.yml",
-   "bytes": 1099,
-   "sha256": "d5284e9c966431f0d0d9f700919c17a6f58931ac9285011fb91eaeb9a15a8a45",
+   "bytes": 1609,
+   "sha256": "e44af723d7aef53bd2b0985d7d6763ab13432b79ec35e4b4a4799b2f40534e6b",
    "purpose": "片段：QTS 真实 CI（1KB，最小可用骨架）",
-   "activated": false
+   "activated": false,
+   "post_import_edit": "2026-11-01 版本齐版：pin v3→v8（v4-v8 修了 pytest 假绿灯、新增 run-pytest 输入、bandit/npm audit 由吞错改真闸门）；并补 run-pytest: off 说明"
   },
   {
    "source_repo": "https://github.com/guandada123/QuantTradingSystem.git",
@@ -119,9 +121,10 @@
    "source_path": ".github/workflows/security-scan.yml",
    "target_path": "docs/templates/ci-snippets/quanttrading/security-scan.yml",
    "bytes": 12313,
-   "sha256": "78dd0e6a408c19c6ac8facd6b7e04bdf1b51dd3139e113fa8f6077639fcfd69b",
+   "sha256": "939b73f49460cb7803b34ad6d60b3bbc0903c9eaf08254d2d7d414302f690f00",
    "purpose": "片段：QTS 真实扫描（12KB，三种里最全）",
-   "activated": false
+   "activated": false,
+   "post_import_edit": "2026-11-01 修正提示文案 tag v4→v5（与实际 pin 的 v5 对齐）"
   },
   {
    "source_repo": "https://github.com/guandada123/StockInsight.git",
