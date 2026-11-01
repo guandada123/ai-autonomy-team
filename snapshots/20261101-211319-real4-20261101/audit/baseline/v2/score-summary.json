@@ -41,6 +41,5 @@
   "single": 0.896,
   "multi": 0.896
  },
- "acceptance": "non_inferior",
- "multi_name": "r4"
+ "acceptance": "non_inferior"
 }

@@ -245,6 +245,11 @@ lint:
 materials-check:
 	$(PY) scripts/verify_materials.py
 
+# 真值字母语义校验：expected 指向的选项必须真含 expected_stance，且立场唯一。
+# 用法：make stance-check BATCH=audit/baseline/v2/runs/xxx.json
+stance-check:
+	$(PY) audit/kit/check_stance.py $(BATCH)
+
 # 可举证率：新批次审查报告入库前的准入门槛（协议 §2）。
 # 用法：make cite-rate REPORTS="audit/baseline/v2/runs/R1-post.json audit/baseline/v2/runs/R2-post.json"
 # 带门槛（不达标 exit 1）：make cite-rate REPORTS="..." THRESH=1

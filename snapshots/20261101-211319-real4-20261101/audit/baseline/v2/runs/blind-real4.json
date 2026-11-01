@@ -1,0 +1,29 @@
+{
+ "judge": "blind-real4",
+ "items": [
+  {
+   "qid": "R-01",
+   "answer": "B",
+   "confidence": "high",
+   "why": "根因是判据只看计数不看组成：计数同为4但成员与状态在run#32前后已换（refresh_close未跟踪变成了scan_expanded已修改），一致的是数字不是状态。"
+  },
+  {
+   "qid": "R-02",
+   "answer": "C",
+   "confidence": "high",
+   "why": "根因是并发上限没被真正执行（配置3而在飞13=超发），且排队时长指标采集失效（全0.00min不可信），先验证限流是否生效再谈扩容或重启。"
+  },
+  {
+   "qid": "R-03",
+   "answer": "A",
+   "confidence": "high",
+   "why": "根因是无锁依赖漂移(SQLAlchemy→2.1.4，psycopg2与v3默认驱动不匹配)被except Exception静默降级到SQLite内存库，健康检查只证明了HTTP活着。"
+  },
+  {
+   "qid": "R-04",
+   "answer": "B",
+   "confidence": "high",
+   "why": "根因是同一指标方向语义被复制成4处硬编码且互相矛盾，逐处修补会再漂，需单一真源定义方向并加测试锁定。"
+  }
+ ]
+}
