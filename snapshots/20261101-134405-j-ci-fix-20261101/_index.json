@@ -1,7 +1,7 @@
 {
- "created_at": "2026-11-01T13:22:49",
- "label": "ruff-ci-20261101",
- "file_count": 475,
+ "created_at": "2026-11-01T13:44:05",
+ "label": "j-ci-fix-20261101",
+ "file_count": 476,
  "files": {
   "scripts/build_package.py": {
    "sha256": "270d99bebfffeeaadfb2e904f6b3230ace8048136854e0a0faca4fdb2cbbcfcb",
@@ -16,8 +16,8 @@
    "bytes": 15106
   },
   "scripts/check_docs_consistency.py": {
-   "sha256": "4514123a4d117fbc72c613dc94d4bf2b749e1a1305784482f51674892021e73d",
-   "bytes": 20232
+   "sha256": "9a8f58d6914be5e7b2627138c53a446ebbba523a290dbac2bf94fcee7bda1693",
+   "bytes": 20713
   },
   "scripts/field_provenance.py": {
    "sha256": "7926bba3821fd39f01e9045238f33b72a1550250f25a7c694165e656050b9b1c",
@@ -120,8 +120,8 @@
    "bytes": 11650
   },
   "scripts/pre_release_check.py": {
-   "sha256": "6a99e3d64da068c4c553441ede8d336d666cb732d773463a53e10c66a4599480",
-   "bytes": 35680
+   "sha256": "da264916cc414480591275c78e6922ff0ae816e38ffe1e3766f21a42bcbcd5f3",
+   "bytes": 36532
   },
   "scripts/premise_probe.py": {
    "sha256": "80b7312d4ebb3049afe46ee757cdefc907a620a060b2c3b159a2447a796e19f7",
@@ -1352,8 +1352,8 @@
    "bytes": 643
   },
   "audit/baseline/v2/score-summary.json": {
-   "sha256": "5aae1eac170d2a6a3900795e8a8ec6b84b52d5767c33ccf99444333e06ddfe71",
-   "bytes": 642
+   "sha256": "42dd5ce4c5d90642c7a76c36a73a0d04a05d8cde2d4796d02f622c95de095ae2",
+   "bytes": 621
   },
   "audit/baseline/v2/score_v2.py": {
    "sha256": "5228de105ec7601f5e4b1187d7951ffc82d492b378d608d58089ede00220648b",
@@ -1855,6 +1855,10 @@
    "sha256": "1a96ffc91b7c0743bbc7843e2b281a83de4388060175be90f61f9b32046f7c80",
    "bytes": 2988
   },
+  ".learnings/L-0045-验证脚本若会写盘必须跑副本.md": {
+   "sha256": "16f1d217b750f91cb951ff22d0fee2bf0fb36b3f2a56d5b41e176738ebca9fc7",
+   "bytes": 2171
+  },
   ".github/workflows/selftest.yml": {
    "sha256": "b113880dde4e8175b477ce0fe21b1c206745d225792f0f3bbbf134fa293aad9a",
    "bytes": 2982
@@ -1888,11 +1892,11 @@
    "bytes": 15576
   },
   "README.md": {
-   "sha256": "a538cc5591c64f91fff870cd08963b8b7fa1b7e5d827082d4c56dbc391ed0dec",
+   "sha256": "6b98cffbb1708485b323473716e9a806a8ceed7e35dc47609111b4fe18a42392",
    "bytes": 5178
   },
   "ARCHITECTURE.md": {
-   "sha256": "35e1eb4a5bca61a1a46191109ba19cd8191367bcb0d8d88cc3bb474067094748",
+   "sha256": "c1b2598a7a768d8800cafd46eef1dce2a3ff354284caf2ee2e1da8b466757018",
    "bytes": 24056
   },
   "DEPENDENCIES.md": {
@@ -1905,8 +1909,8 @@
   }
  },
  "caller": {
-  "pid": 1921,
-  "ppid": 1912,
-  "parent_cmd": "/bin/zsh -c . '/Users/guan/.workbuddy/shell-snapshots/snapshot-zsh-1793510468231-pca25z.sh' && if [ -n \"${CODEBUDDY_SAFE_DELETE_BIN_DIR:-}\" ]; then unalias rm unlink rmdir 2>/dev/null || true; unset -"
+  "pid": 18701,
+  "ppid": 18642,
+  "parent_cmd": "/bin/zsh -c . '/Users/guan/.workbuddy/shell-snapshots/snapshot-zsh-1793511720688-11krwf.sh' && if [ -n \"${CODEBUDDY_SAFE_DELETE_BIN_DIR:-}\" ]; then unalias rm unlink rmdir 2>/dev/null || true; unset -"
  }
 }

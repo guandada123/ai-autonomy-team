@@ -294,7 +294,16 @@ def chk_upgrade_info():
     except Exception as e:                       # 信息项异常不拖垮整体
         return f"（核对异常：{type(e).__name__}，不影响门禁）"
     if not d.get("rule_layer_exists"):
-        return "🔴 规则层文件不存在——升级链路必然空转"
+        # 2026-11-01 修正：规则层（用户级 MEMORY.md）不存在有两种含义，不能混为一谈——
+        #   · 在 CI / 换机环境里，~/.workbuddy 本来就没有，升级链路也不在该环境运行；
+        #     此时报 🔴「升级链路必然空转」是假故障，只会训练人忽略红字。
+        #   · 在本地就必须存在，缺了才是真问题。
+        # 旧实现一律报 🔴，导致每次 CI 日志都挂一条不会消失的红字。
+        if os.environ.get("GITHUB_ACTIONS") or os.environ.get("CI"):
+            return (f"⚪ 本环境无用户级规则层（{d.get('rule_layer')}）→ "
+                    "升级链路无法核查，非缺陷（CI/换机环境预期如此）")
+        return (f"🔴 规则层文件不存在（{d.get('rule_layer')}）——"
+                "本地应存在，升级链路必然空转；检查 HOME 是否正确或被覆盖")
     return (f"{d['star']} 条 ★ / 已升级 {d['upgraded']} / 本地强制 {d.get('covered_locally', 0)}"
             f" / 待升(预算阻塞) {d.get('deferred', 0)} / 待处置 {len(d['pending'])}"
             f"（超期 {len(d['stale'])} 条；台账 docs/learnings-upgraded.json）")

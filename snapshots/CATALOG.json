@@ -3,9 +3,9 @@
  "_generated_by": "scripts/snapshot_sources.py --catalog",
  "count": {
   "in_git": 3,
-  "archived": 305,
+  "archived": 306,
   "missing": 0,
-  "total": 308
+  "total": 309
  },
  "snapshots": [
   {
@@ -2450,8 +2450,8 @@
   },
   {
    "name": "20261101-132249-ruff-ci-20261101",
-   "location": "snapshots",
-   "in_git": true,
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
    "label": "ruff-ci-20261101",
    "created_at": "2026-11-01T13:22:49",
    "file_count": 475
@@ -2470,6 +2470,14 @@
    "in_git": true,
    "label": "ruff-ci-20261101c",
    "created_at": "2026-11-01T13:27:30",
+   "file_count": 476
+  },
+  {
+   "name": "20261101-134405-j-ci-fix-20261101",
+   "location": "snapshots",
+   "in_git": true,
+   "label": "j-ci-fix-20261101",
+   "created_at": "2026-11-01T13:44:05",
    "file_count": 476
   }
  ]
