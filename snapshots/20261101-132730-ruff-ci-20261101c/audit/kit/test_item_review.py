@@ -213,7 +213,7 @@ def test_a1_real_dossier_per_qid_oracle():
     # 独立 oracle：不用被测代码的整数式，用 Fraction 精确算，逐题比码
     want = {it["qid"]: c for it in doc["items"] if (c := _expect_reject_code(it))}
     assert got == want, "\n".join(
-        [f"reject 表与独立复核不一致："]
+        ["reject 表与独立复核不一致："]
         + [f"  {q}: 实现 {got.get(q)} vs 复核 {want.get(q)}"
            for q in sorted(set(got) | set(want)) if got.get(q) != want.get(q)])
     # C4 记档同样逐题复核（13 条）

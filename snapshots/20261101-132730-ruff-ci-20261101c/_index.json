@@ -1,7 +1,7 @@
 {
- "created_at": "2026-11-01T07:53:16",
- "label": "materials-20261101",
- "file_count": 474,
+ "created_at": "2026-11-01T13:27:30",
+ "label": "ruff-ci-20261101c",
+ "file_count": 476,
  "files": {
   "scripts/build_package.py": {
    "sha256": "270d99bebfffeeaadfb2e904f6b3230ace8048136854e0a0faca4fdb2cbbcfcb",
@@ -16,8 +16,8 @@
    "bytes": 15106
   },
   "scripts/check_docs_consistency.py": {
-   "sha256": "4514123a4d117fbc72c613dc94d4bf2b749e1a1305784482f51674892021e73d",
-   "bytes": 20232
+   "sha256": "9a8f58d6914be5e7b2627138c53a446ebbba523a290dbac2bf94fcee7bda1693",
+   "bytes": 20713
   },
   "scripts/field_provenance.py": {
    "sha256": "7926bba3821fd39f01e9045238f33b72a1550250f25a7c694165e656050b9b1c",
@@ -28,8 +28,8 @@
    "bytes": 2059
   },
   "scripts/handover_facts.py": {
-   "sha256": "fc9ba801a89edc127f2c0c637c497e34c59a94c7c097cf0df43839e9d5fe29a1",
-   "bytes": 7509
+   "sha256": "0de4a4cfc2c6fa9e0e640149818e7782011ad08edfe8d5c3afea0d0d2842cfbd",
+   "bytes": 7507
   },
   "scripts/inspect_agent_routing.py": {
    "sha256": "23df35834b0e5aa663209957ad9753fafc06075e0bc3e04aa2020c082c5724b6",
@@ -1360,8 +1360,8 @@
    "bytes": 10021
   },
   "audit/baseline/v2/score_v2_passk.py": {
-   "sha256": "00312087fbd711742297b00ca41387d34e68471ce9db7eddc7ad92963a3a345e",
-   "bytes": 6581
+   "sha256": "d34b6380752ed61e193e6bfee3c7b3fe37ee41d85be3c4d2e249fdc713b87e89",
+   "bytes": 6570
   },
   "audit/baseline/v2/seat-S1-r4a.json": {
    "sha256": "9e8b65ee629c5155a0d858ea409e40d1d6550f940dacece6e01df6a4430f5f34",
@@ -1628,12 +1628,12 @@
    "bytes": 10120
   },
   "audit/kit/test_item_review.py": {
-   "sha256": "d79ab66d307803f83cdf2d8b41dab718d72c33ddf89eacb7a30c28c27ba01ad4",
-   "bytes": 47855
+   "sha256": "f747e6fe010cac14a0c80887dee40e9cd0d719eb0755d967ff153c43d531bfef",
+   "bytes": 47854
   },
   "audit/kit/test_kit.py": {
-   "sha256": "4ede994d19bc2ce78960bb51c30611b2f32dcf5ef944159e3127b57901874418",
-   "bytes": 74899
+   "sha256": "a53bf42514a6a6310e13f48a7dbe553125001cf7d6ae925cf8beb4a19cb2ae5a",
+   "bytes": 74842
   },
   "audit/probes/premise/spec-cases.json": {
    "sha256": "d552c79e28bd10e2b02f776f31f49df6b24cce34618e8d489214d93d29cded41",
@@ -1674,6 +1674,10 @@
   "audit/对话审计-20261021.md": {
    "sha256": "6b0a20a4f20f5f58db056bccede6a09d424eec97291a3ce482a37ad6cd90189f",
    "bytes": 17129
+  },
+  ".learnings/2026-11-01.md": {
+   "sha256": "5b836f72590a796b085598e6f4a5f12fd1eb3410e400bcc5d944d359f28cac7d",
+   "bytes": 6348
   },
   ".learnings/L-0001-裁判期望值可能是规格歧义产物.md": {
    "sha256": "92e5025cd39351e75fc11e0eaa1f973c1ffe967bd33060eec52ca905ea4bfc19",
@@ -1851,9 +1855,13 @@
    "sha256": "1a96ffc91b7c0743bbc7843e2b281a83de4388060175be90f61f9b32046f7c80",
    "bytes": 2988
   },
+  ".learnings/L-0045-验证脚本若会写盘必须跑副本.md": {
+   "sha256": "16f1d217b750f91cb951ff22d0fee2bf0fb36b3f2a56d5b41e176738ebca9fc7",
+   "bytes": 2171
+  },
   ".github/workflows/selftest.yml": {
-   "sha256": "893c6a49f1dba12a21eab68aa70321572c78730e5985acc00c73753938a83b2f",
-   "bytes": 2140
+   "sha256": "b113880dde4e8175b477ce0fe21b1c206745d225792f0f3bbbf134fa293aad9a",
+   "bytes": 2982
   },
   "tools/.coveragerc": {
    "sha256": "259195805c84f3a5c3481aa9508eb4a650e8eb2182048ad5edbf01f26d9e07f8",
@@ -1880,15 +1888,15 @@
    "bytes": 923
   },
   "Makefile": {
-   "sha256": "ada57471c885359e0382add397f86a4773fcf98a80376475e6ee5f23c420afc5",
-   "bytes": 15126
+   "sha256": "e4dbc4475caf3047f246d7e56ea2daccd67c53097a1aa5756592ba757557f6a1",
+   "bytes": 15576
   },
   "README.md": {
-   "sha256": "a538cc5591c64f91fff870cd08963b8b7fa1b7e5d827082d4c56dbc391ed0dec",
+   "sha256": "6b98cffbb1708485b323473716e9a806a8ceed7e35dc47609111b4fe18a42392",
    "bytes": 5178
   },
   "ARCHITECTURE.md": {
-   "sha256": "35e1eb4a5bca61a1a46191109ba19cd8191367bcb0d8d88cc3bb474067094748",
+   "sha256": "c1b2598a7a768d8800cafd46eef1dce2a3ff354284caf2ee2e1da8b466757018",
    "bytes": 24056
   },
   "DEPENDENCIES.md": {
@@ -1901,8 +1909,8 @@
   }
  },
  "caller": {
-  "pid": 99800,
-  "ppid": 99789,
-  "parent_cmd": "/bin/zsh -c . '/Users/guan/.workbuddy/shell-snapshots/snapshot-zsh-1793490528664-7qc61y.sh' && if [ -n \"${CODEBUDDY_SAFE_DELETE_BIN_DIR:-}\" ]; then unalias rm unlink rmdir 2>/dev/null || true; unset -"
+  "pid": 7861,
+  "ppid": 7831,
+  "parent_cmd": "/bin/zsh -c . '/Users/guan/.workbuddy/shell-snapshots/snapshot-zsh-1793510468231-pca25z.sh' && if [ -n \"${CODEBUDDY_SAFE_DELETE_BIN_DIR:-}\" ]; then unalias rm unlink rmdir 2>/dev/null || true; unset -"
  }
 }

@@ -3,9 +3,9 @@
  "_generated_by": "scripts/snapshot_sources.py --catalog",
  "count": {
   "in_git": 3,
-  "archived": 304,
+  "archived": 305,
   "missing": 0,
-  "total": 307
+  "total": 308
  },
  "snapshots": [
   {
@@ -2442,8 +2442,8 @@
   },
   {
    "name": "20261101-075316-materials-20261101",
-   "location": "snapshots",
-   "in_git": true,
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
    "label": "materials-20261101",
    "created_at": "2026-11-01T07:53:16",
    "file_count": 474
@@ -2463,6 +2463,14 @@
    "label": "ruff-ci-20261101b",
    "created_at": "2026-11-01T13:24:19",
    "file_count": 475
+  },
+  {
+   "name": "20261101-132730-ruff-ci-20261101c",
+   "location": "snapshots",
+   "in_git": true,
+   "label": "ruff-ci-20261101c",
+   "created_at": "2026-11-01T13:27:30",
+   "file_count": 476
   }
  ]
 }

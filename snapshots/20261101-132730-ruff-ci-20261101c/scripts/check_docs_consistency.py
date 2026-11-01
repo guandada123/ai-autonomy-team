@@ -60,8 +60,13 @@ STATUS_DOCS = ["README.md", "ARCHITECTURE.md", "DEPENDENCIES.md"]
 # D 项规则：正则 → (人类可读标签, 计数函数)。正则刻意写得窄（"条经验"而不是"条"），
 # 宽匹配会把「3 条铁律」这类无关说法一起抓进来。
 COUNT_RULES = [
+    # 只数 L-XXXX 经验条目。.learnings/ 下还有日期命名的分析报告（如 2026-11-01.md 的
+    # MAST 失效归因，由「月度失效复盘」自动化产出），它们不是经验条目。
+    # 原先用 glob("*.md") 把报告也算作经验 —— 自动化一产出报告，门禁 A 就报
+    # 「声明数 ≠ 实际数」（2026-11-01 实测 44 vs 45）。口径统一为 L-*.md，
+    # 与 scripts/handover_facts.py 的 facts["learnings"] 一致。
     (re.compile(r"(\d+)\s*条经验"), "经验条数",
-     lambda: len(list((ROOT / ".learnings").glob("*.md")))),
+     lambda: len(list((ROOT / ".learnings").glob("L-*.md")))),
     (re.compile(r"(\d+)\s*份决策"), "决策份数",
      lambda: len(list((DOCS / "decisions").glob("D-*.md")))),
     (re.compile(r"(\d+)\s*轮运行"), "运行轮数",

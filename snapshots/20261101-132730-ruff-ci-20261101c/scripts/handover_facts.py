@@ -95,7 +95,7 @@ def render_inner(facts: dict) -> str:
     """渲染块内文（不含标记行）。emit/check 都以它为准，避免首尾换行归属不清。"""
     cont = "" if facts["regress_continuous"] else " ⚠️项号不连续，请核对"
     lines = [
-        f"- HEAD：以 `git log -1` 为准（不写死，提交即变）",
+        "- HEAD：以 `git log -1` 为准（不写死，提交即变）",
         f"- 门禁项数：{facts['gate_items']}（A–H）",
         f"- 全量回归项数：{facts['regress_items']}（1..{facts['regress_items']} 连续{cont}）",
         f"- kit 自测项数：{facts['kit_items']}",
@@ -159,7 +159,7 @@ def main():
         facts = collect()
         assert facts["gate_items"] >= 8 and facts["kit_items"] >= 64, facts
         assert facts["regress_items"] >= 50 and facts["regress_continuous"], facts
-        print(f"[PASS] handover_facts 自检通过（往返 + 过期检出 + 真源合理性）")
+        print("[PASS] handover_facts 自检通过（往返 + 过期检出 + 真源合理性）")
         return 0
 
     if "--check" in args:
