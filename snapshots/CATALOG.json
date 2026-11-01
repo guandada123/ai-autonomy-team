@@ -3,9 +3,9 @@
  "_generated_by": "scripts/snapshot_sources.py --catalog",
  "count": {
   "in_git": 3,
-  "archived": 308,
+  "archived": 309,
   "missing": 0,
-  "total": 311
+  "total": 312
  },
  "snapshots": [
   {
@@ -2474,8 +2474,8 @@
   },
   {
    "name": "20261101-134405-j-ci-fix-20261101",
-   "location": "snapshots",
-   "in_git": true,
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
    "label": "j-ci-fix-20261101",
    "created_at": "2026-11-01T13:44:05",
    "file_count": 476
@@ -2494,6 +2494,14 @@
    "in_git": true,
    "label": "rules95-20261101",
    "created_at": "2026-11-01T22:21:35",
+   "file_count": 481
+  },
+  {
+   "name": "20261101-223141-ledger-audit-20261101",
+   "location": "snapshots",
+   "in_git": true,
+   "label": "ledger-audit-20261101",
+   "created_at": "2026-11-01T22:31:42",
    "file_count": 481
   }
  ]
