@@ -998,7 +998,6 @@ def _():
 
 @check("pre_push_scan: --install-hook 生成可执行钩子，且接手验收第 6 项因此转绿（联动）")
 def _():
-    import subprocess as sp
     with tempfile.TemporaryDirectory() as td:
         tmp = Path(td)
         _mini_repo(tmp, {"a.txt": "x\n"})
@@ -1415,7 +1414,6 @@ def _():
 
 @check("make_backup: git_facts 对非仓库目录返回 None（不可用≠可用的假值）")
 def _():
-    import subprocess as _sp
     mb = _load_mb()
     with tempfile.TemporaryDirectory() as td:
         assert mb.git_facts(Path(td)) is None, "非 git 目录必须返回 None"

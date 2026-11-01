@@ -234,6 +234,13 @@ endif
 # 留痕工具的验收（含变异测试，见 .learnings/L-0043 与 L-0042）。
 model-log-test:
 	$(PY) scripts/test_record_model.py
+# 静态检查：ruff check（规则见 pyproject [tool.ruff.lint]）。
+# 刻意不并入 selftest：ruff 是第三方包，并入会让「干净环境全过」的承诺破产；
+# CI 里以独立步骤固定版本执行（.github/workflows/selftest.yml）。
+lint:
+	@command -v ruff >/dev/null 2>&1 || { echo "未安装 ruff。装法：python3 -m venv .venv && .venv/bin/pip install ruff==0.15.17"; exit 2; }
+	ruff check . --output-format=concise
+
 # 外部素材复核：哈希一致 + 未被启用（见 docs/templates/MATERIALS-SOURCES.md）
 materials-check:
 	$(PY) scripts/verify_materials.py

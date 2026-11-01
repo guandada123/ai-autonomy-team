@@ -45,7 +45,7 @@
 | 无 pre-commit | ✅ 件已到位 | 文件在根目录，但**未执行 `pre-commit install`**，提交不受影响 |
 | 无 gitleaks 规则 | ✅ 件已到位 | 本项目另有自定义「E 密钥扫描」闸（`pre_release_check`），二者**并行不冲突** |
 | 无 CODEOWNERS | ✅ 样例已到位 | 仅 `.sample`，不参与生效 |
-| ruff 配了但 CI 不跑 | ❌ **仍未解决** | 本次只导入模板，未改 CI（用户选"不启用"）。启用方法见 §四 |
+| ruff 配了但 CI 不跑 | ✅ **2026-11-01 已解决** | 独立 CI 步骤（固定 ruff 0.15.17），本地 `make lint`；接入时存量 6 处已全修 |
 | RESULT 报告格式不统一 | ⚠️ 模板已到位 | 未强制套用；需要时可把新报告按模板写 |
 | 依赖漂移（ruff/bandit 版本） | ⚠️ 参考已到位 | 本项目 `pyproject.toml` 未改，版本仍以自身为准 |
 
@@ -54,7 +54,7 @@
 | 要做的事 | 命令 / 改动 | 影响与风险 |
 |---|---|---|
 | 启用本地钩子 | `pip install pre-commit gitleaks && pre-commit install` | 之后每次 commit 先跑检查。**注意**：配置含 `ruff-format`，首次 `--all-files` 会**重排 280 个 py 文件**，建议先 `ruff format --diff` 看规模 |
-| 让 CI 跑 ruff | 在 `.github/workflows/selftest.yml` 加一步 `ruff check .` | 立刻暴露现存 lint 问题，可能直接红（这正是"配置在睡觉"的代价） |
+| ~~让 CI 跑 ruff~~ | **已于 2026-11-01 执行** | 存量只有 6 处且全可自动修，未红；规则仍为 F+E9 |
 | 启用 CODEOWNERS | 改名 `CODEOWNERS.sample` → `.github/CODEOWNERS`，并把 `@team/*` 换成真实账号 | 占位团队不存在会导致 PR 评审请求异常，**改名之前必须换人** |
 | 用 gitleaks 规则 | `.gitleaks.toml` 已就位，被调用才生效 | **文件标题还写着 `Claw Monorepo Secret Scan`**，改成本项目名再对外用 |
 
