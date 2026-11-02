@@ -98,3 +98,8 @@
 {"ts": "2026-11-02T00:09:46.292797+00:00", "actor": "build_package.py(--apply)", "written": 0, "unchanged": 26, "changed_files": []}
 {"ts": "2026-11-02T00:11:54.925397+00:00", "actor": "build_package.py(--apply)", "written": 0, "unchanged": 26, "changed_files": []}
 {"ts": "2026-11-02T00:12:41.039951+00:00", "actor": "build_package.py(--apply)", "written": 0, "unchanged": 26, "changed_files": []}
+{"ts": "2026-11-02T00:22:22.854897+00:00", "actor": "build_package.py(--apply)", "written": 16, "unchanged": 10, "changed_files": ["scripts/judges/verify.py", "scripts/judges/seat_check.py", "scripts/make_fixtures.py", "scripts/inspect_agent_routing.py", "scripts/new_round.py", "scripts/fsutil.py", "scripts/premise_probe.py", "scripts/veto_sweep.py", "scripts/metrics.py", "docs/protocol/06-写入域与判据分层.md", "templates/ad-01.md", "templates/ex-01.md", "templates/ex-02.md", "templates/ex-03.md", "templates/pm-01.md", "templates/xj-01.md"]}
+{"ts": "2026-11-02T00:25:12.745815+00:00", "actor": "build_package.py(--apply)", "written": 0, "unchanged": 26, "changed_files": []}
+{"ts": "2026-11-02T00:25:43.757709+00:00", "actor": "build_package.py(--apply)", "written": 0, "unchanged": 26, "changed_files": []}
+{"ts": "2026-11-02T00:26:39.883134+00:00", "actor": "build_package.py(--apply)", "written": 0, "unchanged": 26, "changed_files": []}
+{"ts": "2026-11-02T00:27:20.905154+00:00", "actor": "build_package.py(--apply)", "written": 0, "unchanged": 26, "changed_files": []}

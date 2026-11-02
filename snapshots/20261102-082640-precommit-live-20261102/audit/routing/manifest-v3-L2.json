@@ -1,0 +1,79 @@
+{
+ "_note": "路由标注产物（主理人 2026-10-30 生成）。来源 v3/QUESTIONS.md + 用户裁决（RESULT-v3-20261024.md，1A 2A 3A 4A 5C 6B 7A 8A 9A 10C）。预筛自检：参考答案 A 占比 0.7 >= 0.5 -> S1 报红，即 v0 闸门下此题库不应入库（印证 v3 死因：常数基准 0.700 覆盖两臂）。仅作偏斜预筛判据的验证样本。",
+ "source": "audit/baseline/v3/QUESTIONS.md",
+ "generated_at": "2026-10-30",
+ "expected_route": "multi-role",
+ "n": 10,
+ "skew_precheck": {
+  "label_distribution": {
+   "A": 7,
+   "C": 2,
+   "B": 1
+  },
+  "ref_answer_max_share": 0.7,
+  "s1_threshold": 0.5,
+  "verdict": "RED_would_not_enter_v0"
+ },
+ "items": [
+  {
+   "qid": "Q01",
+   "level": "L2",
+   "route": "multi-role",
+   "ref_label": "A"
+  },
+  {
+   "qid": "Q02",
+   "level": "L2",
+   "route": "multi-role",
+   "ref_label": "A"
+  },
+  {
+   "qid": "Q03",
+   "level": "L2",
+   "route": "multi-role",
+   "ref_label": "A"
+  },
+  {
+   "qid": "Q04",
+   "level": "L2",
+   "route": "multi-role",
+   "ref_label": "A"
+  },
+  {
+   "qid": "Q05",
+   "level": "L2",
+   "route": "multi-role",
+   "ref_label": "C"
+  },
+  {
+   "qid": "Q06",
+   "level": "L2",
+   "route": "multi-role",
+   "ref_label": "B"
+  },
+  {
+   "qid": "Q07",
+   "level": "L2",
+   "route": "multi-role",
+   "ref_label": "A"
+  },
+  {
+   "qid": "Q08",
+   "level": "L2",
+   "route": "multi-role",
+   "ref_label": "A"
+  },
+  {
+   "qid": "Q09",
+   "level": "L2",
+   "route": "multi-role",
+   "ref_label": "A"
+  },
+  {
+   "qid": "Q10",
+   "level": "L2",
+   "route": "multi-role",
+   "ref_label": "C"
+  }
+ ]
+}

@@ -1,6 +1,33 @@
-# Pre-commit hooks — Engineering Audit Kit
-# Install: pip install pre-commit && pre-commit install
-# Run: pre-commit run --all-files
+# Pre-commit hooks — 来源 engineering-audit-kit（2026-11-01 导入，2026-11-02 启用并修正）
+#
+# 启用日期 2026-11-02。修正两处（模板原样在本仓库跑不通）：
+#   ① gitleaks 钩子缺 pass_filenames: false —— pre-commit 默认把**所有匹配文件**
+#      作为参数追加到命令末尾，`gitleaks git --pre-commit` 收到 311 个路径后报
+#      「accepts at most 1 arg(s), received 311」直接崩。gitleaks 自己按 git diff
+#      决定扫什么，不需要文件名列表 → 必须显式关掉。
+#   ② 首跑会重排 79 个 py 文件（ruff-format），已按用户决定"一次性格式化后启用"，
+#      格式化单独成一个提交，之后的提交不会再被打断。
+#
+# Install: pre-commit install
+# Run:     pre-commit run --all-files
+
+# ── 排除目录（🔴 别删这条）──────────────────────────────────────────────
+# 首跑实测：不加排除时 443 个文件被改，其中 331 个落在 snapshots/(108)
+# 与 migration-package/(223) —— 那是**历史快照与交付产物**，
+# 格式化它们等于篡改存档：快照的全部意义就是"某一时刻的原文"，
+# 改了就不是那个时刻了；产物被改还会在下次 build 时被覆盖（白忙 + 噪音）。
+# 同类还有 outputs/（运行产物）与 _trash/（归档），以及
+# docs/templates/audit-kit/ 与 ci-snippets/ —— 那是**从别的仓库按 commit 取的
+# 字节级副本**（quality-gate.yml 首跑就被 yaml 钩子改过），改了就与来源不一致，
+# 也无法再用哈希证明"这是原件"。素材的可信度全押在"与源逐字节相同"上。
+#
+# 🔴 还有一类：**被 sha256 冻结的资产**。audit/baseline/frozen-v1.json 用哈希
+#    锚住题库 v1 的 5 个文件（D-0057：改任何一份 = 换了一张试卷，此前所有分数作废）。
+#    首跑时 judge_baseline.py 被 ruff-format 改了 → 回归第 53 项立刻报「题库已漂移」。
+#    根因：格式化必然改内容，而冻结资产判的就是内容哈希 —— 两者天然冲突。
+#    ⚠️ 以后往 frozen-v1.json 加文件时**必须同步加进下面的正则**，
+#       否则下一次全量格式化就会静默改掉一份冻结资产（regress 会兜住，但会先红一轮）。
+exclude: ^(snapshots/|migration-package/|outputs/|_trash/|docs/templates/audit-kit/|docs/templates/ci-snippets/|audit/baseline/judge_baseline\.py$)
 
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
@@ -13,13 +40,15 @@ repos:
       - id: check-toml
       - id: check-json
       - id: check-added-large-files
+        # 500KB 门槛：本仓库确实有 >500KB 的交付清单，但它们已入库（历史提交），
+        # 本钩子只拦**新加入**的大文件，不会对存量报错。
         args: [--maxkb=500]
       - id: check-merge-conflict
       - id: detect-private-key
       - id: mixed-line-ending
         args: [--fix=lf]
 
-  # Python: ruff (lint + format)
+  # Python: ruff (lint + format)，版本与 CI 步骤锁定的 0.15.17 保持一致
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.15.17
     hooks:
@@ -27,12 +56,16 @@ repos:
         args: [--fix, --exit-non-zero-on-fix]
       - id: ruff-format
 
-  # Secret 扫描
+  # Secret 扫描：用本仓库 .gitleaks.toml（已按本项目修正 allowlist 与引号支持）
   - repo: local
     hooks:
       - id: gitleaks
         name: Gitleaks (secret scan)
-        entry: gitleaks git --pre-commit --verbose
+        entry: gitleaks git --pre-commit --verbose --redact --config .gitleaks.toml
         language: system
-        stages: [commit]
+        # stage 名用 `pre-commit` 而不是旧名 `commit`：pre-commit 4.x 对旧名告警
+        # "deprecated stage names ... will be removed in a future version" ——
+        # 现在不改，等它真移除时钩子会**静默不触发**（密钥扫描悄悄失效）。
+        stages: [pre-commit]
         always_run: true
+        pass_filenames: false   # ← 必需：否则 pre-commit 把文件列表塞进参数导致崩溃

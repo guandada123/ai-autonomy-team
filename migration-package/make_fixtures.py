@@ -46,6 +46,7 @@ CENT = Decimal("0.01")
 
 # ---------------------------------------------------------------- 金额工具
 
+
 def money(x):
     """统一两位小数。用 Decimal + ROUND_HALF_EVEN 对齐 Python round 语义。"""
     if isinstance(x, Decimal):
@@ -80,27 +81,57 @@ class DecEncoder(json.JSONEncoder):
 
 # ---------------------------------------------------------------- 数据构造
 
+
 def build():
     ledger = []  # 台账
-    bill = []    # 账单（可能含重复、口径不同）
+    bill = []  # 账单（可能含重复、口径不同）
 
-    def add(txn_id, d, amount, tax_incl, party, note, to_bill=True, bill_amount=None, bill_date=None, dup=False):
-        ledger.append({
-            "txn_id": txn_id, "date": d.isoformat(), "amount": money_str(amount),
-            "tax_included": tax_incl, "party": party, "note": note,
-        })
+    def add(
+        txn_id,
+        d,
+        amount,
+        tax_incl,
+        party,
+        note,
+        to_bill=True,
+        bill_amount=None,
+        bill_date=None,
+        dup=False,
+    ):
+        ledger.append(
+            {
+                "txn_id": txn_id,
+                "date": d.isoformat(),
+                "amount": money_str(amount),
+                "tax_included": tax_incl,
+                "party": party,
+                "note": note,
+            }
+        )
         if to_bill:
             b_amt = money(bill_amount if bill_amount is not None else amount)
             b_date = (bill_date or d).isoformat()
-            bill.append({
-                "txn_id": txn_id, "date": b_date, "amount": money_str(b_amt),
-                "tax_included": tax_incl, "party": party, "note": note,
-            })
+            bill.append(
+                {
+                    "txn_id": txn_id,
+                    "date": b_date,
+                    "amount": money_str(b_amt),
+                    "tax_included": tax_incl,
+                    "party": party,
+                    "note": note,
+                }
+            )
             if dup:
-                bill.append({
-                    "txn_id": txn_id, "date": b_date, "amount": money_str(b_amt),
-                    "tax_included": tax_incl, "party": party, "note": note + "(重复导入)",
-                })
+                bill.append(
+                    {
+                        "txn_id": txn_id,
+                        "date": b_date,
+                        "amount": money_str(b_amt),
+                        "tax_included": tax_incl,
+                        "party": party,
+                        "note": note + "(重复导入)",
+                    }
+                )
 
     # ---- 正常匹配行 ----
     d0 = date(MONTH[0], MONTH[1], 1)
@@ -110,10 +141,24 @@ def build():
         add(f"T{i:03d}", d, amt, "Y", f"渠道{(i % 4) + 1}", "正常结算")
 
     # ---- D1 舍入差：金额相差 0.01（两笔，均为 +0.01）----
-    add("T101", d0 + timedelta(days=21), Decimal("2500.00"), "Y", "渠道1", "舍入差样本①",
-        bill_amount=Decimal("2500.01"))
-    add("T102", d0 + timedelta(days=22), Decimal("3210.50"), "Y", "渠道2", "舍入差样本②",
-        bill_amount=Decimal("3210.51"))
+    add(
+        "T101",
+        d0 + timedelta(days=21),
+        Decimal("2500.00"),
+        "Y",
+        "渠道1",
+        "舍入差样本①",
+        bill_amount=Decimal("2500.01"),
+    )
+    add(
+        "T102",
+        d0 + timedelta(days=22),
+        Decimal("3210.50"),
+        "Y",
+        "渠道2",
+        "舍入差样本②",
+        bill_amount=Decimal("3210.51"),
+    )
 
     # ---- D2 重复计：账单里同一笔出现两次 ----
     add("T103", d0 + timedelta(days=23), Decimal("1200.00"), "Y", "渠道3", "重复导入样本", dup=True)
@@ -123,18 +168,41 @@ def build():
         [("T104", Decimal("2120.00"), "渠道4"), ("T105", Decimal("1060.00"), "渠道1")], start=1
     ):
         tax = money(gross * TAX_RATE / (Decimal(1) + TAX_RATE))
-        add(txn, d0 + timedelta(days=23 + idx), gross, "Y", party, f"口径差异样本{idx}",
-            bill_amount=money(gross - tax), bill_date=d0 + timedelta(days=23 + idx))
+        add(
+            txn,
+            d0 + timedelta(days=23 + idx),
+            gross,
+            "Y",
+            party,
+            f"口径差异样本{idx}",
+            bill_amount=money(gross - tax),
+            bill_date=d0 + timedelta(days=23 + idx),
+        )
         # 账单侧标记为不含税（口径不同）
         bill[-1]["tax_included"] = "N"
 
     # ---- D4 跨月归属：同一笔，台账 9/30、账单 10/1，金额一致 ----
-    add("T106", date(2026, 9, 30), Decimal("4800.00"), "Y", "渠道2", "跨月归属样本",
-        bill_amount=Decimal("4800.00"), bill_date=date(2026, 10, 1))
+    add(
+        "T106",
+        date(2026, 9, 30),
+        Decimal("4800.00"),
+        "Y",
+        "渠道2",
+        "跨月归属样本",
+        bill_amount=Decimal("4800.00"),
+        bill_date=date(2026, 10, 1),
+    )
 
     # ---- D5 真实缺失：台账有、账单无 ----
-    add("T107", d0 + timedelta(days=27), Decimal("500.00"), "Y", "渠道3", "真实缺失样本",
-        to_bill=False)
+    add(
+        "T107",
+        d0 + timedelta(days=27),
+        Decimal("500.00"),
+        "Y",
+        "渠道3",
+        "真实缺失样本",
+        to_bill=False,
+    )
 
     return ledger, bill
 
@@ -148,7 +216,9 @@ def build_truth(ledger, bill):
 
     # 去重：账单中同一 txn_id 出现多次 → 只保留首条
     dedup_removed = {k: len(v) - 1 for k, v in bill_by_id.items() if len(v) > 1}
-    dedup_amount = money(sum((dec(L[k]["amount"]) * n for k, n in dedup_removed.items()), Decimal(0)))
+    dedup_amount = money(
+        sum((dec(L[k]["amount"]) * n for k, n in dedup_removed.items()), Decimal(0))
+    )
 
     # 逐笔归因
     categories = {"舍入差": [], "重复计": [], "口径差": [], "跨月归属": [], "真实缺失": []}
@@ -218,30 +288,90 @@ def build_truth(ledger, bill):
             "categories": {k: sorted(v) for k, v in categories.items()},
         },
         "checks": [
-            {"name": "台账行数", "type": "numeric_equals", "path": "summary.ledger_rows", "expected": len(ledger)},
-            {"name": "账单原始行数", "type": "numeric_equals", "path": "summary.bill_rows", "expected": len(bill)},
-            {"name": "去重笔数", "type": "numeric_equals", "path": "summary.dedup_removed_txn_count",
-             "expected": len(dedup_removed)},
-            {"name": "去重金额", "type": "numeric_equals", "path": "summary.dedup_amount",
-             "expected": dedup_amount, "tol": 0.01},
-            {"name": "差异总条数", "type": "numeric_equals", "path": "summary.diff_count",
-             "expected": len(diff_ids)},
-            {"name": "差异清单命中（txn 无序集合，与类别命名无关）", "type": "set_equals",
-             "path": "diffs", "key": "id", "expected": diff_ids},
-            {"name": "金额差异合计（仅计应计入的类别）", "type": "numeric_equals",
-             "path": "summary.amount_diff_total", "expected": amount_diff_total, "tol": 0.01},
-            {"name": "被排除项的差额合计", "type": "numeric_equals",
-             "path": "summary.excluded_amount_total", "expected": excluded_gap, "tol": 0.01},
-            {"name": "台账总额（纯算术锚点）", "type": "numeric_equals",
-             "path": "summary.ledger_total", "expected": ledger_total, "tol": 0.01},
-            {"name": "账单总额（纯算术锚点）", "type": "numeric_equals",
-             "path": "summary.bill_total", "expected": bill_total, "tol": 0.01},
-            {"name": "总额差（纯算术锚点）", "type": "numeric_equals",
-             "path": "summary.raw_total_gap", "expected": raw_total_gap, "tol": 0.01},
-            {"name": "必须声明哪些类别被排除在金额差异之外", "type": "present",
-             "path": "summary.excluded_categories"},
+            {
+                "name": "台账行数",
+                "type": "numeric_equals",
+                "path": "summary.ledger_rows",
+                "expected": len(ledger),
+            },
+            {
+                "name": "账单原始行数",
+                "type": "numeric_equals",
+                "path": "summary.bill_rows",
+                "expected": len(bill),
+            },
+            {
+                "name": "去重笔数",
+                "type": "numeric_equals",
+                "path": "summary.dedup_removed_txn_count",
+                "expected": len(dedup_removed),
+            },
+            {
+                "name": "去重金额",
+                "type": "numeric_equals",
+                "path": "summary.dedup_amount",
+                "expected": dedup_amount,
+                "tol": 0.01,
+            },
+            {
+                "name": "差异总条数",
+                "type": "numeric_equals",
+                "path": "summary.diff_count",
+                "expected": len(diff_ids),
+            },
+            {
+                "name": "差异清单命中（txn 无序集合，与类别命名无关）",
+                "type": "set_equals",
+                "path": "diffs",
+                "key": "id",
+                "expected": diff_ids,
+            },
+            {
+                "name": "金额差异合计（仅计应计入的类别）",
+                "type": "numeric_equals",
+                "path": "summary.amount_diff_total",
+                "expected": amount_diff_total,
+                "tol": 0.01,
+            },
+            {
+                "name": "被排除项的差额合计",
+                "type": "numeric_equals",
+                "path": "summary.excluded_amount_total",
+                "expected": excluded_gap,
+                "tol": 0.01,
+            },
+            {
+                "name": "台账总额（纯算术锚点）",
+                "type": "numeric_equals",
+                "path": "summary.ledger_total",
+                "expected": ledger_total,
+                "tol": 0.01,
+            },
+            {
+                "name": "账单总额（纯算术锚点）",
+                "type": "numeric_equals",
+                "path": "summary.bill_total",
+                "expected": bill_total,
+                "tol": 0.01,
+            },
+            {
+                "name": "总额差（纯算术锚点）",
+                "type": "numeric_equals",
+                "path": "summary.raw_total_gap",
+                "expected": raw_total_gap,
+                "tol": 0.01,
+            },
+            {
+                "name": "必须声明哪些类别被排除在金额差异之外",
+                "type": "present",
+                "path": "summary.excluded_categories",
+            },
             {"name": "必须给出类别归属", "type": "present", "path": "categories"},
-            {"name": "必须给出证伪条件（不可裁决的结论一律不合格）", "type": "present", "path": "falsification"},
+            {
+                "name": "必须给出证伪条件（不可裁决的结论一律不合格）",
+                "type": "present",
+                "path": "falsification",
+            },
         ],
         # 分层判据的构造素材（不写进 legacy truth.json）
         "_layered": {
@@ -265,6 +395,7 @@ def build_truth(ledger, bill):
 
 # ---------------------------------------------------------------- 分层判据
 
+
 def emit_layered_specs(truth):
     """把单层判据拆成 arithmetic（自动裁决）与 adjudication（人类闸门）两层。
 
@@ -285,22 +416,57 @@ def emit_layered_specs(truth):
             "否则拒绝加载。"
         ),
         "checks": [
-            {"name": "台账行数", "type": "numeric_equals",
-             "path": "summary.ledger_rows", "expected": L["ledger_rows"]},
-            {"name": "账单原始行数", "type": "numeric_equals",
-             "path": "summary.bill_rows", "expected": L["bill_rows"]},
-            {"name": "去重笔数（去重规则由 TASK.md §B 声明，非价值判断）", "type": "numeric_equals",
-             "path": "summary.dedup_removed_txn_count", "expected": L["dedup_removed_txn_count"]},
-            {"name": "去重金额（多出行金额合计）", "type": "decimal_equals", "scale": 2,
-             "path": "summary.dedup_amount", "expected": L["dedup_amount"]},
-            {"name": "台账总额", "type": "decimal_equals", "scale": 2,
-             "path": "summary.ledger_total", "expected": L["ledger_total"]},
-            {"name": "账单总额", "type": "decimal_equals", "scale": 2,
-             "path": "summary.bill_total", "expected": L["bill_total"]},
-            {"name": "总额差（账单−台账）", "type": "decimal_equals", "scale": 2,
-             "path": "summary.raw_total_gap", "expected": L["raw_total_gap"]},
-            {"name": "必须声明哪些类别被排除在金额差异之外", "type": "present",
-             "path": "summary.excluded_categories"},
+            {
+                "name": "台账行数",
+                "type": "numeric_equals",
+                "path": "summary.ledger_rows",
+                "expected": L["ledger_rows"],
+            },
+            {
+                "name": "账单原始行数",
+                "type": "numeric_equals",
+                "path": "summary.bill_rows",
+                "expected": L["bill_rows"],
+            },
+            {
+                "name": "去重笔数（去重规则由 TASK.md §B 声明，非价值判断）",
+                "type": "numeric_equals",
+                "path": "summary.dedup_removed_txn_count",
+                "expected": L["dedup_removed_txn_count"],
+            },
+            {
+                "name": "去重金额（多出行金额合计）",
+                "type": "decimal_equals",
+                "scale": 2,
+                "path": "summary.dedup_amount",
+                "expected": L["dedup_amount"],
+            },
+            {
+                "name": "台账总额",
+                "type": "decimal_equals",
+                "scale": 2,
+                "path": "summary.ledger_total",
+                "expected": L["ledger_total"],
+            },
+            {
+                "name": "账单总额",
+                "type": "decimal_equals",
+                "scale": 2,
+                "path": "summary.bill_total",
+                "expected": L["bill_total"],
+            },
+            {
+                "name": "总额差（账单−台账）",
+                "type": "decimal_equals",
+                "scale": 2,
+                "path": "summary.raw_total_gap",
+                "expected": L["raw_total_gap"],
+            },
+            {
+                "name": "必须声明哪些类别被排除在金额差异之外",
+                "type": "present",
+                "path": "summary.excluded_categories",
+            },
             {"name": "必须给出类别归属", "type": "present", "path": "categories"},
             {"name": "必须给出证伪条件", "type": "present", "path": "falsification"},
         ],
@@ -319,10 +485,16 @@ def emit_layered_specs(truth):
     all_ids = L["diff_ids"]
 
     DIFF_POINTS = [
-        {"key": "cross_month", "ids": ["T106"],
-         "text": "「跨月归属」T106（同一 txn_id、金额一致、日期跨月）"},
-        {"key": "caliber", "ids": ["T104", "T105"],
-         "text": "「口径差」T104/T105（台账含税、账单不含税、差额恰为税额）"},
+        {
+            "key": "cross_month",
+            "ids": ["T106"],
+            "text": "「跨月归属」T106（同一 txn_id、金额一致、日期跨月）",
+        },
+        {
+            "key": "caliber",
+            "ids": ["T104", "T105"],
+            "text": "「口径差」T104/T105（台账含税、账单不含税、差额恰为税额）",
+        },
     ]
 
     def _diffs(decides):
@@ -338,14 +510,14 @@ def emit_layered_specs(truth):
         return [t for t in all_ids if t not in drop]
 
     DIFFSET_OPTIONS = [
-        ("7", {"cross_month": True, "caliber": True},
-         "两项都列入：跨月 T106 + 口径差 T104/T105 都算差异"),
-        ("6", {"cross_month": False, "caliber": True},
-         "只列入口径差：跨月 T106 不算差异"),
-        ("5", {"cross_month": True, "caliber": False},
-         "只列入跨月：口径差 T104/T105 不算差异"),
-        ("4", {"cross_month": False, "caliber": False},
-         "两项都不列入：跨月与口径差都不算差异"),
+        (
+            "7",
+            {"cross_month": True, "caliber": True},
+            "两项都列入：跨月 T106 + 口径差 T104/T105 都算差异",
+        ),
+        ("6", {"cross_month": False, "caliber": True}, "只列入口径差：跨月 T106 不算差异"),
+        ("5", {"cross_month": True, "caliber": False}, "只列入跨月：口径差 T104/T105 不算差异"),
+        ("4", {"cross_month": False, "caliber": False}, "两项都不列入：跨月与口径差都不算差异"),
     ]
 
     diffset_options = []
@@ -356,13 +528,16 @@ def emit_layered_specs(truth):
         if len(ids) != int(oid):
             raise SystemExit(
                 f"[ERR] DIFFSET 选项 '{oid}' 由定义式算出 {len(ids)} 条 —— 选项 id 必须等于条数。"
-                f"若夹具数据已变，请同步修正 DIFF_POINTS，不得产出说谎的 id。")
-        diffset_options.append({
-            "id": oid,
-            "label": label,
-            "decides": decides,
-            "implies": {"summary.diff_count": len(ids), "diffs": ids},
-        })
+                f"若夹具数据已变，请同步修正 DIFF_POINTS，不得产出说谎的 id。"
+            )
+        diffset_options.append(
+            {
+                "id": oid,
+                "label": label,
+                "decides": decides,
+                "implies": {"summary.diff_count": len(ids), "diffs": ids},
+            }
+        )
 
     adjudication = {
         "task_id": truth["task_id"],
@@ -391,16 +566,24 @@ def emit_layered_specs(truth):
                     "多报差异的代价是一次人工复核；少报差异的代价是它永久从账上消失、再无人回看。"
                 ),
                 "options": [
-                    {"id": "count", "label": "计入金额差异（视为应收缺口 180.00）",
-                     "implies": {
-                         "summary.amount_diff_total": money(L["amount_diff_total"] + L["caliber_gap"]),
-                         "summary.excluded_amount_total": money(Decimal("0.00")),
-                     }},
-                    {"id": "exclude", "label": "不计入（视为同一经济价值的两种口径表述）",
-                     "implies": {
-                         "summary.amount_diff_total": L["amount_diff_total"],
-                         "summary.excluded_amount_total": L["excluded_gap"],
-                     }},
+                    {
+                        "id": "count",
+                        "label": "计入金额差异（视为应收缺口 180.00）",
+                        "implies": {
+                            "summary.amount_diff_total": money(
+                                L["amount_diff_total"] + L["caliber_gap"]
+                            ),
+                            "summary.excluded_amount_total": money(Decimal("0.00")),
+                        },
+                    },
+                    {
+                        "id": "exclude",
+                        "label": "不计入（视为同一经济价值的两种口径表述）",
+                        "implies": {
+                            "summary.amount_diff_total": L["amount_diff_total"],
+                            "summary.excluded_amount_total": L["excluded_gap"],
+                        },
+                    },
                 ],
                 "status": "unresolved",
             },
@@ -452,6 +635,7 @@ def emit_layered_specs(truth):
 
 # ---------------------------------------------------------------- 输出
 
+
 def write_csv(path, rows, fieldnames):
     with open(path, "w", encoding="utf-8", newline="") as f:
         w = csv.DictWriter(f, fieldnames=fieldnames, lineterminator="\n")
@@ -462,7 +646,9 @@ def write_csv(path, rows, fieldnames):
 def main():
     ap = argparse.ArgumentParser(description="生成合成核对任务的输入、真值与分层判据")
     ap.add_argument("--out", default=".", help="输出目录")
-    ap.add_argument("--no-layered", action="store_true", help="只产出 legacy truth.json，不产出分层 spec")
+    ap.add_argument(
+        "--no-layered", action="store_true", help="只产出 legacy truth.json，不产出分层 spec"
+    )
     args = ap.parse_args()
 
     out = Path(args.out)
@@ -503,7 +689,9 @@ def main():
     print("  真值（脚本计算，非手填，全程 Decimal）：")
     print(f"    差异总条数        = {e['diff_count']}")
     print(f"    金额差异合计      = {e['amount_diff_total']}（仅计应计入的类别）")
-    print(f"    未计入金额差异     = {e['excluded_amount_total']}（类别：{e['excluded_categories']}）")
+    print(
+        f"    未计入金额差异     = {e['excluded_amount_total']}（类别：{e['excluded_categories']}）"
+    )
     print(f"    去重笔数/金额     = {e['dedup_removed_txn_count']} 笔 / {e['dedup_amount']}")
     print("    各类别：")
     for k, v in e["categories"].items():

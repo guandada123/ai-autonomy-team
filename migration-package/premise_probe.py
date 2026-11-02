@@ -19,6 +19,7 @@
 
 退出码：0 无命中 / 1 有命中 / 2 输入错误
 """
+
 import argparse
 import json
 import re
@@ -64,8 +65,7 @@ def judge(probe, card, min_chars=None):
     if rules.get("type") == "baseline_present":
         if not isinstance(val, dict):
             return True, "字段缺失或类型错"
-        miss = [k for k in rules.get("required_keys", [])
-                if val.get(k) in (None, "", [], {})]
+        miss = [k for k in rules.get("required_keys", []) if val.get(k) in (None, "", [], {})]
         if miss:
             return True, f"缺 {'/'.join(miss)}"
         return False, "含 name/baseline/method"
@@ -90,7 +90,9 @@ def run_card(card, min_chars=None, probes=None):
     for p in probes:
         hit, why = judge(p, card, min_chars=min_chars)
         if hit:
-            hits.append({"id": p["id"], "action": p["hit_action"], "severity": p["severity"], "reason": why})
+            hits.append(
+                {"id": p["id"], "action": p["hit_action"], "severity": p["severity"], "reason": why}
+            )
     return _apply_person_exemption(card, hits, probes, min_chars)
 
 
@@ -133,7 +135,7 @@ def _apply_person_exemption(card, hits, probes, min_chars):
     stripped = stripped.strip()
     lo, hi = span
     if lo <= len(stripped) <= hi and re.fullmatch(pat, stripped):
-        return []          # 豁免：唯一命中是字数，且形态是人名 → 不拦
+        return []  # 豁免：唯一命中是字数，且形态是人名 → 不拦
     return hits
 
 
@@ -171,9 +173,19 @@ def calibrate(min_chars=None, set_name="calibration"):
     rec = tp / (tp + fn) if (tp + fn) else 0.0
     f1 = 2 * prec * rec / (prec + rec) if (prec + rec) else 0.0
     acc = (tp + tn) / n if n else 0.0
-    return {"n": n, "tp": tp, "fp": fp, "tn": tn, "fn": fn,
-            "precision": prec, "recall": rec, "f1": f1, "accuracy": acc,
-            "min_chars": min_chars, "rows": rows}
+    return {
+        "n": n,
+        "tp": tp,
+        "fp": fp,
+        "tn": tn,
+        "fn": fn,
+        "precision": prec,
+        "recall": rec,
+        "f1": f1,
+        "accuracy": acc,
+        "min_chars": min_chars,
+        "rows": rows,
+    }
 
 
 def main():
@@ -182,8 +194,12 @@ def main():
     ap.add_argument("--calibrate", action="store_true", help="跑内置标注集算 P/R")
     ap.add_argument("--th", type=int, default=None, help="覆盖 min_chars 阈值做敏感性分析")
     ap.add_argument("--json", action="store_true")
-    ap.add_argument("--set", default="calibration", dest="set_name",
-                    help="标注集名（默认 calibration；heldout 为留出集，不参与调参）")
+    ap.add_argument(
+        "--set",
+        default="calibration",
+        dest="set_name",
+        help="标注集名（默认 calibration；heldout 为留出集，不参与调参）",
+    )
     args = ap.parse_args()
 
     if args.card:
@@ -206,18 +222,28 @@ def main():
     if args.calibrate:
         r = calibrate(min_chars=args.th, set_name=args.set_name)
         if args.json:
-            print(json.dumps({k: v for k, v in r.items() if k != "rows"}, ensure_ascii=False, indent=2))
+            print(
+                json.dumps(
+                    {k: v for k, v in r.items() if k != "rows"}, ensure_ascii=False, indent=2
+                )
+            )
         else:
-            print(f"[calibrate] 集={args.set_name} n={r['n']}  "
-                  f"min_chars={r['min_chars'] or '按探针默认'}")
+            print(
+                f"[calibrate] 集={args.set_name} n={r['n']}  "
+                f"min_chars={r['min_chars'] or '按探针默认'}"
+            )
             print(f"  TP={r['tp']} FP={r['fp']} TN={r['tn']} FN={r['fn']}")
-            print(f"  precision={r['precision']:.2f} recall={r['recall']:.2f} "
-                  f"f1={r['f1']:.2f} accuracy={r['accuracy']:.2f}")
+            print(
+                f"  precision={r['precision']:.2f} recall={r['recall']:.2f} "
+                f"f1={r['f1']:.2f} accuracy={r['accuracy']:.2f}"
+            )
             bad = [x for x in r["rows"] if x[1] != x[2]]
             if bad:
                 print("  判错的样例：")
                 for cid, truth, pred, ids, note in bad:
-                    print(f"    {cid}: 应为{'报警' if truth else '放过'}，实际{'报警' if pred else '放过'} {ids} — {note[:40]}")
+                    print(
+                        f"    {cid}: 应为{'报警' if truth else '放过'}，实际{'报警' if pred else '放过'} {ids} — {note[:40]}"
+                    )
         return 0
 
     ap.print_help()

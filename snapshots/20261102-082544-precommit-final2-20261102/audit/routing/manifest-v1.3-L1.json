@@ -1,0 +1,186 @@
+{
+ "_note": "路由标注产物（主理人 2026-10-30 生成）。来源 truth-v1.3.json（25 题全为事实核查，含可重算锚点），预期路由=单席核查。此文件只做路由判据 v0 的区分度验证样本，不改任何判分资产。",
+ "source": "audit/baseline/v1.3/truth-v1.3.json",
+ "generated_at": "2026-10-30",
+ "expected_route": "single",
+ "n": 25,
+ "n_machine": 19,
+ "n_attested": 6,
+ "items": [
+  {
+   "qid": "T02",
+   "level": "L1",
+   "route": "single",
+   "verification": "machine",
+   "recompute_kind": "bundle_count"
+  },
+  {
+   "qid": "T03",
+   "level": "L1",
+   "route": "single",
+   "verification": "machine",
+   "recompute_kind": "tar_bytes_mb"
+  },
+  {
+   "qid": "T04",
+   "level": "L1",
+   "route": "single",
+   "verification": "machine",
+   "recompute_kind": "git_ls_count"
+  },
+  {
+   "qid": "T05",
+   "level": "L1",
+   "route": "single",
+   "verification": "machine",
+   "recompute_kind": "regress_items_at_commit"
+  },
+  {
+   "qid": "T06",
+   "level": "L1",
+   "route": "single",
+   "verification": "attested",
+   "recompute_kind": "attested"
+  },
+  {
+   "qid": "T07",
+   "level": "L1",
+   "route": "single",
+   "verification": "machine",
+   "recompute_kind": "json_calibration"
+  },
+  {
+   "qid": "T08",
+   "level": "L1",
+   "route": "single",
+   "verification": "machine",
+   "recompute_kind": "arithmetic"
+  },
+  {
+   "qid": "T09",
+   "level": "L1",
+   "route": "single",
+   "verification": "machine",
+   "recompute_kind": "arithmetic"
+  },
+  {
+   "qid": "Q14",
+   "level": "L1",
+   "route": "single",
+   "verification": "machine",
+   "recompute_kind": "git_ls_count"
+  },
+  {
+   "qid": "Q15",
+   "level": "L1",
+   "route": "single",
+   "verification": "machine",
+   "recompute_kind": "git_dir_count"
+  },
+  {
+   "qid": "Q11",
+   "level": "L1",
+   "route": "single",
+   "verification": "machine",
+   "recompute_kind": "git_last_dec"
+  },
+  {
+   "qid": "Q12",
+   "level": "L1",
+   "route": "single",
+   "verification": "machine",
+   "recompute_kind": "git_ls_count"
+  },
+  {
+   "qid": "Q13",
+   "level": "L1",
+   "route": "single",
+   "verification": "machine",
+   "recompute_kind": "git_dir_count"
+  },
+  {
+   "qid": "Q16",
+   "level": "L1",
+   "route": "single",
+   "verification": "machine",
+   "recompute_kind": "git_ls_count"
+  },
+  {
+   "qid": "Q17",
+   "level": "L1",
+   "route": "single",
+   "verification": "machine",
+   "recompute_kind": "git_ls_count"
+  },
+  {
+   "qid": "Q18",
+   "level": "L1",
+   "route": "single",
+   "verification": "machine",
+   "recompute_kind": "git_ls_count"
+  },
+  {
+   "qid": "Q19",
+   "level": "L1",
+   "route": "single",
+   "verification": "machine",
+   "recompute_kind": "git_md_count"
+  },
+  {
+   "qid": "Q20",
+   "level": "L1",
+   "route": "single",
+   "verification": "machine",
+   "recompute_kind": "git_first_date"
+  },
+  {
+   "qid": "Q22",
+   "level": "L1",
+   "route": "single",
+   "verification": "attested",
+   "recompute_kind": "attested"
+  },
+  {
+   "qid": "Q23",
+   "level": "L1",
+   "route": "single",
+   "verification": "attested",
+   "recompute_kind": "attested"
+  },
+  {
+   "qid": "Q25",
+   "level": "L1",
+   "route": "single",
+   "verification": "machine",
+   "recompute_kind": "doc_line_num"
+  },
+  {
+   "qid": "Q26",
+   "level": "L1",
+   "route": "single",
+   "verification": "machine",
+   "recompute_kind": "doc_line_num"
+  },
+  {
+   "qid": "Q28",
+   "level": "L1",
+   "route": "single",
+   "verification": "attested",
+   "recompute_kind": "attested"
+  },
+  {
+   "qid": "Q29",
+   "level": "L1",
+   "route": "single",
+   "verification": "attested",
+   "recompute_kind": "attested"
+  },
+  {
+   "qid": "Q30",
+   "level": "L1",
+   "route": "single",
+   "verification": "attested",
+   "recompute_kind": "attested"
+  }
+ ]
+}

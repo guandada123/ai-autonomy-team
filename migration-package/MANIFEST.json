@@ -1,10 +1,10 @@
 {
-  "generated_at": "2026-11-02T08:12:41+08:00",
+  "generated_at": "2026-11-02T08:27:21+08:00",
   "root": "migration-package/",
   "note": "sha256 用于跨机完整性校验。newline=MIXED 的文本文件会导致证据链跨平台断裂，须修正。",
   "stats": {
     "file_count": 1122,
-    "total_bytes": 8045245,
+    "total_bytes": 8060623,
     "mixed_newline_files": []
   },
   "files": [
@@ -1480,8 +1480,8 @@
     },
     {
       "path": "fsutil.py",
-      "size": 2059,
-      "sha256": "6c61df8a9a52b2af42d1eebac6eecff9428a1222e173f195107e3e655ede070e",
+      "size": 2060,
+      "sha256": "b1c478a7cd0e8d6993d2c8d79464d8c99d184af9dbb05208fbddb4f881d6a52f",
       "newline": "LF"
     },
     {
@@ -1492,8 +1492,8 @@
     },
     {
       "path": "inspect_agent_routing.py",
-      "size": 7769,
-      "sha256": "23df35834b0e5aa663209957ad9753fafc06075e0bc3e04aa2020c082c5724b6",
+      "size": 7765,
+      "sha256": "9cdb3f80c79b7b9bb7c8ab935c1df7ef1487bf894d04fbb1d5c2e493b3e6a557",
       "newline": "LF"
     },
     {
@@ -1516,32 +1516,32 @@
     },
     {
       "path": "judges/seat_check.py",
-      "size": 114349,
-      "sha256": "699c55be6b982fbf2cd90cf6e2e2ee4ad3e36308fd4e34b1e21a2260b68b3c09",
+      "size": 120754,
+      "sha256": "aec9f0714c7382b29fb780a6c2a9a2432dcdaeed99b07c50c052eaf2b35fbd3d",
       "newline": "LF"
     },
     {
       "path": "judges/verify.py",
-      "size": 53577,
-      "sha256": "9d68533d0da55e672cf15ddd476a5e8a2b5d1113a53c8d1fbe1d515ed01ae519",
+      "size": 56818,
+      "sha256": "97de6a47497913c936e233d609348eb43112d2183ab4d538b37a6a88dc436d0e",
       "newline": "LF"
     },
     {
       "path": "make_fixtures.py",
-      "size": 25552,
-      "sha256": "1f7329d2cc180b6e9bfe982b65b9f519bfb31c513444f5207359faaae4cdff2e",
+      "size": 28295,
+      "sha256": "f8cfdd06e19a55093342adc664eb0a2123a7ff19bc2945ee5046e02d3ffc6a3a",
       "newline": "LF"
     },
     {
       "path": "metrics.py",
-      "size": 33219,
-      "sha256": "7d0359a2c29df525ed8f7aabb0642cc7b6b04abcc8a0b6a6cdc65b86404324eb",
+      "size": 34339,
+      "sha256": "b45e856050c82fe01d73a3aadda3d6fdfddff989c73d2fc4f2433099456632d0",
       "newline": "LF"
     },
     {
       "path": "new_round.py",
-      "size": 60787,
-      "sha256": "e8120b02b39b81064263dc8915b1afdf92eefb8f72bffedf16554dcac7891b1f",
+      "size": 62119,
+      "sha256": "c61dcb8fe4525326a1893b9fa111788b240bc859008f44ec1d1e6c5879e9442c",
       "newline": "LF"
     },
     {
@@ -1552,44 +1552,44 @@
     },
     {
       "path": "premise_probe.py",
-      "size": 9686,
-      "sha256": "80b7312d4ebb3049afe46ee757cdefc907a620a060b2c3b159a2447a796e19f7",
+      "size": 9953,
+      "sha256": "d19055acf9617cb5143fe3b0c66ee17949e0d87fd8fded519a03d6b64ca738cb",
       "newline": "LF"
     },
     {
       "path": "prompts/ad-01.md",
-      "size": 7682,
-      "sha256": "fc99245630141ac9059720c055b9f90e044513085210cd855185c51a73b86a29",
+      "size": 7681,
+      "sha256": "cc47fecbf706391b1a8f88f057c13f72e6570a41087a85cd24c89a8c310a7bc7",
       "newline": "LF"
     },
     {
       "path": "prompts/ex-01.md",
-      "size": 4781,
-      "sha256": "72e8500cfa6fcedd8d6857059b1cc618c9308c803c1ae2779805168e93b33325",
+      "size": 4780,
+      "sha256": "8e6a3dbdd9531dff01f89831d199743711a2a980351729c6dc848c80645bb146",
       "newline": "LF"
     },
     {
       "path": "prompts/ex-02.md",
-      "size": 3940,
-      "sha256": "cc2f339c650f37c91b81c9bd33c3991400c900248b2c708ba71ee1268d41fb01",
+      "size": 3939,
+      "sha256": "5f8c84750adf6152edb6c1ceceabb24d709b008317dd8d203b2c0a974cfbb428",
       "newline": "LF"
     },
     {
       "path": "prompts/ex-03.md",
-      "size": 3866,
-      "sha256": "2acb5e45f96732f23484bc7ce16bac0981143c0aac326455eac46a557375d013",
+      "size": 3865,
+      "sha256": "b4154002519ca7a8fdbfc1ca838fdbf62b4d0c4ffde8ca4aebe8d785ee362159",
       "newline": "LF"
     },
     {
       "path": "prompts/pm-01.md",
-      "size": 5531,
-      "sha256": "ec1a48edfe53e44277c17ea3c881669c4d5757bd64dc204319cea880a4fd8803",
+      "size": 5530,
+      "sha256": "09a60419dfa3848a7652f5afd42239cf500073fbbf8e920b179769ff1f3c8940",
       "newline": "LF"
     },
     {
       "path": "prompts/xj-01.md",
-      "size": 3791,
-      "sha256": "3607ee1859b558c763e36f4b57332d8de467c96d869582746822255215c29a85",
+      "size": 3790,
+      "sha256": "8a27baa6d547f469adedb9c4f0000fee5c9aa00c20b7f6194aac0d0ea57a907f",
       "newline": "LF"
     },
     {
@@ -1624,8 +1624,8 @@
     },
     {
       "path": "protocol/06-写入域与判据分层.md",
-      "size": 16383,
-      "sha256": "202c87a2ff999f4c52612dd4a6d6a2a7a15378be0f5fe1ad48de9684f0b5de90",
+      "size": 16382,
+      "sha256": "487bd1e438eae0135b57cc831db911a6e147818832e15b6d08632dd096600c62",
       "newline": "LF"
     },
     {
@@ -6736,8 +6736,8 @@
     },
     {
       "path": "veto_sweep.py",
-      "size": 8816,
-      "sha256": "72e0f40cf7e3b4f0c46f04ccc3580b1af6a3baba153cb82d21c783b05437ee34",
+      "size": 9096,
+      "sha256": "bfeb747e6c1dce208622fc835634d88b4bf4ae2ccc9911b49a75c4ecce088893",
       "newline": "LF"
     }
   ]

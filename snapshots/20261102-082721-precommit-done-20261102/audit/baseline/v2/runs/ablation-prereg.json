@@ -1,0 +1,21 @@
+{
+ "_note": "口径库增量价值消融实验·预注册（2026-11-01，跑前锁定，事后不得新增判据）",
+ "question": "给作答席口径库，能否提升其在『例外/归档类』新题上的判断准确率？",
+ "material": {
+  "items": "golden/m004-boundary-5.json（5 题，新行业，由 M-004 反向出题，非从用户裁决反推）",
+  "blind": "audit/baseline/v2/runs/boundary5-blind.json（已剥离真值，泄漏复检通过）"
+ },
+ "arms": {
+  "L（有库）": "已有数据：xjudge-A 5/5、xjudge-B 5/5（GLM-5.3-flash，读 CALIBER-LIBRARY.md）",
+  "N（无库）": "本轮新跑：只读盲版，不读任何规则文件（deepseek-v4.1-flash）"
+ },
+ "decision_rule": {
+  "N=5/5": "两臂无差异（天花板）→ 结论：库在这类题上无增量（与 22 题触顶同因）",
+  "N≤4/5": "库有增量；须逐题说明差在哪个条款（如漏 M-004 第(4)条修复权）"
+ },
+ "confounds": [
+  "两臂模型不同（GLM vs DeepSeek），故差异不能全归因于库；若 N 落后，需补一轮 GLM 无库臂才能归因",
+  "两臂版本须对齐：N-04 的 D 选项已于 2026-10-31 改写，旧 judge-1/2 的 4/5 不可作为对照"
+ ],
+ "low_sample_caveat": "5 题、单题=20pp；只作方向判断，不作显著性结论"
+}

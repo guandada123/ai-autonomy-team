@@ -113,8 +113,7 @@
 
 | 模块 | 行数 | 职责 | **明确不负责** |
 |---|---|---|---|
-| `judges/seat_check.py` | 2378 || `judges/verify.py` | 1234 || `migration-package/config/read_domains.json` / `write_domains.json` | 9 KB / 1.3 KB | 声明每个脚本能读哪些域、能写哪些域 | 不是访问控制（文本约束，不是物理屏障） |
-
+| `judges/seat_check.py` | 2870 |
 > `inspect_agent_routing.py` 的输出会写回 `params.json` 的 `seat_contract.families`，是 `new_round` 开轮闸门的**唯一数据来源**：家族未实测则拒绝开轮（除非显式 `--allow-unverified-families` 并留痕）。
 
 > ⚠️ `contract_version` **随轮次，不随工具**。`seat_check` 读的是该轮 `round-manifest.json` 里的版本，不是 `params.json` 的全局值。混用会导致老轮次被新判据误杀。
@@ -123,16 +122,13 @@
 
 | 模块 | 行数 | 职责 | **明确不负责** |
 |---|---|---|---|
-| `new_round.py` | 1194 |
-| 模块 | 行数 | 职责 | **明确不负责** |
+| `new_round.py` | 1380 || 模块 | 行数 | 职责 | **明确不负责** |
 |---|---|---|---|
-| `metrics.py` | 732 |
-### L3 验收层
+| `metrics.py` | 880 |### L3 验收层
 
 | 模块 | 行数 | 检查什么 | 何时跑 |
 |---|---|---|---|
-| `regress.py` | 1256 || B 全量回归 | 调用 `regress.py` 56 项 | 改代码后没跑测试 |
-| C 判据自检 | 判据用例自检 | 改了判据逻辑 |
+| `regress.py` | 1955 || C 判据自检 | 判据用例自检 | 改了判据逻辑 |
 | D 包完整性 | `MANIFEST.json` 与包内逐字节一致 | 改了 `scripts/` 却没 `make package-apply` |
 | E 密钥扫描 | 用 `secret_patterns.py` 扫全仓 | 硬编码了 token |
 | F 决策编号 | 引用的 `D-XXXX` 必须存在 | 文档里写了不存在的编号 |
@@ -145,24 +141,16 @@
 
 | 模块 | 行数 | 产出 |
 |---|---|---|
-| `make_fixtures.py` | 515 | 合成核对任务 #1：输入、真值、分层判据 |
-| `make_fixtures_002.py` | 352 | 合成任务 #2（独立样本，避免只在一个任务上过拟合） |
-| `make_round_fixtures.py` | 295 | 多轮/席位契约的回归夹具 |
-| `make_tasks_20.py` | 824 |
-### L5 交付层
+| `make_fixtures.py` | 703 || `make_fixtures_002.py` | 682 || `make_round_fixtures.py` | 351 || `make_tasks_20.py` | 1252 |### L5 交付层
 
 | 模块 | 行数 | 职责 |
 |---|---|---|
-| `build_package.py` | 225 |> **`migration-package/` 的定位**：它是**构建产物**，不是第二个源码树。判据：`build_package.py --check` 能把它从 `scripts/` 完全重建。
-
+| `build_package.py` | 229 |
 ### L6 运维工具
 
 | 模块 | 行数 | 职责 |
 |---|---|---|
-| `snapshot_sources.py` | 890 || `secret_patterns.py` | 91 || `redact_report.py` | 248 || `field_provenance.py` | 177 | 字段溯源：这个字段谁在写 |
-| `canon.py` | 174 | 标识与词表规范化 |
-| `sync_doc_numbers.py` | 210 |---
-
+| `snapshot_sources.py` | 1051 || `canon.py` | 177 || `sync_doc_numbers.py` | 217 |
 ## 四、目录结构
 
 ```

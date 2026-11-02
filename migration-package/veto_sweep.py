@@ -27,6 +27,7 @@
 
 退出码：0 无待裁 / 1 有待裁（窗口内）/ 2 输入或参数错误
 """
+
 import argparse
 import json
 import sys
@@ -103,7 +104,7 @@ def state(d, wh):
         return "settled", None
     dl = _parse(d.get("veto_deadline"))
     if dl is None:
-        return "unstamped", None          # 没盖戳：无法判断，必须显式暴露
+        return "unstamped", None  # 没盖戳：无法判断，必须显式暴露
     left = (dl - _now()).total_seconds() / 3600.0
     return ("open", left) if left > 0 else ("overdue", left)
 
@@ -123,8 +124,12 @@ def fmt_row(p, st, left):
 
 def main():
     ap = argparse.ArgumentParser(description="24h 否决窗口载体（保留人工否决权）")
-    ap.add_argument("paths", nargs="*", default=[str(RUNDIR)],
-                    help="verdict 文件或目录（默认 migration-package/runs）")
+    ap.add_argument(
+        "paths",
+        nargs="*",
+        default=[str(RUNDIR)],
+        help="verdict 文件或目录（默认 migration-package/runs）",
+    )
     ap.add_argument("--list", action="store_true", help="列出待裁（默认动作）")
     ap.add_argument("--stamp", action="store_true", help="给 verdict 盖上 24h 截止戳")
     ap.add_argument("--reject", action="store_true", help="行使否决权（需 --who/--reason）")
@@ -134,8 +139,16 @@ def main():
     ap.add_argument("--json", action="store_true")
     args = ap.parse_args()
 
-    acts = [a for a, on in (("--list", args.list), ("--stamp", args.stamp),
-                            ("--reject", args.reject), ("--settle", args.settle)) if on]
+    acts = [
+        a
+        for a, on in (
+            ("--list", args.list),
+            ("--stamp", args.stamp),
+            ("--reject", args.reject),
+            ("--settle", args.settle),
+        )
+        if on
+    ]
     if len(acts) > 1:
         print("[ERR] --list / --stamp / --reject / --settle 一次只能选一个", file=sys.stderr)
         return ERR
@@ -165,13 +178,18 @@ def main():
             return ERR
         st, _ = state(d, wh)
         if st == "settled":
-            print(f"[ERR] 已 settle = 已接受，不能再否决：{p.name}（要改就走新决策）", file=sys.stderr)
+            print(
+                f"[ERR] 已 settle = 已接受，不能再否决：{p.name}（要改就走新决策）", file=sys.stderr
+            )
             return ERR
         if st == "rejected":
             # 一条结论只记一次否决：第二次否决要么走新决策，要么先撤销记录——
             # 静默覆盖会把"第一次为什么否"的证据抹掉。
-            print(f"[ERR] 已否决过（{d['human_veto'].get('at')} by {d['human_veto'].get('who')}），"
-                  f"不再覆盖：{p.name}", file=sys.stderr)
+            print(
+                f"[ERR] 已否决过（{d['human_veto'].get('at')} by {d['human_veto'].get('who')}），"
+                f"不再覆盖：{p.name}",
+                file=sys.stderr,
+            )
             return ERR
         d["human_veto"] = {"who": args.who, "reason": args.reason, "at": _iso(_now())}
         write_json_atomic(p, d)
@@ -202,17 +220,27 @@ def main():
         if st == "open":
             pending += 1
     if args.json:
-        print(json.dumps({"window_hours": wh, "pending": pending, "rows": rows},
-                         ensure_ascii=False, indent=2))
+        print(
+            json.dumps(
+                {"window_hours": wh, "pending": pending, "rows": rows}, ensure_ascii=False, indent=2
+            )
+        )
     else:
         print(f"[veto] 窗口 {wh}h；共 {len(rows)} 个结论，{pending} 个仍在窗口内")
         for p, r in zip([f for f in files if load(f) is not None], rows):
-            st = {"open": None, "overdue": None, "rejected": None, "settled": None,
-                  "unstamped": None}[r["state"]]
+            st = {
+                "open": None,
+                "overdue": None,
+                "rejected": None,
+                "settled": None,
+                "unstamped": None,
+            }[r["state"]]
             print(fmt_row(p, r["state"], r["hours_left"]))
         if pending:
-            print("  → 跑 `--reject <file> --who 你 --reason …` 行使否决权；"
-                  "`--settle <file>` 记为接受")
+            print(
+                "  → 跑 `--reject <file> --who 你 --reason …` 行使否决权；"
+                "`--settle <file>` 记为接受"
+            )
     return PENDING if pending else OK
 
 

@@ -3,9 +3,9 @@
  "_generated_by": "scripts/snapshot_sources.py --catalog",
  "count": {
   "in_git": 3,
-  "archived": 311,
+  "archived": 316,
   "missing": 0,
-  "total": 314
+  "total": 319
  },
  "snapshots": [
   {
@@ -2498,26 +2498,66 @@
   },
   {
    "name": "20261101-223141-ledger-audit-20261101",
-   "location": "snapshots",
-   "in_git": true,
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
    "label": "ledger-audit-20261101",
    "created_at": "2026-11-01T22:31:42",
    "file_count": 481
   },
   {
    "name": "20261102-081155-materials-activated-20261102",
-   "location": "snapshots",
-   "in_git": true,
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
    "label": "materials-activated-20261102",
    "created_at": "2026-11-02T08:11:55",
    "file_count": 481
   },
   {
    "name": "20261102-081241-materials-act2-20261102",
-   "location": "snapshots",
-   "in_git": true,
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
    "label": "materials-act2-20261102",
    "created_at": "2026-11-02T08:12:41",
+   "file_count": 481
+  },
+  {
+   "name": "20261102-082223-precommit-on-20261102",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "precommit-on-20261102",
+   "created_at": "2026-11-02T08:22:23",
+   "file_count": 481
+  },
+  {
+   "name": "20261102-082513-precommit-final-20261102",
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
+   "label": "precommit-final-20261102",
+   "created_at": "2026-11-02T08:25:13",
+   "file_count": 481
+  },
+  {
+   "name": "20261102-082544-precommit-final2-20261102",
+   "location": "snapshots",
+   "in_git": true,
+   "label": "precommit-final2-20261102",
+   "created_at": "2026-11-02T08:25:44",
+   "file_count": 481
+  },
+  {
+   "name": "20261102-082640-precommit-live-20261102",
+   "location": "snapshots",
+   "in_git": true,
+   "label": "precommit-live-20261102",
+   "created_at": "2026-11-02T08:26:40",
+   "file_count": 481
+  },
+  {
+   "name": "20261102-082721-precommit-done-20261102",
+   "location": "snapshots",
+   "in_git": true,
+   "label": "precommit-done-20261102",
+   "created_at": "2026-11-02T08:27:21",
    "file_count": 481
   }
  ]

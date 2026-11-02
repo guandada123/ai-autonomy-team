@@ -41,8 +41,16 @@ from fsutil import write_json_atomic
 sys.path.insert(0, str(Path(__file__).resolve().parent / "judges"))
 
 from seat_check import (  # noqa: E402
-    build_axis_registry, derive_stance, load_json, sha256_of, lint_params, now_iso, normalize_pointer, _pkg_root,
-    evaluate_budget, POINTER_ID_DEFINITION,
+    build_axis_registry,
+    derive_stance,
+    load_json,
+    sha256_of,
+    lint_params,
+    now_iso,
+    normalize_pointer,
+    _pkg_root,
+    evaluate_budget,
+    POINTER_ID_DEFINITION,
 )
 
 TZ_CN = timezone(timedelta(hours=8))
@@ -55,16 +63,26 @@ EXIT_TERMINATE = 4
 EXIT_BLOCKED = 5
 
 # 严重度序：数值越大越优先上报
-SEVERITY = {"blocked_by_contract": 5, "restart_round": 4,
-            "force_devils_advocate_round": 3, "terminate_branch": 2, "none": 0}
-ACTION_EXIT = {"none": EXIT_NONE, "restart_round": EXIT_RESTART,
-               "force_devils_advocate_round": EXIT_DEVILS, "terminate_branch": EXIT_TERMINATE}
+SEVERITY = {
+    "blocked_by_contract": 5,
+    "restart_round": 4,
+    "force_devils_advocate_round": 3,
+    "terminate_branch": 2,
+    "none": 0,
+}
+ACTION_EXIT = {
+    "none": EXIT_NONE,
+    "restart_round": EXIT_RESTART,
+    "force_devils_advocate_round": EXIT_DEVILS,
+    "terminate_branch": EXIT_TERMINATE,
+}
 
 DEBATING_SEATS = ("EX-01", "EX-02", "EX-03")
 NON_COMPARABLE = ("abstain", "out_of_space")
 
 
 # ---------------------------------------------------------------- 熵
+
 
 def shannon_entropy(counts):
     n = sum(counts.values())
@@ -123,6 +141,7 @@ def dissent_entropy(stances, registry):
 
 # ---------------------------------------------------------------- 翻边率
 
+
 def flip_rate(cur_stances, prev_stances, registry):
     by_seat, by_axis = {}, {}
     numerator, denominator = 0, 0
@@ -146,8 +165,11 @@ def flip_rate(cur_stances, prev_stances, registry):
         denominator += seat_pairs
         numerator += seat_flips
         if seat_pairs:
-            by_seat[seat] = {"pairs": seat_pairs, "flips": seat_flips,
-                             "rate": round(seat_flips / seat_pairs, 6)}
+            by_seat[seat] = {
+                "pairs": seat_pairs,
+                "flips": seat_flips,
+                "rate": round(seat_flips / seat_pairs, 6),
+            }
 
     value = None if denominator == 0 else round(numerator / denominator, 6)
     return {
@@ -159,13 +181,16 @@ def flip_rate(cur_stances, prev_stances, registry):
         "by_seat": by_seat,
         "by_axis": by_axis,
         "flips": flips,
-        "note": ("D=0 → value=null（未定义，绝不当 0）"
-                 if denominator == 0 else
-                 ("D<2 → low_confidence，不按阈值硬判重启" if denominator < 2 else "")),
+        "note": (
+            "D=0 → value=null（未定义，绝不当 0）"
+            if denominator == 0
+            else ("D<2 → low_confidence，不按阈值硬判重启" if denominator < 2 else "")
+        ),
     }
 
 
 # ---------------------------------------------------------------- 证据指针
+
 
 def collect_pointers(round_dir):
     """从 seat-check.json 读取本轮全部证据指针 id 集合。"""
@@ -213,25 +238,30 @@ def evidence_delta(round_dir, prev_dir, role, min_streak):
     new_files = sorted(cur_f - prev_f)
 
     new = sorted(cur - prev_ids)
-    idle = (len(new) == 0)
+    idle = len(new) == 0
     streak = (1 + (1 if prev_idle else 0)) if idle else 0
 
-    applies = (role == "evidence_round")
+    applies = role == "evidence_round"
     detected = applies and streak >= min_streak
 
     notes = []
     if not applies:
-        notes.append(f"round_role={role} → idle_detection 不适用"
-                     "（该轮按定义不引入新证据，套用会自证终止）")
-    notes.append("本轮新指针数基于 seat-check.json 的 derived.evidence_pointers；"
-                 "历史基线来自各轮 evidence-pointers 集合（含上一轮）")
+        notes.append(
+            f"round_role={role} → idle_detection 不适用（该轮按定义不引入新证据，套用会自证终止）"
+        )
+    notes.append(
+        "本轮新指针数基于 seat-check.json 的 derived.evidence_pointers；"
+        "历史基线来自各轮 evidence-pointers 集合（含上一轮）"
+    )
     if new and not new_files:
         # ★ 诚实提示（F17 残余边界）：pointer_id 只消掉路径写法噪声。
         #   同一观测换个选择子写法（#T104 → :26）仍会被算作「新证据」。
         #   本条不给动作，只把可疑形态说出来，避免「有新指针 = 有新观测」这个错觉。
-        notes.append(f"★ 本轮 {len(new)} 条「新证据」全部来自【已有文件】（无新文件）—— "
-                     "可能是同一观测换了选择子写法。pointer_id 只能消掉路径写法噪声，"
-                     "无法区分「新观测」与「旧观测换写法」。")
+        notes.append(
+            f"★ 本轮 {len(new)} 条「新证据」全部来自【已有文件】（无新文件）—— "
+            "可能是同一观测换了选择子写法。pointer_id 只能消掉路径写法噪声，"
+            "无法区分「新观测」与「旧观测换写法」。"
+        )
 
     return {
         "input_pointer_count": len(cur),
@@ -250,6 +280,7 @@ def evidence_delta(round_dir, prev_dir, role, min_streak):
 
 
 # ---------------------------------------------------------------- 主流程
+
 
 def compute(round_dir, prev_dir, params, adj_spec):
     round_dir = Path(round_dir)
@@ -304,8 +335,14 @@ def compute(round_dir, prev_dir, params, adj_spec):
     #   原实现只有「有 value / 无 value」两条路，且无 value 时 note 恒为
     #   「无上一轮可比对」——于是「未传 --prev」与「传了但基线 0 合规」在产出里
     #   完全不可区分，读者会把「算不出来」误读成「本轮没有翻边」。
-    baseline = {"round": None, "status": "not_provided", "reason": "",
-                "contract_version": None, "round_role": None, "compliant_seats": []}
+    baseline = {
+        "round": None,
+        "status": "not_provided",
+        "reason": "",
+        "contract_version": None,
+        "round_role": None,
+        "compliant_seats": [],
+    }
     if prev_dir:
         pdir = Path(prev_dir)
         pman = load_json(pdir / "round-manifest.json") or {}
@@ -315,8 +352,9 @@ def compute(round_dir, prev_dir, params, adj_spec):
         psc = load_json(pdir / "seat-check.json")
         if psc is None:
             baseline["status"] = "baseline_missing"
-            baseline["reason"] = (f"给了 --prev {pdir.as_posix()}，但该目录内无 "
-                                  "seat-check.json，取不到基线立场")
+            baseline["reason"] = (
+                f"给了 --prev {pdir.as_posix()}，但该目录内无 seat-check.json，取不到基线立场"
+            )
         else:
             pvalid = set(psc.get("aggregation_admissible") or [])
             for r in psc.get("results", []):
@@ -330,15 +368,22 @@ def compute(round_dir, prev_dir, params, adj_spec):
                     f"（0/{len(psc.get('results', []))} 席位合规）→ 无立场可比对，D=0。"
                     "★ 这不是「本轮没有翻边」，而是【契约前向兼容缺口】："
                     "该轮产出早于席位契约，数字在 answer.summary 下、顶层无 summary.*，"
-                    "故立场一律反推为 abstain。")
+                    "故立场一律反推为 abstain。"
+                )
             else:
                 baseline["status"] = "ok"
-                baseline["reason"] = (f"基线轮 {pdir.name} 提供 {len(prev_stances)} 个合规席位"
-                                      f"（契约 v{baseline['contract_version']}）")
+                baseline["reason"] = (
+                    f"基线轮 {pdir.name} 提供 {len(prev_stances)} 个合规席位"
+                    f"（契约 v{baseline['contract_version']}）"
+                )
         fr = flip_rate(cur_stances, prev_stances, registry)
 
-    ev = evidence_delta(round_dir, prev_dir, role,
-                        params["anti_sycophancy"]["idle_detection"]["consecutive_rounds_without_new_evidence"])
+    ev = evidence_delta(
+        round_dir,
+        prev_dir,
+        role,
+        params["anti_sycophancy"]["idle_detection"]["consecutive_rounds_without_new_evidence"],
+    )
 
     # 动作裁决
     actions, notes = [], []
@@ -350,12 +395,16 @@ def compute(round_dir, prev_dir, params, adj_spec):
         fr["alert"] = fr["value"] > thr
         if fr["alert"]:
             if fr["low_confidence"]:
-                notes.append(f"翻边率 {fr['value']} > {thr} 但 D={fr['denominator']} < 2，"
-                             "标 low_confidence，不据此硬判重启")
+                notes.append(
+                    f"翻边率 {fr['value']} > {thr} 但 D={fr['denominator']} < 2，"
+                    "标 low_confidence，不据此硬判重启"
+                )
             else:
                 actions.append(params["anti_sycophancy"]["flip_rate_action"])
-                notes.append(f"翻边率 {fr['value']} > 阈值 {thr} → {params['anti_sycophancy']['flip_rate_action']}"
-                             f"（分子 {fr['numerator']} / 分母 {fr['denominator']}）")
+                notes.append(
+                    f"翻边率 {fr['value']} > 阈值 {thr} → {params['anti_sycophancy']['flip_rate_action']}"
+                    f"（分子 {fr['numerator']} / 分母 {fr['denominator']}）"
+                )
         else:
             notes.append(f"翻边率 {fr['value']} ≤ 阈值 {thr}，未触发重启")
         fr["status"] = "ok"
@@ -365,8 +414,9 @@ def compute(round_dir, prev_dir, params, adj_spec):
         fr["alert"] = None
         # 基线可用但无可比对的 (席位×轴) 对（例如合规席位全体弃权）→ 独立成态，
         # 不要与「基线不可用」混为一谈。
-        fr["status"] = (baseline["status"] if baseline["status"] != "ok"
-                        else "baseline_no_comparable_pair")
+        fr["status"] = (
+            baseline["status"] if baseline["status"] != "ok" else "baseline_no_comparable_pair"
+        )
         notes.append(f"flip_rate=null（未定义，不是 0）：{baseline['reason']}")
     fr["reason"] = baseline["reason"]
     fr["baseline_round"] = baseline["round"]
@@ -421,7 +471,7 @@ def compute(round_dir, prev_dir, params, adj_spec):
     independent_evidence = bool(independent_seats)
     shared_files = sorted(k for k, c in file_total.items() if c > 1)
 
-    de["below_floor"] = (rm is not None and rm < floor["value"])
+    de["below_floor"] = rm is not None and rm < floor["value"]
     devils_required = bool(
         floor.get("independent_evidence_required", False)
         and de["below_floor"]
@@ -435,8 +485,11 @@ def compute(round_dir, prev_dir, params, adj_spec):
     de["shared_file_count"] = len(shared_files)
     de["shared_files"] = shared_files
     de["pairwise_shared_files"] = {k: c for k, c in sorted(file_total.items()) if c > 1}
-    de["normalization"] = dict(norm_stats, granularity="file_level",
-                               note="独立证据判据已从「指针整串」升为「文件级」（F6）")
+    de["normalization"] = dict(
+        norm_stats,
+        granularity="file_level",
+        note="独立证据判据已从「指针整串」升为「文件级」（F6）",
+    )
     de["devils_advocate_required"] = devils_required
     if devils_required:
         actions.append(floor["action"])
@@ -444,18 +497,24 @@ def compute(round_dir, prev_dir, params, adj_spec):
             f"分歧熵 round_mean={rm} < 下限 {floor['value']}，且轴 {unanimous_axis} 全一致，"
             f"且无席位带来独立证据（无独立举证席位） → {floor['action']}"
         )
-        notes.append("★ 诚实边界：「独立证据」的操作化是「其指针不被其他席位引用」。"
-                     "脚本据此判断，无法进一步验证该指针的实质内容是否真的独立。")
+        notes.append(
+            "★ 诚实边界：「独立证据」的操作化是「其指针不被其他席位引用」。"
+            "脚本据此判断，无法进一步验证该指针的实质内容是否真的独立。"
+        )
     elif de["below_floor"]:
         if independent_evidence:
-            notes.append(f"分歧熵 round_mean={rm} < 下限，但 {independent_seats} 带来了独立证据，未触发干预")
+            notes.append(
+                f"分歧熵 round_mean={rm} < 下限，但 {independent_seats} 带来了独立证据，未触发干预"
+            )
         else:
             notes.append(f"分歧熵 round_mean={rm} < 下限，但不存在全一致轴，未触发干预")
 
     if ev["idle_detected"]:
         actions.append(params["anti_sycophancy"]["idle_detection"]["action"])
-        notes.append(f"连续 {ev['idle_streak']} 轮无新证据指针（阈值 {ev['min_streak_required']}）"
-                     f" → {params['anti_sycophancy']['idle_detection']['action']}")
+        notes.append(
+            f"连续 {ev['idle_streak']} 轮无新证据指针（阈值 {ev['min_streak_required']}）"
+            f" → {params['anti_sycophancy']['idle_detection']['action']}"
+        )
 
     # ---- F18：预算（声明式）----
     #   三态必须分清：exhausted 才是超支；unverifiable 只是「有席位没申报」。
@@ -464,14 +523,17 @@ def compute(round_dir, prev_dir, params, adj_spec):
     if budget["status"] == "exhausted":
         act = (params.get("cost_budget") or {}).get("action") or "terminate_branch"
         actions.append(act)
-        notes.append("预算耗尽（申报值）：" + "；".join(budget["exhausted_reasons"])
-                     + f" → {act}")
+        notes.append("预算耗尽（申报值）：" + "；".join(budget["exhausted_reasons"]) + f" → {act}")
     elif budget["status"] == "unverifiable":
-        notes.append(f"预算无法核验：{len(budget['missing'])} 个席位未申报 usage"
-                     f"（{budget['missing']}）—— 这是【未核验】，不等于超支")
+        notes.append(
+            f"预算无法核验：{len(budget['missing'])} 个席位未申报 usage"
+            f"（{budget['missing']}）—— 这是【未核验】，不等于超支"
+        )
     else:
-        notes.append(f"预算：tokens {budget['tokens_total']}/{budget['tokens_cap']}，"
-                     f"wall-clock {budget['minutes_span']}/{budget['minutes_cap']} 分钟，未超限")
+        notes.append(
+            f"预算：tokens {budget['tokens_total']}/{budget['tokens_cap']}，"
+            f"wall-clock {budget['minutes_span']}/{budget['minutes_cap']} 分钟，未超限"
+        )
 
     rounds_so_far = int("".join(ch for ch in round_dir.name if ch.isdigit()) or 0)
     if rounds_so_far >= params["debate"]["max_rounds"] + 1:
@@ -482,7 +544,9 @@ def compute(round_dir, prev_dir, params, adj_spec):
         actions = ["none"]
 
     primary = max(actions, key=lambda a: SEVERITY.get(a, 0))
-    exit_code = EXIT_BLOCKED if "blocked_by_contract" in actions else ACTION_EXIT.get(primary, EXIT_NONE)
+    exit_code = (
+        EXIT_BLOCKED if "blocked_by_contract" in actions else ACTION_EXIT.get(primary, EXIT_NONE)
+    )
 
     # 长度诊断
     lens = []
@@ -494,8 +558,12 @@ def compute(round_dir, prev_dir, params, adj_spec):
     if lens:
         mean = sum(lens) / len(lens)
         var = sum((x - mean) ** 2 for x in lens) / len(lens)
-        length_spread = {"min": min(lens), "max": max(lens),
-                         "stdev": round(math.sqrt(var), 1), "unit": "bytes"}
+        length_spread = {
+            "min": min(lens),
+            "max": max(lens),
+            "stdev": round(math.sqrt(var), 1),
+            "unit": "bytes",
+        }
 
     return {
         "kind": "round_metrics",
@@ -523,6 +591,7 @@ def compute(round_dir, prev_dir, params, adj_spec):
 
 
 # ---------------------------------------------------------------- main
+
 
 def main():
     ap = argparse.ArgumentParser(description="轮次指标采集器")
@@ -563,7 +632,7 @@ def main():
 
     result["axis_registry_sha256"] = sha256_of(args.spec)
     out = Path(args.out) if args.out else Path(args.round_dir) / "metrics.json"
-    write_json_atomic(out, result)          # 2026-10-23（B3）：原子写，避免截断 JSON
+    write_json_atomic(out, result)  # 2026-10-23（B3）：原子写，避免截断 JSON
 
     if args.json:
         print(json.dumps(result, ensure_ascii=False, indent=2))
@@ -573,7 +642,9 @@ def main():
     print(f"轮次指标 · {result['round']}  (role={result['round_role']})")
     print("=" * 68)
     if result["metrics_status"] != "ok":
-        print(f"  ★ {result['metrics_status']} —— 被否决席位 {result['seats_blocked']}，拒绝计算指标")
+        print(
+            f"  ★ {result['metrics_status']} —— 被否决席位 {result['seats_blocked']}，拒绝计算指标"
+        )
         print(f"  -> {out}")
         return result["exit_code"]
 
@@ -589,8 +660,10 @@ def main():
 
     print("\n【分歧熵 dissent_entropy】")
     for ax, v in sorted(de["per_axis"].items()):
-        print(f"  {ax:10s} H={v['H']}  H_norm={v['H_norm']}  K={v['K']} N={v['N']}  "
-              f"counts={v['counts']}{'  ← 全一致' if v['unanimous'] else ''}")
+        print(
+            f"  {ax:10s} H={v['H']}  H_norm={v['H_norm']}  K={v['K']} N={v['N']}  "
+            f"counts={v['counts']}{'  ← 全一致' if v['unanimous'] else ''}"
+        )
     print(f"  round_mean={de['round_mean']}  下限={de['floor']}  below_floor={de['below_floor']}")
     print(f"  魔鬼代言人轮需要={de['devils_advocate_required']}")
 
@@ -598,14 +671,18 @@ def main():
     if fr.get("value") is None:
         print(f"  值=null（未定义，不是 0）  {fr.get('note', '')}")
     else:
-        print(f"  {fr['numerator']}/{fr['denominator']} = {fr['value']}  "
-              f"阈值={fr['threshold']}  告警={fr['alert']}  低置信={fr['low_confidence']}")
+        print(
+            f"  {fr['numerator']}/{fr['denominator']} = {fr['value']}  "
+            f"阈值={fr['threshold']}  告警={fr['alert']}  低置信={fr['low_confidence']}"
+        )
         for f in fr.get("flips") or []:
             print(f"    ↻ {f['seat']} {f['axis']}: {f['from']} → {f['to']}")
 
     print("\n【空转检测 evidence】")
-    print(f"  新指针 {ev['new_count']} / 本轮共 {ev['input_pointer_count']}  空闲={ev['idle']}  "
-          f"连击={ev['idle_streak']}  适用={ev['idle_detection_applies']}  触发={ev['idle_detected']}")
+    print(
+        f"  新指针 {ev['new_count']} / 本轮共 {ev['input_pointer_count']}  空闲={ev['idle']}  "
+        f"连击={ev['idle_streak']}  适用={ev['idle_detection_applies']}  触发={ev['idle_detected']}"
+    )
 
     if result.get("length_spread"):
         print(f"\n【长度诊断】{result['length_spread']}")
@@ -619,6 +696,7 @@ def main():
 
 
 # ---------------------------------------------------------------- 自检
+
 
 def self_test():
     n_ok, fails = 0, []
@@ -637,32 +715,85 @@ def self_test():
     print("=" * 68)
 
     print("\n【Shannon 熵】")
-    expect("2 选项 3 席 1:2 → H_norm=0.918",
-           abs((shannon_entropy({"a": 1, "b": 2}) or 0) / math.log2(2) - 0.9182958) < 1e-5,
-           str(round((shannon_entropy({"a": 1, "b": 2}) or 0) / math.log2(2), 6)))
+    expect(
+        "2 选项 3 席 1:2 → H_norm=0.918",
+        abs((shannon_entropy({"a": 1, "b": 2}) or 0) / math.log2(2) - 0.9182958) < 1e-5,
+        str(round((shannon_entropy({"a": 1, "b": 2}) or 0) / math.log2(2), 6)),
+    )
     expect("全一致 → H=0", shannon_entropy({"a": 3}) == 0.0)
     expect("空计数 → None", shannon_entropy({}) is None)
 
-    spec = {"items": [
-        {"id": "ADJ-001", "options": [{"id": "count", "implies": {"summary.amount_diff_total": 680.02,
-                                                                  "summary.excluded_amount_total": 0.0}},
-                                      {"id": "exclude", "implies": {"summary.amount_diff_total": 500.02,
-                                                                    "summary.excluded_amount_total": 180.0}}]},
-        {"id": "ADJ-002", "options": [{"id": "as_diff", "implies": {"summary.diff_count": 7}},
-                                      {"id": "not_diff", "implies": {"summary.diff_count": 6}}]},
-        {"id": "ADJ-003", "options": [{"id": "as_diff", "implies": {"summary.diff_count": 7}},
-                                      {"id": "not_diff", "implies": {"summary.diff_count": 5}}]},
-    ]}
-    params = {"seat_contract": {"stance": {"primary_axes": ["ADJ-001"],
-                                           "joint_axes": {"DIFFSET": ["ADJ-002", "ADJ-003"]}}}}
+    spec = {
+        "items": [
+            {
+                "id": "ADJ-001",
+                "options": [
+                    {
+                        "id": "count",
+                        "implies": {
+                            "summary.amount_diff_total": 680.02,
+                            "summary.excluded_amount_total": 0.0,
+                        },
+                    },
+                    {
+                        "id": "exclude",
+                        "implies": {
+                            "summary.amount_diff_total": 500.02,
+                            "summary.excluded_amount_total": 180.0,
+                        },
+                    },
+                ],
+            },
+            {
+                "id": "ADJ-002",
+                "options": [
+                    {"id": "as_diff", "implies": {"summary.diff_count": 7}},
+                    {"id": "not_diff", "implies": {"summary.diff_count": 6}},
+                ],
+            },
+            {
+                "id": "ADJ-003",
+                "options": [
+                    {"id": "as_diff", "implies": {"summary.diff_count": 7}},
+                    {"id": "not_diff", "implies": {"summary.diff_count": 5}},
+                ],
+            },
+        ]
+    }
+    params = {
+        "seat_contract": {
+            "stance": {
+                "primary_axes": ["ADJ-001"],
+                "joint_axes": {"DIFFSET": ["ADJ-002", "ADJ-003"]},
+            }
+        }
+    }
     reg = build_axis_registry(spec, params)
 
     print("\n【分歧熵：全一致 → 应为 unity 探测器】")
-    uni = {"EX-01": derive_stance({"summary": {"amount_diff_total": 500.02,
-                                               "excluded_amount_total": 180.0, "diff_count": 7}}, reg),
-           "EX-02": derive_stance({"summary": {"amount_diff_total": 500.02,
-                                               "excluded_amount_total": 180.0, "diff_count": 7}}, reg),
-           "EX-03": derive_stance({}, reg)}
+    uni = {
+        "EX-01": derive_stance(
+            {
+                "summary": {
+                    "amount_diff_total": 500.02,
+                    "excluded_amount_total": 180.0,
+                    "diff_count": 7,
+                }
+            },
+            reg,
+        ),
+        "EX-02": derive_stance(
+            {
+                "summary": {
+                    "amount_diff_total": 500.02,
+                    "excluded_amount_total": 180.0,
+                    "diff_count": 7,
+                }
+            },
+            reg,
+        ),
+        "EX-03": derive_stance({}, reg),
+    }
     de = dissent_entropy(uni, reg)
     expect("ADJ-001 全一致 → H_norm=0", de["per_axis"]["ADJ-001"]["H_norm"] == 0.0)
     expect("EX-03 弃权 → N=2（不进分母）", de["per_axis"]["ADJ-001"]["N"] == 2)
@@ -671,45 +802,62 @@ def self_test():
 
     print("\n【分歧熵：1 异议 + 2 多数】")
     split = dict(uni)
-    split["EX-03"] = derive_stance({"summary": {"amount_diff_total": 680.02,
-                                                "excluded_amount_total": 0.0, "diff_count": 7}}, reg)
+    split["EX-03"] = derive_stance(
+        {"summary": {"amount_diff_total": 680.02, "excluded_amount_total": 0.0, "diff_count": 7}},
+        reg,
+    )
     de2 = dissent_entropy(split, reg)
     expect("ADJ-001 → N=3", de2["per_axis"]["ADJ-001"]["N"] == 3)
-    expect("H_norm≈0.918（2 选项轴上 1:2）",
-           abs(de2["per_axis"]["ADJ-001"]["H_norm"] - 0.9182958) < 1e-5,
-           str(de2["per_axis"]["ADJ-001"]["H_norm"]))
+    expect(
+        "H_norm≈0.918（2 选项轴上 1:2）",
+        abs(de2["per_axis"]["ADJ-001"]["H_norm"] - 0.9182958) < 1e-5,
+        str(de2["per_axis"]["ADJ-001"]["H_norm"]),
+    )
     expect("不再标记全一致", de2["per_axis"]["ADJ-001"]["unanimous"] is False)
 
     print("\n【翻边率：分母 = 可比对 (席位×轴) 对】")
-    prev = {"EX-01": {"ADJ-001": {"choice": "exclude"}, "DIFFSET": {"choice": "7"}},
-            "EX-02": {"ADJ-001": {"choice": "exclude"}, "DIFFSET": {"choice": "7"}},
-            "EX-03": {"ADJ-001": {"choice": "abstain"}, "DIFFSET": {"choice": "abstain"}}}
-    cur = {"EX-01": {"ADJ-001": {"choice": "exclude"}, "DIFFSET": {"choice": "7"}},
-           "EX-02": {"ADJ-001": {"choice": "count"}, "DIFFSET": {"choice": "7"}},
-           "EX-03": {"ADJ-001": {"choice": "abstain"}, "DIFFSET": {"choice": "5"}}}
+    prev = {
+        "EX-01": {"ADJ-001": {"choice": "exclude"}, "DIFFSET": {"choice": "7"}},
+        "EX-02": {"ADJ-001": {"choice": "exclude"}, "DIFFSET": {"choice": "7"}},
+        "EX-03": {"ADJ-001": {"choice": "abstain"}, "DIFFSET": {"choice": "abstain"}},
+    }
+    cur = {
+        "EX-01": {"ADJ-001": {"choice": "exclude"}, "DIFFSET": {"choice": "7"}},
+        "EX-02": {"ADJ-001": {"choice": "count"}, "DIFFSET": {"choice": "7"}},
+        "EX-03": {"ADJ-001": {"choice": "abstain"}, "DIFFSET": {"choice": "5"}},
+    }
     fr = flip_rate(cur, prev, reg)
-    expect("分母=4（EX-01/02 各 2 轴；EX-03 全程弃权不进分母）",
-           fr["denominator"] == 4, f"D={fr['denominator']}")
+    expect(
+        "分母=4（EX-01/02 各 2 轴；EX-03 全程弃权不进分母）",
+        fr["denominator"] == 4,
+        f"D={fr['denominator']}",
+    )
     expect("分子=1（仅 EX-02 的 ADJ-001 翻边）", fr["numerator"] == 1, f"N={fr['numerator']}")
     expect("值=0.25", fr["value"] == 0.25, str(fr["value"]))
     expect("未告警（0.25 不 > 0.40）", not (0.25 > 0.40))
 
     fr0 = flip_rate(cur, {}, reg)
-    expect("无上一轮 → D=0 → value=null（绝不当 0）",
-           fr0["denominator"] == 0 and fr0["value"] is None, str(fr0["value"]))
+    expect(
+        "无上一轮 → D=0 → value=null（绝不当 0）",
+        fr0["denominator"] == 0 and fr0["value"] is None,
+        str(fr0["value"]),
+    )
     expect("D<2 → low_confidence", fr0["low_confidence"] is True)
 
-    fr1 = flip_rate({"EX-01": {"ADJ-001": {"choice": "count"}}},
-                    {"EX-01": {"ADJ-001": {"choice": "exclude"}}}, reg)
+    fr1 = flip_rate(
+        {"EX-01": {"ADJ-001": {"choice": "count"}}},
+        {"EX-01": {"ADJ-001": {"choice": "exclude"}}},
+        reg,
+    )
     expect("D=1 → low_confidence 仍标记", fr1["low_confidence"] is True and fr1["value"] == 1.0)
 
     print("\n【空转：只对 evidence_round 生效】")
     ev_rev = {"idle": True, "idle_streak": 2, "applies": False}
-    expect("revision_round 不触发（豁免规则）",
-           not (ev_rev["applies"] and ev_rev["idle_streak"] >= 2))
+    expect(
+        "revision_round 不触发（豁免规则）", not (ev_rev["applies"] and ev_rev["idle_streak"] >= 2)
+    )
     ev_evd = {"idle": True, "idle_streak": 2, "applies": True}
-    expect("evidence_round 连击达标 → 触发",
-           ev_evd["applies"] and ev_evd["idle_streak"] >= 2)
+    expect("evidence_round 连击达标 → 触发", ev_evd["applies"] and ev_evd["idle_streak"] >= 2)
 
     print("\n【动作严重度】")
     acts = ["terminate_branch", "restart_round"]
