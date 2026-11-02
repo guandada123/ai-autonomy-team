@@ -6,10 +6,10 @@
 > **2026-11-01 修订（3 件）**：`ci-snippets/quanttrading/ci.yml`、`audit-kit/workflows/caller-example.yml`
 > 的 `quality-gate.yml@v3` 已齐到 `v8`（v4–v8 修了 pytest 假绿灯、新增 `run-pytest` 委托输入、
 > 把 bandit / npm audit 的吞错改成真闸门）；`ci-snippets/quanttrading/security-scan.yml` 的提示文案
-> 由 `@v4` 改为 `@v5`（与实际 pin 一致）。三件的 bytes 与 sha256 已在 `MATERIALS-MANIFEST.json`
+> 的提示文案与拉取 pin 已由 `@v4`/`v5` 齐到 `v8`（脚本内容与 v5 逐字节相同，仅版本号跟进）。三件的 bytes 与 sha256 已在 `MATERIALS-MANIFEST.json`
 > 按修改后重算，其余 11 件仍与源 commit 逐字节一致。**照抄 v3 会漏掉上述修复。**
 
-**当前状态：只导入，不启用。** `.github/workflows/` 未新增任何文件；未安装 pre-commit 钩子；CI 行为未改。
+**当前状态：三项已启用（2026-11-02）。** `.gitleaks.toml`、`CODEOWNERS`、`.pre-commit-config.yaml`（钩子已 `install`）全部生效；`.github/workflows/` 仍未新增文件，CI 行为未改。逐项记录见 §四。
 
 ---
 
@@ -27,9 +27,9 @@
 
 | # | 来源仓库 | commit | 源路径 | 落盘位置 | 字节 | 用途 |
 |---|---|---|---|---|---|---|
-| 1 | engineering-audit-kit | `368f4d8` | `.pre-commit-config.yaml` | `.pre-commit-config.yaml` | 1019 | 填 pre-commit 缺口：标准钩子 + ruff + 本地 gitleaks |
-| 2 | engineering-audit-kit | `368f4d8` | `.gitleaks.toml` | `.gitleaks.toml` | 840 | 填密钥扫描缺口：allowlist + 高熵 API key 规则 |
-| 3 | engineering-audit-kit | `368f4d8` | `configs/CODEOWNERS.sample` | `CODEOWNERS.sample` | 358 | 填 CODEOWNERS 缺口（保留 `.sample`，见 §四） |
+| 1 | engineering-audit-kit | `368f4d8` | `.pre-commit-config.yaml` | `.pre-commit-config.yaml` | 3878 | 填 pre-commit 缺口：标准钩子 + ruff + 本地 gitleaks（**2026-11-02 启用：扩写两处 + 加 exclude + 已 install**） |
+| 2 | engineering-audit-kit | `368f4d8` | `.gitleaks.toml` | `.gitleaks.toml` | 2472 | 填密钥扫描缺口：allowlist + 高熵 API key 规则（**2026-11-02 已启用并最小化改写 allowlist**） |
+| 3 | engineering-audit-kit | `368f4d8` | `configs/CODEOWNERS.sample` | `CODEOWNERS` | 1157 | 填 CODEOWNERS 缺口（**2026-11-02 已改名启用，占位 owner 换为真实路径**，见 §四） |
 | 4 | engineering-audit-kit | `368f4d8` | `.github/workflows/eak-ci.yml` | `docs/templates/audit-kit/workflows/eak-ci.yml` | 3746 | 参考：ruff + bandit + gitleaks 如何接 CI |
 | 5 | engineering-audit-kit | `368f4d8` | `.github/workflows/quality-gate.yml` | `docs/templates/audit-kit/workflows/quality-gate.yml` | 4274 | 参考：质量门禁工作流编排 |
 | 6 | engineering-audit-kit | `368f4d8` | `.github/workflows/caller-example.yml` | `docs/templates/audit-kit/workflows/caller-example.yml` | 1046 | 参考：`workflow_call` 可复用工作流的调用方写法 |
@@ -42,7 +42,7 @@
 | 13 | StockInsight | `1d8635c` | `.github/workflows/stockinsight-ci.yml` | `docs/templates/ci-snippets/stockinsight/stockinsight-ci.yml` | 11209 | 参考：严格 7-job 门禁编排 |
 | 14 | StockInsight | `1d8635c` | `.github/workflows/security-scan.yml` | `docs/templates/ci-snippets/stockinsight/security-scan.yml` | 5559 | 参考：真实扫描（版本 C，最精简） |
 
-机读清单：`docs/templates/MATERIALS-MANIFEST.json`（含每件完整 sha256 与 `activated:false`）。
+机读清单：`docs/templates/MATERIALS-MANIFEST.json`（含每件完整 sha256 与 `activated` 实际状态）。
 
 ## 三、缺口对照：哪些被填上、哪些仍缺
 
@@ -50,7 +50,7 @@
 |---|---|---|
 | 无 gitleaks 规则 | ✅ **2026-11-02 已启用** | 配置按本仓库修正（title / allowlist / 引号支持），实测 0 误报且能抓高熵串与 AWS 前缀；详见 §四 |
 | 无 CODEOWNERS | ✅ **2026-11-02 已启用** | 占位样例已删，改为适配本仓库真实结构的 `CODEOWNERS`，owner 全为 `@guandada123`。**当前单人 + main 未保护 → 眼下不生效**，价值在"未来加人时自动指派对的审查人" |
-| 无 pre-commit | ⏳ 待启用（需决策） | 文件就位、工具已装。**唯一卡点是 `ruff-format` 钩子**：本仓库实测会重排 **79 个 py 文件**（不是早前抄来的 280，那是 Claw 的数字），需先定"要不要一次性格式化" |
+| 无 pre-commit | ✅ **2026-11-02 已启用** | 12 个钩子全部生效（含 gitleaks）；首次全量格式化 105 个文件已单独成提交（`git blame` 可一次跳过）。详见 §四 |
 | ruff 配了但 CI 不跑 | ✅ **2026-11-01 已解决** | 独立 CI 步骤（固定 ruff 0.15.17），本地 `make lint`；接入时存量 6 处已全修 |
 | RESULT 报告格式不统一 | ⚠️ 模板已到位 | 未强制套用；需要时可把新报告按模板写 |
 | 依赖漂移（ruff/bandit 版本） | ⚠️ 参考已到位 | 本项目 `pyproject.toml` 未改，版本仍以自身为准 |
@@ -63,7 +63,7 @@
 |---|---|---|
 | **gitleaks** | ① title `Claw Monorepo Secret Scan` → 本项目；② allowlist **最小化**排除扫描器自指（`pre_push_scan.py`，密钥检测器源码必然含密钥模式）与非源码缓存（`__pycache__`/`_trash`，均未被 git 跟踪）；③ `generic-api-key` 正则补引号支持（常见写法 `KEY = "value"` 原本抓不到） | 首跑命中 5 处（当前 4 + 历史 1）**全是自指误报**，真泄露 0；改后 `gitleaks dir` / `gitleaks git`（197 commits）**均 no leaks**；正样本注入（40 位高熵串、`AKIA...`）**能抓到**，证明 0 误报不是靠关规则换来的 |
 | **CODEOWNERS** | 删除占位样例（`@team/leads`/`@alice`/`@bob` + 本仓库不存在的 `app/**`/`src/**`/`infra/**`），改写为真实结构：默认 `*` + 8 条关键路径（CI/工具链配置/闸门实现/协议决策） | `verify_materials.py` 查"生效行里的 owner"（跳过 `#` 注释），只认 `@guandada123`；反证：把占位内容真放进去 → 报红并点名三个占位账号 |
-| **pre-commit** | **未启用**（见上表） | — |
+| **pre-commit** | ① 修 `pass_filenames: false`（否则 gitleaks 收到 311 个参数直接崩）；② stage 名 `commit`→`pre-commit`（旧名将被移除，届时钩子会静默不触发）；③ 加 `exclude` 排除五类不可改资产（快照/产物/运行输出/归档/素材副本）+ 1 个 sha256 冻结文件；④ 一次性全量格式化 105 文件（单独提交）；⑤ `pre-commit install` | `pre-commit run --all-files` 12 钩子全 Passed 且幂等；格式化后 `make lint` 全过、`selftest 8/8`、回归 56 项含第 53 项「题库 v1 未漂移」通过 |
 
 ### 🔴 启用 CODEOWNERS 前必须知道的一件事
 

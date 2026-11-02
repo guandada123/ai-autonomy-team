@@ -1,5 +1,5 @@
 {
- "_note": "外部素材导入清单（2026-11-01）。全部按 commit 取字节，sha256 与源一致；activated=false 表示未启用。｜2026-11-01 追加：ci-snippets/quanttrading/ci.yml、audit-kit/workflows/caller-example.yml、ci-snippets/quanttrading/security-scan.yml 三件在导入后被有意修改（版本 pin 齐版/文案修正），bytes 与 sha256 已按修改后重算，见各条目 post_import_edit。",
+ "_note": "外部素材导入清单（2026-11-01）。全部按 commit 取字节，sha256 与源一致；activated 反映截至 2026-11-02 的实际启用状态（.gitleaks.toml / CODEOWNERS 已启用，pre-commit 配置就位但钩子未装）。｜2026-11-01 追加：ci-snippets/quanttrading/ci.yml、audit-kit/workflows/caller-example.yml、ci-snippets/quanttrading/security-scan.yml 三件在导入后被有意修改（版本 pin 齐版/文案修正），bytes 与 sha256 已按修改后重算，见各条目 post_import_edit。",
  "generated_by": "主理人手工编排（用户指定 EAK + Claw/QTS/StockInsight 的 CI 片段）",
  "policy": "2026-11-01 只导入不启用 → 2026-11-02 用户要求启用三项（pre-commit / CODEOWNERS / gitleaks）。启用后仍由 verify_materials.py 复核：未启用项查导入快照哈希，已启用项查 activated_sha256，并检查 CODEOWNERS 不含占位 owner。",
  "items": [
@@ -8,35 +8,40 @@
    "source_commit": "368f4d8",
    "source_path": ".pre-commit-config.yaml",
    "target_path": ".pre-commit-config.yaml",
-   "bytes": 1019,
-   "sha256": "64a77207a947f29a9f3948ef75e2d7a9533574707eb9116920d06491bd10292b",
+   "bytes": 3878,
+   "sha256": "ce00c8b31a0f988f702a549531a6f1e79c5ca30c230cf07beffb5101a4e446ab",
    "purpose": "填缺口：本项目无 pre-commit。标准钩子+ruff+本地 gitleaks（未启用，需 pre-commit install）",
-   "activated": false
+   "activated": true,
+   "activated_sha256": "9c68b5a8f8a4ecb863676d91a3bbe699f5a8b9bc93431787cdadbba7cbced482",
+   "activated_note": "2026-11-02 启用（一次性全量格式化后）。模板原样在本仓库跑不通两处：① gitleaks 钩子缺 pass_filenames:false，pre-commit 把 311 个文件名塞进参数→『accepts at most 1 arg(s), received 311』直接崩；② 未排除存档目录，首跑改了 443 个文件（其中 331 个在 snapshots/ 与 migration-package/，属篡改历史快照与产物）+ docs/templates/ 下的外部素材副本（改了就无法再用哈希证明是原件）。已加 exclude 排除五类：快照/产物/运行输出/归档/素材副本。格式化 110 个文件单独成提交，便于 git blame 时一次跳过。",
+   "post_import_edit": "2026-11-02 启用时扩写（gitleaks 已启用；pre-commit 配置就位但钩子未安装）"
   },
   {
    "source_repo": "https://github.com/guandada123/engineering-audit-kit.git",
    "source_commit": "368f4d8",
    "source_path": ".gitleaks.toml",
    "target_path": ".gitleaks.toml",
-   "bytes": 840,
-   "sha256": "11d875b2b4ac74242e762aab5ce22c9c72c024f3eaaa5dabc7cc1e51a7fd532d",
+   "bytes": 2472,
+   "sha256": "d4a22df183b0bb87ecb17ad7c35d03663414b6dcb82f1528d8b42db424b30890",
    "purpose": "填缺口：本项目无 gitleaks 规则；已有自定义 E 密钥闸，此为补充规则集（未启用）",
    "activated": true,
    "activated_sha256": "d4a22df183b0bb87ecb17ad7c35d03663414b6dcb82f1528d8b42db424b30890",
-   "activated_note": "2026-11-02 启用：title 改为本项目；allowlist 最小化排除扫描器自指(pre_push_scan.py)与非源码缓存(__pycache__/_trash)；generic-api-key 正则补引号支持(常见 KEY = \"value\" 写法)。启发：首跑 4 处误报全是扫描器扫到自己的模式串，真泄露 0。"
+   "activated_note": "2026-11-02 启用：title 改为本项目；allowlist 最小化排除扫描器自指(pre_push_scan.py)与非源码缓存(__pycache__/_trash)；generic-api-key 正则补引号支持(常见 KEY = \"value\" 写法)。启发：首跑 4 处误报全是扫描器扫到自己的模式串，真泄露 0。",
+   "post_import_edit": "2026-11-02 启用时扩写（gitleaks 已启用；pre-commit 配置就位但钩子未安装）"
   },
   {
    "source_repo": "https://github.com/guandada123/engineering-audit-kit.git",
    "source_commit": "368f4d8",
    "source_path": "configs/CODEOWNERS.sample",
-   "target_path": "CODEOWNERS.sample",
-   "bytes": 358,
-   "sha256": "de302efc11637d0e1a639258603fca56615ebf4b7011c8c5996707ce211eecf1",
+   "target_path": "CODEOWNERS",
+   "bytes": 2194,
+   "sha256": "1c272484c299af243c89b6b3cf9d97bdb89ae2aafe99d5a705f879dac5b30658",
    "purpose": "填缺口：本项目无 CODEOWNERS；保留 .sample 后缀避免占位团队生效",
    "activated": true,
    "activated_path": "CODEOWNERS",
    "activated_sha256": "1c272484c299af243c89b6b3cf9d97bdb89ae2aafe99d5a705f879dac5b30658",
-   "activated_note": "2026-11-02 启用：占位样例（@team/leads、@alice、@bob + app/**、src/**、infra/** 这些本仓库不存在的路径）已删除，改为适配本仓库真实结构的 CODEOWNERS，owner 全为 @guandada123。⚠️ 当前单人 + main 未保护 → 眼下不生效；开分支保护前须先加第二人，否则自己的 PR 永远等不到 approve。"
+   "activated_note": "2026-11-02 启用：占位样例（@team/leads、@alice、@bob + app/**、src/**、infra/** 这些本仓库不存在的路径）已删除，改为适配本仓库真实结构的 CODEOWNERS，owner 全为 @guandada123。⚠️ 当前单人 + main 未保护 → 眼下不生效；开分支保护前须先加第二人，否则自己的 PR 永远等不到 approve。",
+   "post_import_edit": "2026-11-02 由 CODEOWNERS.sample 改名为 CODEOWNERS 并启用（占位 owner 已换成本仓真实路径与 @guandada123）"
   },
   {
    "source_repo": "https://github.com/guandada123/engineering-audit-kit.git",
@@ -126,10 +131,10 @@
    "source_path": ".github/workflows/security-scan.yml",
    "target_path": "docs/templates/ci-snippets/quanttrading/security-scan.yml",
    "bytes": 12313,
-   "sha256": "939b73f49460cb7803b34ad6d60b3bbc0903c9eaf08254d2d7d414302f690f00",
+   "sha256": "8a078af8cb79e0fa545ae7ff1e5d87cae140fe3b5512f15e80eeeaed569ebfb7",
    "purpose": "片段：QTS 真实扫描（12KB，三种里最全）",
    "activated": false,
-   "post_import_edit": "2026-11-01 修正提示文案 tag v4→v5（与实际 pin 的 v5 对齐）"
+   "post_import_edit": "2026-11-01 修正提示文案 tag v4->v5；2026-11-02 audit_locks 拉取 pin v5->v8（脚本内容与前版一致）"
   },
   {
    "source_repo": "https://github.com/guandada123/StockInsight.git",
