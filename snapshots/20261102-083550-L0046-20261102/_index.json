@@ -1,7 +1,7 @@
 {
- "created_at": "2026-11-02T08:26:40",
- "label": "precommit-live-20261102",
- "file_count": 481,
+ "created_at": "2026-11-02T08:35:50",
+ "label": "L0046-20261102",
+ "file_count": 482,
  "files": {
   "scripts/build_package.py": {
    "sha256": "817d850485ee69ae775cfeb19614b77ad29cf93197826ee448f12fc3e763e132",
@@ -180,8 +180,8 @@
    "bytes": 11041
   },
   "scripts/verify_materials.py": {
-   "sha256": "1cfd016f7dee290af2f444c5b8d2698e77e0f1f2fc5940b9f9f49800265c0f5c",
-   "bytes": 8595
+   "sha256": "d7a6466744c6698d41114efb4f51eaa29ce5150d678381f958588f15685db048",
+   "bytes": 8733
   },
   "scripts/veto_sweep.py": {
    "sha256": "bfeb747e6c1dce208622fc835634d88b4bf4ae2ccc9911b49a75c4ecce088893",
@@ -1879,6 +1879,10 @@
    "sha256": "16f1d217b750f91cb951ff22d0fee2bf0fb36b3f2a56d5b41e176738ebca9fc7",
    "bytes": 2171
   },
+  ".learnings/L-0046-全库格式化会毁掉不可变资产.md": {
+   "sha256": "782f5cf004ca721585f537b3d7027c164b2130cc2d31470a555d83bccf384ad8",
+   "bytes": 3296
+  },
   ".github/workflows/selftest.yml": {
    "sha256": "b113880dde4e8175b477ce0fe21b1c206745d225792f0f3bbbf134fa293aad9a",
    "bytes": 2982
@@ -1912,11 +1916,11 @@
    "bytes": 15803
   },
   "README.md": {
-   "sha256": "6b98cffbb1708485b323473716e9a806a8ceed7e35dc47609111b4fe18a42392",
+   "sha256": "52375c86aeba33429b0df9f7f729cd6a7ea353d5ec1059eb131e5cb95b4b037e",
    "bytes": 5178
   },
   "ARCHITECTURE.md": {
-   "sha256": "452ed3f6c0428fe193639343f3f20749ef98c9111b03daea1b4e287779d00a0a",
+   "sha256": "3fab7c76733d0880a3820463773a31bb639fb661bb2e64d3dba66f1656ed1c4d",
    "bytes": 23250
   },
   "DEPENDENCIES.md": {
@@ -1929,8 +1933,8 @@
   }
  },
  "caller": {
-  "pid": 27766,
-  "ppid": 27758,
+  "pid": 35727,
+  "ppid": 35718,
   "parent_cmd": "/bin/zsh -c . '/Users/guan/.workbuddy/shell-snapshots/snapshot-zsh-1793577818303-y962ky.sh' && if [ -n \"${CODEBUDDY_SAFE_DELETE_BIN_DIR:-}\" ]; then unalias rm unlink rmdir 2>/dev/null || true; unset -"
  }
 }
