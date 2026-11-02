@@ -92,8 +92,14 @@ MONEY_PATHS = {
 
 # 比对型检查类型（这些类型会在算术层触发白名单校验）
 COMPARISON_TYPES = {
-    "numeric_equals", "decimal_equals", "bool_equals", "string_equals",
-    "count_equals", "set_equals", "list_equals_unordered", "sum_equals",
+    "numeric_equals",
+    "decimal_equals",
+    "bool_equals",
+    "string_equals",
+    "count_equals",
+    "set_equals",
+    "list_equals_unordered",
+    "sum_equals",
 }
 
 CENT = Decimal("0.01")
@@ -104,6 +110,7 @@ class SpecViolation(Exception):
 
 
 # ---------------------------------------------------------------- 工具
+
 
 def now_iso():
     """ISO8601（带 +08:00 偏移），跨平台一致。"""
@@ -214,6 +221,7 @@ def brief(v, limit=120):
 
 
 # ---------------------------------------------------------------- 检查类型
+
 
 def chk_numeric_equals(path, expected, tol, answer, key=None):
     cur = resolve(answer, path)
@@ -383,23 +391,29 @@ def chk_present_or_note(c, answer):
     note = resolve(answer, note_path)
     if note is not _MISSING and isinstance(note, str) and note.strip():
         return True, f"{path} 为空（{label}）但有说明：{brief(note)}"
-    return False, (f"{path} 为空（{label}）且 {note_path} 未给出说明 —— "
-                   f"「空」与「漏填」不可区分。请补充说明，或列出实际排除的类别。")
+    return False, (
+        f"{path} 为空（{label}）且 {note_path} 未给出说明 —— "
+        f"「空」与「漏填」不可区分。请补充说明，或列出实际排除的类别。"
+    )
 
 
 CHECK_TYPES = {
     "numeric_equals": lambda c, a: chk_numeric_equals(
-        c["path"], c["expected"], c.get("tol", 0), a, c.get("key")),
+        c["path"], c["expected"], c.get("tol", 0), a, c.get("key")
+    ),
     "decimal_equals": lambda c, a: chk_decimal_equals(
-        c["path"], c["expected"], c.get("scale", 2), c.get("tol"), a, c.get("key")),
+        c["path"], c["expected"], c.get("scale", 2), c.get("tol"), a, c.get("key")
+    ),
     "bool_equals": lambda c, a: chk_bool_equals(c["path"], c["expected"], a, c.get("key")),
     "string_equals": lambda c, a: chk_string_equals(c["path"], c["expected"], a, c.get("key")),
     "count_equals": lambda c, a: chk_count_equals(c["path"], c["expected"], a, c.get("key")),
     "set_equals": lambda c, a: chk_set_equals(c["path"], c["expected"], a, c.get("key")),
     "list_equals_unordered": lambda c, a: chk_list_equals_unordered(
-        c["path"], c["expected"], a, c.get("key")),
+        c["path"], c["expected"], a, c.get("key")
+    ),
     "sum_equals": lambda c, a: chk_sum_equals(
-        c["path"], c["expected"], c.get("tol"), a, c.get("key")),
+        c["path"], c["expected"], c.get("tol"), a, c.get("key")
+    ),
     "present": lambda c, a: chk_present(c["path"], a, c.get("key")),
     "present_or_note": lambda c, a: chk_present_or_note(c, a),
     "absent": lambda c, a: chk_absent(c["path"], a, c.get("key")),
@@ -443,32 +457,42 @@ def lint_answer_money_types(answer):
         if cur is _MISSING:
             continue
         if isinstance(cur, str):
-            warnings.append({
-                "code": "W_MONEY_STRING",
-                "path": path,
-                "value": brief(cur),
-                "detail": (f"金额字段为字符串 {cur!r}，应为 JSON number。"
-                           "数值断言仍通过（to_dec 容忍），但类型契约已破。"),
-            })
+            warnings.append(
+                {
+                    "code": "W_MONEY_STRING",
+                    "path": path,
+                    "value": brief(cur),
+                    "detail": (
+                        f"金额字段为字符串 {cur!r}，应为 JSON number。"
+                        "数值断言仍通过（to_dec 容忍），但类型契约已破。"
+                    ),
+                }
+            )
         elif isinstance(cur, bool) or not isinstance(cur, (int, float, Decimal)):
-            warnings.append({
-                "code": "W_MONEY_TYPE",
-                "path": path,
-                "value": brief(cur),
-                "detail": f"金额字段类型为 {type(cur).__name__}，非 number。",
-            })
+            warnings.append(
+                {
+                    "code": "W_MONEY_TYPE",
+                    "path": path,
+                    "value": brief(cur),
+                    "detail": f"金额字段类型为 {type(cur).__name__}，非 number。",
+                }
+            )
 
         # 符号越界（E_ 前缀 → 无条件 fail）
         if path in NON_NEGATIVE_MONEY:
             try:
                 if to_dec(cur) < 0:
-                    warnings.append({
-                        "code": "E_MONEY_NEGATIVE",
-                        "path": path,
-                        "value": brief(cur),
-                        "detail": (f"该字段语义为绝对值合计，不允许为负（实际 {cur}）。"
-                                   "契约 3.0 §符号语义：excluded/fee/dedup 三量均取绝对值。"),
-                    })
+                    warnings.append(
+                        {
+                            "code": "E_MONEY_NEGATIVE",
+                            "path": path,
+                            "value": brief(cur),
+                            "detail": (
+                                f"该字段语义为绝对值合计，不允许为负（实际 {cur}）。"
+                                "契约 3.0 §符号语义：excluded/fee/dedup 三量均取绝对值。"
+                            ),
+                        }
+                    )
             except (TypeError, ValueError, InvalidOperation):
                 pass
     return warnings
@@ -490,28 +514,30 @@ def money_type_failures(warnings, strict=False):
             continue
         is_err = code.startswith("E_")
         if is_err or strict:
-            out.append({
-                "name": f"{code} {w['path']}",
-                "type": "money_type",
-                "ok": False,
-                "expected": "非负 JSON number" if is_err else "JSON number",
-                "actual": w["detail"],
-                "weight": 1,
-            })
+            out.append(
+                {
+                    "name": f"{code} {w['path']}",
+                    "type": "money_type",
+                    "ok": False,
+                    "expected": "非负 JSON number" if is_err else "JSON number",
+                    "actual": w["detail"],
+                    "weight": 1,
+                }
+            )
     return out
 
 
 # 契约 3.0 §类别枚举：差异类别的封闭集合。`other:<说明>` 为受控兜底。
 # 依据：实测 26 份产出共 44 种写法，"股数/送转未更新"一个语义就有 19 种变体
-#（股数差异-送转未更新 / 数量差-送转未更新 / SHARE_QTY_DIFF / 股数不符(送转) …），
+# （股数差异-送转未更新 / 数量差-送转未更新 / SHARE_QTY_DIFF / 股数不符(送转) …），
 # 导致任何按类别聚合的统计都不可靠 —— 与 fee 字段问题同源：同一语义无单一真源。
 CATEGORY_ENUM = {
-    "股数不符",   # shares 不一致（送转/权益变动未更新）
+    "股数不符",  # shares 不一致（送转/权益变动未更新）
     "日期口径差",  # date 不一致（自记账按交割日、券商按成交日）
-    "费用差",     # fee_total 不一致（漏记/费率错）
-    "金额不符",   # amount 不一致
-    "单侧缺失",   # 仅一侧存在（非交易性现金流/股息/误入账）
-    "重复单号",   # 同 txn_id 多行（分批成交合并记账）
+    "费用差",  # fee_total 不一致（漏记/费率错）
+    "金额不符",  # amount 不一致
+    "单侧缺失",  # 仅一侧存在（非交易性现金流/股息/误入账）
+    "重复单号",  # 同 txn_id 多行（分批成交合并记账）
 }
 CATEGORY_OTHER_PREFIX = "other:"
 
@@ -548,43 +574,56 @@ def lint_answer_categories(answer):
             bad.append(repr(cat))
             continue
         if cat.startswith(CATEGORY_OTHER_PREFIX) and len(cat) > len(CATEGORY_OTHER_PREFIX):
-            continue          # other:<说明> 合法
+            continue  # other:<说明> 合法
         if cat not in CATEGORY_ENUM:
             bad.append(cat)
     if bad:
         head = "、".join(bad[:3])
         more = f" 等 {len(bad)} 项" if len(bad) > 3 else ""
-        warnings.append({
-            "code": "W_CATEGORY_NOT_ENUM",
-            "path": "summary.excluded_categories",
-            "value": head,
-            "detail": (f"非枚举类别：{head}{more}。契约 3.0 允许的值："
-                       f"{sorted(CATEGORY_ENUM)}，兜底写 other:<说明>。"
-                       "聚合统计依赖枚举一致性。"),
-        })
+        warnings.append(
+            {
+                "code": "W_CATEGORY_NOT_ENUM",
+                "path": "summary.excluded_categories",
+                "value": head,
+                "detail": (
+                    f"非枚举类别：{head}{more}。契约 3.0 允许的值："
+                    f"{sorted(CATEGORY_ENUM)}，兜底写 other:<说明>。"
+                    "聚合统计依赖枚举一致性。"
+                ),
+            }
+        )
 
     # ---- 校验 2：必须是 diffs[].category 的子集 ----
     diffs = resolve(answer, "diffs")
     if isinstance(diffs, list) and diffs:
-        in_diffs = {str(x.get("category")) for x in diffs
-                    if isinstance(x, dict) and x.get("category")}
-        orphan = [c for c in cats if isinstance(c, str)
-                  and not c.startswith(CATEGORY_OTHER_PREFIX) and c not in in_diffs]
+        in_diffs = {
+            str(x.get("category")) for x in diffs if isinstance(x, dict) and x.get("category")
+        }
+        orphan = [
+            c
+            for c in cats
+            if isinstance(c, str) and not c.startswith(CATEGORY_OTHER_PREFIX) and c not in in_diffs
+        ]
         if orphan:
             head = "、".join(orphan[:3])
             more = f" 等 {len(orphan)} 项" if len(orphan) > 3 else ""
-            warnings.append({
-                "code": "W_CATEGORY_NOT_IN_DIFFS",
-                "path": "summary.excluded_categories",
-                "value": head,
-                "detail": (f"这些类别未出现在 diffs[].category 中：{head}{more}。"
-                           "excluded_categories 应是被排除类别的**子集**，"
-                           "不能凭空新增未在 diffs 中出现的类别名。"),
-            })
+            warnings.append(
+                {
+                    "code": "W_CATEGORY_NOT_IN_DIFFS",
+                    "path": "summary.excluded_categories",
+                    "value": head,
+                    "detail": (
+                        f"这些类别未出现在 diffs[].category 中：{head}{more}。"
+                        "excluded_categories 应是被排除类别的**子集**，"
+                        "不能凭空新增未在 diffs 中出现的类别名。"
+                    ),
+                }
+            )
     return warnings
 
 
 # ---------------------------------------------------------------- spec 校验（三道闸门）
+
 
 def lint_arithmetic(spec):
     """闸门 1 + 2：算术层路径白名单 / 金额必须用 decimal_equals。"""
@@ -674,11 +713,14 @@ def lint_spec(spec, path=None):
             if c.get("type") not in CHECK_TYPES:
                 raise SpecViolation(f"未知检查类型: {c.get('type')}（name={c.get('name')}）")
     else:
-        raise SpecViolation(f"未知 layer: {layer}（应为 arithmetic / adjudication，或省略表示 legacy）")
+        raise SpecViolation(
+            f"未知 layer: {layer}（应为 arithmetic / adjudication，或省略表示 legacy）"
+        )
     return layer
 
 
 # ---------------------------------------------------------------- 判断项物化
+
 
 def infer_check(path, value):
     """由 implies 的 (path, value) 推断应使用的检查类型。"""
@@ -706,23 +748,29 @@ def materialize_adjudication(adj_spec, record):
         opt = next((o for o in it["options"] if o.get("id") == pick), None)
         if opt is None:
             raise SpecViolation(
-                f"{iid} 的裁决 '{pick}' 不在可选范围内 "
-                f"{[o.get('id') for o in it['options']]}"
+                f"{iid} 的裁决 '{pick}' 不在可选范围内 {[o.get('id') for o in it['options']]}"
             )
         for path, val in (opt.get("implies") or {}).items():
             c = {"name": f"{iid} → {path}", "path": path, "expected": val}
             c.update(infer_check(path, val))
             checks.append(c)
-            provenance.append({
-                "id": iid, "chosen": pick, "path": path,
-                "source": "human_adjudication",
-                "decided_by": record.get("recorded_by"),
-                "rationale": next((d.get("rationale") for d in record["decisions"] if d.get("id") == iid), ""),
-            })
+            provenance.append(
+                {
+                    "id": iid,
+                    "chosen": pick,
+                    "path": path,
+                    "source": "human_adjudication",
+                    "decided_by": record.get("recorded_by"),
+                    "rationale": next(
+                        (d.get("rationale") for d in record["decisions"] if d.get("id") == iid), ""
+                    ),
+                }
+            )
     return checks, provenance
 
 
 # ---------------------------------------------------------------- 执行
+
 
 def run_checks(spec_or_checks, answer):
     checks = spec_or_checks.get("checks") if isinstance(spec_or_checks, dict) else spec_or_checks
@@ -735,27 +783,44 @@ def run_checks(spec_or_checks, answer):
         ctype = c.get("type")
         fn = CHECK_TYPES.get(ctype)
         if fn is None:
-            results.append({
-                "name": name, "type": ctype, "ok": False,
-                "expected": brief(c.get("expected")) if "expected" in c else "",
-                "actual": f"未知检查类型: {ctype}", "weight": c.get("weight", 1),
-            })
+            results.append(
+                {
+                    "name": name,
+                    "type": ctype,
+                    "ok": False,
+                    "expected": brief(c.get("expected")) if "expected" in c else "",
+                    "actual": f"未知检查类型: {ctype}",
+                    "weight": c.get("weight", 1),
+                }
+            )
             continue
         try:
             ok, detail = fn(c, answer)
         except (KeyError, TypeError, ValueError, InvalidOperation) as e:
             ok, detail = False, f"检查执行异常: {type(e).__name__}: {e}"
-        results.append({
-            "name": name, "type": ctype, "ok": bool(ok),
-            "expected": brief(c.get("expected")) if "expected" in c else "",
-            "actual": detail,
-            "weight": c.get("weight", 1),
-        })
+        results.append(
+            {
+                "name": name,
+                "type": ctype,
+                "ok": bool(ok),
+                "expected": brief(c.get("expected")) if "expected" in c else "",
+                "actual": detail,
+                "weight": c.get("weight", 1),
+            }
+        )
     return results
 
 
-def build_result(task_id, spec_layer, results, pending, adjudication_source, evidence,
-                 carries_undeclared_judgment=False, warnings=None):
+def build_result(
+    task_id,
+    spec_layer,
+    results,
+    pending,
+    adjudication_source,
+    evidence,
+    carries_undeclared_judgment=False,
+    warnings=None,
+):
     passed = [r for r in results if r["ok"]]
     failed = [r for r in results if not r["ok"]]
 
@@ -797,8 +862,12 @@ def build_result(task_id, spec_layer, results, pending, adjudication_source, evi
 
 
 def verdict_to_exit(verdict):
-    return {"pass": EXIT_PASS, "adjudicated": EXIT_PASS,
-            "fail": EXIT_FAIL, "pending_adjudication": EXIT_PENDING}.get(verdict, EXIT_ERROR)
+    return {
+        "pass": EXIT_PASS,
+        "adjudicated": EXIT_PASS,
+        "fail": EXIT_FAIL,
+        "pending_adjudication": EXIT_PENDING,
+    }.get(verdict, EXIT_ERROR)
 
 
 # ---------------------------------------------------------------- 待裁状态文件（AD-01 第 7 查）
@@ -831,8 +900,9 @@ def _verdict_digest(path):
     }
 
 
-def build_answer_status(result, answer_path, spec_path, record_path=None,
-                        source_verdict=None, post_hoc=False):
+def build_answer_status(
+    result, answer_path, spec_path, record_path=None, source_verdict=None, post_hoc=False
+):
     """由 JD-01 的结果派生【机器可读的待裁状态】。
 
     ★ 为什么不改 answer-final.json 加字段：PM-01 是唯一写入者，工具改写它会破坏
@@ -841,9 +911,12 @@ def build_answer_status(result, answer_path, spec_path, record_path=None,
     ★ 为什么用 answer 的 sha256 做【唯一强锚】：answer 由 PM 一次写成、之后只读，
       是唯一不会因重算而漂的量。
     """
-    state = {"fail": "fail", "pending_adjudication": "pending",
-             "adjudicated": "adjudicated", "pass": "not_applicable"}.get(
-                 result.get("verdict"), "fail")
+    state = {
+        "fail": "fail",
+        "pending_adjudication": "pending",
+        "adjudicated": "adjudicated",
+        "pass": "not_applicable",
+    }.get(result.get("verdict"), "fail")
     pending = result.get("pending") or []
     answered = []
     if record_path:
@@ -859,10 +932,15 @@ def build_answer_status(result, answer_path, spec_path, record_path=None,
         "answered_items": answered,
         "verdict": result.get("verdict"),
         "answer": {"path": Path(answer_path).as_posix(), "sha256": sha256_of(answer_path)},
-        "spec": {"path": Path(spec_path).as_posix() if spec_path else None,
-                 "sha256": sha256_of(spec_path) if spec_path else None},
-        "record": ({"path": Path(record_path).as_posix(), "sha256": sha256_of(record_path)}
-                   if record_path else None),
+        "spec": {
+            "path": Path(spec_path).as_posix() if spec_path else None,
+            "sha256": sha256_of(spec_path) if spec_path else None,
+        },
+        "record": (
+            {"path": Path(record_path).as_posix(), "sha256": sha256_of(record_path)}
+            if record_path
+            else None
+        ),
         "source_verdict": source_verdict,
         "generated_by": "judges/verify.py",
         "provenance": "post_hoc_derived" if post_hoc else "native",
@@ -877,14 +955,16 @@ def pending_view(adj_spec):
             "question": it.get("question"),
             "paths_affected": it.get("paths_affected", []),
             # ★ D-0020（2026-10-20）：pending 投影带选项 label（纯数字选项不可签）。
-            "options": [{"id": o.get("id"), "label": o.get("label") or ""}
-                        for o in it.get("options", [])],
+            "options": [
+                {"id": o.get("id"), "label": o.get("label") or ""} for o in it.get("options", [])
+            ],
         }
         for it in adj_spec.get("items", [])
     ]
 
 
 # ---------------------------------------------------------------- 自检
+
 
 def self_test():
     """内置自检：硬裁判自己也要能被验证。含 exit 2 类闸门用例。"""
@@ -916,34 +996,83 @@ def self_test():
     print("\n【A. 判定逻辑】")
     answer = {
         "summary": {
-            "diff_count": 5, "dedup_amount": Decimal("1234.56"),
-            "ledger_total": Decimal("37490.50"), "caliber_excluded": True,
+            "diff_count": 5,
+            "dedup_amount": Decimal("1234.56"),
+            "ledger_total": Decimal("37490.50"),
+            "caliber_excluded": True,
         },
         "diffs": [{"id": x} for x in ("D1", "D2", "D3", "D4", "D5")],
         "rows": [{"amt": Decimal("10.50")}, {"amt": Decimal("20.25")}],
     }
     spec = {
         "checks": [
-            {"name": "count", "type": "numeric_equals", "path": "summary.diff_count", "expected": 5},
-            {"name": "tol", "type": "numeric_equals", "path": "summary.dedup_amount",
-             "expected": Decimal("1234.57"), "tol": Decimal("0.02")},
-            {"name": "bool", "type": "bool_equals", "path": "summary.caliber_excluded", "expected": True},
-            {"name": "set", "type": "set_equals", "path": "diffs", "key": "id",
-             "expected": ["D1", "D2", "D3", "D4", "D5"]},
-            {"name": "sum", "type": "sum_equals", "path": "rows", "key": "amt",
-             "expected": Decimal("30.75"), "tol": Decimal("0.001")},
+            {
+                "name": "count",
+                "type": "numeric_equals",
+                "path": "summary.diff_count",
+                "expected": 5,
+            },
+            {
+                "name": "tol",
+                "type": "numeric_equals",
+                "path": "summary.dedup_amount",
+                "expected": Decimal("1234.57"),
+                "tol": Decimal("0.02"),
+            },
+            {
+                "name": "bool",
+                "type": "bool_equals",
+                "path": "summary.caliber_excluded",
+                "expected": True,
+            },
+            {
+                "name": "set",
+                "type": "set_equals",
+                "path": "diffs",
+                "key": "id",
+                "expected": ["D1", "D2", "D3", "D4", "D5"],
+            },
+            {
+                "name": "sum",
+                "type": "sum_equals",
+                "path": "rows",
+                "key": "amt",
+                "expected": Decimal("30.75"),
+                "tol": Decimal("0.001"),
+            },
             {"name": "str", "type": "string_equals", "path": "summary.diff_count", "expected": "5"},
             {"name": "cnt", "type": "count_equals", "path": "diffs", "expected": 5},
-            {"name": "lu", "type": "list_equals_unordered", "path": "diffs", "key": "id",
-             "expected": ["D5", "D4", "D3", "D2", "D1"]},
-            {"name": "dec", "type": "decimal_equals", "path": "summary.ledger_total",
-             "expected": Decimal("37490.5"), "scale": 2},
+            {
+                "name": "lu",
+                "type": "list_equals_unordered",
+                "path": "diffs",
+                "key": "id",
+                "expected": ["D5", "D4", "D3", "D2", "D1"],
+            },
+            {
+                "name": "dec",
+                "type": "decimal_equals",
+                "path": "summary.ledger_total",
+                "expected": Decimal("37490.5"),
+                "scale": 2,
+            },
             {"name": "miss", "type": "present", "path": "summary.nonexistent"},
             {"name": "abs", "type": "absent", "path": "summary.nonexistent"},
         ],
     }
-    expect_map = {"count": True, "tol": True, "bool": True, "set": True, "sum": True,
-                  "str": False, "cnt": True, "lu": True, "dec": True, "miss": False, "abs": True}
+    expect_map = {
+        "count": True,
+        "tol": True,
+        "bool": True,
+        "set": True,
+        "sum": True,
+        "str": False,
+        "cnt": True,
+        "lu": True,
+        "dec": True,
+        "miss": False,
+        "abs": True,
+    }
     res = run_checks(spec, answer)
     for r in res:
         expect(f"判定 {r['name']:5s}", r["ok"] == expect_map[r["name"]], r["actual"][:56])
@@ -957,64 +1086,154 @@ def self_test():
     expect("decimal_equals 精确相等", r[0], r[1])
 
     print("\n【C. 三道 fail-closed 闸门】")
-    expect_violation("闸门1 判断项混入算术层被拒", lambda: lint_arithmetic({
-        "layer": "arithmetic",
-        "checks": [{"name": "x", "type": "numeric_equals",
-                    "path": "summary.diff_count", "expected": 7}],
-    }))
-    expect_violation("闸门2 金额未用 decimal_equals 被拒", lambda: lint_arithmetic({
-        "layer": "arithmetic",
-        "checks": [{"name": "x", "type": "numeric_equals",
-                    "path": "summary.ledger_total", "expected": Decimal("37490.50")}],
-    }))
-    expect_violation("闸门3a 判断项含 expected 被拒", lambda: lint_adjudication({
-        "layer": "adjudication",
-        "items": [{"id": "ADJ-X", "expected": 1, "options": [{"id": "a", "implies": {}}]}],
-    }))
-    expect_violation("闸门3b record 缺 source 被拒", lambda: lint_record({
-        "recorded_by": "someone", "decisions": [{"id": "A", "chosen": "a"}],
-    }))
-    expect_violation("闸门3b record 缺署名被拒", lambda: lint_record({
-        "source": "human_adjudication", "recorded_by": "  ",
-        "decisions": [{"id": "A", "chosen": "a"}],
-    }))
+    expect_violation(
+        "闸门1 判断项混入算术层被拒",
+        lambda: lint_arithmetic(
+            {
+                "layer": "arithmetic",
+                "checks": [
+                    {
+                        "name": "x",
+                        "type": "numeric_equals",
+                        "path": "summary.diff_count",
+                        "expected": 7,
+                    }
+                ],
+            }
+        ),
+    )
+    expect_violation(
+        "闸门2 金额未用 decimal_equals 被拒",
+        lambda: lint_arithmetic(
+            {
+                "layer": "arithmetic",
+                "checks": [
+                    {
+                        "name": "x",
+                        "type": "numeric_equals",
+                        "path": "summary.ledger_total",
+                        "expected": Decimal("37490.50"),
+                    }
+                ],
+            }
+        ),
+    )
+    expect_violation(
+        "闸门3a 判断项含 expected 被拒",
+        lambda: lint_adjudication(
+            {
+                "layer": "adjudication",
+                "items": [{"id": "ADJ-X", "expected": 1, "options": [{"id": "a", "implies": {}}]}],
+            }
+        ),
+    )
+    expect_violation(
+        "闸门3b record 缺 source 被拒",
+        lambda: lint_record(
+            {
+                "recorded_by": "someone",
+                "decisions": [{"id": "A", "chosen": "a"}],
+            }
+        ),
+    )
+    expect_violation(
+        "闸门3b record 缺署名被拒",
+        lambda: lint_record(
+            {
+                "source": "human_adjudication",
+                "recorded_by": "  ",
+                "decisions": [{"id": "A", "chosen": "a"}],
+            }
+        ),
+    )
     # ★ F15 配套：已退役的判断项不得再签（否则「多签一项」看起来像签成了）
-    _two_axis = {"items": [{"id": "ADJ-001", "options": [{"id": "x", "implies": {}}]},
-                           {"id": "ADJ-002", "options": [{"id": "7", "implies": {}}]}]}
-    expect_violation("闸门3b record 含已退役 id 被拒", lambda: lint_record({
-        "source": "human_adjudication", "recorded_by": "someone",
-        "decisions": [{"id": "ADJ-001", "chosen": "x"},
-                      {"id": "ADJ-002", "chosen": "7"},
-                      {"id": "ADJ-003", "chosen": "as_diff"}],
-    }, _two_axis))
-    expect_violation("闸门3b record 重复项被拒", lambda: lint_record({
-        "source": "human_adjudication", "recorded_by": "someone",
-        "decisions": [{"id": "ADJ-001", "chosen": "x"},
-                      {"id": "ADJ-001", "chosen": "x"}],
-    }, _two_axis))
-    expect("合法算术 spec 通过校验",
-           lint_arithmetic({"layer": "arithmetic", "checks": [
-               {"name": "x", "type": "numeric_equals", "path": "summary.ledger_rows", "expected": 27},
-               {"name": "y", "type": "decimal_equals", "path": "summary.ledger_total",
-                "expected": Decimal("1"), "scale": 2},
-           ]}) is None)
+    _two_axis = {
+        "items": [
+            {"id": "ADJ-001", "options": [{"id": "x", "implies": {}}]},
+            {"id": "ADJ-002", "options": [{"id": "7", "implies": {}}]},
+        ]
+    }
+    expect_violation(
+        "闸门3b record 含已退役 id 被拒",
+        lambda: lint_record(
+            {
+                "source": "human_adjudication",
+                "recorded_by": "someone",
+                "decisions": [
+                    {"id": "ADJ-001", "chosen": "x"},
+                    {"id": "ADJ-002", "chosen": "7"},
+                    {"id": "ADJ-003", "chosen": "as_diff"},
+                ],
+            },
+            _two_axis,
+        ),
+    )
+    expect_violation(
+        "闸门3b record 重复项被拒",
+        lambda: lint_record(
+            {
+                "source": "human_adjudication",
+                "recorded_by": "someone",
+                "decisions": [{"id": "ADJ-001", "chosen": "x"}, {"id": "ADJ-001", "chosen": "x"}],
+            },
+            _two_axis,
+        ),
+    )
+    expect(
+        "合法算术 spec 通过校验",
+        lint_arithmetic(
+            {
+                "layer": "arithmetic",
+                "checks": [
+                    {
+                        "name": "x",
+                        "type": "numeric_equals",
+                        "path": "summary.ledger_rows",
+                        "expected": 27,
+                    },
+                    {
+                        "name": "y",
+                        "type": "decimal_equals",
+                        "path": "summary.ledger_total",
+                        "expected": Decimal("1"),
+                        "scale": 2,
+                    },
+                ],
+            }
+        )
+        is None,
+    )
 
     print("\n【D. 裁定语义】")
-    adj = {"layer": "adjudication", "items": [{
-        "id": "ADJ-001", "question": "q", "paths_affected": ["summary.amount_diff_total"],
-        "options": [
-            {"id": "count", "implies": {"summary.amount_diff_total": Decimal("680.02")}},
-            {"id": "exclude", "implies": {"summary.amount_diff_total": Decimal("500.02")}},
-        ]}]}
+    adj = {
+        "layer": "adjudication",
+        "items": [
+            {
+                "id": "ADJ-001",
+                "question": "q",
+                "paths_affected": ["summary.amount_diff_total"],
+                "options": [
+                    {"id": "count", "implies": {"summary.amount_diff_total": Decimal("680.02")}},
+                    {"id": "exclude", "implies": {"summary.amount_diff_total": Decimal("500.02")}},
+                ],
+            }
+        ],
+    }
     ans2 = {"summary": {"amount_diff_total": Decimal("500.02")}}
-    checks, prov = materialize_adjudication(adj, {
-        "source": "human_adjudication", "recorded_by": "管海林",
-        "decisions": [{"id": "ADJ-001", "chosen": "exclude", "rationale": "r"}],
-    })
+    checks, prov = materialize_adjudication(
+        adj,
+        {
+            "source": "human_adjudication",
+            "recorded_by": "管海林",
+            "decisions": [{"id": "ADJ-001", "chosen": "exclude", "rationale": "r"}],
+        },
+    )
     r2 = run_checks(checks, ans2)
     expect("人类裁决物化后可比对且通过", all(x["ok"] for x in r2), r2[0]["actual"])
-    expect("provenance 标注为人类裁决", prov[0]["source"] == "human_adjudication"
-           and prov[0]["decided_by"] == "管海林")
+    expect(
+        "provenance 标注为人类裁决",
+        prov[0]["source"] == "human_adjudication" and prov[0]["decided_by"] == "管海林",
+    )
     b = build_result("T", "adjudication", [], [{"id": "ADJ-001"}], "none", [])
     expect("未裁决 → pending_adjudication", b["verdict"] == "pending_adjudication")
     expect("未裁决 → exit 3（非 0）", verdict_to_exit(b["verdict"]) == EXIT_PENDING)
@@ -1034,6 +1253,7 @@ def self_test():
 
 # ---------------------------------------------------------------- 主流程
 
+
 def _emit(result, out, quiet=False):
     payload = json.dumps(result, ensure_ascii=False, indent=2, default=_jsonable)
     if out:
@@ -1050,9 +1270,11 @@ def _emit(result, out, quiet=False):
             os.fsync(f.fileno())
         os.replace(tmp, p)
         if not quiet:
-            print(f"[JD-01] verdict={result['verdict']}  "
-                  f"passed={result['summary']['passed']}/{result['summary']['total']}  "
-                  f"pending={result['summary']['pending']}  -> {out}")
+            print(
+                f"[JD-01] verdict={result['verdict']}  "
+                f"passed={result['summary']['passed']}/{result['summary']['total']}  "
+                f"pending={result['summary']['pending']}  -> {out}"
+            )
     elif not quiet:
         print(payload)
     if result["verdict"] == "fail":
@@ -1065,28 +1287,47 @@ def _emit(result, out, quiet=False):
 def main():
     ap = argparse.ArgumentParser(description="硬裁判 JD-01（非 LLM · 纯标准库）")
     ap.add_argument("--spec", help="spec 文件 (JSON)")
-    ap.add_argument("--spec-dir", help="分层 spec 目录（自动读 arithmetic.json / adjudication.json）")
-    ap.add_argument("--spec-layer", default="all",
-                    choices=["arithmetic", "adjudication", "all"],
-                    help="要评估的层。缺省 all（fail-closed：未裁决不出 pass）")
+    ap.add_argument(
+        "--spec-dir", help="分层 spec 目录（自动读 arithmetic.json / adjudication.json）"
+    )
+    ap.add_argument(
+        "--spec-layer",
+        default="all",
+        choices=["arithmetic", "adjudication", "all"],
+        help="要评估的层。缺省 all（fail-closed：未裁决不出 pass）",
+    )
     ap.add_argument("--record", help="人类裁决记录 (adjudication-record.json)")
     ap.add_argument("--answer", help="被测产出 (JSON)")
     ap.add_argument("--out", help="结果输出路径（默认 stdout）")
     ap.add_argument("--lint-spec", action="store_true", help="只校验 spec 合规性")
-    ap.add_argument("--status-out", default=None, metavar="PATH",
-                    help="额外产出【机器可读的待裁状态】文件（answer-status.json）。"
-                         "不改变 stdout 与退出码；不改写 answer-final.json")
-    ap.add_argument("--status-source-verdict", default=None, metavar="PATH",
-                    help="把该 verdict 文件的 verdict/spec_layer/pending/ts 记为来源；"
-                         "与本次重算不一致则拒绝写出状态文件")
-    ap.add_argument("--status-provenance", default="native",
-                    choices=("native", "post_hoc_derived"),
-                    help="状态文件的来源性质：native=随本轮正常产出；"
-                         "post_hoc_derived=事后补生成（如实标注，不改既有产物）")
+    ap.add_argument(
+        "--status-out",
+        default=None,
+        metavar="PATH",
+        help="额外产出【机器可读的待裁状态】文件（answer-status.json）。"
+        "不改变 stdout 与退出码；不改写 answer-final.json",
+    )
+    ap.add_argument(
+        "--status-source-verdict",
+        default=None,
+        metavar="PATH",
+        help="把该 verdict 文件的 verdict/spec_layer/pending/ts 记为来源；"
+        "与本次重算不一致则拒绝写出状态文件",
+    )
+    ap.add_argument(
+        "--status-provenance",
+        default="native",
+        choices=("native", "post_hoc_derived"),
+        help="状态文件的来源性质：native=随本轮正常产出；"
+        "post_hoc_derived=事后补生成（如实标注，不改既有产物）",
+    )
     ap.add_argument("--self-test", action="store_true", help="运行判定逻辑自检")
-    ap.add_argument("--strict-money-type", action="store_true",
-                    help="金额字段为字符串（W_MONEY_STRING）时判 fail 而非仅告警。"
-                         "用于新产出准入；历史轮次保持告警，避免回溯改判已签字证据链。")
+    ap.add_argument(
+        "--strict-money-type",
+        action="store_true",
+        help="金额字段为字符串（W_MONEY_STRING）时判 fail 而非仅告警。"
+        "用于新产出准入；历史轮次保持告警，避免回溯改判已签字证据链。",
+    )
     args = ap.parse_args()
 
     if args.self_test:
@@ -1144,9 +1385,16 @@ def main():
             {"label": "spec", "path": args.spec, "sha256": sha256_of(args.spec)},
             {"label": "answer", "path": args.answer, "sha256": sha256_of(args.answer)},
         ]
-        result = build_result(task_id, "legacy", results, [], "none", evidence,
-                              carries_undeclared_judgment=True,
-                              warnings=answer_warnings)
+        result = build_result(
+            task_id,
+            "legacy",
+            results,
+            [],
+            "none",
+            evidence,
+            carries_undeclared_judgment=True,
+            warnings=answer_warnings,
+        )
         _emit(result, args.out)
         return verdict_to_exit(result["verdict"])
 
@@ -1180,16 +1428,18 @@ def main():
     if args.spec_dir:
         for name in ("arithmetic", "adjudication"):
             p = f"{args.spec_dir.rstrip('/')}/{name}.json"
-            if (specs.get(name) is not None):
+            if specs.get(name) is not None:
                 evidence.append({"label": f"spec_{name}", "path": p, "sha256": sha256_of(p)})
     if args.record:
-        evidence.append({"label": "adjudication_record", "path": args.record,
-                         "sha256": sha256_of(args.record)})
+        evidence.append(
+            {"label": "adjudication_record", "path": args.record, "sha256": sha256_of(args.record)}
+        )
 
     results += money_fails
 
-    result = build_result(task_id, args.spec_layer, results, pending, source, evidence,
-                          warnings=answer_warnings)
+    result = build_result(
+        task_id, args.spec_layer, results, pending, source, evidence, warnings=answer_warnings
+    )
     result["adjudication_provenance"] = prov
     _emit(result, args.out)
 
@@ -1199,33 +1449,45 @@ def main():
         if args.status_source_verdict:
             sv = _verdict_digest(args.status_source_verdict)
             if sv is None:
-                print(f"[ERR] --status-source-verdict 不可解析："
-                      f"{args.status_source_verdict}", file=sys.stderr)
+                print(
+                    f"[ERR] --status-source-verdict 不可解析：{args.status_source_verdict}",
+                    file=sys.stderr,
+                )
                 return EXIT_ERROR
             _real = (result.get("summary") or {}).get("pending")
-            if (sv.get("verdict") != result.get("verdict")
-                    or sv.get("spec_layer") != result.get("spec_layer")
-                    or sv.get("pending_count") != _real):
-                print("[ERR] --status-source-verdict 与本次重算不一致："
-                      f"来源 verdict={sv.get('verdict')} spec_layer={sv.get('spec_layer')} "
-                      f"pending={sv.get('pending_count')}；本次 verdict={result.get('verdict')} "
-                      f"spec_layer={result.get('spec_layer')} pending={_real}",
-                      file=sys.stderr)
+            if (
+                sv.get("verdict") != result.get("verdict")
+                or sv.get("spec_layer") != result.get("spec_layer")
+                or sv.get("pending_count") != _real
+            ):
+                print(
+                    "[ERR] --status-source-verdict 与本次重算不一致："
+                    f"来源 verdict={sv.get('verdict')} spec_layer={sv.get('spec_layer')} "
+                    f"pending={sv.get('pending_count')}；本次 verdict={result.get('verdict')} "
+                    f"spec_layer={result.get('spec_layer')} pending={_real}",
+                    file=sys.stderr,
+                )
                 return EXIT_ERROR
         _spec_p = args.spec
         if not _spec_p and args.spec_dir:
             _nm = "arithmetic" if args.spec_layer == "arithmetic" else "adjudication"
             _spec_p = f"{args.spec_dir.rstrip('/')}/{_nm}.json"
         status = build_answer_status(
-            result, args.answer, _spec_p, args.record, sv,
-            post_hoc=(args.status_provenance == "post_hoc_derived"))
+            result,
+            args.answer,
+            _spec_p,
+            args.record,
+            sv,
+            post_hoc=(args.status_provenance == "post_hoc_derived"),
+        )
         with open(args.status_out, "w", encoding="utf-8", newline="\n") as f:
-            f.write(json.dumps(status, ensure_ascii=False, indent=2,
-                               default=_jsonable) + "\n")
-        print(f"[JD-01] answer-status → {args.status_out} "
-              f"(state={status['adjudication_state']}, "
-              f"pending={status['pending_count']}, "
-              f"provenance={status['provenance']})")
+            f.write(json.dumps(status, ensure_ascii=False, indent=2, default=_jsonable) + "\n")
+        print(
+            f"[JD-01] answer-status → {args.status_out} "
+            f"(state={status['adjudication_state']}, "
+            f"pending={status['pending_count']}, "
+            f"provenance={status['provenance']})"
+        )
 
     return verdict_to_exit(result["verdict"])
 

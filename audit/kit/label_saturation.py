@@ -46,6 +46,7 @@ D-0052 已经用文字写过一句：标注者 = 判据实现者，所以只能�
 
 退出码：0 三条判据全过（罕见）｜ 1 有命中（当前必然 1）
 """
+
 from __future__ import annotations
 
 import argparse
@@ -69,7 +70,7 @@ def sweep(sets: list[str], ths: list[int]) -> dict:
         for th in ths:
             try:
                 grid[s][th] = pp.calibrate(min_chars=th, set_name=s)["accuracy"]
-            except Exception as e:                     # 不能让一个阈值炸掉整张表
+            except Exception as e:  # 不能让一个阈值炸掉整张表
                 grid[s][th] = f"ERR:{type(e).__name__}"
     return grid
 
@@ -98,26 +99,41 @@ def evaluate(grid: dict, sets: list[str], ths: list[int]) -> list[dict]:
     for s in sets:
         best = max((v for v in grid[s].values() if isinstance(v, float)), default=None)
         if best is not None and best >= 0.999:
-            hits.append({"rule": "S1", "set": s,
-                         "msg": f"最佳准确率 {best:.2f} = 满分 → 标签可由规则完全解释，"
-                                f"不能作为「规则正确」的证据"})
+            hits.append(
+                {
+                    "rule": "S1",
+                    "set": s,
+                    "msg": f"最佳准确率 {best:.2f} = 满分 → 标签可由规则完全解释，"
+                    f"不能作为「规则正确」的证据",
+                }
+            )
 
     # ── S2：留出集对阈值不敏感 ──────────────────────────────────────────
     for s in sets:
         run = invariant_run(grid[s], ths)
         if run >= 5:
-            hits.append({"rule": "S2", "set": s,
-                         "msg": f"在 {run} 个相邻阈值上准确率完全不变 → 该集合抓不到过拟合，"
-                                f"事实上不是独立检验"})
+            hits.append(
+                {
+                    "rule": "S2",
+                    "set": s,
+                    "msg": f"在 {run} 个相邻阈值上准确率完全不变 → 该集合抓不到过拟合，"
+                    f"事实上不是独立检验",
+                }
+            )
 
     # ── S3：两个集合曲线始终相同 ────────────────────────────────────────
     if len(sets) >= 2:
         a, b = sets[0], sets[1]
         same = [th for th in ths if grid[a].get(th) == grid[b].get(th)]
         if len(same) == len(ths):
-            hits.append({"rule": "S3", "set": f"{a}/{b}",
-                         "msg": f"{len(ths)} 个阈值下两者准确率始终相等 → 两套集合同源，"
-                                f"留出没有起到留出作用"})
+            hits.append(
+                {
+                    "rule": "S3",
+                    "set": f"{a}/{b}",
+                    "msg": f"{len(ths)} 个阈值下两者准确率始终相等 → 两套集合同源，"
+                    f"留出没有起到留出作用",
+                }
+            )
     return hits
 
 
@@ -129,15 +145,19 @@ def main() -> int:
     args = ap.parse_args()
 
     sets = [s.strip() for s in args.sets.split(",") if s.strip()]
-    ths = ([int(x) for x in args.sweep.split(",") if x.strip()]
-           if args.sweep else DEFAULT_SWEEP)
+    ths = [int(x) for x in args.sweep.split(",") if x.strip()] if args.sweep else DEFAULT_SWEEP
 
     grid = sweep(sets, ths)
     hits = evaluate(grid, sets, ths)
 
     if args.json:
-        print(json.dumps({"sets": sets, "thresholds": ths, "grid": grid,
-                          "hits": hits}, ensure_ascii=False, indent=2))
+        print(
+            json.dumps(
+                {"sets": sets, "thresholds": ths, "grid": grid, "hits": hits},
+                ensure_ascii=False,
+                indent=2,
+            )
+        )
         return 1 if hits else 0
 
     print(f"[label-audit] 集合 {sets} ｜ 阈值 {len(ths)} 点 {ths}")
@@ -154,8 +174,7 @@ def main() -> int:
         for h in hits:
             print(f"  🔴 {h['rule']} [{h['set']}] {h['msg']}")
         print("\n★ 有命中不代表脚本坏了，代表**这套标注不足以验证规则**。")
-        print("  唯一已知的出路：让独立于实现者的人重新标注（Q03 用户裁 A），"
-              "再比一次 Kappa。")
+        print("  唯一已知的出路：让独立于实现者的人重新标注（Q03 用户裁 A），再比一次 Kappa。")
     else:
         print("  ✅ 三条判据全过：这套标注具备独立检验能力")
 

@@ -48,7 +48,7 @@ def seat(seat_id, stance_choice, diff_count, ptr=None, **extra):
         summary = {"amount_diff_total": 500.02, "excluded_amount_total": 180.0}
     elif stance_choice == "count":
         summary = {"amount_diff_total": 680.02, "excluded_amount_total": 0.0}
-    else:                       # abstain：不给金额结论，只给 diff_count
+    else:  # abstain：不给金额结论，只给 diff_count
         summary = {}
     summary["diff_count"] = diff_count
     summary["ledger_rows"] = 27
@@ -61,19 +61,26 @@ def seat(seat_id, stance_choice, diff_count, ptr=None, **extra):
         "evidence": ([{"pointer": ptr, "what_it_shows": "夹具证据"}] if ptr else []),
         "falsification": "若前提被推翻则本结论不成立",
         "confidence": "medium",
-        "stance": [{"axis": "ADJ-001", "choice": stance_choice},
-                   {"axis": "DIFFSET", "choice": str(diff_count)}],
+        "stance": [
+            {"axis": "ADJ-001", "choice": stance_choice},
+            {"axis": "DIFFSET", "choice": str(diff_count)},
+        ],
         "summary": summary,
     }
     d.update(extra)
     return d
 
 
-def manifest(round_name, role, seed="deadbeef", cver="1.0",
-             seats=("EX-01", "EX-02", "EX-03")):
-    return {"round": round_name, "role": role, "contract_version": cver,
-            "expected_seats": list(seats), "seed": seed, "prev_round": None,
-            "introduces_new_evidence": role == "evidence_round"}
+def manifest(round_name, role, seed="deadbeef", cver="1.0", seats=("EX-01", "EX-02", "EX-03")):
+    return {
+        "round": round_name,
+        "role": role,
+        "contract_version": cver,
+        "expected_seats": list(seats),
+        "seed": seed,
+        "prev_round": None,
+        "introduces_new_evidence": role == "evidence_round",
+    }
 
 
 def write(p, obj):
@@ -135,10 +142,10 @@ def main():
     sb = out / "seat-bad"
     write(sb / "round-manifest.json", manifest("seat-bad", "revision_round", "eeee5555"))
     s1 = seat("EX-01", "exclude", 7, ptr="fixtures/ledger.csv#T101")
-    s1.pop("conclusion")                       # 缺硬性字段 1
+    s1.pop("conclusion")  # 缺硬性字段 1
     s2 = seat("EX-02", "exclude", 7, ptr="fixtures/ledger.csv#T102")
-    s2.pop("evidence")                         # 缺硬性字段 2
-    s3 = seat("EX-03", "abstain", 7, ptr="fixtures/ledger.csv#T103")   # 合规
+    s2.pop("evidence")  # 缺硬性字段 2
+    s3 = seat("EX-03", "abstain", 7, ptr="fixtures/ledger.csv#T103")  # 合规
     write(sb / "EX-01.json", s1)
     write(sb / "EX-02.json", s2)
     write(sb / "EX-03.json", s3)
@@ -146,13 +153,16 @@ def main():
 
     # ---- final-bad：引用了被否决席位 ----
     fb = out / "final-bad"
-    write(fb / "answer-final.json", {
-        "summary": {"ledger_rows": 27, "bill_rows": 27},
-        "aggregation_inputs": [
-            {"seat": "EX-01", "sha256": "deadbeef", "seat_check_status": "invalid"},
-            {"seat": "EX-03", "sha256": "cafebabe", "seat_check_status": "valid"},
-        ],
-    })
+    write(
+        fb / "answer-final.json",
+        {
+            "summary": {"ledger_rows": 27, "bill_rows": 27},
+            "aggregation_inputs": [
+                {"seat": "EX-01", "sha256": "deadbeef", "seat_check_status": "invalid"},
+                {"seat": "EX-03", "sha256": "cafebabe", "seat_check_status": "valid"},
+            ],
+        },
+    )
     n += 1
 
     # ==================== 第 22–29 项用夹具（第四轮）====================
@@ -176,22 +186,35 @@ def main():
     n += 4
 
     # ---- round-readA：契约 v2.0 + reads 全在 allow 内 → 第 9 查 CLEAN ----
-    R_OK = [{"path": "fixtures/ledger.csv", "purpose": "复算"},
-            {"path": "fixtures/TASK.md", "purpose": "读任务书"}]
+    R_OK = [
+        {"path": "fixtures/ledger.csv", "purpose": "复算"},
+        {"path": "fixtures/TASK.md", "purpose": "读任务书"},
+    ]
     ra = out / "round-readA"
     write(ra / "round-manifest.json", manifest("round-readA", "evidence_round", "aaaa5553", "2.0"))
-    for sid, ptr in (("EX-01", "fixtures/ledger.csv#T101"),
-                     ("EX-02", "fixtures/bill.csv#T103"),
-                     ("EX-03", "fixtures/TASK.md")):
+    for sid, ptr in (
+        ("EX-01", "fixtures/ledger.csv#T101"),
+        ("EX-02", "fixtures/bill.csv#T103"),
+        ("EX-03", "fixtures/TASK.md"),
+    ):
         write(ra / f"{sid}.json", seat(sid, "exclude", 7, ptr=ptr, reads=R_OK))
     n += 4
 
     # ---- seat-readbad：契约 v2.0 + EX-01 申报读了 truth.json → E_READ_DOMAIN_VIOLATION ----
     sb2 = out / "seat-readbad"
-    write(sb2 / "round-manifest.json",
-          manifest("seat-readbad", "evidence_round", "bbbb5554", "2.0"))
-    write(sb2 / "EX-01.json", seat("EX-01", "exclude", 7, ptr="fixtures/ledger.csv#T101",
-                                   reads=[{"path": "fixtures/truth.json", "purpose": "查真值"}]))
+    write(
+        sb2 / "round-manifest.json", manifest("seat-readbad", "evidence_round", "bbbb5554", "2.0")
+    )
+    write(
+        sb2 / "EX-01.json",
+        seat(
+            "EX-01",
+            "exclude",
+            7,
+            ptr="fixtures/ledger.csv#T101",
+            reads=[{"path": "fixtures/truth.json", "purpose": "查真值"}],
+        ),
+    )
     write(sb2 / "EX-02.json", seat("EX-02", "exclude", 7, ptr="fixtures/bill.csv#T103", reads=R_OK))
     write(sb2 / "EX-03.json", seat("EX-03", "abstain", 7, ptr="fixtures/TASK.md", reads=R_OK))
     n += 4
@@ -211,18 +234,27 @@ def main():
         "next": ["由人签署裁决记录"],
     }
     sbf = out / "round8"
-    write(sbf / "round-manifest.json",
-          manifest("round8", "revision_round", "cccc5555", "2.0",
-                   seats=("AD-01", "PM-01")))
-    write(sbf / "AD-01.json", {
-        "seat": "AD-01", "round": 8, "conclusion": "八查中第 5/8 查判 HOLD",
-        "evidence": [{"pointer": "runs/round8/metrics.json", "what_it_shows": "熵为 0"}],
-        "falsification": "若 metrics 缺该字段则本审计不成立",
-        "reads": [{"path": "runs/round8/metrics.json", "purpose": "读机器产出"}],
-        "action": "HOLD", "checks": [{"no": 5, "name": "规格假设", "verdict": "HOLD", "reason": "-"}],
-        "assumptions_to_adjudicate": [], "cost_score": {}, "barely_passed": "-",
-        "my_blind_spots": "-",
-    })
+    write(
+        sbf / "round-manifest.json",
+        manifest("round8", "revision_round", "cccc5555", "2.0", seats=("AD-01", "PM-01")),
+    )
+    write(
+        sbf / "AD-01.json",
+        {
+            "seat": "AD-01",
+            "round": 8,
+            "conclusion": "八查中第 5/8 查判 HOLD",
+            "evidence": [{"pointer": "runs/round8/metrics.json", "what_it_shows": "熵为 0"}],
+            "falsification": "若 metrics 缺该字段则本审计不成立",
+            "reads": [{"path": "runs/round8/metrics.json", "purpose": "读机器产出"}],
+            "action": "HOLD",
+            "checks": [{"no": 5, "name": "规格假设", "verdict": "HOLD", "reason": "-"}],
+            "assumptions_to_adjudicate": [],
+            "cost_score": {},
+            "barely_passed": "-",
+            "my_blind_spots": "-",
+        },
+    )
     write(sbf / "PM-01.json", PM_FULL)
     n += 3
 
@@ -230,15 +262,21 @@ def main():
     #   ★ 负向夹具必须让「唯一缺陷」就是缺 conclusion —— 否则它红了也证明不了
     #     conclusion 闸门在工作（旧版同名夹具其实是被读取域越界打红的，假红）。
     adb = out / "round9"
-    write(adb / "round-manifest.json",
-          manifest("round9", "revision_round", "dddd5556", "2.0",
-                   seats=("AD-01", "PM-01")))
-    write(adb / "AD-01.json", {
-        "seat": "AD-01", "round": 9,
-        "evidence": [{"pointer": "runs/round9/metrics.json", "what_it_shows": "熵为 0"}],
-        "falsification": "-", "reads": [{"path": "runs/round9/metrics.json", "purpose": "-"}],
-        "action": "PASS",
-    })
+    write(
+        adb / "round-manifest.json",
+        manifest("round9", "revision_round", "dddd5556", "2.0", seats=("AD-01", "PM-01")),
+    )
+    write(
+        adb / "AD-01.json",
+        {
+            "seat": "AD-01",
+            "round": 9,
+            "evidence": [{"pointer": "runs/round9/metrics.json", "what_it_shows": "熵为 0"}],
+            "falsification": "-",
+            "reads": [{"path": "runs/round9/metrics.json", "purpose": "-"}],
+            "action": "PASS",
+        },
+    )
     write(adb / "PM-01.json", PM_FULL)
     n += 3
 
@@ -246,30 +284,48 @@ def main():
     #   ★ 这两个文件原先是【手工建在 _trash/tmp-regress/】里的，因此随包迁移后
     #     解压副本上第 6/7 项直接 FAIL（找不到文件）。回归套件依赖未随包转移的
     #     临时文件，等于这套验收不可迁移。故改为由本生成器产出。
-    write(out / "bad-gate1-judgment.json", {
-        "_purpose": "回归6用：故意把判断项 summary.diff_count 塞进算术层，期望被拒载（exit 2）",
-        "task_id": "GATE-TEST-06",
-        "layer": "arithmetic",
-        "checks": [
-            {"name": "合法锚点", "type": "numeric_equals",
-             "path": "summary.ledger_rows", "expected": 27},
-            {"name": "★违规：判断项混入算术层", "type": "numeric_equals",
-             "path": "summary.diff_count", "expected": 7},
-        ],
-    })
+    write(
+        out / "bad-gate1-judgment.json",
+        {
+            "_purpose": "回归6用：故意把判断项 summary.diff_count 塞进算术层，期望被拒载（exit 2）",
+            "task_id": "GATE-TEST-06",
+            "layer": "arithmetic",
+            "checks": [
+                {
+                    "name": "合法锚点",
+                    "type": "numeric_equals",
+                    "path": "summary.ledger_rows",
+                    "expected": 27,
+                },
+                {
+                    "name": "★违规：判断项混入算术层",
+                    "type": "numeric_equals",
+                    "path": "summary.diff_count",
+                    "expected": 7,
+                },
+            ],
+        },
+    )
     n += 1
 
     # ---- 闸门 2 负向：金额路径用 float 语义的 numeric_equals → 应被拒载（exit 2）----
-    write(out / "bad-gate2-money.json", {
-        "_purpose": "回归7用：故意对金额路径使用 float 语义的 numeric_equals，期望被拒载（exit 2）",
-        "task_id": "GATE-TEST-07",
-        "layer": "arithmetic",
-        "checks": [
-            {"name": "★违规：金额路径未用 decimal_equals",
-             "type": "numeric_equals", "path": "summary.ledger_total",
-             "expected": 37490.50, "tol": 0.01},
-        ],
-    })
+    write(
+        out / "bad-gate2-money.json",
+        {
+            "_purpose": "回归7用：故意对金额路径使用 float 语义的 numeric_equals，期望被拒载（exit 2）",
+            "task_id": "GATE-TEST-07",
+            "layer": "arithmetic",
+            "checks": [
+                {
+                    "name": "★违规：金额路径未用 decimal_equals",
+                    "type": "numeric_equals",
+                    "path": "summary.ledger_total",
+                    "expected": 37490.50,
+                    "tol": 0.01,
+                },
+            ],
+        },
+    )
     n += 1
 
     # ---- params-threshold0：翻边率阈值改 0.0 ----

@@ -38,6 +38,7 @@ A5 裁决记录（2026-10-30，主理人裁决「豁免区间写法，检查器�
 
 退出码：0 全过 ｜ 1 有失败
 """
+
 from __future__ import annotations
 
 import json
@@ -61,25 +62,30 @@ CHECKS: list = []
 
 def case(label: str):
     """记录用例并保留中文标签；返回原函数，pytest 仍按 test_* 收集。"""
+
     def deco(fn):
         fn._label = label
         CHECKS.append(fn)
         return fn
+
     return deco
 
 
 # ── 工具：真实 CLI 实跑（不 mock，沿用 test_kit.py item_gate 组惯例）────────
 
+
 def _run_gate(manifest: Path) -> subprocess.CompletedProcess:
-    return subprocess.run([sys.executable, str(GATE), "--manifest", str(manifest),
-                           "--json"], capture_output=True, text=True)
+    return subprocess.run(
+        [sys.executable, str(GATE), "--manifest", str(manifest), "--json"],
+        capture_output=True,
+        text=True,
+    )
 
 
 def _mk(tmp: Path, obj=None, raw: str | None = None) -> Path:
     """临时 manifest：raw 直接写原文（坏 JSON 用），否则序列化 obj。"""
     p = tmp / "manifest.json"
-    p.write_text(raw if raw is not None else json.dumps(obj, ensure_ascii=False),
-                 encoding="utf-8")
+    p.write_text(raw if raw is not None else json.dumps(obj, ensure_ascii=False), encoding="utf-8")
     return p
 
 
@@ -101,6 +107,7 @@ L2_ITEM = {"qid": "Q98", "level": "L2", "route": "multi-role", "ref_label": "A"}
 
 # ── A2：v1.3 正样本 ───────────────────────────────────────────────────────
 
+
 @case("A2: manifest-v1.3-L1 → exit 0 且 routes.L1==25（好批必须放行）")
 def test_a2_v13_all_l1_exit0():
     r = _run_gate(M_L1)
@@ -110,10 +117,11 @@ def test_a2_v13_all_l1_exit0():
     assert d["routes"]["L1"] == 25, f"routes.L1 应为 25，实为 {d['routes']}"
     assert d["n_items"] == 25, d
     assert d["errors"] == [], d["errors"]
-    assert d["skew"] is None, d["skew"]          # 无 L2 → 无 S1 结果
+    assert d["skew"] is None, d["skew"]  # 无 L2 → 无 S1 结果
 
 
 # ── A3：v3 正+负样本（S1 报红）────────────────────────────────────────────
+
 
 @case("A3: manifest-v3-L2 → exit 1、routes.L2==10、max_share==0.7 且 RED（v3 死因必须被拦）")
 def test_a3_v3_l2_red_exit1():
@@ -133,6 +141,7 @@ def test_a3_v3_l2_red_exit1():
 
 # ── A4：标注一致性（逐 id 对比，不做集合近似）────────────────────────────
 
+
 @case("A4: manifest-v1.3 的 qid 集合与 truth-v1.3.json items 完全一致，且 19 machine + 6 attested")
 def test_a4_v13_qids_match_truth():
     truth_ids = set(json.loads(TRUTH.read_text(encoding="utf-8"))["items"])
@@ -141,8 +150,7 @@ def test_a4_v13_qids_match_truth():
     assert len(m_ids) == len(set(m_ids)), "manifest 内 qid 有重复"
     only_m = sorted(set(m_ids) - truth_ids)
     only_t = sorted(truth_ids - set(m_ids))
-    assert not only_m and not only_t, \
-        f"qid 集合不一致——manifest 多出 {only_m}，truth 多出 {only_t}"
+    assert not only_m and not only_t, f"qid 集合不一致——manifest 多出 {only_m}，truth 多出 {only_t}"
     # DESIGN §三：19 machine（逐题记 recompute_kind）+ 6 attested
     kinds = [it.get("verification") for it in m["items"]]
     assert kinds.count("machine") == 19, f"machine 应 19，实为 {kinds.count('machine')}"
@@ -181,7 +189,9 @@ def _expand_ranges(text: str) -> set[str]:
     return expanded
 
 
-@case("A5: manifest-v1.3 每个 qid 出现在 questions-v1.3.md（区间写法按裁决展开；缺失即 fail 并列出）")
+@case(
+    "A5: manifest-v1.3 每个 qid 出现在 questions-v1.3.md（区间写法按裁决展开；缺失即 fail 并列出）"
+)
 def test_a5_v13_qids_wired_to_questions_md():
     # 裁决记录（2026-10-30，主理人）：豁免「T06–T09」区间写法，检查器展开后比对；
     # 展开范围外任何 qid 仍须逐字匹配，展开后仍缺失照常报红。
@@ -189,12 +199,14 @@ def test_a5_v13_qids_wired_to_questions_md():
     wired = {q for q in re.findall(r"[TQ]\d+", text)} | _expand_ranges(text)
     m = json.loads(M_L1.read_text(encoding="utf-8"))
     missing = [it["qid"] for it in m["items"] if it["qid"] not in wired]
-    assert not missing, \
-        f"以下 {len(missing)} 个 qid 未出现在 questions-v1.3.md（含区间展开）中：" \
+    assert not missing, (
+        f"以下 {len(missing)} 个 qid 未出现在 questions-v1.3.md（含区间展开）中："
         f"{', '.join(missing)}（A5 接线契约违反）"
+    )
 
 
 # ── A6：字段完整性 fuzz（逐个删除必填字段）────────────────────────────────
+
 
 @case("A6: L2 样板逐个删除 qid/level/route/ref_label → 每次 exit 2 且 errors 带 qid 定位")
 def test_a6_fuzz_l2_missing_required_fields():
@@ -206,8 +218,9 @@ def test_a6_fuzz_l2_missing_required_fields():
         assert d and d["exit"] == 2 and d["errors"], (field, d)
         # 交付契约：errors 元素是 "qid: 消息" 字符串（缺 qid 时回退 items[idx] 定位）
         locator = "items[0]" if field == "qid" else L2_ITEM["qid"]
-        assert any(locator in e for e in d["errors"]), \
+        assert any(locator in e for e in d["errors"]), (
             f"删 {field} 后 errors 未定位到 {locator}：{d['errors']}"
+        )
 
 
 @case("A6: L1 样板删除 verification → exit 2（误标判断题的入口必须堵死）")
@@ -221,6 +234,7 @@ def test_a6_fuzz_l1_missing_verification():
 
 
 # ── 额外负样本（注入式，tempfile 构造，不入仓库）──────────────────────────
+
 
 @case("负样本: L3 题 → exit 2 且 skew 为 null（判据未定不许悄悄过）")
 def test_neg_l3_item_exit2():
@@ -269,8 +283,7 @@ def test_neg_bad_input_exit2():
 @case("负样本: 均衡分布 L2（A/B/C/D 各 2）→ exit 0 且 skew PASS（S1 不误伤好批）")
 def test_neg_balanced_l2_pass_exit0():
     labels = ["A", "A", "B", "B", "C", "C", "D", "D"]
-    items = [dict(L2_ITEM, qid=f"Q{i:02d}", ref_label=lab)
-             for i, lab in enumerate(labels, 1)]
+    items = [dict(L2_ITEM, qid=f"Q{i:02d}", ref_label=lab) for i, lab in enumerate(labels, 1)]
     rc, d, out = _run_obj({"items": items})
     assert rc == 0, f"均衡批期望 exit 0，实为 {rc}\n{out}"
     sk = d["skew"]
@@ -280,13 +293,26 @@ def test_neg_balanced_l2_pass_exit0():
 
 # ── v0.1 增补：decision-table 输出 / 判据真源 / 脏 item 计数 ──────────────
 
-@case("A7: --emit-decision-table 在 exit 0 批写出下游可消费的表（每题含 level/route/answer/veto/debate）")
+
+@case(
+    "A7: --emit-decision-table 在 exit 0 批写出下游可消费的表（每题含 level/route/answer/veto/debate）"
+)
 def test_a7_decision_table_emitted_on_exit0():
     with tempfile.TemporaryDirectory(prefix="rg-dt-") as td:
         out = Path(td) / "decision-table.json"
-        r = subprocess.run([sys.executable, str(GATE), "--manifest", str(M_L1),
-                            "--json", "--emit-decision-table", str(out)],
-                           capture_output=True, text=True)
+        r = subprocess.run(
+            [
+                sys.executable,
+                str(GATE),
+                "--manifest",
+                str(M_L1),
+                "--json",
+                "--emit-decision-table",
+                str(out),
+            ],
+            capture_output=True,
+            text=True,
+        )
         assert r.returncode == 0, r.stdout + r.stderr
         d = json.loads(r.stdout)
         assert d["decision_table"] == str(out), d.get("decision_table")
@@ -296,8 +322,13 @@ def test_a7_decision_table_emitted_on_exit0():
         assert len(dt["items"]) == 25, len(dt["items"])
         for qid, row in dt["items"].items():
             assert row["level"] == "L1" and row["route"] == "single", (qid, row)
-            assert row["answer"] is None and row["veto"] is None and row["debate"] is False, (qid, row)
-            assert "aggregate_seats.py" in dt["aggregate_contract"]["seats_input"], dt["aggregate_contract"]
+            assert row["answer"] is None and row["veto"] is None and row["debate"] is False, (
+                qid,
+                row,
+            )
+            assert "aggregate_seats.py" in dt["aggregate_contract"]["seats_input"], dt[
+                "aggregate_contract"
+            ]
 
 
 @case("A8: 红批/坏批拒绝写出 decision-table（exit 非 0 不产出脏表）")
@@ -305,9 +336,19 @@ def test_a8_decision_table_refused_when_not_exit0():
     with tempfile.TemporaryDirectory(prefix="rg-dt-") as td:
         out = Path(td) / "dt-red.json"
         # exit 1：v3 偏斜批
-        r1 = subprocess.run([sys.executable, str(GATE), "--manifest", str(M_L2),
-                             "--json", "--emit-decision-table", str(out)],
-                            capture_output=True, text=True)
+        r1 = subprocess.run(
+            [
+                sys.executable,
+                str(GATE),
+                "--manifest",
+                str(M_L2),
+                "--json",
+                "--emit-decision-table",
+                str(out),
+            ],
+            capture_output=True,
+            text=True,
+        )
         assert r1.returncode == 1, r1.stdout + r1.stderr
         assert not out.exists(), "偏斜批不得写出 decision-table"
         # exit 2：缺字段批
@@ -320,6 +361,7 @@ def test_a8_decision_table_refused_when_not_exit0():
 def test_a9_skew_reuses_constant_baseline():
     sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "kit"))
     from item_gate import constant_baseline
+
     labels = ["A"] * 7 + ["C"] * 2 + ["B"]
     base = constant_baseline(labels)
     assert base["top_label"] == "A" and round(base["top_share"], 4) == 0.7, base
@@ -335,7 +377,7 @@ def test_a9_skew_reuses_constant_baseline():
 
 @case("A10: 脏 item 不计入 routes 计数（缺 route 的 item 报错且不计档）")
 def test_a10_dirty_item_not_counted():
-    bad = {"qid": "Q91", "level": "L1", "verification": "machine"}   # 缺 route
+    bad = {"qid": "Q91", "level": "L1", "verification": "machine"}  # 缺 route
     rc, d, out = _run_obj({"items": [dict(L1_ITEM), bad]})
     assert rc == 2, out
     assert any("缺 route" in e for e in d["errors"]), d["errors"]
@@ -344,12 +386,13 @@ def test_a10_dirty_item_not_counted():
 
 # ── 独立运行器（pytest 不可用时的主通道；风格随 test_kit.py）──────────────
 
+
 def main() -> int:
     fails = []
     for fn in CHECKS:
         try:
             fn()
-        except Exception as e:                   # 断言失败与意外异常都要报
+        except Exception as e:  # 断言失败与意外异常都要报
             fails.append((fn._label, f"{type(e).__name__}: {e}"))
     print(f"[route-gate-test] {len(CHECKS) - len(fails)}/{len(CHECKS)} 通过")
     for n, e in fails:

@@ -42,13 +42,14 @@
 
 退出码：0 全部一致 / 1 存在不一致（仅 --strict 时）/ 2 环境错误
 """
+
 import argparse
 import json
 import re
 import sys
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent.parent          # ai-autonomy-team/
+ROOT = Path(__file__).resolve().parent.parent  # ai-autonomy-team/
 DOCS = ROOT / "docs"
 PKG = ROOT / "migration-package"
 
@@ -65,14 +66,26 @@ COUNT_RULES = [
     # 原先用 glob("*.md") 把报告也算作经验 —— 自动化一产出报告，门禁 A 就报
     # 「声明数 ≠ 实际数」（2026-11-01 实测 44 vs 45）。口径统一为 L-*.md，
     # 与 scripts/handover_facts.py 的 facts["learnings"] 一致。
-    (re.compile(r"(\d+)\s*条经验"), "经验条数",
-     lambda: len(list((ROOT / ".learnings").glob("L-*.md")))),
-    (re.compile(r"(\d+)\s*份决策"), "决策份数",
-     lambda: len(list((DOCS / "decisions").glob("D-*.md")))),
-    (re.compile(r"(\d+)\s*轮运行"), "运行轮数",
-     lambda: len([d for d in (PKG / "runs").glob("round*") if d.is_dir()])),
-    (re.compile(r"(\d+)\s*份协议"), "协议份数",
-     lambda: len(list((DOCS / "protocol").glob("*.md")))),
+    (
+        re.compile(r"(\d+)\s*条经验"),
+        "经验条数",
+        lambda: len(list((ROOT / ".learnings").glob("L-*.md"))),
+    ),
+    (
+        re.compile(r"(\d+)\s*份决策"),
+        "决策份数",
+        lambda: len(list((DOCS / "decisions").glob("D-*.md"))),
+    ),
+    (
+        re.compile(r"(\d+)\s*轮运行"),
+        "运行轮数",
+        lambda: len([d for d in (PKG / "runs").glob("round*") if d.is_dir()]),
+    ),
+    (
+        re.compile(r"(\d+)\s*份协议"),
+        "协议份数",
+        lambda: len(list((DOCS / "protocol").glob("*.md"))),
+    ),
 ]
 
 # E 项：行内出现这些词，才认为同行的 `N/N` 是在说「项数」
@@ -86,7 +99,7 @@ PAIR_MARKERS = [
 
 # G 项豁免判据（提为模块常量：自检要能「写坏它」证明豁免真的在起作用）
 HIST_RE = re.compile(r"原始|原为|审计时|对齐前|此前|当时|→")
-STAMP_RE = re.compile(r"\d{2}-\d{2}[ T]\d{2}:\d{2}")     # 时点标注：10-29 22:36
+STAMP_RE = re.compile(r"\d{2}-\d{2}[ T]\d{2}:\d{2}")  # 时点标注：10-29 22:36
 
 # G 项规则：交接摘要正文不得出现「裸易变计数」（判据与豁免见 check_forbidden_counts）
 FORBIDDEN_PATTERNS = [
@@ -121,10 +134,14 @@ def _near_manifest(line, hit):
     i = line.find(hit)
     if i < 0:
         return False
-    head = line[max(0, i - 6):i]
-    tail = line[i + len(hit):i + len(hit) + 6]
-    return ("字节" in head or "包体" in head or "MANIFEST" in head
-            or bool(re.match(r"\s*(?:字节|B\b)", tail)))
+    head = line[max(0, i - 6) : i]
+    tail = line[i + len(hit) : i + len(hit) + 6]
+    return (
+        "字节" in head
+        or "包体" in head
+        or "MANIFEST" in head
+        or bool(re.match(r"\s*(?:字节|B\b)", tail))
+    )
 
 
 def check_manifest_numbers(problems):
@@ -156,7 +173,8 @@ def check_manifest_numbers(problems):
                 # 而该行前半部分正是需要校验的当前值 —— 属漏检缺陷（2026-10-21 修）。
                 if not re.search(r"原始|原为|审计时|对齐前|此前|当时|上次|上轮|前值|→", line):
                     problems.append(
-                        ("A", f"{p.name}: 出现 {hit}", f"MANIFEST 实际 {fmt(tb)}（该行无限定词）"))
+                        ("A", f"{p.name}: 出现 {hit}", f"MANIFEST 实际 {fmt(tb)}（该行无限定词）")
+                    )
     return checked
 
 
@@ -179,8 +197,8 @@ def check_index_line_counts(problems):
             checked += 1
             if int(declared) != actual:
                 problems.append(
-                    ("B", f"{p.name}: {name.strip()} 声明 {declared} 行",
-                     f"实际 {actual} 行"))
+                    ("B", f"{p.name}: {name.strip()} 声明 {declared} 行", f"实际 {actual} 行")
+                )
 
     # 代码行数表：状态文档里的 `| `x.py` | NNN |`（没有 markdown 链接，写法不同、性质相同）。
     # 2026-10-23 实测 ARCHITECTURE 的这张表 28 行里 16 行与实际不符，最大差 164 行。
@@ -193,8 +211,14 @@ def check_index_line_counts(problems):
             m = code_re.match(line)
             if not m:
                 continue
-            target = next((b / m.group(1) for b in (ROOT / "scripts", ROOT, ROOT / "migration-package")
-                           if (b / m.group(1)).is_file()), None)
+            target = next(
+                (
+                    b / m.group(1)
+                    for b in (ROOT / "scripts", ROOT, ROOT / "migration-package")
+                    if (b / m.group(1)).is_file()
+                ),
+                None,
+            )
             if target is None:
                 problems.append(("B", f"{name}:{lineno} 引用了不存在的 {m.group(1)}", "文件缺失"))
                 continue
@@ -202,8 +226,8 @@ def check_index_line_counts(problems):
             checked += 1
             if int(m.group(2)) != actual:
                 problems.append(
-                    ("B", f"{name}:{lineno} {m.group(1)} 声明 {m.group(2)} 行",
-                     f"实际 {actual} 行"))
+                    ("B", f"{name}:{lineno} {m.group(1)} 声明 {m.group(2)} 行", f"实际 {actual} 行")
+                )
     return checked
 
 
@@ -244,8 +268,7 @@ def check_count_claims(problems):
                 line = next((ln for ln in text.splitlines() if declared in ln), "")
                 if re.search(r"原始|原为|审计时|对齐前|此前|当时", line):
                     continue
-                problems.append(
-                    ("D", f"{name}: {label}声明 {declared}", f"磁盘实际 {actual}"))
+                problems.append(("D", f"{name}: {label}声明 {declared}", f"磁盘实际 {actual}"))
     return checked
 
 
@@ -278,8 +301,12 @@ def check_paired_counts(problems, expects):
                 checked += 1
                 if int(n) != expects[key]:
                     problems.append(
-                        ("E", f"{name}:{lineno} 声明 {n}/{n}（{key}）",
-                         f"本次实跑 {expects[key]}/{expects[key]}"))
+                        (
+                            "E",
+                            f"{name}:{lineno} 声明 {n}/{n}（{key}）",
+                            f"本次实跑 {expects[key]}/{expects[key]}",
+                        )
+                    )
     return checked
 
 
@@ -306,12 +333,17 @@ def check_generated_blocks(problems):
         n += 1
         try:
             want = hf.render_inner(hf.collect())
-        except Exception as e:      # 真源采集失败也必须报，不能当一致放过
+        except Exception as e:  # 真源采集失败也必须报，不能当一致放过
             problems.append(("F", f"{doc.name} 生成块", f"真源采集异常：{type(e).__name__}: {e}"))
             continue
         if m.group(1) != want:
-            problems.append(("F", f"{doc.name} 生成块过期",
-                             "python3 scripts/handover_facts.py --emit docs/交接摘要-20261029.md"))
+            problems.append(
+                (
+                    "F",
+                    f"{doc.name} 生成块过期",
+                    "python3 scripts/handover_facts.py --emit docs/交接摘要-20261029.md",
+                )
+            )
     return n
 
 
@@ -351,10 +383,14 @@ def check_forbidden_counts(problems, docs=None):
                     continue
                 checked += 1
                 if HIST_RE.search(line) or STAMP_RE.search(line):
-                    continue                                     # 历史句 / 带时点 → 放行
+                    continue  # 历史句 / 带时点 → 放行
                 problems.append(
-                    ("G", f"{p.name}:{lineno} 正文裸{label}",
-                     "易变计数必须带时点（如 10-29 22:36 实测）或指向文末 handover-facts 生成块"))
+                    (
+                        "G",
+                        f"{p.name}:{lineno} 正文裸{label}",
+                        "易变计数必须带时点（如 10-29 22:36 实测）或指向文末 handover-facts 生成块",
+                    )
+                )
     return checked
 
 
@@ -362,8 +398,13 @@ def main():
     ap = argparse.ArgumentParser(description="文档与磁盘一致性校验（只读）")
     ap.add_argument("--strict", action="store_true", help="存在不一致时 exit 1（CI 用）")
     ap.add_argument("-q", "--quiet", action="store_true", help="只输出结论")
-    ap.add_argument("--expect", action="append", default=[], metavar="NAME=N",
-                    help="配对计数的实测值，可重复：--expect regress=50 --expect gates=8")
+    ap.add_argument(
+        "--expect",
+        action="append",
+        default=[],
+        metavar="NAME=N",
+        help="配对计数的实测值，可重复：--expect regress=50 --expect gates=8",
+    )
     args = ap.parse_args()
 
     expects = {}
@@ -396,7 +437,9 @@ def main():
         print(f"  B. 索引行数        : 校验 {b} 处")
         print(f"  C. 契约版本        : 校验 {c} 处")
         print(f"  D. 计数声明        : 校验 {d} 处")
-        print(f"  E. 配对计数        : 校验 {e} 处" + ("" if expects else "（未传 --expect，已跳过）"))
+        print(
+            f"  E. 配对计数        : 校验 {e} 处" + ("" if expects else "（未传 --expect，已跳过）")
+        )
         print(f"  F. 生成块          : 校验 {f} 处")
         print(f"  G. 正文裸计数禁区  : 命中 {g} 处（带时点或指向生成块者放行）")
         print()
@@ -410,13 +453,17 @@ def main():
         if "A" in kinds:
             print("\n[A 类可自动修复] python3 scripts/sync_doc_numbers.py", file=sys.stderr)
         if "F" in kinds:
-            print("[F 类可自动修复] python3 scripts/handover_facts.py --emit docs/交接摘要-20261029.md",
-                  file=sys.stderr)
+            print(
+                "[F 类可自动修复] python3 scripts/handover_facts.py --emit docs/交接摘要-20261029.md",
+                file=sys.stderr,
+            )
         if kinds & {"B", "C", "D", "E", "G"}:
-            print("[B/C/D/E/G 类需人工] B=索引行数，C=契约版本，D=计数声明，E=配对计数，\n"
-                  "G=正文裸计数（改成「以文末生成块为准」或补时点）；\n"
-                  "除 B 需重跑索引外，其余一律改文档数字去匹配实跑结果，别反过来凑",
-                  file=sys.stderr)
+            print(
+                "[B/C/D/E/G 类需人工] B=索引行数，C=契约版本，D=计数声明，E=配对计数，\n"
+                "G=正文裸计数（改成「以文末生成块为准」或补时点）；\n"
+                "除 B 需重跑索引外，其余一律改文档数字去匹配实跑结果，别反过来凑",
+                file=sys.stderr,
+            )
         if args.strict:
             return BAD
         print("\n（非 --strict 模式：仅报告，不返回失败码）", file=sys.stderr)

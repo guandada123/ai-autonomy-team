@@ -55,12 +55,23 @@ DEFAULT_SPEC = "fixtures/spec/adjudication.json"
 
 # 家族推断关键词（与 scripts/inspect_agent_routing.py 的 FAMILY_RULES 同源，stdlib 内联）
 FAMILY_KEYWORDS = (
-    ("deepseek", "DeepSeek"), ("glm", "GLM"), ("chatglm", "GLM"),
-    ("kimi", "Kimi"), ("moonshot", "Kimi"),
-    ("hy3", "混元"), ("hy4", "混元"), ("hunyuan", "混元"),
-    ("minimax", "MiniMax"), ("abab", "MiniMax"),
-    ("claude", "Claude"), ("gpt", "OpenAI"), ("o1", "OpenAI"), ("o3", "OpenAI"),
-    ("gemini", "Google"), ("qwen", "通义"), ("ernie", "文心"),
+    ("deepseek", "DeepSeek"),
+    ("glm", "GLM"),
+    ("chatglm", "GLM"),
+    ("kimi", "Kimi"),
+    ("moonshot", "Kimi"),
+    ("hy3", "混元"),
+    ("hy4", "混元"),
+    ("hunyuan", "混元"),
+    ("minimax", "MiniMax"),
+    ("abab", "MiniMax"),
+    ("claude", "Claude"),
+    ("gpt", "OpenAI"),
+    ("o1", "OpenAI"),
+    ("o3", "OpenAI"),
+    ("gemini", "Google"),
+    ("qwen", "通义"),
+    ("ernie", "文心"),
 )
 
 
@@ -90,6 +101,7 @@ def _load_routing(fpath):
             out[name] = mid
     return out
 
+
 # 参与辩论的席位（持立场）
 DEBATING_SEATS = ("EX-01", "EX-02", "EX-03")
 # 参与运行但不持立场的席位
@@ -99,6 +111,7 @@ _MISSING = object()
 
 
 # ---------------------------------------------------------------- helpers（刻意重复）
+
 
 def sha256_of(path):
     try:
@@ -208,6 +221,7 @@ def lint_params(params):
 
 
 # ---------------------------------------------------------------- 立场反推
+
 
 def build_axis_registry(adj_spec, params):
     """从 adjudication.json 的 options[].implies 机械构建反推表。
@@ -325,10 +339,12 @@ def extract_pointers(answer, pkg_root=None, candidates=()):
         if isinstance(e, dict):
             p = e.get("pointer") or e.get("path") or e.get("file")
             if p:
-                out.append({
-                    "pointer": str(p).strip(),
-                    "what_it_shows": str(e.get("what_it_shows", "")).strip(),
-                })
+                out.append(
+                    {
+                        "pointer": str(p).strip(),
+                        "what_it_shows": str(e.get("what_it_shows", "")).strip(),
+                    }
+                )
         elif isinstance(e, str) and e.strip():
             out.append({"pointer": e.strip(), "what_it_shows": ""})
     for item in out:
@@ -380,7 +396,7 @@ def resolve_pointer_path(token, pkg_root=None, candidates=()):
                 try:
                     rel = p.resolve().relative_to(Path(pkg_root).resolve()).as_posix()
                 except (ValueError, OSError):
-                    rel = t2      # 落在包外 → 保留原 token，不做相对化
+                    rel = t2  # 落在包外 → 保留原 token，不做相对化
             return rel + "/" if is_dir else rel
         except (OSError, ValueError):
             continue
@@ -409,18 +425,34 @@ def normalize_pointer(ptr, pkg_root=None, candidates=()):
         token = m.group(1)
         if not (_PATH_LIKE.search(token) or token.endswith("/")):
             continue
-        rest = s[m.end():].strip()
+        rest = s[m.end() :].strip()
         canon = resolve_pointer_path(token, pkg_root, candidates)
         if canon and canon not in files:
             files.append(canon)
         selectors.append({"file": canon, "selector": rest})
         kinds.append("dir" if canon.endswith("/") else "single_file")
     if not files:
-        return {"raw": raw, "segments": segs, "files": [], "file_keys": [raw.strip()],
-                "selectors": [], "primary_file": None, "kind": "unresolved", "ok": False}
+        return {
+            "raw": raw,
+            "segments": segs,
+            "files": [],
+            "file_keys": [raw.strip()],
+            "selectors": [],
+            "primary_file": None,
+            "kind": "unresolved",
+            "ok": False,
+        }
     kind = "multi_file" if len(files) > 1 else (kinds[0] if kinds else "single_file")
-    return {"raw": raw, "segments": segs, "files": files, "file_keys": sorted(files),
-            "selectors": selectors, "primary_file": files[0], "kind": kind, "ok": True}
+    return {
+        "raw": raw,
+        "segments": segs,
+        "files": files,
+        "file_keys": sorted(files),
+        "selectors": selectors,
+        "primary_file": files[0],
+        "kind": kind,
+        "ok": True,
+    }
 
 
 # ---------------------------------------------------------------- 指针指纹（F17）
@@ -447,9 +479,10 @@ def pointer_components(ptr, pkg_root=None, candidates=()):
         return [("", "raw:" + str(ptr).strip())]
     comps = set()
     for s in n.get("selectors") or []:
-        comps.add((s.get("file") or n.get("primary_file") or "",
-                   _canon_selector(s.get("selector"))))
-    if not comps:                      # 兜底：只有文件、没有选择子
+        comps.add(
+            (s.get("file") or n.get("primary_file") or "", _canon_selector(s.get("selector")))
+        )
+    if not comps:  # 兜底：只有文件、没有选择子
         for f in n.get("file_keys") or []:
             comps.add((f, ""))
     return sorted(comps)
@@ -466,6 +499,7 @@ def pointer_id_of(ptr, pkg_root=None, candidates=()):
 
 
 # ---------------------------------------------------------------- 读取域（F5）
+
 
 def expand_domain(prefix, round_name=None, seat=None):
     """展开 {n} / {prev} / {seat} 占位符。
@@ -528,8 +562,11 @@ def classify_path(path, seat, rd):
     for pre in rd.get("deny_absolute") or []:
         if pre and p.startswith(pre):
             return "deny"
-    allows = list(rd.get("allow") or []) + list(rd.get("allow_exceptions") or []) \
+    allows = (
+        list(rd.get("allow") or [])
+        + list(rd.get("allow_exceptions") or [])
         + list((rd.get("allow_extra_by_seat") or {}).get(seat) or [])
+    )
     for pre in allows:
         if pre and p.startswith(pre):
             return "allow"
@@ -554,8 +591,13 @@ def extract_reads(answer):
         if isinstance(item, dict):
             p = item.get("path") or item.get("file") or item.get("pointer")
             if p and str(p).strip():
-                out.append({"index": i, "path": str(p).strip(),
-                            "purpose": str(item.get("purpose", "")).strip()})
+                out.append(
+                    {
+                        "index": i,
+                        "path": str(p).strip(),
+                        "purpose": str(item.get("purpose", "")).strip(),
+                    }
+                )
         elif isinstance(item, str) and item.strip():
             out.append({"index": i, "path": item.strip(), "purpose": ""})
     return out
@@ -563,17 +605,20 @@ def extract_reads(answer):
 
 def _ver_ge(a, b):
     """版本比较（'2.0' >= '1.0'）。取首个数字段。"""
+
     def parts(v):
         nums = [int(x) for x in re.findall(r"\d+", str(v))][:2]
         while len(nums) < 2:
             nums.append(0)
         return tuple(nums)
+
     return parts(a) >= parts(b)
 
 
 # ---------------------------------------------------------------- 契约校验
 
 # ---------------------------------------------------------------- 语义一致性（F15 配套）
+
 
 def stance_semantic_conflicts(adj_spec, derived):
     """金额轴 × 清单轴的语义一致性检查。**只出 warning，不阻塞**。
@@ -618,12 +663,17 @@ def stance_semantic_conflicts(adj_spec, derived):
         money_counts = False
     diffs = set((d_opt.get("implies") or {}).get("diffs") or [])
     if money_counts and not (c_ids & diffs):
-        return [{
-            "axis": "DIFFSET", "versus": "ADJ-001",
-            "msg": (f"ADJ-001={a_choice}（金额里含口径差）但 DIFFSET={d_choice}"
+        return [
+            {
+                "axis": "DIFFSET",
+                "versus": "ADJ-001",
+                "msg": (
+                    f"ADJ-001={a_choice}（金额里含口径差）但 DIFFSET={d_choice}"
                     f"（清单不含 {'/'.join(sorted(c_ids))}）—— 两处数字各自能过校验，"
-                    f"但「金额差异包含清单里不存在的项」语义矛盾。请确认这是你的本意。"),
-        }]
+                    f"但「金额差异包含清单里不存在的项」语义矛盾。请确认这是你的本意。"
+                ),
+            }
+        ]
     return []
 
 
@@ -734,58 +784,103 @@ def check_seat(seat, answer, params, registry, round_role, ctx=None):
 
     if answer is None:
         return {
-            "seat": seat, "status": "invalid",
+            "seat": seat,
+            "status": "invalid",
             "errors": [{"code": "E_NOT_JSON", "field": "-", "msg": "文件缺失或不是合法 JSON"}],
-            "warnings": [], "derived": {},
+            "warnings": [],
+            "derived": {},
         }
 
     for f in required:
         if f not in answer:
-            errors.append({"code": f"E_MISSING_{f.upper()}", "field": f, "msg": f"硬性字段缺失：{f}"})
+            errors.append(
+                {"code": f"E_MISSING_{f.upper()}", "field": f, "msg": f"硬性字段缺失：{f}"}
+            )
         else:
             v = answer[f]
             if f == "conclusion" and (not isinstance(v, str) or not v.strip()):
-                errors.append({"code": "E_EMPTY_CONCLUSION", "field": f, "msg": "conclusion 不得为空"})
+                errors.append(
+                    {"code": "E_EMPTY_CONCLUSION", "field": f, "msg": "conclusion 不得为空"}
+                )
             if f == "evidence":
                 if not isinstance(v, list) or not v:
-                    errors.append({"code": "E_EMPTY_EVIDENCE", "field": f,
-                                   "msg": "evidence 须为 ≥1 项的数组（外部钩子，结构审计第 2 查）"})
+                    errors.append(
+                        {
+                            "code": "E_EMPTY_EVIDENCE",
+                            "field": f,
+                            "msg": "evidence 须为 ≥1 项的数组（外部钩子，结构审计第 2 查）",
+                        }
+                    )
                 else:
                     for i, item in enumerate(v):
-                        if not isinstance(item, dict) or not str(item.get("pointer", "")).strip() \
-                                or not str(item.get("what_it_shows", "")).strip():
-                            errors.append({"code": "E_BAD_EVIDENCE_ITEM", "field": f"{f}[{i}]",
-                                           "msg": "每项须含非空 pointer 与非空 what_it_shows"})
+                        if (
+                            not isinstance(item, dict)
+                            or not str(item.get("pointer", "")).strip()
+                            or not str(item.get("what_it_shows", "")).strip()
+                        ):
+                            errors.append(
+                                {
+                                    "code": "E_BAD_EVIDENCE_ITEM",
+                                    "field": f"{f}[{i}]",
+                                    "msg": "每项须含非空 pointer 与非空 what_it_shows",
+                                }
+                            )
             if f == "falsification" and (not isinstance(v, str) or not v.strip()):
-                errors.append({"code": "E_MISSING_FALSIFICATION", "field": f,
-                               "msg": "falsification 不得为空（协议：缺失即视为不可裁决）"})
+                errors.append(
+                    {
+                        "code": "E_MISSING_FALSIFICATION",
+                        "field": f,
+                        "msg": "falsification 不得为空（协议：缺失即视为不可裁决）",
+                    }
+                )
             if f == "reads":
                 if not isinstance(v, list) or not v:
-                    errors.append({"code": "E_MISSING_READS", "field": f,
-                                   "msg": "reads 须为 ≥1 项的数组（你【实际读过】的文件全集；"
-                                          "读了但没写成证据的也要写）"})
+                    errors.append(
+                        {
+                            "code": "E_MISSING_READS",
+                            "field": f,
+                            "msg": "reads 须为 ≥1 项的数组（你【实际读过】的文件全集；"
+                            "读了但没写成证据的也要写）",
+                        }
+                    )
                 else:
                     for i, item in enumerate(v):
                         if isinstance(item, dict):
                             if not str(item.get("path", "")).strip():
-                                errors.append({"code": "E_BAD_READS_ITEM", "field": f"reads[{i}]",
-                                               "msg": "每项须含非空 path"})
+                                errors.append(
+                                    {
+                                        "code": "E_BAD_READS_ITEM",
+                                        "field": f"reads[{i}]",
+                                        "msg": "每项须含非空 path",
+                                    }
+                                )
                         elif not (isinstance(item, str) and item.strip()):
-                            errors.append({"code": "E_BAD_READS_ITEM", "field": f"reads[{i}]",
-                                           "msg": "每项须为 {path, purpose} 或非空字符串"})
+                            errors.append(
+                                {
+                                    "code": "E_BAD_READS_ITEM",
+                                    "field": f"reads[{i}]",
+                                    "msg": "每项须为 {path, purpose} 或非空字符串",
+                                }
+                            )
 
     # 字数预算
     for field, limit in (maxchars or {}).items():
         v = answer.get(field)
         if isinstance(v, str) and len(v) > limit:
-            warnings.append({"code": "W_OVER_LENGTH", "field": field,
-                             "msg": f"{len(v)} 字 > 预算 {limit}"})
+            warnings.append(
+                {"code": "W_OVER_LENGTH", "field": field, "msg": f"{len(v)} 字 > 预算 {limit}"}
+            )
         elif isinstance(v, list):
             for i, item in enumerate(v):
                 s = json.dumps(item, ensure_ascii=False)
                 if len(s) > limit:
-                    warnings.append({"code": "W_OVER_LENGTH", "field": f"{field}[{i}]",
-                                     "msg": f"{len(s)} 字 > 预算 {limit}"})
+                    warnings.append(
+                        {
+                            "code": "W_OVER_LENGTH",
+                            "field": f"{field}[{i}]",
+                            "msg": f"{len(s)} 字 > 预算 {limit}",
+                        }
+                    )
 
     # 软项
     # ★ 豁免席位不应收到「stance 缺失」警告 —— 否则豁免形同虚设，且会淹没真实信号。
@@ -801,13 +896,19 @@ def check_seat(seat, answer, params, registry, round_role, ctx=None):
             continue
         if seat in (EXEMPT_FIELD_ALIASES.get(f) or set()):
             continue
-        if f == "dissent" and any(k in answer for k in ("disagreements", "strongest_counter_arguments")):
+        if f == "dissent" and any(
+            k in answer for k in ("disagreements", "strongest_counter_arguments")
+        ):
             continue
-        warnings.append({"code": f"W_MISSING_{f.upper()}", "field": f,
-                         "msg": f"软性字段缺失：{f}"})
+        warnings.append({"code": f"W_MISSING_{f.upper()}", "field": f, "msg": f"软性字段缺失：{f}"})
     if "confidence" not in answer and seat not in (EXEMPT_FIELD_ALIASES.get("stance") or set()):
-        warnings.append({"code": "W_MISSING_CONFIDENCE", "field": "confidence",
-                         "msg": "缺 confidence，将按 medium 处理"})
+        warnings.append(
+            {
+                "code": "W_MISSING_CONFIDENCE",
+                "field": "confidence",
+                "msg": "缺 confidence，将按 medium 处理",
+            }
+        )
 
     # stance：反推 + 与自述比对
     derived, declared, mismatches = {}, {}, []
@@ -818,29 +919,47 @@ def check_seat(seat, answer, params, registry, round_role, ctx=None):
         derived = derive_stance(answer, registry)
         declared = declared_stance(answer)
         if not declared:
-            warnings.append({"code": "W_STANCE_DERIVED_FALLBACK", "field": "stance",
-                             "msg": "未自述 stance，已由产出数字反推补齐"})
+            warnings.append(
+                {
+                    "code": "W_STANCE_DERIVED_FALLBACK",
+                    "field": "stance",
+                    "msg": "未自述 stance，已由产出数字反推补齐",
+                }
+            )
         for ax, d in derived.items():
             if d["choice"] == "out_of_space":
-                errors.append({"code": "E_STANCE_OUT_OF_SPACE", "field": f"stance.{ax}",
-                               "msg": d["why"]})
+                errors.append(
+                    {"code": "E_STANCE_OUT_OF_SPACE", "field": f"stance.{ax}", "msg": d["why"]}
+                )
             if ax in declared and declared[ax] != d["choice"]:
                 mismatches.append({"axis": ax, "declared": declared[ax], "derived": d["choice"]})
-                warnings.append({"code": "W_STANCE_MISMATCH", "field": f"stance.{ax}",
-                                 "msg": f"自述 {declared[ax]} vs 反推 {d['choice']} —— 这是有价值的信号，非错误"})
+                warnings.append(
+                    {
+                        "code": "W_STANCE_MISMATCH",
+                        "field": f"stance.{ax}",
+                        "msg": f"自述 {declared[ax]} vs 反推 {d['choice']} —— 这是有价值的信号，非错误",
+                    }
+                )
 
     # 匿名化：revision 轮里 dissent.target 不得写真实席位名
     if round_role == "revision_round":
-        for f, v in (("dissent", answer.get("dissent")),
-                     ("strongest_counter_arguments", answer.get("strongest_counter_arguments"))):
+        for f, v in (
+            ("dissent", answer.get("dissent")),
+            ("strongest_counter_arguments", answer.get("strongest_counter_arguments")),
+        ):
             if isinstance(v, list):
                 for i, item in enumerate(v):
                     if not isinstance(item, dict):
                         continue
                     tgt = str(item.get("target") or item.get("against") or "")
                     if tgt in DEBATING_SEATS or tgt in NON_DEBATING_SEATS:
-                        errors.append({"code": "E_PEER_IDENTIFIED", "field": f"{f}[{i}].target",
-                                       "msg": f"揭示了同伴真实身份「{tgt}」，应写匿名编号"})
+                        errors.append(
+                            {
+                                "code": "E_PEER_IDENTIFIED",
+                                "field": f"{f}[{i}].target",
+                                "msg": f"揭示了同伴真实身份「{tgt}」，应写匿名编号",
+                            }
+                        )
 
     ptrs = extract_pointers(answer, ctx.get("pkg_root"), ctx.get("roots") or ())
 
@@ -853,19 +972,28 @@ def check_seat(seat, answer, params, registry, round_role, ctx=None):
     if seat == "AD-01" and ctx.get("audit_pin_required"):
         aud = answer.get("audited_inputs")
         if not isinstance(aud, list) or not aud:
-            errors.append({"code": "E_AUDIT_INPUT_MISSING", "field": "audited_inputs",
-                           "msg": "契约 v2.1 要求 AD-01 产出 audited_inputs[]，逐项抄录"
-                                  "本轮 verdict-layered.json 与 pending-adjudication.json "
-                                  "的 verdict / spec_layer / ts —— 否则无法证明审计"
-                                  "发生在裁决之后（第 1 查）"})
+            errors.append(
+                {
+                    "code": "E_AUDIT_INPUT_MISSING",
+                    "field": "audited_inputs",
+                    "msg": "契约 v2.1 要求 AD-01 产出 audited_inputs[]，逐项抄录"
+                    "本轮 verdict-layered.json 与 pending-adjudication.json "
+                    "的 verdict / spec_layer / ts —— 否则无法证明审计"
+                    "发生在裁决之后（第 1 查）",
+                }
+            )
         else:
             _root = Path(ctx.get("pkg_root") or ".")
             _paths = []
             for i, x in enumerate(aud):
                 if not isinstance(x, dict) or not x.get("path"):
-                    errors.append({"code": "E_AUDIT_INPUT_BAD",
-                                   "field": f"audited_inputs[{i}]",
-                                   "msg": "每项必须是含 path 的对象"})
+                    errors.append(
+                        {
+                            "code": "E_AUDIT_INPUT_BAD",
+                            "field": f"audited_inputs[{i}]",
+                            "msg": "每项必须是含 path 的对象",
+                        }
+                    )
                     continue
                 rel = str(x["path"])
                 _paths.append(rel)
@@ -875,34 +1003,58 @@ def check_seat(seat, answer, params, registry, round_role, ctx=None):
                 except (json.JSONDecodeError, ValueError):
                     src = None
                 if not isinstance(src, dict):
-                    errors.append({"code": "E_AUDIT_INPUT_STALE",
-                                   "field": f"audited_inputs[{i}].path",
-                                   "msg": f"锚定目标不存在或不可解析：{rel}"
-                                          f"（解析为 {fp.as_posix()}）"})
+                    errors.append(
+                        {
+                            "code": "E_AUDIT_INPUT_STALE",
+                            "field": f"audited_inputs[{i}].path",
+                            "msg": f"锚定目标不存在或不可解析：{rel}（解析为 {fp.as_posix()}）",
+                        }
+                    )
                     continue
                 for k in ("verdict", "spec_layer", "ts"):
                     if k in x and str(x[k]) != str(src.get(k)):
-                        errors.append({"code": "E_AUDIT_INPUT_STALE",
-                                       "field": f"audited_inputs[{i}].{k}",
-                                       "msg": f"{rel} 的 {k} 实际为 {src.get(k)!r}，"
-                                              f"产出写的是 {x[k]!r} —— 锚定的不是这一版"})
+                        errors.append(
+                            {
+                                "code": "E_AUDIT_INPUT_STALE",
+                                "field": f"audited_inputs[{i}].{k}",
+                                "msg": f"{rel} 的 {k} 实际为 {src.get(k)!r}，"
+                                f"产出写的是 {x[k]!r} —— 锚定的不是这一版",
+                            }
+                        )
                 if x.get("pending_count") is not None:
                     real = (src.get("summary") or {}).get("pending")
                     if real is not None and str(x["pending_count"]) != str(real):
-                        errors.append({"code": "E_AUDIT_INPUT_STALE",
-                                       "field": f"audited_inputs[{i}].pending_count",
-                                       "msg": f"{rel} 的 summary.pending 实际为 {real}，"
-                                              f"产出写的是 {x['pending_count']}"})
+                        errors.append(
+                            {
+                                "code": "E_AUDIT_INPUT_STALE",
+                                "field": f"audited_inputs[{i}].pending_count",
+                                "msg": f"{rel} 的 summary.pending 实际为 {real}，"
+                                f"产出写的是 {x['pending_count']}",
+                            }
+                        )
             # 覆盖性：裁决文件必须被锚定；pending 只在它确实存在时要求
             if not any("verdict" in p for p in _paths):
-                errors.append({"code": "E_AUDIT_INPUT_INCOMPLETE", "field": "audited_inputs",
-                               "msg": "必须锚定本轮的 verdict 文件（verdict-layered.json）"})
+                errors.append(
+                    {
+                        "code": "E_AUDIT_INPUT_INCOMPLETE",
+                        "field": "audited_inputs",
+                        "msg": "必须锚定本轮的 verdict 文件（verdict-layered.json）",
+                    }
+                )
             _rd = Path(ctx["round_dir"]) if ctx.get("round_dir") else None
-            if _rd is not None and (_rd / "pending-adjudication.json").is_file() \
-                    and not any("pending-adjudication" in p for p in _paths):
-                errors.append({"code": "E_AUDIT_INPUT_INCOMPLETE", "field": "audited_inputs",
-                               "msg": "本轮存在 pending-adjudication.json，必须一并锚定"
-                                      "（第 5 查依赖它证明判断层是否已裁）"})
+            if (
+                _rd is not None
+                and (_rd / "pending-adjudication.json").is_file()
+                and not any("pending-adjudication" in p for p in _paths)
+            ):
+                errors.append(
+                    {
+                        "code": "E_AUDIT_INPUT_INCOMPLETE",
+                        "field": "audited_inputs",
+                        "msg": "本轮存在 pending-adjudication.json，必须一并锚定"
+                        "（第 5 查依赖它证明判断层是否已裁）",
+                    }
+                )
 
     # ---- F5：读取域判定（【检测】，不是【阻止】—— 见 06 文档第三节的诚实边界）----
     # ★ 严重度由【该轮契约版本】决定，不写死：
@@ -924,15 +1076,29 @@ def check_seat(seat, answer, params, registry, round_role, ctx=None):
             #   纯列举申报降级 warning——读目录无文件内容泄漏面；修订轮匿名包在
             #   inputs/ 子目录，canon 不会等于本轮目录。
             if re.fullmatch(r"runs/round\d+/", canon) is not None:
-                warnings.append({"code": "W_DIR_LISTING_SELF", "field": where,
-                                 "msg": f"本轮目录列举申报（降级，无泄漏面）：{declared} → {canon}"})
+                warnings.append(
+                    {
+                        "code": "W_DIR_LISTING_SELF",
+                        "field": where,
+                        "msg": f"本轮目录列举申报（降级，无泄漏面）：{declared} → {canon}",
+                    }
+                )
             else:
-                (errors if hard else warnings).append({
-                    "code": "E_READ_DOMAIN_VIOLATION" if hard else "W_READ_DOMAIN_VIOLATION",
-                    "field": where, "msg": f"读取域越界：{declared} → {canon}"})
+                (errors if hard else warnings).append(
+                    {
+                        "code": "E_READ_DOMAIN_VIOLATION" if hard else "W_READ_DOMAIN_VIOLATION",
+                        "field": where,
+                        "msg": f"读取域越界：{declared} → {canon}",
+                    }
+                )
         elif cls == "unclassified":
-            warnings.append({"code": "W_READS_UNCLASSIFIED", "field": where,
-                             "msg": f"路径不在读取域任何清单内：{canon}"})
+            warnings.append(
+                {
+                    "code": "W_READS_UNCLASSIFIED",
+                    "field": where,
+                    "msg": f"路径不在读取域任何清单内：{canon}",
+                }
+            )
         return cls
 
     if rd:
@@ -956,15 +1122,21 @@ def check_seat(seat, answer, params, registry, round_role, ctx=None):
             for k in _keys(p["pointer"]):
                 _rec(ev_recs, f"evidence[{i}]", p["pointer"], k)
         if not reads_seen:
-            warnings.append({"code": "W_MISSING_READS", "field": "reads",
-                             "msg": "未申报 reads[] → 第 9 查记 NO_DECLARATION（【未能核验】，不判错）"})
+            warnings.append(
+                {
+                    "code": "W_MISSING_READS",
+                    "field": "reads",
+                    "msg": "未申报 reads[] → 第 9 查记 NO_DECLARATION（【未能核验】，不判错）",
+                }
+            )
 
     # ---- F15 配套：金额轴 × 清单轴的语义一致性（只告警，不阻塞）----
     #   放在这里是因为：这是唯一同时握着「同一席位两个轴的实际取值」的位置。
     conflicts = stance_semantic_conflicts(ctx.get("adj_spec"), derived)
     for c in conflicts:
-        warnings.append({"code": "W_STANCE_SEMANTIC_CONFLICT",
-                         "field": f"stance.{c['axis']}", "msg": c["msg"]})
+        warnings.append(
+            {"code": "W_STANCE_SEMANTIC_CONFLICT", "field": f"stance.{c['axis']}", "msg": c["msg"]}
+        )
 
     # ---- F18：usage 申报（声明式预算）----
     #   严重度按轮次门控：只有 manifest 声明 usage_required=true 的新轮次才硬性要求，
@@ -976,13 +1148,20 @@ def check_seat(seat, answer, params, registry, round_role, ctx=None):
         if uerrs:
             errors.append({"code": "E_BAD_USAGE", "field": "usage", "msg": "；".join(uerrs)})
         else:
-            usage_rec = {"tokens": int(usage.get("tokens") or 0),
-                         "minutes": float(usage.get("minutes") or 0),
-                         "source": usage.get("source", "self_report")}
+            usage_rec = {
+                "tokens": int(usage.get("tokens") or 0),
+                "minutes": float(usage.get("minutes") or 0),
+                "source": usage.get("source", "self_report"),
+            }
     elif ctx.get("usage_required"):
-        errors.append({"code": "E_MISSING_USAGE", "field": "usage",
-                       "msg": "本轮要求申报 usage{tokens, minutes, source} —— "
-                              "缺失即无法核算预算，按契约判不合格"})
+        errors.append(
+            {
+                "code": "E_MISSING_USAGE",
+                "field": "usage",
+                "msg": "本轮要求申报 usage{tokens, minutes, source} —— "
+                "缺失即无法核算预算，按契约判不合格",
+            }
+        )
 
     return {
         "seat": seat,
@@ -1009,8 +1188,17 @@ def check_seat(seat, answer, params, registry, round_role, ctx=None):
     }
 
 
-def check_round(round_dir, params, adj_spec, strict_warnings=False, stage="all",
-                rd=None, pkg_root=None, roots=(), routing=None):
+def check_round(
+    round_dir,
+    params,
+    adj_spec,
+    strict_warnings=False,
+    stage="all",
+    rd=None,
+    pkg_root=None,
+    roots=(),
+    routing=None,
+):
     """校验整轮。
 
     stage（F10 修复）：契约校验必须发生在【两处】，因为 AD-01/PM-01 的产出
@@ -1039,46 +1227,69 @@ def check_round(round_dir, params, adj_spec, strict_warnings=False, stage="all",
             expected.append(s)
 
     registry = build_axis_registry(adj_spec, params)
-    ctx = {"rd": rd, "reads_required": reads_required,
-           "pkg_root": pkg_root, "roots": roots,
-           "round_dir": str(round_dir),
-           "adj_spec": adj_spec,
-           # ★ v2.1：AD-01 必须锚定裁判侧产物（第 1 查时序）。同样按轮次门控，
-           #   否则 round2/round3（2.0）会被追溯判死 —— 它们早于本机制。
-           "audit_pin_required": _ver_ge(round_ver, "2.1"),
-           # F18：预算申报的硬性要求按【轮次】门控（与 contract_version 同构），
-           # 不按工具全局开关 —— 否则 round2 与全部夹具会被追溯判死。
-           "usage_required": bool(manifest.get("usage_required", False))}
+    ctx = {
+        "rd": rd,
+        "reads_required": reads_required,
+        "pkg_root": pkg_root,
+        "roots": roots,
+        "round_dir": str(round_dir),
+        "adj_spec": adj_spec,
+        # ★ v2.1：AD-01 必须锚定裁判侧产物（第 1 查时序）。同样按轮次门控，
+        #   否则 round2/round3（2.0）会被追溯判死 —— 它们早于本机制。
+        "audit_pin_required": _ver_ge(round_ver, "2.1"),
+        # F18：预算申报的硬性要求按【轮次】门控（与 contract_version 同构），
+        # 不按工具全局开关 —— 否则 round2 与全部夹具会被追溯判死。
+        "usage_required": bool(manifest.get("usage_required", False)),
+    }
 
     results, found = [], []
     for seat in expected:
         fp = round_dir / f"{seat}.json"
         if not fp.is_file():
             if seat in DEBATING_SEATS or strict_missing:
-                results.append({
-                    "seat": seat, "file": str(fp), "sha256": None, "status": "invalid",
-                    "errors": [{"code": "E_MISSING_SEAT", "field": "-", "msg": "轮次内缺少该席位产出"}],
-                    "warnings": [], "derived": {},
-                })
+                results.append(
+                    {
+                        "seat": seat,
+                        "file": str(fp),
+                        "sha256": None,
+                        "status": "invalid",
+                        "errors": [
+                            {"code": "E_MISSING_SEAT", "field": "-", "msg": "轮次内缺少该席位产出"}
+                        ],
+                        "warnings": [],
+                        "derived": {},
+                    }
+                )
             continue
         try:
             answer = load_json(fp)
         except (json.JSONDecodeError, ValueError):
             answer = "__BAD_JSON__"
         if answer == "__BAD_JSON__":
-            results.append({
-                "seat": seat, "file": str(fp), "sha256": sha256_of(fp), "status": "invalid",
-                "errors": [{"code": "E_NOT_JSON", "field": "-", "msg": "不是合法 JSON"}],
-                "warnings": [], "derived": {},
-            })
+            results.append(
+                {
+                    "seat": seat,
+                    "file": str(fp),
+                    "sha256": sha256_of(fp),
+                    "status": "invalid",
+                    "errors": [{"code": "E_NOT_JSON", "field": "-", "msg": "不是合法 JSON"}],
+                    "warnings": [],
+                    "derived": {},
+                }
+            )
             found.append(seat)
             continue
         r = check_seat(seat, answer, params, registry, round_role, ctx)
         r["file"] = str(fp).replace("\\", "/")
         r["sha256"] = sha256_of(fp)
         if strict_warnings and r["warnings"]:
-            r["errors"].append({"code": "E_STRICT_WARNINGS", "field": "-",
-                                "msg": f"--strict-warnings：{len(r['warnings'])} 条 warning 升级为错误"})
+            r["errors"].append(
+                {
+                    "code": "E_STRICT_WARNINGS",
+                    "field": "-",
+                    "msg": f"--strict-warnings：{len(r['warnings'])} 条 warning 升级为错误",
+                }
+            )
             r["status"] = "invalid"
         results.append(r)
         found.append(seat)
@@ -1098,8 +1309,10 @@ def check_round(round_dir, params, adj_spec, strict_warnings=False, stage="all",
     # default 路由会令六席同家族 —— 该前提必须由机器核验，而非 XJ-01 自述。
     xj_family_check = None
     if routing:
+
         def _norm(s):
             return "".join(ch for ch in str(s).lower() if ch.isalnum())
+
         fam = {n: _model_family(m) for n, m in routing.items()}
         ex_f, xj_f = set(), set()
         for n, f in fam.items():
@@ -1114,9 +1327,11 @@ def check_round(round_dir, params, adj_spec, strict_warnings=False, stage="all",
             "ex_families": sorted(ex_f),
             "xj_families": sorted(xj_f),
             "cross_family": cross,
-            "note": ("cross_family=True 才满足 protocol/04 对 XJ-01 的家族要求；"
-                     "False → 本轮 XJ-01 线索按同家族降权（其决策权重本就为 0）；"
-                     "None → 记录不足以判定。家族由模型 id 关键词推断，非自报。"),
+            "note": (
+                "cross_family=True 才满足 protocol/04 对 XJ-01 的家族要求；"
+                "False → 本轮 XJ-01 线索按同家族降权（其决策权重本就为 0）；"
+                "None → 记录不足以判定。家族由模型 id 关键词推断，非自报。"
+            ),
         }
     else:
         # ★ 2026-10-23 修（代码审查 C-8）：原来 routing 为空时整段跳过、字段留 None，
@@ -1135,7 +1350,8 @@ def check_round(round_dir, params, adj_spec, strict_warnings=False, stage="all",
         "xj_family_check": xj_family_check,
         "contract_version": round_ver,
         "expected_contract_version": str(
-            (params.get("seat_contract") or {}).get("contract_version") or "1.0"),
+            (params.get("seat_contract") or {}).get("contract_version") or "1.0"
+        ),
         "reads_required": reads_required,
         "stage": stage,
         "round_dir": str(round_dir).replace("\\", "/"),
@@ -1145,8 +1361,14 @@ def check_round(round_dir, params, adj_spec, strict_warnings=False, stage="all",
         "seats_expected": expected,
         "results": results,
         "aggregation_admissible": [r["seat"] for r in valid],
-        "aggregation_blocked": [{"seat": r["seat"], "sha256": r.get("sha256"),
-                                 "errors": [e["code"] for e in r["errors"]]} for r in blocked],
+        "aggregation_blocked": [
+            {
+                "seat": r["seat"],
+                "sha256": r.get("sha256"),
+                "errors": [e["code"] for e in r["errors"]],
+            }
+            for r in blocked
+        ],
         "verdict": verdict,
         "summary": {"total": len(results), "valid": len(valid), "invalid": len(blocked)},
     }
@@ -1176,11 +1398,23 @@ def build_read_domain_report(round_dir, report, rd, rd_path=None):
             declared_any = True
         for rec in dd + ed:
             if rec.get("class") == "deny":
-                hits.append({"seat": r["seat"], "source": rec["source"],
-                             "declared": rec["declared"], "canonical": rec["canonical"]})
-        per_seat.append({"seat": r["seat"], "status": r["status"],
-                         "declared_reads": dd, "evidence_derived": ed,
-                         "severity": info.get("severity", "n/a")})
+                hits.append(
+                    {
+                        "seat": r["seat"],
+                        "source": rec["source"],
+                        "declared": rec["declared"],
+                        "canonical": rec["canonical"],
+                    }
+                )
+        per_seat.append(
+            {
+                "seat": r["seat"],
+                "status": r["status"],
+                "declared_reads": dd,
+                "evidence_derived": ed,
+                "severity": info.get("severity", "n/a"),
+            }
+        )
 
     verdict = "HIT" if hits else ("NO_DECLARATION" if not declared_any else "CLEAN")
     return {
@@ -1195,11 +1429,18 @@ def build_read_domain_report(round_dir, report, rd, rd_path=None):
         "verdict": verdict,
         "hits": hits,
         "per_seat": per_seat,
-        "summary": {"seats": len(per_seat), "hits": len(hits),
-                    "seats_declaring_reads": sum(1 for s in per_seat if s["declared_reads"])},
-        "boundary": ("本文件是【声明式下界】：CLEAN 只说明「没有可检出的越界」，"
-                     "不说明「没有越界」。席位读取未申报的文件，对脚本完全不可见。"),
-        "action": "HOLD" if verdict == "HIT" else ("UNVERIFIED" if verdict == "NO_DECLARATION" else "PASS"),
+        "summary": {
+            "seats": len(per_seat),
+            "hits": len(hits),
+            "seats_declaring_reads": sum(1 for s in per_seat if s["declared_reads"]),
+        },
+        "boundary": (
+            "本文件是【声明式下界】：CLEAN 只说明「没有可检出的越界」，"
+            "不说明「没有越界」。席位读取未申报的文件，对脚本完全不可见。"
+        ),
+        "action": "HOLD"
+        if verdict == "HIT"
+        else ("UNVERIFIED" if verdict == "NO_DECLARATION" else "PASS"),
     }
 
 
@@ -1216,8 +1457,7 @@ def verify_final(round_dir, params=None):
     sc_path = round_dir / "seat-check.json"
     sc = load_json(sc_path)
     if sc is None:
-        print(f"[ERR] 缺少 {sc_path}，请先运行 --round-dir 生成契约校验结果",
-              file=sys.stderr)
+        print(f"[ERR] 缺少 {sc_path}，请先运行 --round-dir 生成契约校验结果", file=sys.stderr)
         return EXIT_ERROR
     blocked = {b["sha256"] for b in sc.get("aggregation_blocked", []) if b.get("sha256")}
     blocked_seats = {b["seat"] for b in sc.get("aggregation_blocked", [])}
@@ -1230,8 +1470,11 @@ def verify_final(round_dir, params=None):
 
     inputs = af.get("aggregation_inputs")
     if not isinstance(inputs, list) or not inputs:
-        print("[FAIL] answer-final.json 缺少 aggregation_inputs[] —— "
-              "PM 必须声明它聚合了哪些席位及各自契约状态", file=sys.stderr)
+        print(
+            "[FAIL] answer-final.json 缺少 aggregation_inputs[] —— "
+            "PM 必须声明它聚合了哪些席位及各自契约状态",
+            file=sys.stderr,
+        )
         return EXIT_INVALID
 
     violations = []
@@ -1241,7 +1484,9 @@ def verify_final(round_dir, params=None):
         if item.get("seat") in blocked_seats:
             violations.append(f"引用了被否决席位 {item['seat']}")
         if item.get("seat_check_status") != "valid":
-            violations.append(f"{item.get('seat')} 的状态为 {item.get('seat_check_status')}，非 valid")
+            violations.append(
+                f"{item.get('seat')} 的状态为 {item.get('seat_check_status')}，非 valid"
+            )
         if item.get("sha256") and item["sha256"] in blocked:
             violations.append(f"引用了被否决产出的 sha256 {str(item['sha256'])[:16]}…")
 
@@ -1255,20 +1500,21 @@ def verify_final(round_dir, params=None):
     # 严重度由该轮 contract_version 决定，与 reads[] 用同一套机制（不引入第二条
     # 行为不同的规则）。实测 runs/round2/PM-01.json 八字段本就齐备，故此门控是双保险。
     if params is not None:
-        ver = str((load_json(round_dir / "round-manifest.json") or {})
-                  .get("contract_version") or "1.0")
+        ver = str(
+            (load_json(round_dir / "round-manifest.json") or {}).get("contract_version") or "1.0"
+        )
         pm_req = list((params.get("seat_contract") or {}).get("pm_required_fields") or [])
         if pm_req:
             pm = load_json(round_dir / "PM-01.json")
             miss = [f for f in pm_req if pm is None or f not in pm]
             if miss:
-                msg = (f"PM-01.json 缺 {len(miss)}/{len(pm_req)} 个自有字段：{miss}"
-                       + ("（文件不存在）" if pm is None else ""))
+                msg = f"PM-01.json 缺 {len(miss)}/{len(pm_req)} 个自有字段：{miss}" + (
+                    "（文件不存在）" if pm is None else ""
+                )
                 if _ver_ge(ver, "2.0"):
                     print(f"[FAIL] 产物验收门（契约 v{ver}）：{msg}", file=sys.stderr)
                     return EXIT_INVALID
-                print(f"[WARN] {msg} —— 契约 v{ver} < 2.0，仅告警；新轮次将硬失败",
-                      file=sys.stderr)
+                print(f"[WARN] {msg} —— 契约 v{ver} < 2.0，仅告警；新轮次将硬失败", file=sys.stderr)
             else:
                 print(f"[OK] PM-01 schema 完整（{len(pm_req)} 个自有字段）")
 
@@ -1279,21 +1525,24 @@ def verify_final(round_dir, params=None):
         st_path = round_dir / "answer-status.json"
         st = load_json(st_path)
         if st is None:
-            msg = ("answer-status.json 缺失 —— 待裁状态只写在 pm_note 散文里，"
-                   "机器无法读取，第 7 查只能靠人读文本")
+            msg = (
+                "answer-status.json 缺失 —— 待裁状态只写在 pm_note 散文里，"
+                "机器无法读取，第 7 查只能靠人读文本"
+            )
             if _ver_ge(ver, "2.1"):
                 print(f"[FAIL] 产物验收门（契约 v{ver}）：{msg}", file=sys.stderr)
                 return EXIT_INVALID
-            print(f"[WARN] {msg} —— 契约 v{ver} < 2.1，仅告警；新轮次将硬失败",
-                  file=sys.stderr)
+            print(f"[WARN] {msg} —— 契约 v{ver} < 2.1，仅告警；新轮次将硬失败", file=sys.stderr)
         else:
             probs = []
             _ans_sha = sha256_of(af_path)
             _got = str((st.get("answer") or {}).get("sha256") or "")
             if _got != _ans_sha:
-                probs.append(f"answer.sha256 不匹配：状态文件记 {_got[:16]}…，"
-                             f"实际 answer-final.json 为 {str(_ans_sha)[:16]}… "
-                             f"（状态描述的是另一版答案）")
+                probs.append(
+                    f"answer.sha256 不匹配：状态文件记 {_got[:16]}…，"
+                    f"实际 answer-final.json 为 {str(_ans_sha)[:16]}… "
+                    f"（状态描述的是另一版答案）"
+                )
             _state = st.get("adjudication_state")
             if _state not in ("pending", "adjudicated", "fail", "not_applicable"):
                 probs.append(f"adjudication_state 非法：{_state!r}")
@@ -1304,16 +1553,18 @@ def verify_final(round_dir, params=None):
                 else:
                     _pj = load_json(round_dir / "pending-adjudication.json")
                     if isinstance(_pj, dict):
-                        _real = sorted(p.get("id") for p in (_pj.get("pending") or [])
-                                       if isinstance(p, dict))
+                        _real = sorted(
+                            p.get("id") for p in (_pj.get("pending") or []) if isinstance(p, dict)
+                        )
                         if sorted(_pend) != _real:
-                            probs.append(f"pending_items {sorted(_pend)} 与 "
-                                         f"pending-adjudication.json 的 {_real} 不一致")
+                            probs.append(
+                                f"pending_items {sorted(_pend)} 与 "
+                                f"pending-adjudication.json 的 {_real} 不一致"
+                            )
             if _state == "adjudicated" and not st.get("record"):
                 probs.append("state=adjudicated 但 record 字段为空")
             if _state == "fail" and st.get("verdict") != "fail":
-                probs.append(f"state=fail 但 verdict={st.get('verdict')!r}"
-                             f"（状态与裁决矛盾）")
+                probs.append(f"state=fail 但 verdict={st.get('verdict')!r}（状态与裁决矛盾）")
             # spec 在本轮之后被改动 → 本条状态已不适用
             # ★ 任务参数化（2026-10-20）：001 在 fixtures/spec，002 及以后在 fixtures/<task>/spec
             _task = str((load_json(round_dir / "round-manifest.json") or {}).get("task") or "001")
@@ -1321,23 +1572,27 @@ def verify_final(round_dir, params=None):
             _sp = round_dir.parent.parent / f"{_fx}/spec/adjudication.json"
             _ss = (st.get("spec") or {}).get("sha256")
             if _ss and _sp.is_file() and _ss != sha256_of(_sp):
-                probs.append("spec.sha256 与当前 fixtures/spec/adjudication.json 不一致"
-                             "（spec 在本轮之后被改过，状态需重算）")
+                probs.append(
+                    "spec.sha256 与当前 fixtures/spec/adjudication.json 不一致"
+                    "（spec 在本轮之后被改过，状态需重算）"
+                )
             if probs:
                 print("[FAIL] answer-status.json 自洽性校验未通过：", file=sys.stderr)
                 for p in probs:
                     print(f"  - {p}", file=sys.stderr)
-                print("      ★ 一个撒谎的状态文件比没有更危险 —— 不因版本低而放行",
-                      file=sys.stderr)
+                print("      ★ 一个撒谎的状态文件比没有更危险 —— 不因版本低而放行", file=sys.stderr)
                 return EXIT_INVALID
-            print(f"[OK] answer-status 自洽（state={_state}, "
-                  f"pending={len(_pend)}, answer.sha256 匹配）")
+            print(
+                f"[OK] answer-status 自洽（state={_state}, "
+                f"pending={len(_pend)}, answer.sha256 匹配）"
+            )
 
     print(f"[PASS] 聚合防伪校验通过 —— {len(inputs)} 个输入席位全部为 valid")
     return EXIT_OK
 
 
 # ---------------------------------------------------------------- 自检
+
 
 def self_test():
     n_ok, fails = 0, []
@@ -1360,68 +1615,127 @@ def self_test():
             "required_fields": ["seat", "round", "conclusion", "evidence", "falsification"],
             "warning_fields": ["confidence", "dissent", "needs_more_data", "stance"],
             "stance_exempt_seats": ["AD-01", "PM-01", "XJ-01"],
-            "stance": {"primary_axes": ["ADJ-001"], "joint_axes": {"DIFFSET": ["ADJ-002", "ADJ-003"]}},
+            "stance": {
+                "primary_axes": ["ADJ-001"],
+                "joint_axes": {"DIFFSET": ["ADJ-002", "ADJ-003"]},
+            },
         },
-        "presentation": {"max_chars_per_field": {"conclusion": 200, "evidence": 400, "dissent": 800}},
+        "presentation": {
+            "max_chars_per_field": {"conclusion": 200, "evidence": 400, "dissent": 800}
+        },
     }
-    spec = {"items": [
-        {"id": "ADJ-001", "options": [
-            {"id": "count", "implies": {"summary.amount_diff_total": 680.02,
-                                        "summary.excluded_amount_total": 0.0}},
-            {"id": "exclude", "implies": {"summary.amount_diff_total": 500.02,
-                                          "summary.excluded_amount_total": 180.0}}]},
-        {"id": "ADJ-002", "options": [
-            {"id": "as_diff", "implies": {"summary.diff_count": 7}},
-            {"id": "not_diff", "implies": {"summary.diff_count": 6}}]},
-        {"id": "ADJ-003", "options": [
-            {"id": "as_diff", "implies": {"summary.diff_count": 7}},
-            {"id": "not_diff", "implies": {"summary.diff_count": 5}}]},
-    ]}
+    spec = {
+        "items": [
+            {
+                "id": "ADJ-001",
+                "options": [
+                    {
+                        "id": "count",
+                        "implies": {
+                            "summary.amount_diff_total": 680.02,
+                            "summary.excluded_amount_total": 0.0,
+                        },
+                    },
+                    {
+                        "id": "exclude",
+                        "implies": {
+                            "summary.amount_diff_total": 500.02,
+                            "summary.excluded_amount_total": 180.0,
+                        },
+                    },
+                ],
+            },
+            {
+                "id": "ADJ-002",
+                "options": [
+                    {"id": "as_diff", "implies": {"summary.diff_count": 7}},
+                    {"id": "not_diff", "implies": {"summary.diff_count": 6}},
+                ],
+            },
+            {
+                "id": "ADJ-003",
+                "options": [
+                    {"id": "as_diff", "implies": {"summary.diff_count": 7}},
+                    {"id": "not_diff", "implies": {"summary.diff_count": 5}},
+                ],
+            },
+        ]
+    }
     reg = build_axis_registry(spec, params)
     expect("注册表含 primary ADJ-001", "ADJ-001" in reg["primary"])
     expect("注册表含 joint DIFFSET", "DIFFSET" in reg["joint"])
-    expect("DIFFSET 观测值 = [7,6,5]", reg["joint"]["DIFFSET"]["values"] == [7, 6, 5],
-           str(reg["joint"]["DIFFSET"]["values"]))
+    expect(
+        "DIFFSET 观测值 = [7,6,5]",
+        reg["joint"]["DIFFSET"]["values"] == [7, 6, 5],
+        str(reg["joint"]["DIFFSET"]["values"]),
+    )
 
     print("\n【立场反推】")
-    a_excl = {"summary": {"amount_diff_total": 500.02, "excluded_amount_total": 180.0,
-                          "diff_count": 7}}
-    a_count = {"summary": {"amount_diff_total": 680.02, "excluded_amount_total": 0.0,
-                           "diff_count": 5}}
+    a_excl = {
+        "summary": {"amount_diff_total": 500.02, "excluded_amount_total": 180.0, "diff_count": 7}
+    }
+    a_count = {
+        "summary": {"amount_diff_total": 680.02, "excluded_amount_total": 0.0, "diff_count": 5}
+    }
     d1 = derive_stance(a_excl, reg)
-    expect("500.02/180.00 → ADJ-001=exclude", d1["ADJ-001"]["choice"] == "exclude", d1["ADJ-001"]["choice"])
+    expect(
+        "500.02/180.00 → ADJ-001=exclude",
+        d1["ADJ-001"]["choice"] == "exclude",
+        d1["ADJ-001"]["choice"],
+    )
     expect("diff_count=7 → DIFFSET=7", d1["DIFFSET"]["choice"] == "7", d1["DIFFSET"]["choice"])
     d2 = derive_stance(a_count, reg)
-    expect("680.02/0.00 → ADJ-001=count", d2["ADJ-001"]["choice"] == "count", d2["ADJ-001"]["choice"])
+    expect(
+        "680.02/0.00 → ADJ-001=count", d2["ADJ-001"]["choice"] == "count", d2["ADJ-001"]["choice"]
+    )
     expect("diff_count=5 → DIFFSET=5", d2["DIFFSET"]["choice"] == "5", d2["DIFFSET"]["choice"])
     d3 = derive_stance({"summary": {"diff_count": 4}}, reg)
-    expect("diff_count=4 → out_of_space", d3["DIFFSET"]["choice"] == "out_of_space", d3["DIFFSET"]["why"][:30])
+    expect(
+        "diff_count=4 → out_of_space",
+        d3["DIFFSET"]["choice"] == "out_of_space",
+        d3["DIFFSET"]["why"][:30],
+    )
     d4 = derive_stance({}, reg)
-    expect("空产出 → 全 abstain",
-           d4["ADJ-001"]["choice"] == "abstain" and d4["DIFFSET"]["choice"] == "abstain")
+    expect(
+        "空产出 → 全 abstain",
+        d4["ADJ-001"]["choice"] == "abstain" and d4["DIFFSET"]["choice"] == "abstain",
+    )
 
     print("\n【契约硬闸门】")
-    good = {"seat": "EX-01", "round": 2, "conclusion": "c",
-            "evidence": [{"pointer": "fixtures/ledger.csv#T101", "what_it_shows": "s"}],
-            "falsification": "f", "confidence": "high", "dissent": [{"against": "A"}]}
+    good = {
+        "seat": "EX-01",
+        "round": 2,
+        "conclusion": "c",
+        "evidence": [{"pointer": "fixtures/ledger.csv#T101", "what_it_shows": "s"}],
+        "falsification": "f",
+        "confidence": "high",
+        "dissent": [{"against": "A"}],
+    }
     r = check_seat("EX-01", good, params, reg, "revision_round")
     expect("合规产出 → valid", r["status"] == "valid", f"errors={[e['code'] for e in r['errors']]}")
 
-    for missing, code in (("conclusion", "E_MISSING_CONCLUSION"),
-                          ("evidence", "E_MISSING_EVIDENCE"),
-                          ("falsification", "E_MISSING_FALSIFICATION")):
+    for missing, code in (
+        ("conclusion", "E_MISSING_CONCLUSION"),
+        ("evidence", "E_MISSING_EVIDENCE"),
+        ("falsification", "E_MISSING_FALSIFICATION"),
+    ):
         bad = dict(good)
         bad.pop(missing)
         r = check_seat("EX-01", bad, params, reg, "revision_round")
-        expect(f"缺 {missing} → invalid({code})",
-               r["status"] == "invalid" and any(e["code"] == code for e in r["errors"]),
-               str([e["code"] for e in r["errors"]]))
+        expect(
+            f"缺 {missing} → invalid({code})",
+            r["status"] == "invalid" and any(e["code"] == code for e in r["errors"]),
+            str([e["code"] for e in r["errors"]]),
+        )
 
     bad = dict(good)
     bad["evidence"] = []
     r = check_seat("EX-01", bad, params, reg, "revision_round")
-    expect("空 evidence 数组 → invalid", r["status"] == "invalid",
-           str([e["code"] for e in r["errors"]]))
+    expect(
+        "空 evidence 数组 → invalid",
+        r["status"] == "invalid",
+        str([e["code"] for e in r["errors"]]),
+    )
 
     print("\n【自述与反推背离 —— 应是 warning 不是 error】")
     mm = dict(good)
@@ -1429,8 +1743,9 @@ def self_test():
     mm["stance"] = [{"axis": "ADJ-001", "choice": "exclude"}]
     r = check_seat("EX-01", mm, params, reg, "revision_round")
     expect("背离 → 仍 valid", r["status"] == "valid", f"errors={[e['code'] for e in r['errors']]}")
-    expect("背离 → 有 W_STANCE_MISMATCH",
-           any(w["code"] == "W_STANCE_MISMATCH" for w in r["warnings"]))
+    expect(
+        "背离 → 有 W_STANCE_MISMATCH", any(w["code"] == "W_STANCE_MISMATCH" for w in r["warnings"])
+    )
 
     print("\n【豁免席位】")
     r = check_seat("AD-01", dict(good, seat="AD-01"), params, reg, "revision_round")
@@ -1440,9 +1755,11 @@ def self_test():
     leak = dict(good)
     leak["dissent"] = [{"against": "EX-02", "reason": "r", "reverse_evidence": "e"}]
     r = check_seat("EX-01", leak, params, reg, "revision_round")
-    expect("点名同伴 → E_PEER_IDENTIFIED",
-           any(e["code"] == "E_PEER_IDENTIFIED" for e in r["errors"]),
-           str([e["code"] for e in r["errors"]]))
+    expect(
+        "点名同伴 → E_PEER_IDENTIFIED",
+        any(e["code"] == "E_PEER_IDENTIFIED" for e in r["errors"]),
+        str([e["code"] for e in r["errors"]]),
+    )
     r2 = check_seat("EX-01", leak, params, reg, "evidence_round")
     expect("evidence 轮不检查匿名（非质询轮）", r2["status"] == "valid")
 
@@ -1450,10 +1767,13 @@ def self_test():
     ptrs = extract_pointers(good)
     expect("抽取 1 条指针", len(ptrs) == 1 and ptrs[0]["pointer"] == "fixtures/ledger.csv#T101")
     expect("pointer_id 为 16 位", len(ptrs[0]["pointer_id"]) == 16)
-    expect("pointer_id 不含内容哈希（同指针跨轮可识别）",
-           extract_pointers(good)[0]["pointer_id"] == ptrs[0]["pointer_id"])
+    expect(
+        "pointer_id 不含内容哈希（同指针跨轮可识别）",
+        extract_pointers(good)[0]["pointer_id"] == ptrs[0]["pointer_id"],
+    )
 
     print("\n【params 键完整性】")
+
     # ★ 原实现手写了一份 full_params 夹具，结果它与 REQUIRED_PARAM_PATHS 脱节：
     #   清单加了键，夹具没跟，自检就报「完整 params 仍缺键」。手写夹具必漂。
     #   改为【从清单合成】：每个必需 path 填一个哨兵值，构造上不可能缺项。
@@ -1467,8 +1787,10 @@ def self_test():
             cur[parts[-1]] = 1
         return d
 
-    expect("由必需键清单合成的 params → 无缺键（构造上不可漂）",
-           lint_params(_synth_from_required()) == [])
+    expect(
+        "由必需键清单合成的 params → 无缺键（构造上不可漂）",
+        lint_params(_synth_from_required()) == [],
+    )
     real = load_json(DEFAULT_PARAMS)
     if real is not None:
         miss = lint_params(real)
@@ -1479,57 +1801,100 @@ def self_test():
     pkg = _pkg_root()
     cand = (pkg,)
     pid = lambda s: pointer_id_of(s, pkg, cand)
-    expect("路径写法归一：./fixtures/x 与 fixtures/x 同 id",
-           pid("./fixtures/ledger.csv#T101") == pid("fixtures/ledger.csv#T101"))
-    expect("选择子不同 → 不同 id（#T101 vs #T102）",
-           pid("fixtures/ledger.csv#T101") != pid("fixtures/ledger.csv#T102"))
-    expect("文件不同 → 不同 id（ledger vs bill）",
-           pid("fixtures/ledger.csv#T101") != pid("fixtures/bill.csv#T101"))
-    expect("多指针顺序不影响 id",
-           pid("fixtures/ledger.csv#T101 + fixtures/bill.csv#T103")
-           == pid("fixtures/bill.csv#T103 + fixtures/ledger.csv#T101"))
+    expect(
+        "路径写法归一：./fixtures/x 与 fixtures/x 同 id",
+        pid("./fixtures/ledger.csv#T101") == pid("fixtures/ledger.csv#T101"),
+    )
+    expect(
+        "选择子不同 → 不同 id（#T101 vs #T102）",
+        pid("fixtures/ledger.csv#T101") != pid("fixtures/ledger.csv#T102"),
+    )
+    expect(
+        "文件不同 → 不同 id（ledger vs bill）",
+        pid("fixtures/ledger.csv#T101") != pid("fixtures/bill.csv#T101"),
+    )
+    expect(
+        "多指针顺序不影响 id",
+        pid("fixtures/ledger.csv#T101 + fixtures/bill.csv#T103")
+        == pid("fixtures/bill.csv#T103 + fixtures/ledger.csv#T101"),
+    )
     expect("定义式随产出一起可读", POINTER_ID_DEFINITION.startswith("sha256(sorted("))
 
     print("\n【F18：usage 与预算】")
     expect("usage 合法", usage_errors({"tokens": 100, "minutes": 1.5}) == [])
     expect("tokens 为负 → 拒", usage_errors({"tokens": -1, "minutes": 1}) != [])
     expect("minutes 非数字 → 拒", usage_errors({"tokens": 1, "minutes": "x"}) != [])
-    expect("source 非法 → 拒",
-           usage_errors({"tokens": 1, "minutes": 1, "source": "wish"}) != [])
-    _p = {"cost_budget": {"per_task_token_hard_cap": 1000,
-                          "per_task_wall_clock_hard_cap": 30,
-                          "action": "terminate_branch"}}
-    _ok = evaluate_budget({"results": [{"seat": "EX-01", "derived": {
-        "usage": {"tokens": 10, "minutes": 2, "source": "self_report"}}}]}, _p)
+    expect("source 非法 → 拒", usage_errors({"tokens": 1, "minutes": 1, "source": "wish"}) != [])
+    _p = {
+        "cost_budget": {
+            "per_task_token_hard_cap": 1000,
+            "per_task_wall_clock_hard_cap": 30,
+            "action": "terminate_branch",
+        }
+    }
+    _ok = evaluate_budget(
+        {
+            "results": [
+                {
+                    "seat": "EX-01",
+                    "derived": {"usage": {"tokens": 10, "minutes": 2, "source": "self_report"}},
+                }
+            ]
+        },
+        _p,
+    )
     expect("预算未超 → ok", _ok["status"] == "ok", _ok["status"])
-    _over = evaluate_budget({"results": [{"seat": "EX-01", "derived": {
-        "usage": {"tokens": 5000, "minutes": 2, "source": "self_report"}}}]}, _p)
+    _over = evaluate_budget(
+        {
+            "results": [
+                {
+                    "seat": "EX-01",
+                    "derived": {"usage": {"tokens": 5000, "minutes": 2, "source": "self_report"}},
+                }
+            ]
+        },
+        _p,
+    )
     expect("预算超限 → exhausted", _over["status"] == "exhausted", _over["status"])
     _nover = evaluate_budget({"results": [{"seat": "EX-01", "derived": {}}]}, _p)
-    expect("未申报 → unverifiable（不等于超支）", _nover["status"] == "unverifiable",
-           _nover["status"])
+    expect(
+        "未申报 → unverifiable（不等于超支）", _nover["status"] == "unverifiable", _nover["status"]
+    )
     expect("预算结论自带诚实边界", "无法验证" in (_nover.get("boundary") or ""))
 
     print("\n【F15 配套：金额轴 × 清单轴语义一致性】")
-    _adj = {"items": [
-        {"id": "ADJ-001", "affected_ids": ["T104", "T105"], "options": [
-            {"id": "count", "implies": {"summary.excluded_amount_total": 0.0}},
-            {"id": "exclude", "implies": {"summary.excluded_amount_total": 180.0}}]},
-        {"id": "ADJ-002", "options": [
-            {"id": "7", "implies": {"diffs": ["T101", "T102", "T103", "T104",
-                                              "T105", "T106", "T107"]}},
-            {"id": "5", "implies": {"diffs": ["T101", "T102", "T103", "T106", "T107"]}}]},
-    ]}
+    _adj = {
+        "items": [
+            {
+                "id": "ADJ-001",
+                "affected_ids": ["T104", "T105"],
+                "options": [
+                    {"id": "count", "implies": {"summary.excluded_amount_total": 0.0}},
+                    {"id": "exclude", "implies": {"summary.excluded_amount_total": 180.0}},
+                ],
+            },
+            {
+                "id": "ADJ-002",
+                "options": [
+                    {
+                        "id": "7",
+                        "implies": {
+                            "diffs": ["T101", "T102", "T103", "T104", "T105", "T106", "T107"]
+                        },
+                    },
+                    {"id": "5", "implies": {"diffs": ["T101", "T102", "T103", "T106", "T107"]}},
+                ],
+            },
+        ]
+    }
 
     def _conf(a, d):
-        return stance_semantic_conflicts(
-            _adj, {"ADJ-001": {"choice": a}, "DIFFSET": {"choice": d}})
+        return stance_semantic_conflicts(_adj, {"ADJ-001": {"choice": a}, "DIFFSET": {"choice": d}})
 
     expect("count × 5 → 冲突（金额含、清单不含）", len(_conf("count", "5")) == 1)
     expect("count × 7 → 无冲突", _conf("count", "7") == [])
     expect("exclude × 5 → 无冲突（两边都不含）", _conf("exclude", "5") == [])
     expect("弃权 → 不判", _conf("abstain", "5") == [])
-
 
     print("\n" + "-" * 68)
     total = n_ok + len(fails)
@@ -1565,8 +1930,7 @@ def lint_read_domains(path):
     if not rd.get("allow"):
         problems.append("allow 为空 —— 席位将无任何合法输入（会把一切判成未分类）")
     for must in ("fixtures/truth.json", "fixtures/spec/"):
-        if not any(p.startswith(must) or must.startswith(p)
-                   for p in rd.get("deny_absolute") or []):
+        if not any(p.startswith(must) or must.startswith(p) for p in rd.get("deny_absolute") or []):
             problems.append(f"deny_absolute 未覆盖必需项：{must}")
     known = set(DEBATING_SEATS) | set(NON_DEBATING_SEATS)
     unknown = [s for s in (rd.get("allow_extra_by_seat") or {}) if s not in known]
@@ -1577,14 +1941,17 @@ def lint_read_domains(path):
         for p in problems:
             print(f"  - {p}", file=sys.stderr)
         return EXIT_INVALID
-    print(f"[OK] 读取域配置合法（deny_absolute {len(rd['deny_absolute'])} 项 / "
-          f"allow {len(rd['allow'])} 项 / allow_exceptions "
-          f"{len(rd.get('allow_exceptions') or [])} 项 / "
-          f"按席位追加 {len(rd.get('allow_extra_by_seat') or {})} 席）")
+    print(
+        f"[OK] 读取域配置合法（deny_absolute {len(rd['deny_absolute'])} 项 / "
+        f"allow {len(rd['allow'])} 项 / allow_exceptions "
+        f"{len(rd.get('allow_exceptions') or [])} 项 / "
+        f"按席位追加 {len(rd.get('allow_extra_by_seat') or {})} 席）"
+    )
     return EXIT_OK
 
 
 # ---------------------------------------------------------------- 裁决模板（F20）
+
 
 def _fmt_ids(ids):
     return "、".join(ids) if ids else "（空）"
@@ -1605,8 +1972,17 @@ def _fmt_ids(ids):
 
 REQUIRED_CSV_COLS = ("txn_id", "date", "amount", "tax_included")
 
-FACT_COLS = ("单号", "台账金额", "台账日期", "台账行数", "台账含税",
-             "账单金额", "账单日期", "账单行数", "账单含税")
+FACT_COLS = (
+    "单号",
+    "台账金额",
+    "台账日期",
+    "台账行数",
+    "台账含税",
+    "账单金额",
+    "账单日期",
+    "账单行数",
+    "账单含税",
+)
 
 
 def _resolve_fixtures_dir(round_dir, pkg_root=None, fixtures_dir=None):
@@ -1656,11 +2032,13 @@ def _read_side(path):
                     amt = Decimal(raw)
                 except (InvalidOperation, ValueError):
                     return None, f"{p.as_posix()}:{lineno} amount 不可解析：{raw!r}"
-                out.setdefault(tid, []).append({
-                    "date": (row.get("date") or "").strip(),
-                    "amount": amt,
-                    "tax": (row.get("tax_included") or "").strip(),
-                })
+                out.setdefault(tid, []).append(
+                    {
+                        "date": (row.get("date") or "").strip(),
+                        "amount": amt,
+                        "tax": (row.get("tax_included") or "").strip(),
+                    }
+                )
     except OSError as e:
         return None, f"读取 {p.as_posix()} 失败：{e}"
     return out, None
@@ -1671,9 +2049,12 @@ def _side_sig(rows):
     if not rows:
         return None
     total = sum((r["amount"] for r in rows), Decimal("0"))
-    return (len(rows), total,
-            tuple(sorted({r["date"] for r in rows})),
-            tuple(sorted({r["tax"] for r in rows})))
+    return (
+        len(rows),
+        total,
+        tuple(sorted({r["date"] for r in rows})),
+        tuple(sorted({r["tax"] for r in rows})),
+    )
 
 
 def _sum_amount(rows):
@@ -1728,8 +2109,9 @@ def _derive_fact_rows_generic(fdir, schema):
             with p.open("r", encoding="utf-8-sig", newline="") as f:
                 rd = csv.DictReader(f)
                 cols = tuple(rd.fieldnames or ())
-                need = [key, sd.get("date_col") or "date", sd["amount_col"]] + \
-                       [c["col"] for c in compare]
+                need = [key, sd.get("date_col") or "date", sd["amount_col"]] + [
+                    c["col"] for c in compare
+                ]
                 miss = sorted({c for c in need if c not in cols})
                 if miss:
                     return None, f"{p.as_posix()} 缺列 {miss}（实际列 {list(cols)}）"
@@ -1745,8 +2127,14 @@ def _derive_fact_rows_generic(fdir, schema):
                     cells = {}
                     for c in compare:
                         cells[c["label"]] = (c, (row.get(c["col"]) or "").strip())
-                    rows.append({"key": tid, "date": (row.get(sd.get("date_col")) or "").strip(),
-                                 "amount": amt, "cells": cells})
+                    rows.append(
+                        {
+                            "key": tid,
+                            "date": (row.get(sd.get("date_col")) or "").strip(),
+                            "amount": amt,
+                            "cells": cells,
+                        }
+                    )
         except OSError as e:
             return None, f"读取 {p.as_posix()} 失败：{e}"
         parsed.append({"name": sd.get("name") or sd["file"], "rows": rows})
@@ -1770,11 +2158,14 @@ def _derive_fact_rows_generic(fdir, schema):
     for tid in all_ids:
         sides = [by_key[0].get(tid), by_key[1].get(tid)]
         sig = tuple(
-            (len(s) if s else 0,) + tuple(
+            (len(s) if s else 0,)
+            + tuple(
                 _agg(c, [r["cells"][c["label"]][1] for r in (s or [])])[1]
-                for c in (schema["sides"][i].get("compare") or []))
+                for c in (schema["sides"][i].get("compare") or [])
+            )
             + (tuple(sorted({r["date"] for r in s})) if s else (),)
-            for i, s in enumerate(sides))
+            for i, s in enumerate(sides)
+        )
         if sig[0] == sig[1]:
             continue
         row = {"id": tid}
@@ -1784,18 +2175,27 @@ def _derive_fact_rows_generic(fdir, schema):
         for i, s in enumerate(sides):
             nm = schema["sides"][i].get("name") or schema["sides"][i]["file"]
             if fact_cols is None:
-                header += [f"{nm}金额", f"{nm}日期", f"{nm}行数"] + \
-                          [f"{nm}{c['label']}" for c in (schema["sides"][i].get("compare") or [])
-                           if c["label"] != "金额"]
+                header += [f"{nm}金额", f"{nm}日期", f"{nm}行数"] + [
+                    f"{nm}{c['label']}"
+                    for c in (schema["sides"][i].get("compare") or [])
+                    if c["label"] != "金额"
+                ]
             if s is None:
-                display += ["—"] * (3 + len([c for c in (schema["sides"][i].get("compare") or [])
-                                            if c["label"] != "金额"]))
+                display += ["—"] * (
+                    3
+                    + len(
+                        [
+                            c
+                            for c in (schema["sides"][i].get("compare") or [])
+                            if c["label"] != "金额"
+                        ]
+                    )
+                )
                 continue
-            display.append(_fmt_cell(_sum_amount([
-                {"amount": r["amount"]} for r in s])) or "—")
+            display.append(_fmt_cell(_sum_amount([{"amount": r["amount"]} for r in s])) or "—")
             display.append(_fmt_cell(sorted({r["date"] for r in s})))
             display.append(str(len(s)))
-            for c in (schema["sides"][i].get("compare") or []):
+            for c in schema["sides"][i].get("compare") or []:
                 if c["label"] == "金额":
                     continue
                 disp, _ = _agg(c, [v for r in s for _, v in [r["cells"][c["label"]]]])
@@ -1840,17 +2240,19 @@ def derive_fact_rows(fixtures_dir):
         lr, br = ledger.get(tid), bill.get(tid)
         if _side_sig(lr) == _side_sig(br):
             continue
-        rows.append({
-            "id": tid,
-            "l_amount": _fmt_cell(_sum_amount(lr)),
-            "l_dates": _fmt_cell(sorted({r["date"] for r in lr}) if lr else None),
-            "l_rows": len(lr) if lr else 0,
-            "l_tax": _fmt_cell(sorted({r["tax"] for r in lr}) if lr else None),
-            "b_amount": _fmt_cell(_sum_amount(br)),
-            "b_dates": _fmt_cell(sorted({r["date"] for r in br}) if br else None),
-            "b_rows": len(br) if br else 0,
-            "b_tax": _fmt_cell(sorted({r["tax"] for r in br}) if br else None),
-        })
+        rows.append(
+            {
+                "id": tid,
+                "l_amount": _fmt_cell(_sum_amount(lr)),
+                "l_dates": _fmt_cell(sorted({r["date"] for r in lr}) if lr else None),
+                "l_rows": len(lr) if lr else 0,
+                "l_tax": _fmt_cell(sorted({r["tax"] for r in lr}) if lr else None),
+                "b_amount": _fmt_cell(_sum_amount(br)),
+                "b_dates": _fmt_cell(sorted({r["date"] for r in br}) if br else None),
+                "b_rows": len(br) if br else 0,
+                "b_tax": _fmt_cell(sorted({r["tax"] for r in br}) if br else None),
+            }
+        )
     return {
         "rows": rows,
         "ledger_rows": sum(len(v) for v in ledger.values()),
@@ -1871,13 +2273,25 @@ def _render_fact_table(rows, fact_cols=None):
         for r in rows:
             L.append("| " + " | ".join([r["id"]] + list(r["cells"])) + " |")
         return L
-    L = ["| " + " | ".join(FACT_COLS) + " |",
-         "|" + "---|" * len(FACT_COLS)]
+    L = ["| " + " | ".join(FACT_COLS) + " |", "|" + "---|" * len(FACT_COLS)]
     for r in rows:
-        L.append("| " + " | ".join([
-            r["id"], r["l_amount"], r["l_dates"], str(r["l_rows"]), r["l_tax"],
-            r["b_amount"], r["b_dates"], str(r["b_rows"]), r["b_tax"],
-        ]) + " |")
+        L.append(
+            "| "
+            + " | ".join(
+                [
+                    r["id"],
+                    r["l_amount"],
+                    r["l_dates"],
+                    str(r["l_rows"]),
+                    r["l_tax"],
+                    r["b_amount"],
+                    r["b_dates"],
+                    str(r["b_rows"]),
+                    r["b_tax"],
+                ]
+            )
+            + " |"
+        )
     return L
 
 
@@ -1919,8 +2333,10 @@ def _load_interpretations(fixtures_dir):
     """候选解释清单。它是【解释】不是【事实】，也不是判据 —— 任何脚本都不得用它打分。"""
     p = Path(fixtures_dir) / "spec" / "interpretations.json"
     if not p.is_file():
-        return None, (f"缺少 {p.as_posix()} —— 候选解释清单是签字材料的必读部分，"
-                      f"缺失时模板不得生成（否则读者只能靠猜）")
+        return None, (
+            f"缺少 {p.as_posix()} —— 候选解释清单是签字材料的必读部分，"
+            f"缺失时模板不得生成（否则读者只能靠猜）"
+        )
     d = load_json(p)
     if not isinstance(d, dict):
         return None, f"{p.as_posix()} 不可解析或为空"
@@ -1970,13 +2386,18 @@ def render_record_template(adj, report, round_dir, spec_sha, pkg_root=None, fixt
     # ---- F28：事实表必须从 CSV 派生，且与 spec 双向闸门 ----
     fdir = _resolve_fixtures_dir(round_dir, pkg_root, fixtures_dir)
     if fdir is None:
-        return None, ("找不到同时含 ledger.csv 与 bill.csv 的夹具目录"
-                      "（已尝试 round_dir/inputs、round_dir/fixtures、包根 fixtures、cwd/fixtures）")
+        return None, (
+            "找不到同时含 ledger.csv 与 bill.csv 的夹具目录"
+            "（已尝试 round_dir/inputs、round_dir/fixtures、包根 fixtures、cwd/fixtures）"
+        )
     # ★ 任务参数化：模板第 6 节的 verify 命令必须指向【本轮任务】的 spec 目录，
     #   否则签字人会拿 002 的答案去跑 001 的判据（静默错位，校验不会报错）。
     try:
-        _specdir = (fdir.resolve().relative_to(Path(pkg_root).resolve()).as_posix()
-                    if pkg_root else fdir.as_posix()) + "/spec"
+        _specdir = (
+            fdir.resolve().relative_to(Path(pkg_root).resolve()).as_posix()
+            if pkg_root
+            else fdir.as_posix()
+        ) + "/spec"
     except Exception:
         _specdir = fdir.as_posix() + "/spec"
     derived, why = derive_fact_rows(fdir)
@@ -1989,19 +2410,25 @@ def render_record_template(adj, report, round_dir, spec_sha, pkg_root=None, fixt
     fact_rows = derived["rows"]
     got_ids = {r["id"] for r in fact_rows}
     if not fact_rows:
-        return None, ("事实表为空：两侧在「行数/金额合计/日期集合/含税标记」上完全一致，"
-                      "与「存在待裁判断」自相矛盾")
+        return None, (
+            "事实表为空：两侧在「行数/金额合计/日期集合/含税标记」上完全一致，"
+            "与「存在待裁判断」自相矛盾"
+        )
     spec_ids = _spec_diff_ids(adj)
     if spec_ids and spec_ids != got_ids:
-        return None, (f"数据与 spec 不一致：CSV 派生 {sorted(got_ids)}，"
-                      f"spec 选项覆盖 {sorted(spec_ids)} —— 二者必须相同，否则"
-                      f"人会在「选项与事实不对应」的情况下签字")
+        return None, (
+            f"数据与 spec 不一致：CSV 派生 {sorted(got_ids)}，"
+            f"spec 选项覆盖 {sorted(spec_ids)} —— 二者必须相同，否则"
+            f"人会在「选项与事实不对应」的情况下签字"
+        )
     applies = set()
     for it in interp:
         applies |= set(it["applies_to"])
     if applies != got_ids:
-        return None, (f"interpretations.json 的 applies_to 并集 {sorted(applies)} "
-                      f"与派生的不一致单号 {sorted(got_ids)} 不一致")
+        return None, (
+            f"interpretations.json 的 applies_to 并集 {sorted(applies)} "
+            f"与派生的不一致单号 {sorted(got_ids)} 不一致"
+        )
 
     L = [
         f"# 人类裁决记录 · {round_name}",
@@ -2016,13 +2443,18 @@ def render_record_template(adj, report, round_dir, spec_sha, pkg_root=None, fixt
         "2. **选哪个都不会被系统评判为「错」**，但会决定本轮产物是否与你的判断一致。",
     ]
     if has_cnt:
-        L.append(f"   本轮机器产出是 `diff_count = {actual_cnt}`。若你选的选项不是这个数，"
-                 f"验证会判 **fail** ——")
-        L.append("   那是**正确结果**（说明机器产出与你的判断不一致，应由 PM 记录并重做聚合），"
-                 "不是你的判断错了。")
+        L.append(
+            f"   本轮机器产出是 `diff_count = {actual_cnt}`。若你选的选项不是这个数，"
+            f"验证会判 **fail** ——"
+        )
+        L.append(
+            "   那是**正确结果**（说明机器产出与你的判断不一致，应由 PM 记录并重做聚合），"
+            "不是你的判断错了。"
+        )
     else:
-        L.append("   若你的选项与本轮机器产出不一致，验证会判 fail —— 那是正确结果，"
-                 "说明产出需重做。")
+        L.append(
+            "   若你的选项与本轮机器产出不一致，验证会判 fail —— 那是正确结果，说明产出需重做。"
+        )
     L += [
         "3. **防伪边界（不可删）**：校验器只检查 `source` / `recorded_by` / `decisions` 的**声明字段**，",
         "   **无法证明**本文件确实由人而非模型写成。真正的保证是程序性的：",
@@ -2059,8 +2491,9 @@ def render_record_template(adj, report, round_dir, spec_sha, pkg_root=None, fixt
         "|---|---|---|---|",
     ]
     for it in interp:
-        L.append(f"| {it['name']} | {it['basis']} | "
-                 f"{_fmt_ids(it['applies_to'])} | {it['caveat']} |")
+        L.append(
+            f"| {it['name']} | {it['basis']} | {_fmt_ids(it['applies_to'])} | {it['caveat']} |"
+        )
     L += [
         "",
         "★ 这五条**不是**「五类差异」。把观测归成几类、每类算不算差异，本来就是你要判断的事。",
@@ -2074,13 +2507,18 @@ def render_record_template(adj, report, round_dir, spec_sha, pkg_root=None, fixt
     _aud = _ad.get("audited_inputs")
     L += ["## 1.3 · 本轮结构审计的覆盖范围", ""]
     if isinstance(_aud, list) and _aud:
-        L += ["本轮结构审计已锚定下列裁判侧产物（字段逐一与文件相同，"
-              "可据此确认它是在裁决**之后**才写的结论）：", ""]
+        L += [
+            "本轮结构审计已锚定下列裁判侧产物（字段逐一与文件相同，"
+            "可据此确认它是在裁决**之后**才写的结论）：",
+            "",
+        ]
         for x in _aud:
             if isinstance(x, dict):
-                L.append(f"- `{x.get('path', '?')}`：verdict=`{x.get('verdict', '?')}`、"
-                         f"spec_layer=`{x.get('spec_layer', '?')}`、"
-                         f"ts=`{x.get('ts', '?')}`")
+                L.append(
+                    f"- `{x.get('path', '?')}`：verdict=`{x.get('verdict', '?')}`、"
+                    f"spec_layer=`{x.get('spec_layer', '?')}`、"
+                    f"ts=`{x.get('ts', '?')}`"
+                )
         L.append("")
     else:
         L += [
@@ -2110,8 +2548,11 @@ def render_record_template(adj, report, round_dir, spec_sha, pkg_root=None, fixt
             imp = o.get("implies") or {}
             vals = []
             for k, v in imp.items():
-                vals.append(f"`{k.split('.')[-1]}={v}`" if not isinstance(v, list)
-                            else f"`{k.split('.')[-1]}`：{_fmt_ids(v)}")
+                vals.append(
+                    f"`{k.split('.')[-1]}={v}`"
+                    if not isinstance(v, list)
+                    else f"`{k.split('.')[-1]}`：{_fmt_ids(v)}"
+                )
             L.append(f"| `{o['id']}` | {o.get('label', '')} | {'；'.join(vals)} |")
         L.append("")
 
@@ -2126,9 +2567,11 @@ def render_record_template(adj, report, round_dir, spec_sha, pkg_root=None, fixt
             ]
             for o in dec:
                 d = o["decides"]
-                L.append(f"| {'列入' if d.get('cross_month') else '**不列入**'} "
-                         f"| {'列入' if d.get('caliber') else '**不列入**'} "
-                         f"| `{o['id']}` | {o['implies'].get('summary.diff_count')} |")
+                L.append(
+                    f"| {'列入' if d.get('cross_month') else '**不列入**'} "
+                    f"| {'列入' if d.get('caliber') else '**不列入**'} "
+                    f"| `{o['id']}` | {o['implies'].get('summary.diff_count')} |"
+                )
             L += ["", "★ 四个选项是**并列**的，没有哪个是「默认正确答案」。", ""]
 
         # ★ 「恒在 / 可争议」由 spec 的 options 机械求交并差，不手写。
@@ -2146,8 +2589,12 @@ def render_record_template(adj, report, round_dir, spec_sha, pkg_root=None, fixt
                 "",
             ]
 
-    L += ["## 4 · 本轮各席位的实际取值（供参考，不是你的答案）", "",
-          "| 席位 | 自述 | 反推 | 合规 |", "|---|---|---|---|"]
+    L += [
+        "## 4 · 本轮各席位的实际取值（供参考，不是你的答案）",
+        "",
+        "| 席位 | 自述 | 反推 | 合规 |",
+        "|---|---|---|---|",
+    ]
     for seat in list(DEBATING_SEATS) + list(NON_DEBATING_SEATS):
         r = next((x for x in report.get("results") or [] if x.get("seat") == seat), None)
         if not r:
@@ -2187,8 +2634,9 @@ def render_record_template(adj, report, round_dir, spec_sha, pkg_root=None, fixt
     for i, it in enumerate(adj.get("items") or []):
         opts = " / ".join(o["id"] for o in it.get("options") or [])
         comma = "," if i < len(adj.get("items") or []) - 1 else ""
-        L.append(f'    {{"id": "{it["id"]}", "chosen": "<{opts}>", '
-                 f'"rationale": "<你的理由>"}}{comma}')
+        L.append(
+            f'    {{"id": "{it["id"]}", "chosen": "<{opts}>", "rationale": "<你的理由>"}}{comma}'
+        )
     L += [
         "  ]",
         "}",
@@ -2197,7 +2645,8 @@ def render_record_template(adj, report, round_dir, spec_sha, pkg_root=None, fixt
         "★ `decisions` 必须**恰好**覆盖上表的全部 id。缺项、或出现 spec 之外的 id"
         "（如已退役的 ADJ-003），都会被拒载（退出码 2）。",
         "",
-        "## 6 · 签完后跑这三条", "",
+        "## 6 · 签完后跑这三条",
+        "",
         "```bash",
         "# ① 重新生成待裁决清单（未签时应为 pending，退出码 3）",
         f"python3 judges/verify.py --spec-dir {_specdir} \\",
@@ -2226,32 +2675,49 @@ def render_record_template(adj, report, round_dir, spec_sha, pkg_root=None, fixt
 
 # ---------------------------------------------------------------- main
 
+
 def main():
     ap = argparse.ArgumentParser(description="席位输出契约校验器 + 聚合防伪闸门")
     ap.add_argument("--round-dir", "--round", dest="round_dir", help="轮次目录（如 runs/round2）")
     ap.add_argument("--params", default=DEFAULT_PARAMS)
     ap.add_argument("--spec", default=DEFAULT_SPEC)
-    ap.add_argument("--routing-json", default=None, metavar="PATH",
-                    help="inspect_agent_routing.py --json 的输出文件。提供时对 XJ-01 做"
-                         "家族核验（providerData，不采信自报）→ seat-check.json 的 xj_family_check")
+    ap.add_argument(
+        "--routing-json",
+        default=None,
+        metavar="PATH",
+        help="inspect_agent_routing.py --json 的输出文件。提供时对 XJ-01 做"
+        "家族核验（providerData，不采信自报）→ seat-check.json 的 xj_family_check",
+    )
     ap.add_argument("--out", default=None, help="报告输出路径（默认 <round-dir>/seat-check.json）")
-    ap.add_argument("--read-domains", default="config/read_domains.json",
-                    help="读取域配置（F5）")
-    ap.add_argument("--rd-out", default=None,
-                    help="第 9 查产出路径（默认 <round-dir>/read-domain-check.json）")
-    ap.add_argument("--stage", choices=("all", "A", "B"), default="all",
-                    help="F10 分阶段：A=EX+XJ / B=AD+PM / all=并集（缺省，保持既有行为）")
+    ap.add_argument("--read-domains", default="config/read_domains.json", help="读取域配置（F5）")
+    ap.add_argument(
+        "--rd-out", default=None, help="第 9 查产出路径（默认 <round-dir>/read-domain-check.json）"
+    )
+    ap.add_argument(
+        "--stage",
+        choices=("all", "A", "B"),
+        default="all",
+        help="F10 分阶段：A=EX+XJ / B=AD+PM / all=并集（缺省，保持既有行为）",
+    )
     ap.add_argument("--json", action="store_true")
     ap.add_argument("--strict-warnings", action="store_true")
     ap.add_argument("--lint-params", action="store_true")
     ap.add_argument("--lint-read-domains", action="store_true")
     ap.add_argument("--verify-final", action="store_true", help="聚合防伪校验 + PM 产物验收门")
-    ap.add_argument("--emit-record-template", default=None, metavar="PATH",
-                    help="生成人类裁决记录模板（无时间戳，可逐字节比对）；不写记录本身")
-    ap.add_argument("--fixtures-dir", default=None, metavar="DIR",
-                    help="事实表的数据来源目录（须含 ledger.csv + bill.csv）。"
-                         "缺省时按 round_dir 相邻 → 包根 → cwd 依次探测；"
-                         "显式指定则【不做 fallback】，指向错误目录会 fail-closed")
+    ap.add_argument(
+        "--emit-record-template",
+        default=None,
+        metavar="PATH",
+        help="生成人类裁决记录模板（无时间戳，可逐字节比对）；不写记录本身",
+    )
+    ap.add_argument(
+        "--fixtures-dir",
+        default=None,
+        metavar="DIR",
+        help="事实表的数据来源目录（须含 ledger.csv + bill.csv）。"
+        "缺省时按 round_dir 相邻 → 包根 → cwd 依次探测；"
+        "显式指定则【不做 fallback】，指向错误目录会 fail-closed",
+    )
     ap.add_argument("--self-test", action="store_true")
     args = ap.parse_args()
 
@@ -2290,28 +2756,44 @@ def main():
     pkg = _pkg_root()
     rd = load_read_domains(args.read_domains, Path(args.round_dir).name)
     if rd is None:
-        print(f"[WARN] 读不到读取域配置 {args.read_domains} → 第 9 查不做判定",
-              file=sys.stderr)
+        print(f"[WARN] 读不到读取域配置 {args.read_domains} → 第 9 查不做判定", file=sys.stderr)
     # 多根探测：实测 pointer 混三套坐标系 —— 轮次目录（inputs/…）、
     # 包根（fixtures/…）、工作区根（migration-package/judges/…）。
     # 缺任何一根都会把合法路径误判为 unclassified 的假阳性。
-    roots = tuple(dict.fromkeys(
-        p for p in (Path(args.round_dir), pkg, pkg.parent, Path.cwd()) if p))
+    roots = tuple(
+        dict.fromkeys(p for p in (Path(args.round_dir), pkg, pkg.parent, Path.cwd()) if p)
+    )
 
     routing_map = _load_routing(args.routing_json) if args.routing_json else None
     if args.routing_json and not routing_map:
-        print("[WARN] --routing-json 已提供但读不出任何路由：家族校验 status=skipped"
-              "（这不等于通过，只是没有证据）", file=sys.stderr)
-    report = check_round(args.round_dir, params, adj, args.strict_warnings,
-                         stage=args.stage, rd=rd, pkg_root=pkg, roots=roots,
-                         routing=routing_map)
+        print(
+            "[WARN] --routing-json 已提供但读不出任何路由：家族校验 status=skipped"
+            "（这不等于通过，只是没有证据）",
+            file=sys.stderr,
+        )
+    report = check_round(
+        args.round_dir,
+        params,
+        adj,
+        args.strict_warnings,
+        stage=args.stage,
+        rd=rd,
+        pkg_root=pkg,
+        roots=roots,
+        routing=routing_map,
+    )
     report["params_sha256"] = sha256_of(args.params)
     report["spec_sha256"] = sha256_of(args.spec)
 
     if args.emit_record_template:
-        txt, why = render_record_template(adj, report, args.round_dir,
-                                          sha256_of(args.spec) or "",
-                                          pkg_root=pkg, fixtures_dir=args.fixtures_dir)
+        txt, why = render_record_template(
+            adj,
+            report,
+            args.round_dir,
+            sha256_of(args.spec) or "",
+            pkg_root=pkg,
+            fixtures_dir=args.fixtures_dir,
+        )
         if why:
             # ★ fail-closed：不写文件。宁可让流程停下，也不让人在错数上签字。
             print(f"[ERR] 拒绝生成裁决模板：{why}", file=sys.stderr)
@@ -2338,7 +2820,9 @@ def main():
 
     rd_out = None
     if rdr is not None:
-        rd_out = Path(args.rd_out) if args.rd_out else Path(args.round_dir) / "read-domain-check.json"
+        rd_out = (
+            Path(args.rd_out) if args.rd_out else Path(args.round_dir) / "read-domain-check.json"
+        )
         rd_out.parent.mkdir(parents=True, exist_ok=True)
         with open(rd_out, "w", encoding="utf-8", newline="\n") as f:
             json.dump(rdr, f, ensure_ascii=False, indent=2)
@@ -2347,15 +2831,21 @@ def main():
     if args.json:
         print(json.dumps(report, ensure_ascii=False, indent=2))
     else:
-        print(f"[seat_check] {report['round_dir']}  role={report['round_role']}"
-              f"  stage={report['stage']}  contract=v{report['contract_version']}"
-              f"（reads {'硬' if report['reads_required'] else '软'}）")
-        print(f"  verdict={report['verdict']}  合规 {report['summary']['valid']}"
-              f" / 不合格 {report['summary']['invalid']}  (共 {report['summary']['total']})")
+        print(
+            f"[seat_check] {report['round_dir']}  role={report['round_role']}"
+            f"  stage={report['stage']}  contract=v{report['contract_version']}"
+            f"（reads {'硬' if report['reads_required'] else '软'}）"
+        )
+        print(
+            f"  verdict={report['verdict']}  合规 {report['summary']['valid']}"
+            f" / 不合格 {report['summary']['invalid']}  (共 {report['summary']['total']})"
+        )
         for r in report["results"]:
             mark = "OK   " if r["status"] == "valid" else "FAIL "
-            print(f"  [{mark}] {r['seat']}  证据指针 {r['derived'].get('evidence_pointer_count', 0)} 条"
-                  f"  警告 {len(r['warnings'])} 条")
+            print(
+                f"  [{mark}] {r['seat']}  证据指针 {r['derived'].get('evidence_pointer_count', 0)} 条"
+                f"  警告 {len(r['warnings'])} 条"
+            )
             for e in r["errors"]:
                 print(f"           ✗ {e['code']}: {e['msg']}")
             for w in r["warnings"]:
@@ -2364,8 +2854,10 @@ def main():
         if report["aggregation_blocked"]:
             print(f"  ★ 被否决: {[b['seat'] for b in report['aggregation_blocked']]}")
         if rdr is not None:
-            print(f"  第 9 查（读取域）: verdict={rdr['verdict']}  命中 {rdr['summary']['hits']} 条"
-                  f"  申报读写 {rdr['summary']['seats_declaring_reads']} 席  -> {rd_out}")
+            print(
+                f"  第 9 查（读取域）: verdict={rdr['verdict']}  命中 {rdr['summary']['hits']} 条"
+                f"  申报读写 {rdr['summary']['seats_declaring_reads']} 席  -> {rd_out}"
+            )
         print(f"  -> {out}")
 
     if report["verdict"] == "no_seats_found":

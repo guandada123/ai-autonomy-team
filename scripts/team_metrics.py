@@ -21,6 +21,7 @@
     python3 scripts/team_metrics.py --json     # 机器可读
     退出码：0 成功 / 2 环境错误
 """
+
 import argparse
 import json
 import re
@@ -58,7 +59,8 @@ KIND_AMENDED = "更正"
 
 _FIELD = re.compile(
     r"^[-*]\s*\*{0,2}\s*(被取代|取代|被撤回|撤回|被更正|更正|推翻/限定|推翻|限定|修订)"
-    r"\s*\*{0,2}\s*[:：]\s*`?(D-\d{4})")
+    r"\s*\*{0,2}\s*[:：]\s*`?(D-\d{4})"
+)
 _OVERTURN_WORDS = ("取代", "撤回", "作废")
 _STATUS_LINE = re.compile(r"\*\*状态\*\*\s*[:：]\s*(.+)")
 # 状态行的两种自我标记（互斥，顺序无关）
@@ -87,9 +89,11 @@ def _strip_rule_refs(txt):
          F 门禁判为「引用了不存在的决策」，实测踩过一次。）
     判据：反引号内**只有**编号才保留（那是字段值），含其它词就是引用示例，剥掉。
     """
+
     def rep(m):
         inner = m.group(1)
         return m.group(0) if re.fullmatch(r"\s*D-\d{4}\s*", inner) else ""
+
     return re.sub(r"`([^`\n]*)`", rep, txt)
 
 
@@ -113,7 +117,7 @@ def metric_error_decisions(days=30):
     if not files:
         return {"value": None, "state": "no_data", "detail": "未扫到决策文件"}
 
-    hits = {}          # (编号, 档位) -> 依据；同一编号同档只留首条依据
+    hits = {}  # (编号, 档位) -> 依据；同一编号同档只留首条依据
 
     def add(target, kind, why):
         hits.setdefault((target, kind), why)
@@ -141,7 +145,7 @@ def metric_error_decisions(days=30):
             m = _STATUS_LINE.search(ln)
             if not m:
                 continue
-            val = re.sub(r"[*`]", "", m.group(1).strip())   # 去掉加粗/反引号，明细才可读
+            val = re.sub(r"[*`]", "", m.group(1).strip())  # 去掉加粗/反引号，明细才可读
             if _STATUS_OVERTURNED.search(val):
                 add(self_id, KIND_OVERTURNED, f"状态行「{val[:34]}」")
             elif _STATUS_AMENDED.search(val):
@@ -153,16 +157,24 @@ def metric_error_decisions(days=30):
 
     ov = sorted((k[0], v) for k, v in hits.items() if k[1] == KIND_OVERTURNED)
     am = sorted((k[0], v) for k, v in hits.items() if k[1] == KIND_AMENDED)
-    total = len({k[0] for k in hits})       # 同一编号若跨两档，只算一条
+    total = len({k[0] for k in hits})  # 同一编号若跨两档，只算一条
 
     def _fmt(pairs):
         return "、".join(f"{i}" for i, _ in pairs) if pairs else "无"
 
     breakdown = [
-        {"kind": KIND_OVERTURNED, "count": len(ov), "items": _fmt(ov),
-         "evidence": [{"id": i, "why": w} for i, w in ov]},
-        {"kind": KIND_AMENDED, "count": len(am), "items": _fmt(am),
-         "evidence": [{"id": i, "why": w} for i, w in am]},
+        {
+            "kind": KIND_OVERTURNED,
+            "count": len(ov),
+            "items": _fmt(ov),
+            "evidence": [{"id": i, "why": w} for i, w in ov],
+        },
+        {
+            "kind": KIND_AMENDED,
+            "count": len(am),
+            "items": _fmt(am),
+            "evidence": [{"id": i, "why": w} for i, w in am],
+        },
     ]
     return {
         "value": total,
@@ -172,9 +184,11 @@ def metric_error_decisions(days=30):
         "overturned": len(ov),
         "amended": len(am),
         "breakdown": breakdown,
-        "note": ("口径=结构化字段优先 + 状态行 + 正文点名；须指向 D-编号或状态行。"
-                 "含『条件失效』（如 D-0016 属此类，是在旧约束下正确、条件变化后失效，非判断错误）；"
-                 "不含『需求加强』（如 D-0043）。是下界，未点名的隐性改判不计。"),
+        "note": (
+            "口径=结构化字段优先 + 状态行 + 正文点名；须指向 D-编号或状态行。"
+            "含『条件失效』（如 D-0016 属此类，是在旧约束下正确、条件变化后失效，非判断错误）；"
+            "不含『需求加强』（如 D-0043）。是下界，未点名的隐性改判不计。"
+        ),
         "scanned": len(files),
     }
 
@@ -225,8 +239,11 @@ def metric_amount_deviation():
             if m:
                 residual = abs(float(m.group(1)))
     if residual is None:
-        return {"value": None, "state": "no_data",
-                "detail": f"{f.name} 无 B6 残差（该次对账没有券商侧对照）"}
+        return {
+            "value": None,
+            "state": "no_data",
+            "detail": f"{f.name} 无 B6 残差（该次对账没有券商侧对照）",
+        }
     return {
         "value": round(residual, 2),
         "state": "ok",
@@ -254,12 +271,13 @@ def render_md(rows, params):
             why = "；".join(f"{e['id']}：{e['why']}" for e in b["evidence"]) or "—"
             lines.append(f"| {b['kind']} | {b['count']} | {b['items']} | {why} |")
     if params:
-        missing = [t["name"] for t in params.get("tracks", [])
-                   if t.get("baseline_required")]
+        missing = [t["name"] for t in params.get("tracks", []) if t.get("baseline_required")]
         if missing:
             lines.append("")
-            lines.append(f"> 基线要求：{len(missing)} 条轨道均为 `baseline_required=true`；"
-                         f"当前尚无一条建立了正式基线（首次测量即基线）。")
+            lines.append(
+                f"> 基线要求：{len(missing)} 条轨道均为 `baseline_required=true`；"
+                f"当前尚无一条建立了正式基线（首次测量即基线）。"
+            )
     return "\n".join(lines)
 
 
@@ -280,12 +298,19 @@ def main():
     ]
 
     if args.json:
-        print(json.dumps({"generated_at": datetime.now().isoformat(timespec="seconds"),
-                          "tracks": rows}, ensure_ascii=False, indent=2))
+        print(
+            json.dumps(
+                {"generated_at": datetime.now().isoformat(timespec="seconds"), "tracks": rows},
+                ensure_ascii=False,
+                indent=2,
+            )
+        )
     else:
         print("# 自治团队·三轨指标（" + datetime.now().strftime("%Y-%m-%d %H:%M") + "）\n")
         print(render_md(rows, params))
-        print("\n> `no_data` 不是 0。缺数据源时显示 no_data，是为了让缺口看得见，而不是用 0 假装健康。")
+        print(
+            "\n> `no_data` 不是 0。缺数据源时显示 no_data，是为了让缺口看得见，而不是用 0 假装健康。"
+        )
     return 0
 
 

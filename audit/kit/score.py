@@ -55,6 +55,7 @@
 
 退出码：0 正常 ｜ 2 输入错误 ｜ 3 题集为空
 """
+
 from __future__ import annotations
 
 import argparse
@@ -101,8 +102,14 @@ def grade_one(ans, ref: dict) -> dict:
     krs = ref.get("key_reasons") or []
     tr = ref.get("top_risk") or {}
     if not isinstance(ans, dict):
-        return {"answered": False, "verdict": "", "match": False, "danger": False,
-                "coverage": None, "falsifiable": False}
+        return {
+            "answered": False,
+            "verdict": "",
+            "match": False,
+            "danger": False,
+            "coverage": None,
+            "falsifiable": False,
+        }
 
     verdict = label_of(ans)
     reasons = " ".join(map(str, ans.get("reasons") or []))
@@ -120,8 +127,14 @@ def grade_one(ans, ref: dict) -> dict:
     require_fals = bool(krs or tr.get("kw"))
     falsifiable = True if not require_fals else bool(fals)
 
-    return {"answered": bool(verdict), "verdict": verdict, "match": match,
-            "danger": danger, "coverage": coverage, "falsifiable": falsifiable}
+    return {
+        "answered": bool(verdict),
+        "verdict": verdict,
+        "match": match,
+        "danger": danger,
+        "coverage": coverage,
+        "falsifiable": falsifiable,
+    }
 
 
 def summarize(name: str, arms: dict, refs: dict) -> dict:
@@ -131,7 +144,7 @@ def summarize(name: str, arms: dict, refs: dict) -> dict:
         r = grade_one(arms.get(q), ref)
         rows[q] = r
         if not r["falsifiable"]:
-            continue                      # 缺证伪条件 → 该题不计分
+            continue  # 缺证伪条件 → 该题不计分
         n += 1
         if r["match"]:
             ok += 1
@@ -152,11 +165,18 @@ def summarize(name: str, arms: dict, refs: dict) -> dict:
     recalls = {c: round(v[0] / v[1], 3) for c, v in by_cls.items() if v[1]}
     balanced = round(sum(recalls.values()) / len(recalls), 3) if recalls else None
 
-    return {"arm": name, "n": n, "agree": ok, "missing": [q for q in refs if q not in arms],
-            "agree_rate": round(ok / n, 3) if n else None,
-            "balanced": balanced, "recalls": recalls,
-            "coverage": round(sum(cov) / len(cov), 3) if cov else None,
-            "danger": danger, "rows": rows}
+    return {
+        "arm": name,
+        "n": n,
+        "agree": ok,
+        "missing": [q for q in refs if q not in arms],
+        "agree_rate": round(ok / n, 3) if n else None,
+        "balanced": balanced,
+        "recalls": recalls,
+        "coverage": round(sum(cov) / len(cov), 3) if cov else None,
+        "danger": danger,
+        "rows": rows,
+    }
 
 
 def summarize_repeat(name: str, runs: list[dict], refs: dict) -> dict:
@@ -182,14 +202,18 @@ def summarize_repeat(name: str, runs: list[dict], refs: dict) -> dict:
 
     n = len(refs)
     runs_rates = [x["agree_rate"] for x in per_run]
-    return {"arm": name, "k": len(runs), "n": n,
-            "pass_at_1": p1,
-            "pass_at_k": round(pk_hits / n, 3) if n else None,
-            "stability": round(stable / n, 3) if n else None,
-            "unstable": detail,
-            # 单次成绩的波动区间：直接看出「这个数能不能当基线」
-            "spread": [min(runs_rates), max(runs_rates)] if runs_rates else None,
-            "per_run": [{k: v for k, v in x.items() if k != "rows"} for x in per_run]}
+    return {
+        "arm": name,
+        "k": len(runs),
+        "n": n,
+        "pass_at_1": p1,
+        "pass_at_k": round(pk_hits / n, 3) if n else None,
+        "stability": round(stable / n, 3) if n else None,
+        "unstable": detail,
+        # 单次成绩的波动区间：直接看出「这个数能不能当基线」
+        "spread": [min(runs_rates), max(runs_rates)] if runs_rates else None,
+        "per_run": [{k: v for k, v in x.items() if k != "rows"} for x in per_run],
+    }
 
 
 def decide(votes: list[str], valid: set[str]) -> str | None:
@@ -240,11 +264,16 @@ def majority_arms(arms: list[dict], qids, valid: set[str]):
         counted = [v for v in votes if v in valid]
         win = decide(votes, valid)
         if win is None:
-            amb[q] = (f"有效票 {len(counted)} 席（<2）" if len(counted) < 2
-                      else f"无过半：{dict(Counter(counted))}")
+            amb[q] = (
+                f"有效票 {len(counted)} 席（<2）"
+                if len(counted) < 2
+                else f"无过半：{dict(Counter(counted))}"
+            )
             continue
-        out[q] = max((a[q] for a in arms if label_of(a.get(q)) == win),
-                     key=lambda x: len(x.get("reasons") or []))
+        out[q] = max(
+            (a[q] for a in arms if label_of(a.get(q)) == win),
+            key=lambda x: len(x.get("reasons") or []),
+        )
     return out, amb
 
 
@@ -268,7 +297,7 @@ def fleiss_kappa(rater_rows: list[dict], qids) -> float | None:
         votes = [label_of(r.get(q)) for r in rater_rows]
         votes = [v for v in votes if v]
         if len(votes) < 2:
-            continue                          # 弃答的题不参与（不能当成一个类别）
+            continue  # 弃答的题不参与（不能当成一个类别）
         mq = len(votes)
         usable.append((Counter(votes), mq))
     if len(usable) < 2:
@@ -305,10 +334,17 @@ def kappa_band(k: float | None) -> str:
 
 
 def main() -> int:
-    ap = argparse.ArgumentParser(description="通用判分器：一致率 / 平衡准确率 / 常数基准 / pass^k / Fleiss κ")
+    ap = argparse.ArgumentParser(
+        description="通用判分器：一致率 / 平衡准确率 / 常数基准 / pass^k / Fleiss κ"
+    )
     ap.add_argument("--items", required=True, help="题集（含参考裁决）")
-    ap.add_argument("--arm", action="append", required=True,
-                    metavar="NAME=FILE[,FILE...]", help="臂；逗号分隔表示同一臂重复跑")
+    ap.add_argument(
+        "--arm",
+        action="append",
+        required=True,
+        metavar="NAME=FILE[,FILE...]",
+        help="臂；逗号分隔表示同一臂重复跑",
+    )
     ap.add_argument("--single", help="哪一臂是单席（用于报差值）")
     ap.add_argument("--seats", help="哪几臂组成多席（逗号分隔，做多数票）")
     ap.add_argument("--json", action="store_true", help="输出 JSON")
@@ -343,7 +379,9 @@ def main() -> int:
     arms_out = {}
     for name, runs in parsed.items():
         if len(runs) == 1:
-            arms_out[name] = {k: v for k, v in summarize(name, runs[0], refs).items() if k != "rows"}
+            arms_out[name] = {
+                k: v for k, v in summarize(name, runs[0], refs).items() if k != "rows"
+            }
         else:
             arms_out[name] = summarize_repeat(name, runs, refs)
 
@@ -357,8 +395,11 @@ def main() -> int:
             print(f"[ERR] --seats 里这些臂没定义：{missing}", file=sys.stderr)
             return 2
         multi, amb = majority_arms([parsed[s][0] for s in seat_names], qids, valid)
-        multi_sum = {k: v for k, v in summarize(f"多席多数票（{len(seat_names)} 席）", multi, refs).items()
-                     if k != "rows"}
+        multi_sum = {
+            k: v
+            for k, v in summarize(f"多席多数票（{len(seat_names)} 席）", multi, refs).items()
+            if k != "rows"
+        }
 
     # ── Fleiss κ：跨席一致性（揭示"几席其实是同一个评委"）───────────────
     k_seats = fleiss_kappa([parsed[s][0] for s in seat_names], qids) if seat_names else None
@@ -373,45 +414,66 @@ def main() -> int:
             verdict = "增益成立" if delta >= 0.10 else ("多席更差" if delta <= -0.10 else "无差异")
 
     if args.json:
-        out = {"n_items": len(refs), "distribution": dict(dist),
-               "constant_baseline": {"label": const_label, "rate": const_acc},
-               "arms": arms_out, "multi": multi_sum if multi is not None else None,
-               "ambiguous": amb, "delta": delta, "verdict": verdict,
-               "fleiss_kappa_seats": k_seats, "seat_run_used": used_run}
+        out = {
+            "n_items": len(refs),
+            "distribution": dict(dist),
+            "constant_baseline": {"label": const_label, "rate": const_acc},
+            "arms": arms_out,
+            "multi": multi_sum if multi is not None else None,
+            "ambiguous": amb,
+            "delta": delta,
+            "verdict": verdict,
+            "fleiss_kappa_seats": k_seats,
+            "seat_run_used": used_run,
+        }
         print(json.dumps(out, ensure_ascii=False, indent=2))
         return 0
 
     print(f"[kit] 题数 {len(refs)} ｜ 参考分布 {dict(dist)}")
-    print(f"  常数基准：全答 {const_label.upper()} = {const_hits}/{len(refs)} = {const_acc:.3f}"
-          f"（臂低于它 = 不如一条不看材料的规则）")
+    print(
+        f"  常数基准：全答 {const_label.upper()} = {const_hits}/{len(refs)} = {const_acc:.3f}"
+        f"（臂低于它 = 不如一条不看材料的规则）"
+    )
     for name, a in arms_out.items():
         if "k" in a:
-            print(f"  {name:<6} pass^1 {a['pass_at_1']:.3f} ｜ pass^{a['k']} {a['pass_at_k']:.3f}"
-                  f" ｜ 自稳 {a['stability']:.3f}"
-                  + (f"  ⚠️ 抖动 {len(a['unstable'])} 题：{a['unstable']}" if a["unstable"] else ""))
+            print(
+                f"  {name:<6} pass^1 {a['pass_at_1']:.3f} ｜ pass^{a['k']} {a['pass_at_k']:.3f}"
+                f" ｜ 自稳 {a['stability']:.3f}"
+                + (f"  ⚠️ 抖动 {len(a['unstable'])} 题：{a['unstable']}" if a["unstable"] else "")
+            )
         else:
-            print(f"  {name:<6} 一致 {a['agree']}/{a['n']} = {a['agree_rate']}"
-                  f" ｜ 平衡 {a['balanced']} ｜ 理由覆盖 {a['coverage']}"
-                  f" ｜ 危险失误 {a['danger'] or '无'}"
-                  + (f"  ⚠️ 缺答 {a['missing']}" if a["missing"] else ""))
+            print(
+                f"  {name:<6} 一致 {a['agree']}/{a['n']} = {a['agree_rate']}"
+                f" ｜ 平衡 {a['balanced']} ｜ 理由覆盖 {a['coverage']}"
+                f" ｜ 危险失误 {a['danger'] or '无'}"
+                + (f"  ⚠️ 缺答 {a['missing']}" if a["missing"] else "")
+            )
 
     if multi is not None:
-        print(f"  多席   一致 {multi_sum['agree']}/{multi_sum['n']} = {multi_sum['agree_rate']}"
-              f" ｜ 平衡 {multi_sum['balanced']} ｜ 理由覆盖 {multi_sum['coverage']}"
-              f"  （用各席第 {used_run} 次作答）")
+        print(
+            f"  多席   一致 {multi_sum['agree']}/{multi_sum['n']} = {multi_sum['agree_rate']}"
+            f" ｜ 平衡 {multi_sum['balanced']} ｜ 理由覆盖 {multi_sum['coverage']}"
+            f"  （用各席第 {used_run} 次作答）"
+        )
         for q, why in amb.items():
             print(f"    ⚠️ {q} 未成票：{why}")
         if k_seats is not None:
-            print(f"  Fleiss κ（{len(seat_names)} 席）= {k_seats:.3f} → {kappa_band(k_seats)}"
-                  f"　★ κ 越高，聚合越接近「把同一个答案数两遍」")
+            print(
+                f"  Fleiss κ（{len(seat_names)} 席）= {k_seats:.3f} → {kappa_band(k_seats)}"
+                f"　★ κ 越高，聚合越接近「把同一个答案数两遍」"
+            )
         if delta is None:
             print("  差值 无法计算（无有效题）——本轮不出结论")
             return 1
-        print(f"  差值 {delta:+.3f} → **{verdict}**"
-              f"（判据：≥+0.10 增益 / |Δ|<0.10 无差异 / ≤−0.10 更差）")
+        print(
+            f"  差值 {delta:+.3f} → **{verdict}**"
+            f"（判据：≥+0.10 增益 / |Δ|<0.10 无差异 / ≤−0.10 更差）"
+        )
         if multi_sum["agree_rate"] is not None and multi_sum["agree_rate"] < const_acc:
-            print(f"  🔴 多席低于常数基准（{multi_sum['agree_rate']} < {const_acc}）："
-                  f"这批题上聚合没有产生信息，先查题再谈席位")
+            print(
+                f"  🔴 多席低于常数基准（{multi_sum['agree_rate']} < {const_acc}）："
+                f"这批题上聚合没有产生信息，先查题再谈席位"
+            )
     return 0
 
 

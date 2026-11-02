@@ -28,6 +28,7 @@
 - 除选项块外**一个字节都不许动**；脚本自己校验这一点并拒绝写坏文件。
 - 输出 brief-swap.md，原 brief.md 保留（第三轮结果仍要能复算）。
 """
+
 from __future__ import annotations
 
 import json
@@ -84,9 +85,13 @@ def main() -> int:
     if bad:
         raise SystemExit(f"这些题原本不是 do，对调前提不成立：{bad}")
 
-    r4 = {"_note": ("v2 第四轮裁决表。由 make_label_swap.py 从 adjudication.json 生成："
-                    "9 道题的 do/dont 括号说明对调，参考裁决随之翻面，用于消除 22:4 的标签偏斜。"),
-          "items": {}}
+    r4 = {
+        "_note": (
+            "v2 第四轮裁决表。由 make_label_swap.py 从 adjudication.json 生成："
+            "9 道题的 do/dont 括号说明对调，参考裁决随之翻面，用于消除 22:4 的标签偏斜。"
+        ),
+        "items": {},
+    }
     for q, v in items.items():
         item = dict(v)
         item.setdefault("material", f"materials/{q}/brief.md")
@@ -107,6 +112,7 @@ def main() -> int:
 
     act = [v for v in r4["items"].values() if not v.get("withdrawn")]
     from collections import Counter
+
     c = Counter(v["verdict"] for v in act)
     print(f"对调 {len(SWAP)} 题 → 分布 {dict(c)}（合计 {len(act)}）")
     print(f"写盘：{out.relative_to(HERE)} 与 {len(SWAP)} 份 brief-swap.md")

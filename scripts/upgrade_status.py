@@ -46,6 +46,7 @@
   「台账与规则层不一致」并单列（这是台账本身的可信度检查）。
 - 阴性：台账为空时，应把全部 ★ 列为未升级，不得报"全部已升级"。
 """
+
 import argparse
 import json
 import re
@@ -60,7 +61,12 @@ LEDGER = ROOT / "docs" / "learnings-upgraded.json"
 RULE_LAYER = Path(
     __import__("os").environ.get(
         "UPGRADE_RULE_LAYER",
-        str(Path.home() / ".workbuddy" / "user-24688a34-03ff-4299-8736-08d5a6585c6b-personal" / "MEMORY.md"),
+        str(
+            Path.home()
+            / ".workbuddy"
+            / "user-24688a34-03ff-4299-8736-08d5a6585c6b-personal"
+            / "MEMORY.md"
+        ),
     )
 )
 
@@ -124,7 +130,9 @@ def main() -> int:
 
     lessons = sorted((parse_lesson(p) for p in LEARN.glob("L-*.md")), key=lambda x: x["id"])
     ledger = load_ledger()
-    rule_text = RULE_LAYER.read_text(encoding="utf-8", errors="replace") if RULE_LAYER.exists() else ""
+    rule_text = (
+        RULE_LAYER.read_text(encoding="utf-8", errors="replace") if RULE_LAYER.exists() else ""
+    )
     done = {e.get("id") for e in ledger.get("upgraded", [])}
     local = {e.get("id") for e in ledger.get("covered_locally", [])}
     defer = set((ledger.get("deferred") or {}).get("ids") or [])
@@ -133,31 +141,51 @@ def main() -> int:
     rows = []
     for it in lessons:
         age = (today - date.fromisoformat(it["date"])).days
-        rows.append({**it, "age_days": age,
-                     "upgraded": it["id"] in done, "covered_locally": it["id"] in local,
-                     "deferred": it["id"] in defer})
+        rows.append(
+            {
+                **it,
+                "age_days": age,
+                "upgraded": it["id"] in done,
+                "covered_locally": it["id"] in local,
+                "deferred": it["id"] in defer,
+            }
+        )
 
     stars = [r for r in rows if r["star"]]
     # 待处置 = 既没升级、也没有本地强制机制兜着
-    pending = [r for r in stars
-               if not r["upgraded"] and not r["covered_locally"] and not r["deferred"]]
+    pending = [
+        r for r in stars if not r["upgraded"] and not r["covered_locally"] and not r["deferred"]
+    ]
     stale = [r for r in pending if r["age_days"] > a.max_age]
     bad = check_ledger(ledger, rule_text)
 
     if a.json:
-        print(json.dumps({
-            "total": len(rows), "star": len(stars), "upgraded": len(done),
-            "covered_locally": len(local), "deferred": len(defer),
-            "pending": [r["id"] for r in pending], "stale": [r["id"] for r in stale],
-            "ledger_errors": [{"id": i, "why": w} for i, w in bad],
-            "rule_layer": str(RULE_LAYER), "rule_layer_exists": RULE_LAYER.exists(),
-        }, ensure_ascii=False, indent=1))
+        print(
+            json.dumps(
+                {
+                    "total": len(rows),
+                    "star": len(stars),
+                    "upgraded": len(done),
+                    "covered_locally": len(local),
+                    "deferred": len(defer),
+                    "pending": [r["id"] for r in pending],
+                    "stale": [r["id"] for r in stale],
+                    "ledger_errors": [{"id": i, "why": w} for i, w in bad],
+                    "rule_layer": str(RULE_LAYER),
+                    "rule_layer_exists": RULE_LAYER.exists(),
+                },
+                ensure_ascii=False,
+                indent=1,
+            )
+        )
         return 1 if (a.strict and stale) else 0
 
     print(f"规则层：{RULE_LAYER}")
     print(f"          {'存在' if RULE_LAYER.exists() else '❌ 不存在（升级链路必然空转）'}")
-    print(f"经验总数 {len(rows)}｜★ 候选 {len(stars)}｜已升级 {len(done)}｜"
-          f"本地强制 {len(local)}｜待升(预算阻塞) {len(defer)}｜待处置 {len(pending)}")
+    print(
+        f"经验总数 {len(rows)}｜★ 候选 {len(stars)}｜已升级 {len(done)}｜"
+        f"本地强制 {len(local)}｜待升(预算阻塞) {len(defer)}｜待处置 {len(pending)}"
+    )
     print()
     if bad:
         print("🔴 台账自身不一致（登记的 rule_line 在规则层找不到）：")
@@ -170,7 +198,9 @@ def main() -> int:
             flag = "🔴超期" if r["age_days"] > a.max_age else "  "
             print(f"   {flag} {r['id']}  {r['age_days']:>3}天  {r['title'][:52]}")
     elif defer:
-        print(f"✅ 无未处置项。另有 {len(defer)} 条已判定值得升，但受规则层余量阻塞（见台账 deferred）。")
+        print(
+            f"✅ 无未处置项。另有 {len(defer)} 条已判定值得升，但受规则层余量阻塞（见台账 deferred）。"
+        )
     else:
         print("✅ 全部 ★ 候选均已升级或已有本地强制机制兜底。")
 

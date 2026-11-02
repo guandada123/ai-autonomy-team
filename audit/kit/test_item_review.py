@@ -35,6 +35,7 @@ item_review 的三个退出码对应「放行 / 拦批 / 打回」，判错方�
 
 退出码：0 全过 ｜ 1 有失败
 """
+
 from __future__ import annotations
 
 import hashlib
@@ -53,7 +54,7 @@ DOSSIER_V2 = ROOT / "audit/baseline/v2/dossier-v2.json"
 
 # 判据常量：从契约抄一份到测试里，**故意不复用被测模块**——复用就变成"自己验自己"
 META_WORDS = ("人工复核", "闭环", "待验证", "持续跟踪", "持续暴露", "跟进")
-LEN_RATIO = Fraction(13, 10)   # C3 阈值 1.3，用分数避免浮点
+LEN_RATIO = Fraction(13, 10)  # C3 阈值 1.3，用分数避免浮点
 BLIND_MIN_ACC = Fraction(3, 10)
 
 CHECKS: list = []
@@ -61,14 +62,17 @@ CHECKS: list = []
 
 def case(label: str):
     """记录用例并保留中文标签；返回原函数，pytest 仍按 test_* 收集。"""
+
     def deco(fn):
         fn._label = label
         CHECKS.append(fn)
         return fn
+
     return deco
 
 
 # ── 工具：真实 CLI 实跑 ────────────────────────────────────────────────────
+
 
 def _run(dossier: Path, json_mode: bool = True) -> subprocess.CompletedProcess:
     cmd = [sys.executable, str(GATE), "--dossier", str(dossier)]
@@ -81,8 +85,9 @@ def _run_obj(obj=None, raw: str | None = None, json_mode: bool = True):
     """写临时 dossier → 实跑 → 返回 (returncode, 解析后的 JSON | None, 合并输出)。"""
     with tempfile.TemporaryDirectory(prefix="ir-") as td:
         p = Path(td) / "dossier.json"
-        p.write_text(raw if raw is not None else json.dumps(obj, ensure_ascii=False),
-                     encoding="utf-8")
+        p.write_text(
+            raw if raw is not None else json.dumps(obj, ensure_ascii=False), encoding="utf-8"
+        )
         r = _run(p, json_mode)
     data = None
     if json_mode:
@@ -94,6 +99,7 @@ def _run_obj(obj=None, raw: str | None = None, json_mode: bool = True):
 
 
 # ── 夹具构造（临时目录，不入仓库）─────────────────────────────────────────
+
 
 def _pad(n: int, prefix: str = "") -> str:
     """造恰好 n 个字符的选项文本；prefix 计入长度。不含任何元话语词。"""
@@ -107,10 +113,20 @@ def _sha(options: dict) -> str:
     return hashlib.sha256(canon.encode("utf-8")).hexdigest()
 
 
-def _item(qid: str, texts: dict, correct: str, *, blind: str | None = None,
-          r1: str = "corroborated", r1_detail: str | None = None,
-          r2: str = "none", veto: bool = False, basis: str | None = None,
-          r3_reason: str | None = None, bind_sha: str | None = None) -> dict:
+def _item(
+    qid: str,
+    texts: dict,
+    correct: str,
+    *,
+    blind: str | None = None,
+    r1: str = "corroborated",
+    r1_detail: str | None = None,
+    r2: str = "none",
+    veto: bool = False,
+    basis: str | None = None,
+    r3_reason: str | None = None,
+    bind_sha: str | None = None,
+) -> dict:
     """造一道合法题目。bind_sha: None=不写该字段；"ok"=写正确值；其他=原样写入（错值用例）。"""
     it = {
         "qid": qid,
@@ -132,8 +148,7 @@ def _item(qid: str, texts: dict, correct: str, *, blind: str | None = None,
     return it
 
 
-def _plain(qid: str, *, correct: str = "A", blind: str | None = None,
-           length: int = 12) -> dict:
+def _plain(qid: str, *, correct: str = "A", blind: str | None = None, length: int = 12) -> dict:
     """中性题：四选项等长、无元话语、无否决 —— C1/C2/C3/C4 全不命中。"""
     return _item(qid, {k: _pad(length) for k in "ABCD"}, correct, blind=blind)
 
@@ -145,6 +160,7 @@ def _batch(n: int, hits: int) -> dict:
 
 
 # ── 独立判据复核（Fraction 精确算，与被测代码的整数交叉相乘式**不同实现**）──
+
 
 def _c3_hit(options: dict, correct: str) -> bool:
     lens = {k: len(v) for k, v in options.items()}
@@ -177,6 +193,7 @@ def _reject_map(d: dict) -> dict:
 
 # ── A1：真实档案（逐项数值，不接受只看退出码）──────────────────────────────
 
+
 @case("A1: dossier-v2.json → exit 1、reject 22、warn 13、批次 PASS 88%，逐 code 与逐 qid 钉死")
 def test_a1_real_dossier_exact_numbers():
     r = _run(DOSSIER_V2)
@@ -187,8 +204,9 @@ def test_a1_real_dossier_exact_numbers():
     assert d["errors"] == [], f"真实档案不得有 schema 错误：{d['errors']}"
     # summary 含 @batch 条目（C6 命中时）；本批 C6=PASS 故 summary 恰等于题级计数。
     # 别把 summary 当"题级缺陷数"用——A6 里它就含 @batch。
-    assert d["summary"] == {"reject": 22, "warn": 13}, \
+    assert d["summary"] == {"reject": 22, "warn": 13}, (
         f"summary 应为 reject22/warn13，实为 {d['summary']}"
+    )
     assert len(d["rejects"]) == 22, f"rejects 长度 22，实为 {len(d['rejects'])}"
     assert len(d["warns"]) == 13, f"warns 长度 13，实为 {len(d['warns'])}"
     bc = d["batch_checks"]
@@ -196,7 +214,9 @@ def test_a1_real_dossier_exact_numbers():
     assert bc["verdict"] == "PASS", f"批次应为 PASS，实为 {bc['verdict']}（{bc['reason']}）"
     # 逐 code 计数：C1 1 / C2 4 / C3 17（C3 只记未被 C1/C2 吃掉的题）
     codes = Counter(x["code"] for x in d["rejects"])
-    assert dict(codes) == {"C1": 1, "C2": 4, "C3": 17}, f"reject 分码应为 C1:1/C2:4/C3:17，实为 {dict(codes)}"
+    assert dict(codes) == {"C1": 1, "C2": 4, "C3": 17}, (
+        f"reject 分码应为 C1:1/C2:4/C3:17，实为 {dict(codes)}"
+    )
     wcodes = Counter(x["code"] for x in d["warns"])
     assert dict(wcodes) == {"C4": 13}, f"warn 应全为 C4:13，实为 {dict(wcodes)}"
     assert "@batch" not in wcodes and "@batch" not in codes, "批次 PASS 时不应有 @batch 条目"
@@ -214,28 +234,37 @@ def test_a1_real_dossier_per_qid_oracle():
     want = {it["qid"]: c for it in doc["items"] if (c := _expect_reject_code(it))}
     assert got == want, "\n".join(
         ["reject 表与独立复核不一致："]
-        + [f"  {q}: 实现 {got.get(q)} vs 复核 {want.get(q)}"
-           for q in sorted(set(got) | set(want)) if got.get(q) != want.get(q)])
+        + [
+            f"  {q}: 实现 {got.get(q)} vs 复核 {want.get(q)}"
+            for q in sorted(set(got) | set(want))
+            if got.get(q) != want.get(q)
+        ]
+    )
     # C4 记档同样逐题复核（13 条）
     want_w = {it["qid"] for it in doc["items"] if _c4_hit(it["options"], it["correct"])}
     got_w = {w["qid"] for w in d["warns"]}
-    assert got_w == want_w, f"C4 记档不一致——多 {sorted(got_w - want_w)}，少 {sorted(want_w - got_w)}"
+    assert got_w == want_w, (
+        f"C4 记档不一致——多 {sorted(got_w - want_w)}，少 {sorted(want_w - got_w)}"
+    )
     assert len(want_w) == 13, f"C4 原始命中应为 13 题，实为 {len(want_w)}"
     # 正交性口径要分清「判据命中」与「记码」两个层次：
     #   原始 C3 判据命中 22 题，其中 17 题记码 C3、5 题被 C1/C2 抢先记码（C3 判据同样成立）；
     #   13 题 C4 全部同时满足 C3 判据，但只有 10 题记码为 C3（V2-11/13/15 被 C2 抢先）。
     raw_c3 = {it["qid"] for it in doc["items"] if _c3_hit(it["options"], it["correct"])}
     assert len(raw_c3) == 22, f"C3 原始命中应为 22 题，实为 {len(raw_c3)}"
-    assert raw_c3 == set(want), \
-        f"rejects 集合应恰等于 C3 判据命中集（全部 22 题都应被拦下）：" \
+    assert raw_c3 == set(want), (
+        f"rejects 集合应恰等于 C3 判据命中集（全部 22 题都应被拦下）："
         f"多 {sorted(set(want) - raw_c3)}，少 {sorted(raw_c3 - set(want))}"
+    )
     assert want_w <= raw_c3, f"C4 命中但 C3 不命中的题（正交性会失效）：{sorted(want_w - raw_c3)}"
     c3_coded_warned = {q for q, c in want.items() if c == "C3"} & want_w
-    assert len(c3_coded_warned) == 10, \
+    assert len(c3_coded_warned) == 10, (
         f"记码 C3 且同时 C4 的应为 10 题（另 3 题被 C2 抢先），实为 {len(c3_coded_warned)}"
+    )
 
 
 # ── A2：正样本（好批必须放行）────────────────────────────────────────────
+
 
 @case("A2: 正样本（长度均衡/r1 全 corroborated/r3 全 false/blind 全对）→ exit 0，仅 C6 饱和 WARN")
 def test_a2_positive_sample_exit0():
@@ -243,8 +272,9 @@ def test_a2_positive_sample_exit0():
     assert rc == 0, f"正样本期望 exit 0，实为 {rc}\n{out}"
     assert d["errors"] == [], d["errors"]
     assert d["rejects"] == [], f"正样本不得有 REJECT：{d['rejects']}"
-    assert [w["code"] for w in d["warns"]] == ["C6"], \
+    assert [w["code"] for w in d["warns"]] == ["C6"], (
         f"5/5 盲答全对应只留批次饱和 WARN（无题级 C4），实为 {d['warns']}"
+    )
     assert d["warns"][0]["qid"] == "@batch", d["warns"][0]
     assert d["batch_checks"]["blind_acc"] == 1.0, d["batch_checks"]
     assert d["batch_checks"]["verdict"] == "WARN", d["batch_checks"]
@@ -260,10 +290,11 @@ def test_a2_positive_sample_no_warn():
 
 # ── A3：C3 可证伪（正样本注入超长正确项必须变红）──────────────────────────
 
+
 @case("A3: 正样本注入超长正确项（40 字 vs 其余 10 字）→ exit 1 且 code==C3")
 def test_a3_c3_falsifiable():
     items = [_plain(f"P{i:02d}", blind="A" if i <= 3 else "B") for i in range(1, 6)]
-    texts = {"A": _pad(10), "B": _pad(10), "C": _pad(10), "D": _pad(40)}   # 无元话语，只泄漏长度
+    texts = {"A": _pad(10), "B": _pad(10), "C": _pad(10), "D": _pad(40)}  # 无元话语，只泄漏长度
     items.append(_item("LONG", texts, "D", blind="B"))
     rc, d, out = _run_obj({"batch": "a3", "items": items})
     assert rc == 1, f"注入超长正确项后应 exit 1，实为 {rc}\n{out}"
@@ -271,15 +302,16 @@ def test_a3_c3_falsifiable():
     r0 = d["rejects"][0]
     assert r0["qid"] == "LONG" and r0["code"] == "C3", r0
     assert "长度泄漏" in r0["reason"], r0["reason"]
-    assert d["batch_checks"]["blind_acc"] == 0.5, d["batch_checks"]   # 不靠批次项搅局
+    assert d["batch_checks"]["blind_acc"] == 0.5, d["batch_checks"]  # 不靠批次项搅局
 
 
 # ── A4：C3 与 C4 正交（同题两条都要在）────────────────────────────────────
 
+
 @case("A4: 同题同时命中 C3 与 C4 → rejects 含 C3 且 warns 含 C4（同题双轴并存）")
 def test_a4_c3_c4_orthogonal():
     texts = {"A": _pad(10), "B": _pad(10), "C": _pad(10), "D": _pad(40, "人工复核")}
-    items = [_item("BOTH", texts, "D", blind="A")]          # 盲答错，拉低 C6 避免饱和
+    items = [_item("BOTH", texts, "D", blind="A")]  # 盲答错，拉低 C6 避免饱和
     items += [_plain(f"P{i:02d}", blind="A" if i <= 2 else "B") for i in range(1, 4)]
     rc, d, out = _run_obj({"batch": "a4", "items": items})
     assert rc == 1, f"期望 exit 1，实为 {rc}\n{out}"
@@ -287,22 +319,32 @@ def test_a4_c3_c4_orthogonal():
     wmap = {w["qid"]: w["code"] for w in d["warns"]}
     assert rej.get("BOTH") == "C3", f"BOTH 应进 rejects 且 code==C3，实为 {rej}"
     assert wmap.get("BOTH") == "C4", f"BOTH 应同时进 warns 且 code==C4（正交性），实为 {wmap}"
-    assert d["batch_checks"]["verdict"] == "PASS", d["batch_checks"]   # 3/4=0.75，批次不搅局
+    assert d["batch_checks"]["verdict"] == "PASS", d["batch_checks"]  # 3/4=0.75，批次不搅局
     assert len(d["rejects"]) == 1 and len(d["warns"]) == 1, (d["rejects"], d["warns"])
 
 
 # ── A5：C1 / C2 独立命中 + 否决轴优先级 ──────────────────────────────────
 
+
 @case("A5: 只命中 C1（r1=contradicted）→ exit 1 且 code==C1，理由引用 r1.detail")
 def test_a5_c1_only():
-    items = [_item("C1ONLY", {k: _pad(12) for k in "ABCD"}, "A",
-                   r1="contradicted", r1_detail="题面写合计 87.40，规则写 52.00，二者矛盾",
-                   blind="A")]
+    items = [
+        _item(
+            "C1ONLY",
+            {k: _pad(12) for k in "ABCD"},
+            "A",
+            r1="contradicted",
+            r1_detail="题面写合计 87.40，规则写 52.00，二者矛盾",
+            blind="A",
+        )
+    ]
     items += [_plain(f"P{i:02d}", blind="A" if i == 1 else "B") for i in range(1, 4)]
     rc, d, out = _run_obj({"batch": "a5c1", "items": items})
     assert rc == 1, f"期望 exit 1，实为 {rc}\n{out}"
     assert _reject_map(d) == {"C1ONLY": "C1"}, f"应只命中 C1，实为 {d['rejects']}"
-    assert "矛盾" in d["rejects"][0]["reason"], f"C1 理由应引用 r1.detail：{d['rejects'][0]['reason']}"
+    assert "矛盾" in d["rejects"][0]["reason"], (
+        f"C1 理由应引用 r1.detail：{d['rejects'][0]['reason']}"
+    )
     assert d["warns"] == [], f"2/4=0.5 未饱和，不该有批次 WARN：{d['warns']}"
 
 
@@ -315,15 +357,26 @@ def test_a5_c2_only_with_null_basis():
     assert d["errors"] == [], f"basis=null 是合法值，不该报 schema 错：{d['errors']}"
     assert _reject_map(d) == {"C2ONLY": "C2"}, f"应只命中 C2，实为 {d['rejects']}"
     reason = d["rejects"][0]["reason"]
-    assert "R3 否决" in reason and "None" in reason, \
+    assert "R3 否决" in reason and "None" in reason, (
         f"无 r3.reason 时应回退到 'R3 否决（basis=...）'，basis=null 也要打出来：{reason}"
+    )
 
 
 @case("A5: 一题同时满足 C1+C2+C3 → 只记一个码，且优先级为 C1（否决轴顺序即理由优先级）")
 def test_a5_priority_c1_over_c2_over_c3():
     texts = {"A": _pad(40), "B": _pad(10), "C": _pad(10), "D": _pad(10)}
-    items = [_item("TRIPLE", texts, "A", r1="contradicted", r1_detail="题面自相矛盾",
-                   veto=True, basis="ambiguous_gate", blind="A")]
+    items = [
+        _item(
+            "TRIPLE",
+            texts,
+            "A",
+            r1="contradicted",
+            r1_detail="题面自相矛盾",
+            veto=True,
+            basis="ambiguous_gate",
+            blind="A",
+        )
+    ]
     items += [_plain(f"P{i:02d}", blind="A" if i == 1 else "B") for i in range(1, 4)]
     rc, d, out = _run_obj({"batch": "a5prio", "items": items})
     assert rc == 1, f"期望 exit 1，实为 {rc}\n{out}"
@@ -332,6 +385,7 @@ def test_a5_priority_c1_over_c2_over_c3():
 
 
 # ── A6：C6 两个边界（0/25 与 25/25）+ 下限开区间 ────────────────────────
+
 
 @case("A6: 盲答 0/25（<0.3）→ 批次 REJECT、exit 1、rejects 里多一条 @batch C6")
 def test_a6_blind_zero_batch_reject():
@@ -369,8 +423,10 @@ def test_a6_blind_boundary_exactly_03():
 
 # ── A7：schema 负样本（全部 exit 2，且不产出半份判定）────────────────────
 
+
 def _mutations() -> list[tuple[str, dict | str, str]]:
     """(标签, dossier 对象或原始 JSON 文本, errors 里应出现的关键词)。"""
+
     def base(**kw) -> dict:
         it = _plain("N01")
         it.update(kw)
@@ -389,8 +445,11 @@ def _mutations() -> list[tuple[str, dict | str, str]]:
         ("缺 r2", {"batch": "neg", "items": [no_r2]}, "r2"),
         ("缺 blind", {"batch": "neg", "items": [no_blind]}, "blind"),
         ("缺 qid", {"batch": "neg", "items": [no_qid]}, "qid"),
-        ("correct 不在 options", base(correct="D", options={k: _pad(12) for k in "ABC"}),
-         "不在 options"),
+        (
+            "correct 不在 options",
+            base(correct="D", options={k: _pad(12) for k in "ABC"}),
+            "不在 options",
+        ),
         ("options 单项", base(correct="A", options={"A": _pad(12)}), "少于 2 项"),
         ("options 非对象", base(options=["A", "B"]), "options"),
         ("options 文本非字符串", base(options={"A": 1, "B": _pad(12)}), "字符串"),
@@ -409,10 +468,12 @@ def _mutations() -> list[tuple[str, dict | str, str]]:
 def test_a7_schema_negatives():
     bad = []
     for label, payload, kw in _mutations():
-        rc, d, out = _run_obj(None if isinstance(payload, str) else payload,
-                              raw=payload if isinstance(payload, str) else None)
+        rc, d, out = _run_obj(
+            None if isinstance(payload, str) else payload,
+            raw=payload if isinstance(payload, str) else None,
+        )
         if rc != 2:
-            bad.append(f"{label}: 期望 exit 2，实为 {rc}") 
+            bad.append(f"{label}: 期望 exit 2，实为 {rc}")
             continue
         if not (d and d["exit"] == 2 and d["errors"]):
             bad.append(f"{label}: exit 2 但 --json 里无 errors / exit 不符：{d}")
@@ -420,7 +481,9 @@ def test_a7_schema_negatives():
         if not any(kw in e for e in d["errors"]):
             bad.append(f"{label}: errors 未命中关键词 {kw!r}：{d['errors']}")
         if d["rejects"] or d["warns"]:
-            bad.append(f"{label}: exit 2 却产出了判定（半份结果）rejects={d['rejects']} warns={d['warns']}")
+            bad.append(
+                f"{label}: exit 2 却产出了判定（半份结果）rejects={d['rejects']} warns={d['warns']}"
+            )
         # exit 2 也必须是三值枚举闭包内的一致结论，不能是空/缺键（下游按枚举分支）
         bc = d.get("batch_checks") or {}
         if bc.get("verdict") not in ("PASS", "WARN", "REJECT"):
@@ -439,16 +502,16 @@ def test_a7_missing_file():
     d = json.loads(r.stdout)
     assert d["errors"] and any("文件不存在" in e for e in d["errors"]), d["errors"]
     assert d["rejects"] == [] and d["warns"] == [], d
-    assert d["batch_checks"]["verdict"] == "REJECT", d["batch_checks"]   # fail-safe 不放过
+    assert d["batch_checks"]["verdict"] == "REJECT", d["batch_checks"]  # fail-safe 不放过
 
 
 # ── A8：C0 题面版本绑定（options_sha256）─────────────────────────────────
 
+
 @case("A8: 测试侧 sha256 公式与真实档案逐题一致（先自证夹具公式没抄错）")
 def test_a8_sha_formula_matches_real_dossier():
     doc = json.loads(DOSSIER_V2.read_text(encoding="utf-8"))
-    bad = [it["qid"] for it in doc["items"]
-           if it.get("options_sha256") != _sha(it["options"])]
+    bad = [it["qid"] for it in doc["items"] if it.get("options_sha256") != _sha(it["options"])]
     assert not bad, f"档案里这些题的 options_sha256 与契约公式不符：{bad}（本套件公式需复核）"
 
 
@@ -462,8 +525,9 @@ def test_a8_c0_correct_sha_normal():
     assert d["rejects"] == [] and d["warns"] == [], (d["rejects"], d["warns"])
     # 与不带 sha 的同批判定完全等价（C0 只做版本校验，不得改变判据）
     rc2, d2, out2 = _run_obj({"batch": "a8ok", "items": bare})
-    assert (rc2, d2["summary"], d2["batch_checks"]) == (rc, d["summary"], d["batch_checks"]), \
+    assert (rc2, d2["summary"], d2["batch_checks"]) == (rc, d["summary"], d["batch_checks"]), (
         f"绑定 sha 与否的判定必须一致：{(rc2, d2['summary'])} vs {(rc, d['summary'])}"
+    )
 
 
 @case("A8: 错误 options_sha256（题面被改）→ exit 2，errors 定位到 qid，不产出判定")
@@ -475,8 +539,9 @@ def test_a8_c0_wrong_sha_exit2():
     assert d["errors"], d
     hit = [e for e in d["errors"] if "S01" in e]
     assert hit, f"errors 应定位到 qid S01：{d['errors']}"
-    assert any(("sha" in e.lower()) or ("题面" in e) for e in hit), \
+    assert any(("sha" in e.lower()) or ("题面" in e) for e in hit), (
         f"errors 应说明是题面版本不符：{hit}"
+    )
     assert d["rejects"] == [] and d["warns"] == [], d
 
 
@@ -493,8 +558,8 @@ def test_a8_c0_missing_field_hint():
 def test_a8_c0_equal_length_tamper_detected():
     # C3/C4 都看不出来（长度与措辞都没变），这正是 C0 存在的唯一理由
     it = _plain("T01", blind="A")
-    it["options_sha256"] = _sha(it["options"])          # 先按原题面绑定
-    it["options"]["A"] = _pad(12).replace("字", "词")   # 改字不改长
+    it["options_sha256"] = _sha(it["options"])  # 先按原题面绑定
+    it["options"]["A"] = _pad(12).replace("字", "词")  # 改字不改长
     assert len(it["options"]["A"]) == 12, "篡改后长度必须不变，否则用例混入了 C3 因素"
     rc, d, out = _run_obj({"batch": "a8tamper", "items": [it]})
     assert rc == 2, f"等长篡改必须被 C0 拦住，实为 exit {rc}\n{out}"
@@ -505,7 +570,7 @@ def test_a8_c0_equal_length_tamper_detected():
 def test_a8_c0_key_order_and_uppercase_not_false_positive():
     base = _plain("K01", blind="A")
     sh = _sha(base["options"])
-    permuted = dict(reversed(list(base["options"].items())))   # 键序反转，内容不变
+    permuted = dict(reversed(list(base["options"].items())))  # 键序反转，内容不变
     it = dict(base, options=permuted, options_sha256=sh)
     rc, d, out = _run_obj({"batch": "a8order", "items": [it]})
     assert rc == 0, f"键序变化不该被判篡改（哈希按 sort_keys 归一），实为 exit {rc}\n{out}"
@@ -520,13 +585,12 @@ def test_a8_c0_blank_values_treated_as_missing():
     # 三种「没填」的常见占位：出题管线用空串占位时不得被一律判成篡改
     for blank in (None, "", "   ", "\t\n"):
         items = [_plain(f"S{i:02d}", blind="A" if i <= 2 else "B") for i in range(1, 5)]
-        for it in items:                              # 先全部绑定，只把一题改成空白值
+        for it in items:  # 先全部绑定，只把一题改成空白值
             it["options_sha256"] = _sha(it["options"])
         items[1]["options_sha256"] = blank
         rc, d, out = _run_obj({"batch": "a8blank", "items": items}, json_mode=False)
         assert rc == 0, f"占位值 {blank!r} 不该 exit 2（不是声明了错哈希），实为 {rc}\n{out}"
-        assert "未绑定题面版本（1 题）" in out, \
-            f"{blank!r} 应只计 1 题未绑定：\n{out}"
+        assert "未绑定题面版本（1 题）" in out, f"{blank!r} 应只计 1 题未绑定：\n{out}"
 
 
 @case("A8: 非字符串 options_sha256（如 12345）→ 视同不符 exit 2（不能静默跳过校验）")
@@ -536,8 +600,9 @@ def test_a8_c0_non_string_sha_rejected():
         it["options_sha256"] = bad
         rc, d, out = _run_obj({"batch": "a8type", "items": [it]})
         assert rc == 2, f"非字符串哈希值 {bad!r} 应视同不符 → exit 2，实为 {rc}\n{out}"
-        assert any("N01" in e and "sha256" in e.lower() for e in d["errors"]), \
+        assert any("N01" in e and "sha256" in e.lower() for e in d["errors"]), (
             f"{bad!r} 未报出哈希不符：{d['errors']}"
+        )
         assert d["rejects"] == [] and d["warns"] == [], f"{bad!r} 不得产出判定：{d}"
 
 
@@ -566,11 +631,13 @@ def test_a8_c0_mixed_batch_counts_unbound_only():
 def test_a8_real_dossier_fully_bound():
     r = _run(DOSSIER_V2, json_mode=False)
     assert r.returncode == 1, r.stdout + r.stderr
-    assert "未绑定题面版本" not in r.stdout, \
+    assert "未绑定题面版本" not in r.stdout, (
         f"dossier-v2.json 25 题都带 options_sha256，不该提示未绑定：\n{r.stdout}"
+    )
 
 
 # ── A9：C3 边界（整数长度精确构造，恰 1.3 必须命中）─────────────────────
+
 
 @case("A9: C3 比值恰为 1.3（13 字 vs 其余各 10 字）→ 必须命中（判据是 ≥ 不是 >）")
 def test_a9_ratio_exactly_13_boundary_hit():
@@ -580,11 +647,13 @@ def test_a9_ratio_exactly_13_boundary_hit():
     items = [_item(f"E{i:02d}", texts, "A", blind="A" if i <= 2 else "B") for i in range(1, 5)]
     rc, d, out = _run_obj({"batch": "a9eq", "items": items})
     assert rc == 1, f"恰 1.3 应判命中 → exit 1，实为 {rc}\n{out}"
-    assert [r["code"] for r in d["rejects"]] == ["C3"] * 4, \
+    assert [r["code"] for r in d["rejects"]] == ["C3"] * 4, (
         f"4 题应全命中 C3，实为 {[(r['qid'], r['code']) for r in d['rejects']]}"
-    assert "1.3×" in d["rejects"][0]["reason"], \
-        f"理由应带预注册阈值 1.3×（不断言整句/派生数值，避免文案微调即脆断）：" \
+    )
+    assert "1.3×" in d["rejects"][0]["reason"], (
+        f"理由应带预注册阈值 1.3×（不断言整句/派生数值，避免文案微调即脆断）："
         f"{d['rejects'][0]['reason']}"
+    )
 
 
 @case("A9: C3 是合取——最长但倍数不足（12 vs 10/10/10，1.2×）→ 不命中")
@@ -611,8 +680,7 @@ def test_a9_conjunction_not_longest_miss():
     items = [_item(f"J{i:02d}", texts, "A", blind="A" if i <= 2 else "B") for i in range(1, 5)]
     rc, d, out = _run_obj({"batch": "a9and", "items": items})
     assert rc == 0, f"仅倍数达标但非最长不该命中 C3，期望 exit 0，实为 {rc}\n{out}"
-    assert d["rejects"] == [], \
-        f"C3 被写成析取了（倍数达标就拦）：{d['rejects']}"
+    assert d["rejects"] == [], f"C3 被写成析取了（倍数达标就拦）：{d['rejects']}"
 
 
 @case("A9: n_others==1（两选项，13 字 vs 10 字）恰 1.3 → 命中；大长度 130 vs 100 同样命中")
@@ -634,17 +702,19 @@ def test_a9_two_options_and_large_lengths():
 @case("A8: exit 2 时不得打「未绑定题面版本」提示（没有结论可对齐，同屏自相矛盾）")
 def test_a8_no_unbound_hint_on_exit2():
     # D1 钉死：脏题不参与判定，其未绑定计数也不该出现在「本报告的结论…」这种措辞里。
-    clean_it = _plain("U01", blind="A")                 # 干净但未绑定
+    clean_it = _plain("U01", blind="A")  # 干净但未绑定
     dirty_it = _plain("U02", blind="A")
-    del dirty_it["r3"]                                  # 脏题（也未绑定）
+    del dirty_it["r3"]  # 脏题（也未绑定）
     rc, d, out = _run_obj({"batch": "a8d1", "items": [clean_it, dirty_it]}, json_mode=False)
     assert rc == 2, f"含脏题应 exit 2，实为 {rc}\n{out}"
     assert "未产出任何判定" in out, f"exit 2 必须明确声明未产出判定：\n{out}"
-    assert "未绑定题面版本" not in out, \
+    assert "未绑定题面版本" not in out, (
         f"exit 2 时不该出现「未绑定题面版本」提示（没有结论可对齐）：\n{out}"
+    )
 
 
 # ── A10：blind.verdict 必须是选项键之一（格式错误不得当成可解性信号）────────
+
 
 @case("A10: blind.verdict 取自 A–D 且都在 options 键内 → 正常判定（不得误报）")
 def test_a10_blind_verdict_valid_letters_pass():
@@ -653,7 +723,9 @@ def test_a10_blind_verdict_valid_letters_pass():
     for i, key in enumerate("ABCD", 1):
         items.append(_item(f"L{i:02d}", {k: _pad(12) for k in "ABCD"}, key, blind=key))
     for i, key in enumerate("ABCD", 5):
-        items.append(_item(f"L{i:02d}", {k: _pad(12) for k in "ABCD"}, key, blind="A" if key != "A" else "B"))
+        items.append(
+            _item(f"L{i:02d}", {k: _pad(12) for k in "ABCD"}, key, blind="A" if key != "A" else "B")
+        )
     rc, d, out = _run_obj({"batch": "a10ok", "items": items})
     assert rc == 0, f"合法 blind 值不该拦批，期望 exit 0，实为 {rc}\n{out}"
     assert d["errors"] == [], f"合法 blind 值不得报 schema 错：{d['errors']}"
@@ -707,10 +779,12 @@ def test_a10_value_normalization_unified():
         assert rc == 0, f"{field}=' A' 属书写差异、应归一化后合法，实为 exit {rc}\n{out}"
         assert d["errors"] == [], f"{field}=' A' 不该报 schema 错：{d['errors']}"
         assert d["rejects"] == [], f"{field}=' A' 不该有题级 REJECT：{d['rejects']}"
-        assert d["batch_checks"]["blind_acc"] == 1.0, \
+        assert d["batch_checks"]["blind_acc"] == 1.0, (
             f"{field}=' A' 归一化后应命中（盲答 1/1）：{d['batch_checks']}"
-        assert [w["code"] for w in d["warns"]] == ["C6"], \
+        )
+        assert [w["code"] for w in d["warns"]] == ["C6"], (
             f"单题批 1/1 必饱和 WARN，显式承认（免得 exit 0 被误读成没命中 C6）：{d['warns']}"
+        )
 
 
 @case("A10: 语义差异仍拒——correct='D.' / blind='D.' → exit 2（归一化不是放宽校验）")
@@ -727,8 +801,9 @@ def test_a10_semantic_error_still_rejected():
     rc, d, out = _run_obj({"batch": "a10sem2", "items": [it]})
     assert rc == 2, f"blind='D.' 应 exit 2，实为 {rc}\n{out}"
     msg = [e for e in d["errors"] if "S02" in e]
-    assert msg and any("格式错误" in e and "可解性信号" in e for e in msg), \
+    assert msg and any("格式错误" in e and "可解性信号" in e for e in msg), (
         f"协议冻结的文案应含「格式错误」「可解性信号」：{msg}"
+    )
 
 
 @case("A10: options 的键不归一化——键含空格时 correct=' A' 必须 exit 2（键是冻结件）")
@@ -741,39 +816,52 @@ def test_a10_option_keys_not_normalized():
     it = _item("K01", {" A": _pad(12), "B": _pad(12)}, " A", blind="B")
     rc, d, out = _run_obj({"batch": "a10key", "items": [it]})
     assert rc == 2, f"键含空格时 correct=' A' 应 exit 2（键不被 strip），实为 {rc}\n{out}"
-    assert any("K01" in e and "不在 options" in e for e in d["errors"]), \
+    assert any("K01" in e and "不在 options" in e for e in d["errors"]), (
         f"errors 应说明 correct 不在 options 的键内：{d['errors']}"
+    )
     assert d["rejects"] == [] and d["warns"] == [], d
 
 
-@case("A10: blind.verdict 带首尾空白（' D' / 'D\\n'）→ 按 strip 归一化后合法（与 qid/correct 惯例一致）")
+@case(
+    "A10: blind.verdict 带首尾空白（' D' / 'D\\n'）→ 按 strip 归一化后合法（与 qid/correct 惯例一致）"
+)
 def test_a10_blind_verdict_whitespace_normalized():
     # 裁决只规定「非法值 → exit 2」；带空白的合法值是「同一个值的不同书写」，与 qid / correct /
     # r3.basis 的 strip 惯例保持一致（不是把 'D.' 这类语义拼错放过去——那类必须 exit 2）。
     # 若将来裁决改为「一律严格原样匹配」，把本用例翻成 exit 2 即可，实现改动是一行。
     for value in (" D", "D\n", "\tD "):
-        rc, d, out = _run_obj({"batch": "a10ws", "items": [
-            _item("W01", {k: _pad(12) for k in "ABCD"}, "D", blind=value)]})
+        rc, d, out = _run_obj(
+            {
+                "batch": "a10ws",
+                "items": [_item("W01", {k: _pad(12) for k in "ABCD"}, "D", blind=value)],
+            }
+        )
         assert rc == 0, f"blind={value!r} 归一化后是合法值，不该拦批，实为 {rc}\n{out}"
         assert d["errors"] == [], f"blind={value!r} 不该报 schema 错：{d['errors']}"
         assert d["rejects"] == [], f"blind={value!r} 不该有题级/批次 REJECT：{d['rejects']}"
-        assert d["batch_checks"]["blind_acc"] == 1.0, \
+        assert d["batch_checks"]["blind_acc"] == 1.0, (
             f"blind={value!r} 应被当作 'D' 命中（盲答 1/1）：{d['batch_checks']}"
+        )
         # 单题批 1/1 必触发 C6 饱和 WARN —— 显式断言，免得将来有人以为这里的 exit 0 是"没命中 C6"
-        assert [w["code"] for w in d["warns"]] == ["C6"], \
+        assert [w["code"] for w in d["warns"]] == ["C6"], (
             f"单题批盲答 1/1 应命中 C6 饱和 WARN：{d['warns']}"
+        )
 
 
 @case("A10: 真实档案 25 题 blind 值全部落在 options 键内（新增校验不得打回好档案）")
 def test_a10_real_dossier_blind_values_valid():
     doc = json.loads(DOSSIER_V2.read_text(encoding="utf-8"))
-    offenders = [(it["qid"], it["blind"]["verdict"]) for it in doc["items"]
-                 if it["blind"]["verdict"] not in it["options"]]
+    offenders = [
+        (it["qid"], it["blind"]["verdict"])
+        for it in doc["items"]
+        if it["blind"]["verdict"] not in it["options"]
+    ]
     assert not offenders, f"真实档案里有 blind 值不属于 options 键：{offenders}（A1 会因此变红）"
     # 顺带确认新增校验落地后 A1 的三个数值不变
     d = json.loads(_run(DOSSIER_V2).stdout)
-    assert (d["exit"], d["summary"]["reject"], d["summary"]["warn"]) == (1, 22, 13), \
+    assert (d["exit"], d["summary"]["reject"], d["summary"]["warn"]) == (1, 22, 13), (
         f"真实档案结论应为 exit1/22/13，实为 {(d['exit'], d['summary']['reject'], d['summary']['warn'])}"
+    )
 
 
 @case("A10: [白盒] 任一 item 报错时 validate_items 不得放出可用的 clean（D2 结构堵死）")
@@ -787,24 +875,31 @@ def test_a10_dirty_item_never_reaches_clean():
     """
     sys.path.insert(0, str(HERE))
     import importlib
+
     ir = importlib.import_module("item_review")
 
-    only_missing_qid = {"options": {"A": _pad(12), "B": _pad(12)}, "correct": "A",
-                        "r1": {"verdict": "corroborated"}, "r2": {"type": "none"},
-                        "r3": {"veto": False, "basis": None}, "blind": {"verdict": "A"}}
+    only_missing_qid = {
+        "options": {"A": _pad(12), "B": _pad(12)},
+        "correct": "A",
+        "r1": {"verdict": "corroborated"},
+        "r2": {"type": "none"},
+        "r3": {"veto": False, "basis": None},
+        "blind": {"verdict": "A"},
+    }
     errs: list = []
     try:
         res = ir.validate_items([only_missing_qid], errs)
-    except Exception as e:            # 接口被重构也要明说，而不是报个不相干的 TypeError
-        raise AssertionError(f"validate_items 调用失败（{type(e).__name__}: {e}）；"
-                             f"若已重构，请同步本用例") from e
+    except Exception as e:  # 接口被重构也要明说，而不是报个不相干的 TypeError
+        raise AssertionError(
+            f"validate_items 调用失败（{type(e).__name__}: {e}）；若已重构，请同步本用例"
+        ) from e
     clean = res[0] if isinstance(res, tuple) else res
     assert errs, "夹具前提：这道题缺 qid，必须报错"
-    assert clean == [], \
-        f"只缺 qid 的脏题被放进了 clean（qid 回退占位）：{clean}——D2 未堵死"
+    assert clean == [], f"只缺 qid 的脏题被放进了 clean（qid 回退占位）：{clean}——D2 未堵死"
 
 
 # ── 独立运行器（pytest 不可用时的主通道；风格随 test_route_gate.py）──────
+
 
 def main() -> int:
     if not GATE.exists():
@@ -814,7 +909,7 @@ def main() -> int:
     for fn in CHECKS:
         try:
             fn()
-        except Exception as e:                   # 断言失败与意外异常都要报
+        except Exception as e:  # 断言失败与意外异常都要报
             fails.append((fn._label, f"{type(e).__name__}: {e}"))
     print(f"[item-review-test] {len(CHECKS) - len(fails)}/{len(CHECKS)} 通过")
     for n, e in fails:

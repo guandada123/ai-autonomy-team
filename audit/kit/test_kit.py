@@ -34,6 +34,7 @@
 
 退出码：0 全过 ｜ 1 有失败
 """
+
 from __future__ import annotations
 
 import contextlib
@@ -69,18 +70,22 @@ def check(name):
     def deco(fn):
         CHECKS.append((name, fn))
         return fn
+
     return deco
 
 
 def report(name):
     """与 check 的区别：只观察不裁决，失败也不影响 exit-code。"""
+
     def deco(fn):
         REPORTS.append((name, fn))
         return fn
+
     return deco
 
 
 # ── 组一：多数票与单票边界 ───────────────────────────────────────────────
+
 
 @check("decide: 2/3 过半取多数")
 def _():
@@ -125,6 +130,7 @@ def _():
 
 # ── 组二：单题判定 ────────────────────────────────────────────────────────
 
+
 @check("grade_one: 大小写归一（席位写 a、裁决表写 A 必须算对）")
 def _():
     r = score.grade_one({"verdict": "A"}, {"verdict": "a"})
@@ -164,13 +170,17 @@ def _():
 def _():
     with tempfile.TemporaryDirectory() as d:
         p = Path(d) / "items.json"
-        p.write_text(json.dumps({"items": {
-            "Q1": {"verdict": "a"},
-            "Q2": {"verdict": "b", "withdrawn": True}}}), encoding="utf-8")
+        p.write_text(
+            json.dumps(
+                {"items": {"Q1": {"verdict": "a"}, "Q2": {"verdict": "b", "withdrawn": True}}}
+            ),
+            encoding="utf-8",
+        )
         assert list(score.load_items(str(p))) == ["Q1"]
 
 
 # ── 组三：平衡准确率与 κ ─────────────────────────────────────────────────
+
 
 @check("summarize: 全答多数类 → raw 高、平衡恒为 0.50")
 def _():
@@ -184,17 +194,29 @@ def _():
 
 @check("fleiss_kappa: 完全一致 = 1.0")
 def _():
-    rows = [{"Q1": {"verdict": "a"}, "Q2": {"verdict": "b"}},
-            {"Q1": {"verdict": "a"}, "Q2": {"verdict": "b"}}]
+    rows = [
+        {"Q1": {"verdict": "a"}, "Q2": {"verdict": "b"}},
+        {"Q1": {"verdict": "a"}, "Q2": {"verdict": "b"}},
+    ]
     assert score.fleiss_kappa(rows, ["Q1", "Q2"]) == 1.0
 
 
 @check("fleiss_kappa: 每题都相反 = −1.0")
 def _():
-    rows = [{"Q1": {"verdict": "a"}, "Q2": {"verdict": "a"},
-             "Q3": {"verdict": "a"}, "Q4": {"verdict": "a"}},
-            {"Q1": {"verdict": "b"}, "Q2": {"verdict": "b"},
-             "Q3": {"verdict": "b"}, "Q4": {"verdict": "b"}}]
+    rows = [
+        {
+            "Q1": {"verdict": "a"},
+            "Q2": {"verdict": "a"},
+            "Q3": {"verdict": "a"},
+            "Q4": {"verdict": "a"},
+        },
+        {
+            "Q1": {"verdict": "b"},
+            "Q2": {"verdict": "b"},
+            "Q3": {"verdict": "b"},
+            "Q4": {"verdict": "b"},
+        },
+    ]
     assert score.fleiss_kappa(rows, ["Q1", "Q2", "Q3", "Q4"]) == -1.0
 
 
@@ -202,19 +224,31 @@ def _():
 def _():
     # 两题一致、两题相反：P̄=0.5，p_a=0.75/p_b=0.25 → P_e=0.625
     # κ = (0.5−0.625)/(1−0.625) = −0.333
-    rows = [{"Q1": {"verdict": "a"}, "Q2": {"verdict": "a"},
-             "Q3": {"verdict": "a"}, "Q4": {"verdict": "a"}},
-            {"Q1": {"verdict": "a"}, "Q2": {"verdict": "a"},
-             "Q3": {"verdict": "b"}, "Q4": {"verdict": "b"}}]
+    rows = [
+        {
+            "Q1": {"verdict": "a"},
+            "Q2": {"verdict": "a"},
+            "Q3": {"verdict": "a"},
+            "Q4": {"verdict": "a"},
+        },
+        {
+            "Q1": {"verdict": "a"},
+            "Q2": {"verdict": "a"},
+            "Q3": {"verdict": "b"},
+            "Q4": {"verdict": "b"},
+        },
+    ]
     k = score.fleiss_kappa(rows, ["Q1", "Q2", "Q3", "Q4"])
     assert abs(k - (-1 / 3)) < 0.002, k
 
 
 # ── 组四：盲标 Kappa 工具链（破「标注集只能验实现」） ──────────────────────
 
+
 @check("kappa_labels: 完全一致 → Cohen κ = 1.0")
 def _():
     import kappa_labels as kl
+
     a = [1, 0, 1, 1, 0, 0]
     b = [1, 0, 1, 1, 0, 0]
     assert abs(kl.cohen_kappa(a, b) - 1.0) < 1e-9
@@ -223,6 +257,7 @@ def _():
 @check("kappa_labels: 已知例子 P≈0.5,Pe≈0.5 → κ≈0（碰巧一致）")
 def _():
     import kappa_labels as kl
+
     # 参考全 1，标注者 3 个对 3 个错（恰好一半），完全随机水平
     a = [1, 1, 1, 1]
     b = [1, 0, 1, 0]
@@ -233,9 +268,13 @@ def _():
 @check("kappa_labels: CLI 对示例文件跑出 κ=1.000 且退出 0")
 def _():
     import subprocess
+
     ex = str(V3 / "labels-user.example.txt")
-    r = subprocess.run([sys.executable, str(HERE / "kappa_labels.py"),
-                        "--labels", ex], capture_output=True, text=True)
+    r = subprocess.run(
+        [sys.executable, str(HERE / "kappa_labels.py"), "--labels", ex],
+        capture_output=True,
+        text=True,
+    )
     assert r.returncode == 0, r.stderr
     assert "1.000" in r.stdout, r.stdout
     assert "站得住" in r.stdout, r.stdout
@@ -246,6 +285,7 @@ def _():
     import kappa_labels as kl
     from pathlib import Path
     import tempfile
+
     tf = Path(tempfile.mktemp(suffix=".txt"))
     tf.write_text("T01拦 N01过 T02过", encoding="utf-8")
     got = kl.parse_labels(tf)
@@ -254,6 +294,7 @@ def _():
 
 
 # ── 组四：题面 lint ──────────────────────────────────────────────────────
+
 
 def _lint(text: str):
     with tempfile.TemporaryDirectory() as d:
@@ -265,39 +306,49 @@ def _lint(text: str):
 
 @check("brief_lint: 段名带括号也要认（曾因此把 10 份全误报缺段）")
 def _():
-    t = ("# Q99 · 测试\n\n## 情形\n这是一段情形。\n\n"
-         "## 事实\n- 一条事实。\n\n## 选项（选一个）\n- `A` 甲方案\n- `B` 乙方案\n")
+    t = (
+        "# Q99 · 测试\n\n## 情形\n这是一段情形。\n\n"
+        "## 事实\n- 一条事实。\n\n## 选项（选一个）\n- `A` 甲方案\n- `B` 乙方案\n"
+    )
     assert _lint(t) == [], _lint(t)
 
 
 @check("brief_lint: 情形段含结论词 → FAIL")
 def _():
-    t = ("# Q99\n\n## 情形\n先前的结果是失败。\n\n## 事实\n- 事实。\n\n"
-         "## 选项\n- `A` 甲方案说明\n- `B` 乙方案说明\n")
+    t = (
+        "# Q99\n\n## 情形\n先前的结果是失败。\n\n## 事实\n- 事实。\n\n"
+        "## 选项\n- `A` 甲方案说明\n- `B` 乙方案说明\n"
+    )
     rules = [i["rule"] for i in _lint(t)]
     assert "R1" in rules, rules
 
 
 @check("brief_lint: 情形段引用决策编号 → FAIL")
 def _():
-    t = ("# Q99\n\n## 情形\n已按 D-0063 处理。\n\n## 事实\n- 事实。\n\n"
-         "## 选项\n- `A` 甲方案说明\n- `B` 乙方案说明\n")
+    t = (
+        "# Q99\n\n## 情形\n已按 D-0063 处理。\n\n## 事实\n- 事实。\n\n"
+        "## 选项\n- `A` 甲方案说明\n- `B` 乙方案说明\n"
+    )
     rules = [i["rule"] for i in _lint(t)]
     assert "R2" in rules, rules
 
 
 @check("brief_lint: 事实段含评价词 → FAIL")
 def _():
-    t = ("# Q99\n\n## 情形\n一段情形。\n\n## 事实\n- 代价可观。\n\n"
-         "## 选项\n- `A` 甲方案说明\n- `B` 乙方案说明\n")
+    t = (
+        "# Q99\n\n## 情形\n一段情形。\n\n## 事实\n- 代价可观。\n\n"
+        "## 选项\n- `A` 甲方案说明\n- `B` 乙方案说明\n"
+    )
     rules = [i["rule"] for i in _lint(t)]
     assert "R3" in rules, rules
 
 
 @check("brief_lint: 选项描述不对称 → WARN 而非 FAIL")
 def _():
-    t = ("# Q99\n\n## 情形\n一段情形。\n\n## 事实\n- 事实。\n\n"
-         "## 选项\n- `A` 很长很长的方案说明文字\n- `B` 短\n")
+    t = (
+        "# Q99\n\n## 情形\n一段情形。\n\n## 事实\n- 事实。\n\n"
+        "## 选项\n- `A` 很长很长的方案说明文字\n- `B` 短\n"
+    )
     lv = {i["rule"]: i["level"] for i in _lint(t)}
     assert lv.get("R5") == "WARN", lv
 
@@ -306,14 +357,11 @@ def _():
 def _():
     ths = [1, 2, 3, 4, 5]
     # 1.0,1.0,0.9,0.9,1.0 → 最长 2
-    assert label_saturation.invariant_run(
-        {1: 1.0, 2: 1.0, 3: 0.9, 4: 0.9, 5: 1.0}, ths) == 2
+    assert label_saturation.invariant_run({1: 1.0, 2: 1.0, 3: 0.9, 4: 0.9, 5: 1.0}, ths) == 2
     # 每点都不同 → 1
-    assert label_saturation.invariant_run(
-        {1: 1.0, 2: 0.9, 3: 0.8, 4: 0.7, 5: 0.6}, ths) == 1
+    assert label_saturation.invariant_run({1: 1.0, 2: 0.9, 3: 0.8, 4: 0.7, 5: 0.6}, ths) == 1
     # 全程不变 → 5（这正是 heldout 的实测形态）
-    assert label_saturation.invariant_run(
-        {t: 1.0 for t in ths}, ths) == 5
+    assert label_saturation.invariant_run({t: 1.0 for t in ths}, ths) == 5
 
 
 @report("label_saturation: 当前标注集饱和状态（观测，非裁决）")
@@ -326,8 +374,10 @@ def _():
     hits = label_saturation.evaluate(grid, sets, ths)
     for s in sets:
         print(f"    {s}: " + "  ".join(f"th{t}={grid[s][t]:.3f}" for t in ths))
-    print(f"    命中判据: {[h['rule'] for h in hits] or '无'}"
-          " —— 饱和不代表脚本坏了，代表这套标注不足以验证规则")
+    print(
+        f"    命中判据: {[h['rule'] for h in hits] or '无'}"
+        " —— 饱和不代表脚本坏了，代表这套标注不足以验证规则"
+    )
 
 
 @check("label_saturation.evaluate: S1 满分必命中（正样本）")
@@ -362,6 +412,7 @@ def _():
 
 # ── 组五：交叉验证（关键）────────────────────────────────────────────────
 
+
 @check("交叉: score.py 与历史 score_v2.py 在同一批数据上给出同一个数（v2 第四轮）")
 def _():
     refs_doc = json.loads((V2 / "adjudication-r4.json").read_text(encoding="utf-8"))
@@ -390,6 +441,7 @@ def _():
 
 # ── 组六：历史成绩回归 ───────────────────────────────────────────────────
 
+
 @check("回归: v3 首轮 单席 5/10、多席 5/9、常数 0.700")
 def _():
     refs = score.load_items(str(V3 / "adjudication-v3.json"))
@@ -416,25 +468,28 @@ def _():
     refs = score.load_items(str(V3 / "adjudication-v3.json"))
     want = {"M1": 0.4, "S1": 0.6, "S2": 0.4, "S3": 0.4}
     for arm, exp in want.items():
-        runs = [score.load_answers(str(V3 / f"{p}-{arm}.json"))
-                for p in ("arm" if arm == "M1" else "seat", "r2", "r3")]
+        runs = [
+            score.load_answers(str(V3 / f"{p}-{arm}.json"))
+            for p in ("arm" if arm == "M1" else "seat", "r2", "r3")
+        ]
         got = score.summarize_repeat(arm, runs, refs)["pass_at_k"]
         assert abs(got - exp) < 1e-9, (arm, got, exp)
 
 
 # ── 组五：同步脚本（防"静默 no-op"，见 L-0027） ──────────────────────────
 
+
 @check("sync_score.sh: 目标全部不存在 → 必须 exit 1（不能冒充成功）")
 def _():
     import subprocess, shutil, tempfile
+
     tmp = Path(tempfile.mkdtemp())
     try:
         kitdir = tmp / "audit" / "kit"
         kitdir.mkdir(parents=True)
         shutil.copy(str(HERE / "score.py"), str(kitdir / "score.py"))
         shutil.copy(str(HERE / "sync_score.sh"), str(kitdir / "sync_score.sh"))
-        r = subprocess.run(["bash", str(kitdir / "sync_score.sh")],
-                           capture_output=True, text=True)
+        r = subprocess.run(["bash", str(kitdir / "sync_score.sh")], capture_output=True, text=True)
         out = r.stdout + r.stderr
         assert r.returncode == 1, f"退出码应为 1，实为 {r.returncode}\n{out}"
         assert "成功同步 0 个" in out, out
@@ -455,8 +510,9 @@ def _ig_repo(tmp: Path, golds: dict, arms: dict, as_repeat=False) -> list[str]:
     arms: {臂名: [作答 dict, ...]}——多个作答文件 + --as-repeat 才算重复运行。
     """
     adj = tmp / "adj.json"
-    adj.write_text(json.dumps({"items": {q: {"verdict": v} for q, v in golds.items()}}),
-                   encoding="utf-8")
+    adj.write_text(
+        json.dumps({"items": {q: {"verdict": v} for q, v in golds.items()}}), encoding="utf-8"
+    )
     argv = ["--adjudication", str(adj)]
     for name, runs in arms.items():
         paths = []
@@ -472,8 +528,10 @@ def _ig_repo(tmp: Path, golds: dict, arms: dict, as_repeat=False) -> list[str]:
 
 def _ig_run(argv: list[str]):
     import subprocess
-    return subprocess.run([sys.executable, str(HERE / "item_gate.py"), *argv],
-                          capture_output=True, text=True)
+
+    return subprocess.run(
+        [sys.executable, str(HERE / "item_gate.py"), *argv], capture_output=True, text=True
+    )
 
 
 @check("item_gate: 单席 acc=0.750（历史事故：单席曾被判成 0.000，resolve 语义钉死）")
@@ -483,12 +541,16 @@ def _():
         # 3 对 1 错。★ 判据语义：单臂下「所有臂都错」等价于「该臂错」→ Q2 触发全错 →
         # 准入必然 FAIL（单臂本就该被准入闸盯紧）。本用例钉的是**acc 数值正确**：
         # 单票必须被 resolve 采用，0.750 不得再崩成历史事故的 0.000。
-        ans = {"Q1": {"verdict": "pass"}, "Q2": {"verdict": "pass"},
-               "Q3": {"verdict": "pass"}, "Q4": {"verdict": "fail"}}
+        ans = {
+            "Q1": {"verdict": "pass"},
+            "Q2": {"verdict": "pass"},
+            "Q3": {"verdict": "pass"},
+            "Q4": {"verdict": "fail"},
+        }
         r = _ig_run(_ig_repo(tmp, GOLD4, {"single": [ans]}))
         assert r.returncode == 1, f"exit={r.returncode}\n{r.stdout}{r.stderr}"
         assert "  single" in r.stdout and "0.750" in r.stdout, r.stdout
-        assert "（未成票" not in r.stdout, r.stdout          # 4 题全部未成票 = 事故复现
+        assert "（未成票" not in r.stdout, r.stdout  # 4 题全部未成票 = 事故复现
         assert "全错" in r.stdout, r.stdout
 
 
@@ -507,8 +569,7 @@ def _():
         C = wrap({"Q1": g["Q1"], "Q2": anti[g["Q2"]], "Q3": g["Q3"], "Q4": anti[g["Q4"]]})
         # ★ 单臂永远过不了准入闸（对题=饱和、错题=全错），必须给第二个臂
         #   打破跨臂全 1/全 0：seats 答对的三题 M1 全错、Q4 反之（M1 acc 0.25）
-        M1 = wrap({"Q1": anti[g["Q1"]], "Q2": anti[g["Q2"]],
-                   "Q3": anti[g["Q3"]], "Q4": g["Q4"]})
+        M1 = wrap({"Q1": anti[g["Q1"]], "Q2": anti[g["Q2"]], "Q3": anti[g["Q3"]], "Q4": g["Q4"]})
         r = _ig_run(_ig_repo(tmp, GOLD4, {"seats": [A, B, C], "M1": [M1]}))
         assert r.returncode == 0, f"exit={r.returncode}\n{r.stdout}{r.stderr}"
         assert "  seats" in r.stdout and "0.750" in r.stdout, r.stdout
@@ -524,7 +585,7 @@ def _():
         r = _ig_run(_ig_repo(tmp, GOLD4, {"rep": [ok, bad]}, as_repeat=True))
         assert r.returncode == 1, f"exit={r.returncode}\n{r.stdout}{r.stderr}"
         assert "pass^1 0.500" in r.stdout and "pass^k 0.000" in r.stdout, r.stdout
-        assert "答案会变" in r.stdout, r.stdout        # 自稳分支必须被走到
+        assert "答案会变" in r.stdout, r.stdout  # 自稳分支必须被走到
 
 
 @check("item_gate: 饱和题 → FAIL 且列出题号（全对不是好事）")
@@ -542,7 +603,7 @@ def _():
     with tempfile.TemporaryDirectory() as td:
         tmp = Path(td)
         anti = {"pass": "fail", "fail": "pass"}
-        bad = {q: {"verdict": anti[v]} for q, v in GOLD4.items()}   # 有效标签但全反
+        bad = {q: {"verdict": anti[v]} for q, v in GOLD4.items()}  # 有效标签但全反
         r = _ig_run(_ig_repo(tmp, GOLD4, {"arm": [bad]}))
         assert r.returncode == 1, f"exit={r.returncode}\n{r.stdout}{r.stderr}"
         assert "全错" in r.stdout, r.stdout
@@ -552,7 +613,7 @@ def _():
 def _():
     with tempfile.TemporaryDirectory() as td:
         tmp = Path(td)
-        const = {q: {"verdict": "pass"} for q in GOLD4}   # gold 分布 2 pass / 2 fail
+        const = {q: {"verdict": "pass"} for q in GOLD4}  # gold 分布 2 pass / 2 fail
         r = _ig_run(_ig_repo(tmp, GOLD4, {"arm": [const]}))
         assert r.returncode == 1, f"exit={r.returncode}\n{r.stdout}{r.stderr}"
         assert "常数胜出" in r.stdout, r.stdout
@@ -563,8 +624,9 @@ def _():
     with tempfile.TemporaryDirectory() as td:
         tmp = Path(td)
         adj = tmp / "adj.json"
-        adj.write_text(json.dumps({"items": {q: {"verdict": v} for q, v in GOLD4.items()}}),
-                       encoding="utf-8")
+        adj.write_text(
+            json.dumps({"items": {q: {"verdict": v} for q, v in GOLD4.items()}}), encoding="utf-8"
+        )
         r = _ig_run(["--adjudication", str(adj), "--arm", "badformat"])
         assert r.returncode != 0, r.stdout
         assert "name=path" in (r.stdout + r.stderr), (r.stdout, r.stderr)
@@ -585,6 +647,7 @@ def _():
 
 # ── 组N+1：grade/summarize 负样本（F10，2026-10-29）──────────────────────
 
+
 @check("grade_one: 作答不是 dict → 未作答而非崩溃（畸形输入负样本）")
 def _():
     ref = {"verdict": "pass", "key_reasons": [], "top_risk": {}}
@@ -597,10 +660,14 @@ def _():
 
 @check("summarize: 缺 falsification 的题不计分母（n 缩小，而不是把均分虚拉低）")
 def _():
-    refs = {"Q1": {"verdict": "pass", "top_risk": {"kw": ["爆仓"]}},   # 要求证伪条件
-            "Q2": {"verdict": "pass"}}                                  # 不要求
-    ans = {"Q1": {"verdict": "pass"},                                   # 缺 falsification
-           "Q2": {"verdict": "pass"}}
+    refs = {
+        "Q1": {"verdict": "pass", "top_risk": {"kw": ["爆仓"]}},  # 要求证伪条件
+        "Q2": {"verdict": "pass"},
+    }  # 不要求
+    ans = {
+        "Q1": {"verdict": "pass"},  # 缺 falsification
+        "Q2": {"verdict": "pass"},
+    }
     s = score.summarize("arm", ans, refs)
     assert s["n"] == 1 and s["agree"] == 1 and s["agree_rate"] == 1.0, s
     assert "Q1" not in s["rows"] or s["rows"]["Q1"]["falsifiable"] is False
@@ -611,8 +678,8 @@ def _():
     ref = {"verdict": "pass", "top_risk": {"kw": ["爆仓"]}}
     hit = score.grade_one({"verdict": "fail", "top_risk": "可能爆仓"}, ref)
     miss = score.grade_one({"verdict": "fail", "top_risk": "没什么风险"}, ref)
-    assert hit["danger"] is False, hit          # 风险已提示 → 不算危险失误
-    assert miss["danger"] is True, miss         # 结论错且没提示 → 危险
+    assert hit["danger"] is False, hit  # 风险已提示 → 不算危险失误
+    assert miss["danger"] is True, miss  # 结论错且没提示 → 危险
 
 
 # ── 组N+2：守夜脚本告警侧（F9，2026-10-29）───────────────────────────────
@@ -620,14 +687,18 @@ def _():
 # check_c1/c2/c3 用打桩替换（C2 的判据活性已由回归第 54 项用合成 runs 实测）——
 # 本组测的是 main 的**分发与告警通道**，不是判据本身。
 
+
 def _iw(tmp: Path):
     import importlib.util
-    spec = importlib.util.spec_from_file_location("iw_under_test", ROOT / "scripts/inspection_watch.py")
+
+    spec = importlib.util.spec_from_file_location(
+        "iw_under_test", ROOT / "scripts/inspection_watch.py"
+    )
     iw = importlib.util.module_from_spec(spec)
     sys.modules["iw_under_test"] = iw
     spec.loader.exec_module(iw)
-    (tmp / "Makefile").write_text("test:\n\techo ok\n", encoding="utf-8")   # E0 守卫需要真根
-    iw.ROOT = tmp                                # 报告与日志都落在临时目录
+    (tmp / "Makefile").write_text("test:\n\techo ok\n", encoding="utf-8")  # E0 守卫需要真根
+    iw.ROOT = tmp  # 报告与日志都落在临时目录
     iw.LOG = tmp / "watch.log"
     iw.RUNS = tmp / "runs"
     return iw
@@ -635,6 +706,7 @@ def _iw(tmp: Path):
 
 def _iw_run(iw, argv: list[str]) -> tuple[int, str]:
     import contextlib
+
     old = sys.argv
     sys.argv = ["inspection_watch.py", *argv]
     buf = io.StringIO()
@@ -652,7 +724,8 @@ def _():
         tmp = Path(td)
         (tmp / "outputs").mkdir()
         (tmp / "outputs" / "inspection-2099-01-01.md").write_text(
-            "# 巡检 · 2099-01-01\n一切正常\n", encoding="utf-8")
+            "# 巡检 · 2099-01-01\n一切正常\n", encoding="utf-8"
+        )
         iw = _iw(tmp)
         rc, out = _iw_run(iw, ["--date", "2099-01-01"])
         assert rc == 0, f"exit={rc}\n{out}"
@@ -665,14 +738,15 @@ def _():
         tmp = Path(td)
         (tmp / "outputs").mkdir()
         (tmp / "outputs" / "inspection-2099-01-01.md").write_text(
-            "# 旧文件冒名\n（正文里没有当天日期）\n", encoding="utf-8")
+            "# 旧文件冒名\n（正文里没有当天日期）\n", encoding="utf-8"
+        )
         iw = _iw(tmp)
         iw.check_c1 = lambda: (False, "")
         iw.check_c2 = lambda: ("GONE", "")
         iw.check_c3 = lambda: (False, "")
         rc, out = _iw_run(iw, ["--date", "2099-01-01"])
         assert rc == 0, f"exit={rc}\n{out}"
-        assert "全部消失" in out, out            # 冒名 → 复检 → 条件已消失 → 不告警
+        assert "全部消失" in out, out  # 冒名 → 复检 → 条件已消失 → 不告警
 
 
 @check("inspection_watch: 异常仍在+报告缺失 → exit 2 且告警侧真的执行（B7 假绿方向）")
@@ -683,14 +757,14 @@ def _():
         iw.check_c1 = lambda: (True, "round2 未终态")
         iw.check_c2 = lambda: ("STILL", "双边一致")
         iw.check_c3 = lambda: (False, "")
-        iw.os.environ["FEISHU_WEBHOOK"] = "http://127.0.0.1:9/no-such"   # 必然连接失败
+        iw.os.environ["FEISHU_WEBHOOK"] = "http://127.0.0.1:9/no-such"  # 必然连接失败
         try:
             rc, out = _iw_run(iw, ["--date", "2099-01-01"])
         finally:
             iw.os.environ.pop("FEISHU_WEBHOOK", None)
         assert rc == 2, f"exit={rc}\n{out}"
         assert "FAIL" in out and "C1=True" in out, out
-        assert "告警发送失败" in out, out        # alert() 被调用且网络异常被记入日志（不吞）
+        assert "告警发送失败" in out, out  # alert() 被调用且网络异常被记入日志（不吞）
         assert iw.LOG.is_file() and "FAIL" in iw.LOG.read_text(encoding="utf-8")
 
 
@@ -710,7 +784,6 @@ def _():
                 iw.os.environ["FEISHU_WEBHOOK"] = old
 
 
-
 # ── 组N+3：接手验收 verify_handover（基线抬升，2026-10-29）──────────────
 # 此前零行为测试：它的 6 项结论就是「这台机器能不能接手」，判据本身没人撞过。
 # 纯函数用真模块直调；带分支的检查用临时目录 + 打桩（与 F9 同款模式）。
@@ -718,6 +791,7 @@ def _():
 
 def _vh(tmp: Path):
     import importlib.util
+
     spec = importlib.util.spec_from_file_location("vh_ut", ROOT / "scripts/verify_handover.py")
     vh = importlib.util.module_from_spec(spec)
     sys.modules["vh_ut"] = vh
@@ -729,6 +803,7 @@ def _vh(tmp: Path):
 
 def _vh_run(vh, argv):
     import contextlib
+
     old = sys.argv
     sys.argv = ["verify_handover.py", *argv]
     out, err = io.StringIO(), io.StringIO()
@@ -743,18 +818,20 @@ def _vh_run(vh, argv):
 @check("verify_handover: _is_stdlib 三态（标准库/内置/第三方各自判定）")
 def _():
     import importlib.util
+
     spec = importlib.util.spec_from_file_location("vh_t", ROOT / "scripts/verify_handover.py")
     vh = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(vh)
-    assert vh._is_stdlib("json") is True                 # 纯标准库
-    assert vh._is_stdlib("_thread") is True              # built-in
+    assert vh._is_stdlib("json") is True  # 纯标准库
+    assert vh._is_stdlib("_thread") is True  # built-in
     assert vh._is_stdlib("no_such_module_xyz") is False  # 不存在
-    assert vh._is_stdlib("coverage") is False            # 本 venv 装了它 → site-packages
+    assert vh._is_stdlib("coverage") is False  # 本 venv 装了它 → site-packages
 
 
 @check("verify_handover: chk_manifest 正样本（真包声明=实际，不断言快照数字）")
 def _():
     import importlib.util
+
     spec = importlib.util.spec_from_file_location("vh_t2", ROOT / "scripts/verify_handover.py")
     vh = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(vh)
@@ -782,13 +859,15 @@ def _():
         ok, d = vh.chk_manifest()
         assert ok is False and "读不到" in d, d
 
-        (pkg / "MANIFEST.json").write_text('{"stats": {"file_count": 1, "total_bytes": 2}}',
-                                           encoding="utf-8")
+        (pkg / "MANIFEST.json").write_text(
+            '{"stats": {"file_count": 1, "total_bytes": 2}}', encoding="utf-8"
+        )
         ok, d = vh.chk_manifest()
-        assert ok is True and "实际 1 个文件" in d, d    # 1 个文件对 1 条声明
+        assert ok is True and "实际 1 个文件" in d, d  # 1 个文件对 1 条声明
 
-        (pkg / "MANIFEST.json").write_text('{"stats": {"file_count": 99, "total_bytes": 2}}',
-                                           encoding="utf-8")
+        (pkg / "MANIFEST.json").write_text(
+            '{"stats": {"file_count": 99, "total_bytes": 2}}', encoding="utf-8"
+        )
         ok, d = vh.chk_manifest()
         assert ok is False and "99" in d, d
 
@@ -819,7 +898,7 @@ def _():
     ok, d = vh.chk_hook()
     assert ok is True and "pre_push_scan.py" in d, d
 
-    vh = mkrepo("missing")                                # git 仓库但没装钩子
+    vh = mkrepo("missing")  # git 仓库但没装钩子
     ok, d = vh.chk_hook()
     assert ok is False and "未安装" in d, d
 
@@ -831,7 +910,7 @@ def _():
     ok, d = vh.chk_hook()
     assert ok is False and "未调用" in d, d
 
-    td = Path(tempfile.mkdtemp(prefix="vh-nogit-"))       # 不是 git 仓库
+    td = Path(tempfile.mkdtemp(prefix="vh-nogit-"))  # 不是 git 仓库
     vh = _vh(td)
     ok, d = vh.chk_hook()
     assert ok is False and "不是 git 仓库" in d, d
@@ -855,12 +934,14 @@ def _():
         rc, out, err = _vh_run(vh, ["--count"])
         assert rc == 0 and out.strip() == "6", (rc, out)
 
-        rc, out, err = _vh_run(vh, [])                    # PKG 不存在 → 环境错误
+        rc, out, err = _vh_run(vh, [])  # PKG 不存在 → 环境错误
         assert rc == 2, f"rc={rc}\n{out}{err}"
 
-        vh.PKG.mkdir()                                    # 异常注入需要过 PKG 存在性检查
+        vh.PKG.mkdir()  # 异常注入需要过 PKG 存在性检查
+
         def boom():
             raise RuntimeError("注入")
+
         vh.CHECKS = [("甲 会炸", boom), ("乙 正常", lambda: (True, "1/1"))]
         rc, out, err = _vh_run(vh, ["-q"])
         assert rc == 1 and "甲 会炸" in err, (rc, err)
@@ -872,8 +953,10 @@ def _():
 
 def _pps(tag="a"):
     import importlib.util
-    spec = importlib.util.spec_from_file_location(f"pps_ut_{tag}",
-                                                  ROOT / "scripts/pre_push_scan.py")
+
+    spec = importlib.util.spec_from_file_location(
+        f"pps_ut_{tag}", ROOT / "scripts/pre_push_scan.py"
+    )
     pps = importlib.util.module_from_spec(spec)
     sys.modules[f"pps_ut_{tag}"] = pps
     spec.loader.exec_module(pps)
@@ -882,6 +965,7 @@ def _pps(tag="a"):
 
 def _mini_repo(tmp: Path, files: dict):
     import subprocess
+
     subprocess.run(["git", "init", "-q"], cwd=tmp, check=True, capture_output=True)
     subprocess.run(["git", "config", "user.email", "t@t"], cwd=tmp, check=True, capture_output=True)
     subprocess.run(["git", "config", "user.name", "t"], cwd=tmp, check=True, capture_output=True)
@@ -904,6 +988,7 @@ def _():
 @check("pre_push_scan: pattern_self_test 三条负路（缺样本/多样本/抓不到）")
 def _():
     import re as _re
+
     # 独立模块副本上注入，不污染真模块
     pps = _pps("neg")
     pps.SECRET_PATTERNS = pps.SECRET_PATTERNS + [(_re.compile(r"NEVER_MATCH_XYZ"), "幽灵模式")]
@@ -912,13 +997,13 @@ def _():
 
     pps2 = _pps("neg2")
     pps2.PROBES = dict(pps2.PROBES)
-    pps2.PROBES["不存在的模式"] = "x"                       # 名字写错 → extra
+    pps2.PROBES["不存在的模式"] = "x"  # 名字写错 → extra
     ok, lines = pps2.pattern_self_test(verbose=False)
     assert ok is False and any("没有对应模式" in ln for ln in lines), lines
 
     pps3 = _pps("neg3")
     pps3.PROBES = dict(pps3.PROBES)
-    pps3.PROBES["OpenAI 风格密钥 sk-…"] = "sk-short"        # 抓不到自己的样本
+    pps3.PROBES["OpenAI 风格密钥 sk-…"] = "sk-short"  # 抓不到自己的样本
     ok, lines = pps3.pattern_self_test(verbose=False)
     assert ok is False and any("抓不到自己的正样本" in ln for ln in lines), lines
 
@@ -928,8 +1013,9 @@ def _():
     with tempfile.TemporaryDirectory() as td:
         tmp = Path(td)
         probe = _pps("scan").PROBES["OpenAI 风格密钥 sk-…"]
-        _mini_repo(tmp, {"docs/clean.md": "正常内容，token 用量 126100\n",
-                         "leaks/key.txt": probe + "\n"})
+        _mini_repo(
+            tmp, {"docs/clean.md": "正常内容，token 用量 126100\n", "leaks/key.txt": probe + "\n"}
+        )
         pps = _pps("scan2")
         pps.ROOT = tmp
         blobs = pps.reachable_blobs()
@@ -938,13 +1024,14 @@ def _():
         assert {"docs/clean.md", "leaks/key.txt"} <= set(blobs.values()), blobs
 
         hits = pps.scan_history()
-        assert len(hits) == 1 and hits[0][0] == "leaks/key.txt", hits   # tree 不产生命中
+        assert len(hits) == 1 and hits[0][0] == "leaks/key.txt", hits  # tree 不产生命中
         assert "OpenAI" in hits[0][1], hits
 
 
 @check("pre_push_scan: check_remote_visibility 四态（无origin/非GitHub/gh假PUBLIC/gh假PRIVATE）")
 def _():
     import subprocess as sp
+
     with tempfile.TemporaryDirectory() as td:
         tmp = Path(td)
         _mini_repo(tmp, {"a.txt": "x\n"})
@@ -954,24 +1041,35 @@ def _():
         st, msg = pps.check_remote_visibility()
         assert st == "ok" and "无 origin" in msg, (st, msg)
 
-        sp.run(["git", "remote", "add", "origin", "https://gitlab.com/x/y.git"],
-               cwd=tmp, check=True, capture_output=True)
+        sp.run(
+            ["git", "remote", "add", "origin", "https://gitlab.com/x/y.git"],
+            cwd=tmp,
+            check=True,
+            capture_output=True,
+        )
         st, msg = pps.check_remote_visibility()
         assert st == "unknown" and "非 GitHub" in msg, (st, msg)
 
         # 假 gh：注入 PATH 的可执行文件，分别返回 PUBLIC / PRIVATE / 坏 JSON
         binp = tmp / "bin"
         binp.mkdir()
-        for name, body in (("gh_pub", '{"visibility": "PUBLIC"}'),
-                           ("gh_priv", '{"visibility": "PRIVATE"}'),
-                           ("gh_bad", "not-json")):
+        for name, body in (
+            ("gh_pub", '{"visibility": "PUBLIC"}'),
+            ("gh_priv", '{"visibility": "PRIVATE"}'),
+            ("gh_bad", "not-json"),
+        ):
             f = binp / name
             f.write_text("#!/bin/sh\ncat <<'EOF'\n" + body + "\nEOF\n", encoding="utf-8")
             f.chmod(0o755)
-        sp.run(["git", "remote", "set-url", "origin", "https://github.com/x/y.git"],
-               cwd=tmp, check=True, capture_output=True)
+        sp.run(
+            ["git", "remote", "set-url", "origin", "https://github.com/x/y.git"],
+            cwd=tmp,
+            check=True,
+            capture_output=True,
+        )
         old_path = pps.subprocess  # noqa 占位，真正注入在下面
         import os as _os
+
         real_env_path = _os.environ.get("PATH", "")
 
         def _with_gh(ghname, extra_path=real_env_path):
@@ -980,6 +1078,7 @@ def _():
             gh = binp / "gh"
             gh.write_text((binp / ghname).read_text(encoding="utf-8"), encoding="utf-8")
             gh.chmod(0o755)
+
         try:
             _with_gh("gh_pub")
             st, msg = pps.check_remote_visibility()
@@ -991,7 +1090,7 @@ def _():
 
             _with_gh("gh_bad")
             st, msg = pps.check_remote_visibility()
-            assert st == "unknown", (st, msg)          # 坏 JSON 不许被当成 private
+            assert st == "unknown", (st, msg)  # 坏 JSON 不许被当成 private
         finally:
             _os.environ["PATH"] = real_env_path
 
@@ -1023,15 +1122,18 @@ def _():
 
 # ── 组N+5：build_package / redact_report / inspect_status（基线抬升第二批）──
 
+
 @check("build_package: do_check 四态（一致/漂移/目标缺失/源缺失）")
 def _():
     import importlib.util
+
     spec = importlib.util.spec_from_file_location("bp_ut", ROOT / "scripts/build_package.py")
     bp = importlib.util.module_from_spec(spec)
     sys.modules["bp_ut"] = bp
     spec.loader.exec_module(bp)
     import contextlib
     import io as _io
+
     # FIXED_MAPPING 的 12 条源在临时目录不存在 → 正好当「源缺失」样本（留 1 条即可）
     bp.FIXED_MAPPING = [("scripts/judges/verify.py", "migration-package/judges/verify.py")]
     with tempfile.TemporaryDirectory() as td:
@@ -1050,12 +1152,11 @@ def _():
         (tmp / "scripts" / "judges").mkdir(parents=True)
         (tmp / "scripts" / "judges" / "verify.py").write_text("v\n", encoding="utf-8")
         (tmp / "migration-package" / "judges").mkdir(parents=True)
-        (tmp / "migration-package" / "judges" / "verify.py").write_text("v\n",
-                                                                       encoding="utf-8")
+        (tmp / "migration-package" / "judges" / "verify.py").write_text("v\n", encoding="utf-8")
 
         buf = _io.StringIO()
         with contextlib.redirect_stdout(buf):
-            rc = bp.do_check(tmp)                 # 目标缺失（DIR_MAPPING 的 md 还没同步）
+            rc = bp.do_check(tmp)  # 目标缺失（DIR_MAPPING 的 md 还没同步）
         assert rc == 1 and "[目标缺失]" in buf.getvalue(), buf.getvalue()
 
         (dst / "x.md").write_text("V1\n", encoding="utf-8")
@@ -1064,14 +1165,14 @@ def _():
             rc = bp.do_check(tmp)
         assert rc == 0 and "全部一致" in buf.getvalue(), buf.getvalue()
 
-        (dst / "x.md").write_text("V2\n", encoding="utf-8")   # 内容漂移
+        (dst / "x.md").write_text("V2\n", encoding="utf-8")  # 内容漂移
         buf = _io.StringIO()
         with contextlib.redirect_stdout(buf):
             rc = bp.do_check(tmp)
         assert rc == 1 and "[漂移]" in buf.getvalue(), buf.getvalue()
 
         (dst / "x.md").write_text("V1\n", encoding="utf-8")
-        (src / "y.md").write_text("Y\n", encoding="utf-8")    # 源有、包无 → 目标缺失
+        (src / "y.md").write_text("Y\n", encoding="utf-8")  # 源有、包无 → 目标缺失
         buf = _io.StringIO()
         with contextlib.redirect_stdout(buf):
             rc = bp.do_check(tmp)
@@ -1082,6 +1183,7 @@ def _():
 @check("build_package: do_apply 写入/未变/装配日志（D-0018 留痕含 actor）")
 def _():
     import importlib.util, json as _json
+
     spec = importlib.util.spec_from_file_location("bp_ut2", ROOT / "scripts/build_package.py")
     bp = importlib.util.module_from_spec(spec)
     sys.modules["bp_ut2"] = bp
@@ -1092,6 +1194,7 @@ def _():
         src.mkdir(parents=True)
         (src / "x.md").write_text("V1\n", encoding="utf-8")
         import contextlib, io as _io
+
         buf = _io.StringIO()
         with contextlib.redirect_stdout(buf):
             rc = bp.do_apply(tmp)
@@ -1101,7 +1204,7 @@ def _():
         assert entry["actor"] == "build_package.py(--apply)" and entry["written"] == 1, entry
 
         with contextlib.redirect_stdout(buf):
-            rc = bp.do_apply(tmp)                 # 第二次：内容没变 → unchanged
+            rc = bp.do_apply(tmp)  # 第二次：内容没变 → unchanged
         entry2 = _json.loads(log.read_text(encoding="utf-8").strip().splitlines()[-1])
         assert entry2["written"] == 0 and entry2["unchanged"] >= 1, entry2
 
@@ -1109,30 +1212,46 @@ def _():
 @check("build_package: CLI --list 与无参（dispatch 分支）")
 def _():
     import subprocess as sp
+
     with tempfile.TemporaryDirectory() as td:
         tmp = Path(td)
         (tmp / "docs" / "protocol").mkdir(parents=True)
         (tmp / "docs" / "protocol" / "x.md").write_text("V\n", encoding="utf-8")
-        r = sp.run([sys.executable, str(ROOT / "scripts/build_package.py"),
-                    "--root", str(tmp), "--list"], capture_output=True, text=True)
+        r = sp.run(
+            [sys.executable, str(ROOT / "scripts/build_package.py"), "--root", str(tmp), "--list"],
+            capture_output=True,
+            text=True,
+        )
         assert r.returncode == 0 and "映射表" in r.stdout, r.stdout
-        r = sp.run([sys.executable, str(ROOT / "scripts/build_package.py"),
-                    "--root", str(tmp)], capture_output=True, text=True)
-        assert r.returncode == 2, r.returncode    # 无 --check/--apply/--manifest → help + 2
+        r = sp.run(
+            [sys.executable, str(ROOT / "scripts/build_package.py"), "--root", str(tmp)],
+            capture_output=True,
+            text=True,
+        )
+        assert r.returncode == 2, r.returncode  # 无 --check/--apply/--manifest → help + 2
 
 
 @check("build_package: CLI --manifest 在临时包上重建 MANIFEST（E1）")
 def _():
     import subprocess as sp, shutil as _sh
+
     with tempfile.TemporaryDirectory() as td:
         tmp = Path(td)
         pkg = tmp / "migration-package"
         pkg.mkdir()
         (pkg / "a.py").write_text("A=1\n", encoding="utf-8")
-        _sh.copy(str(ROOT / "migration-package/gen_manifest.py"),
-                 str(pkg / "gen_manifest.py"))
-        r = sp.run([sys.executable, str(ROOT / "scripts/build_package.py"),
-                    "--root", str(tmp), "--manifest"], capture_output=True, text=True)
+        _sh.copy(str(ROOT / "migration-package/gen_manifest.py"), str(pkg / "gen_manifest.py"))
+        r = sp.run(
+            [
+                sys.executable,
+                str(ROOT / "scripts/build_package.py"),
+                "--root",
+                str(tmp),
+                "--manifest",
+            ],
+            capture_output=True,
+            text=True,
+        )
         assert r.returncode == 0, (r.stdout, r.stderr)
         assert (pkg / "MANIFEST.json").is_file(), r.stdout
 
@@ -1140,69 +1259,90 @@ def _():
 @check("redact_report: --check 审输入现状（脏→FAIL / 净→PASS，不是自己查自己）")
 def _():
     import subprocess as sp
+
     tool = ROOT / "scripts/redact_report.py"
     with tempfile.TemporaryDirectory() as td:
         tmp = Path(td)
         dirty = tmp / "dirty.md"
         dirty.write_text("仅 600036 有仓\n", encoding="utf-8")
-        r = sp.run([sys.executable, str(tool), "--in", str(dirty), "--check"],
-                   capture_output=True, text=True)
+        r = sp.run(
+            [sys.executable, str(tool), "--in", str(dirty), "--check"],
+            capture_output=True,
+            text=True,
+        )
         assert r.returncode == 1 and "残留" in r.stdout, (r.returncode, r.stdout)
 
         clean = tmp / "clean.md"
         clean.write_text("仅 标的D 有仓\n", encoding="utf-8")
-        r = sp.run([sys.executable, str(tool), "--in", str(clean), "--check"],
-                   capture_output=True, text=True)
+        r = sp.run(
+            [sys.executable, str(tool), "--in", str(clean), "--check"],
+            capture_output=True,
+            text=True,
+        )
         assert r.returncode == 0 and "无残留" in r.stdout, (r.returncode, r.stdout)
 
 
 @check("redact_report: 生成对外版（banner 前置、清单外代码代号化、无残留）")
 def _():
     import subprocess as sp
+
     tool = ROOT / "scripts/redact_report.py"
     with tempfile.TemporaryDirectory() as td:
         tmp = Path(td)
         src = tmp / "r.md"
         src.write_text("# 周报\n\n| I2 持仓 | 仅 600036 有仓（100 股） |\n", encoding="utf-8")
         out = tmp / "out.md"
-        r = sp.run([sys.executable, str(tool), "--in", str(src), "--out", str(out)],
-                   capture_output=True, text=True)
+        r = sp.run(
+            [sys.executable, str(tool), "--in", str(src), "--out", str(out)],
+            capture_output=True,
+            text=True,
+        )
         assert r.returncode == 0 and "已生成" in r.stdout, (r.returncode, r.stdout)
         text = out.read_text(encoding="utf-8")
         assert "600036" not in text and "标的" in text, text
-        assert "勿公开" in text, text[:200]           # banner 在（未打码金额警示）
-        assert text.splitlines()[0].startswith("# 周报") or "账户金额" in text.splitlines()[1], text[:120]
+        assert "勿公开" in text, text[:200]  # banner 在（未打码金额警示）
+        assert text.splitlines()[0].startswith("# 周报") or "账户金额" in text.splitlines()[1], (
+            text[:120]
+        )
 
 
 @check("redact_report: --mask-amounts 打码金额且 # 开头输入的 banner 插在标题后")
 def _():
     import subprocess as sp
+
     tool = ROOT / "scripts/redact_report.py"
     with tempfile.TemporaryDirectory() as td:
         tmp = Path(td)
         src = tmp / "r.md"
         src.write_text("# 周报\n现金 46,829.30 元。\n", encoding="utf-8")
         out = tmp / "out.md"
-        r = sp.run([sys.executable, str(tool), "--in", str(src), "--out", str(out),
-                    "--mask-amounts"], capture_output=True, text=True)
+        r = sp.run(
+            [sys.executable, str(tool), "--in", str(src), "--out", str(out), "--mask-amounts"],
+            capture_output=True,
+            text=True,
+        )
         assert r.returncode == 0, (r.returncode, r.stdout)
         text = out.read_text(encoding="utf-8")
         assert "46,829.30" not in text and "46,8xx.xx" in text, text
         lines = text.splitlines()
-        assert lines[0].startswith("# 周报"), lines[:3]           # 原标题仍是首行
+        assert lines[0].startswith("# 周报"), lines[:3]  # 原标题仍是首行
         assert any("账户金额已抹掉" in ln or "抹掉精度" in ln for ln in lines[:4]), lines[:4]
 
 
 @check("redact_report: 错误分支三条（无 --in / 文件不存在 / 有 --in 无 --out）")
 def _():
     import subprocess as sp
+
     tool = ROOT / "scripts/redact_report.py"
     with tempfile.TemporaryDirectory() as td:
         tmp = Path(td)
         r = sp.run([sys.executable, str(tool)], capture_output=True, text=True)
         assert r.returncode == 2 and "--in" in (r.stdout + r.stderr), (r.returncode, r.stdout)
-        r = sp.run([sys.executable, str(tool), "--in", str(tmp / "nope.md"), "--check"],
-                   capture_output=True, text=True)
+        r = sp.run(
+            [sys.executable, str(tool), "--in", str(tmp / "nope.md"), "--check"],
+            capture_output=True,
+            text=True,
+        )
         assert r.returncode == 2 and "读取失败" in (r.stdout + r.stderr), r.returncode
         src = tmp / "r.md"
         src.write_text("x\n", encoding="utf-8")
@@ -1213,53 +1353,84 @@ def _():
 @check("inspect_status: 合成 runs 全景（双版式/未终态/stale 泄漏留痕/人闸/flip/缺字段）")
 def _():
     import subprocess as sp, tempfile as _tfd
+
     runs = Path(_tfd.mkdtemp(prefix="is-runs-"))
+
     def rnd(name, files):
         d = runs / name
         d.mkdir(parents=True)
         for fn, obj in files.items():
             (d / fn).write_text(json.dumps(obj, ensure_ascii=False), encoding="utf-8")
 
-    rnd("round1", {   # adjudicated + stale verdict + S8-1 泄漏（有旁挂留痕）+ flip
-        "answer-final.json": {"aggregation_inputs": [
-            {"seat": "EX-01", "seat_check_status": "valid", "sha256": "shaA"},
-            {"seat": "EX-03", "seat_check_status": "valid", "sha256": "shaX"}]},
-        "answer-status.json": {"adjudication_state": "adjudicated",
-                               "provenance": "p", "ts": "t1"},
-        "seat-check.json": {"seats": [{"seat": "EX-03", "status": "blocked",
-                                       "error": "veto"}]},
-        "integrity-notes.json": {"findings": [{"severity": "high", "id": "F-1",
-                                               "disposition": "closed"},
-                                              {"severity": "med", "id": "F-2",
-                                               "disposition": "open"}]},
-        "verdict-layered.json": {"spec_layer": "adjudication",
-                                 "verdict": "pending_adjudication", "ts": "t0",
-                                 "pending": [{"id": "T01"}]},
-        "metrics.json": {"metrics_status": "ok",
-                         "flip_rate": {"value": 0.55, "threshold": 0.4}},
-    })
-    rnd("round2", {   # 版式 b：人工闸门记录（status 字段）+ 缺 aggregation_inputs
-        "answer-final.json": {},
-        "answer-status.json": {"status": "resolved_by_human", "ts": "t2",
-                               "resolution": {}},
-    })
-    rnd("round3", {   # 版式未知 → 未终态
-        "answer-final.json": {"aggregation_inputs": []},
-        "answer-status.json": {"weird": 1},
-    })
-    rnd("round4", {   # 人闸等待确认
-        "answer-final.json": {"aggregation_inputs": []},
-        "answer-status.json": {"status": "awaiting_human_confirm",
-                               "blocking": True, "ts": "t3"},
-    })
-    r = sp.run([sys.executable, str(ROOT / "scripts/inspect_status.py"),
-                "--runs", str(runs)], capture_output=True, text=True)
+    rnd(
+        "round1",
+        {  # adjudicated + stale verdict + S8-1 泄漏（有旁挂留痕）+ flip
+            "answer-final.json": {
+                "aggregation_inputs": [
+                    {"seat": "EX-01", "seat_check_status": "valid", "sha256": "shaA"},
+                    {"seat": "EX-03", "seat_check_status": "valid", "sha256": "shaX"},
+                ]
+            },
+            "answer-status.json": {
+                "adjudication_state": "adjudicated",
+                "provenance": "p",
+                "ts": "t1",
+            },
+            "seat-check.json": {"seats": [{"seat": "EX-03", "status": "blocked", "error": "veto"}]},
+            "integrity-notes.json": {
+                "findings": [
+                    {"severity": "high", "id": "F-1", "disposition": "closed"},
+                    {"severity": "med", "id": "F-2", "disposition": "open"},
+                ]
+            },
+            "verdict-layered.json": {
+                "spec_layer": "adjudication",
+                "verdict": "pending_adjudication",
+                "ts": "t0",
+                "pending": [{"id": "T01"}],
+            },
+            "metrics.json": {
+                "metrics_status": "ok",
+                "flip_rate": {"value": 0.55, "threshold": 0.4},
+            },
+        },
+    )
+    rnd(
+        "round2",
+        {  # 版式 b：人工闸门记录（status 字段）+ 缺 aggregation_inputs
+            "answer-final.json": {},
+            "answer-status.json": {"status": "resolved_by_human", "ts": "t2", "resolution": {}},
+        },
+    )
+    rnd(
+        "round3",
+        {  # 版式未知 → 未终态
+            "answer-final.json": {"aggregation_inputs": []},
+            "answer-status.json": {"weird": 1},
+        },
+    )
+    rnd(
+        "round4",
+        {  # 人闸等待确认
+            "answer-final.json": {"aggregation_inputs": []},
+            "answer-status.json": {
+                "status": "awaiting_human_confirm",
+                "blocking": True,
+                "ts": "t3",
+            },
+        },
+    )
+    r = sp.run(
+        [sys.executable, str(ROOT / "scripts/inspect_status.py"), "--runs", str(runs)],
+        capture_output=True,
+        text=True,
+    )
     out = r.stdout
     assert r.returncode == 0, (r.returncode, out, r.stderr)
     # 双版式都被认出
     assert "current state: adjudicated" in out, out
     assert "current state: resolved_by_human" in out, out
-    assert "非 verify.py 版式" in out, out                       # 版式 b 必须标明来源
+    assert "非 verify.py 版式" in out, out  # 版式 b 必须标明来源
     assert "current state: 未终态" in out and "版式未知" in out, out
     # stale：verdict 自称 pending 但当前态已裁决 → 标注取代者
     assert "已被 answer-status.json 的 adjudicated 取代" in out, out
@@ -1277,43 +1448,62 @@ def _():
 @check("inspect_status: 纯函数（round_key 自然排序 / violations 多形态 / annotate 无冲突不动）")
 def _():
     import contextlib, io as _io
+
     old = sys.argv
     sys.argv = ["inspect_status.py"]
     buf = _io.StringIO()
     try:
         with contextlib.redirect_stdout(buf), contextlib.redirect_stderr(buf):
             import importlib.util
-            spec = importlib.util.spec_from_file_location("is_ut", ROOT / "scripts/inspect_status.py")
+
+            spec = importlib.util.spec_from_file_location(
+                "is_ut", ROOT / "scripts/inspect_status.py"
+            )
             isv = importlib.util.module_from_spec(spec)
             sys.modules["is_ut"] = isv
             spec.loader.exec_module(isv)
     finally:
         sys.argv = old
-    assert sorted(["round4", "round34", "round10"], key=isv.round_key) ==         ["round4", "round10", "round34"]
+    assert sorted(["round4", "round34", "round10"], key=isv.round_key) == [
+        "round4",
+        "round10",
+        "round34",
+    ]
     assert isv.round_key("nonum") == (0, "nonum")
 
-    viol = isv.collect_seat_violations([
-        {"seats": [{"seat": "S1", "status": "blocked", "error": "e1"}]},          # list 形态
-        {"derived": {"seats": {"S2": {"seat": "S2"}}}},                            # dict 形态、valid
-        {"rejected_seats": ["S3", {"seat": "S4"}]},                                # 顶层列表
-        "not-a-dict",                                                              # 非 dict 元素
-    ])
+    viol = isv.collect_seat_violations(
+        [
+            {"seats": [{"seat": "S1", "status": "blocked", "error": "e1"}]},  # list 形态
+            {"derived": {"seats": {"S2": {"seat": "S2"}}}},  # dict 形态、valid
+            {"rejected_seats": ["S3", {"seat": "S4"}]},  # 顶层列表
+            "not-a-dict",  # 非 dict 元素
+        ]
+    )
     assert viol["S1"] == [("blocked", "e1")], viol
     assert "S2" not in viol, viol
     assert viol["S3"] == [("blocked", "rejected_seats")], viol
     assert viol["S4"] == [("blocked", "rejected_seats")], viol
 
-    assert isv.annotate_verdict({"verdict": "fail", "ts": "t"}, "adjudicated") == \
-        "（判据侧快照 @t）"                                        # 非 pending 不加取代语
+    assert (
+        isv.annotate_verdict({"verdict": "fail", "ts": "t"}, "adjudicated") == "（判据侧快照 @t）"
+    )  # 非 pending 不加取代语
     assert isv.current_state({})[0] is None and "无 answer-status" in isv.current_state({})[1]
 
 
 @check("inspect_status: --runs 指向不存在目录 → exit 2（参数错误不许静默成 0 轮）")
 def _():
     import subprocess as sp, tempfile as _tfd
-    r = sp.run([sys.executable, str(ROOT / "scripts/inspect_status.py"),
-                "--runs", str(Path(_tfd.mkdtemp()) / "nope")],
-               capture_output=True, text=True)
+
+    r = sp.run(
+        [
+            sys.executable,
+            str(ROOT / "scripts/inspect_status.py"),
+            "--runs",
+            str(Path(_tfd.mkdtemp()) / "nope"),
+        ],
+        capture_output=True,
+        text=True,
+    )
     assert r.returncode == 2 and "runs 目录不存在" in r.stderr, (r.returncode, r.stderr)
 
 
@@ -1325,9 +1515,11 @@ def _():
 # ★ 2026-10-29 审计修复：原实现靠前一用例写入 sys.modules 再用 sys.modules[...] 取，
 #   单跑第二项即 KeyError 'mb_ut'（用例隐式耦合，筛选/重排就炸）。改为幂等 loader。
 
+
 def _load_mb():
     """幂等加载 make_backup（可被任一用例单独调用）。"""
     import importlib.util
+
     mod = sys.modules.get("mb_ut")
     if mod is None:
         spec = importlib.util.spec_from_file_location("mb_ut", ROOT / "scripts/make_backup.py")
@@ -1340,10 +1532,12 @@ def _load_mb():
 def _load_gm():
     """幂等加载 gen_manifest（同上）。"""
     import importlib.util
+
     mod = sys.modules.get("gm_ut")
     if mod is None:
         spec = importlib.util.spec_from_file_location(
-            "gm_ut", ROOT / "migration-package/gen_manifest.py")
+            "gm_ut", ROOT / "migration-package/gen_manifest.py"
+        )
         mod = importlib.util.module_from_spec(spec)
         sys.modules["gm_ut"] = mod
         spec.loader.exec_module(mod)
@@ -1356,8 +1550,8 @@ def _():
     assert mb.human(0) == "0.0 B", mb.human(0)
     assert mb.human(1023) == "1023.0 B", mb.human(1023)
     assert mb.human(1024) == "1.0 KB", mb.human(1024)
-    assert mb.human(3 * 1024 ** 2) == "3.0 MB", mb.human(3 * 1024 ** 2)
-    assert mb.human(5 * 1024 ** 3) == "5.0 GB", mb.human(5 * 1024 ** 3)
+    assert mb.human(3 * 1024**2) == "3.0 MB", mb.human(3 * 1024**2)
+    assert mb.human(5 * 1024**3) == "5.0 GB", mb.human(5 * 1024**3)
 
 
 @check("make_backup: _backup_files 只认两种产物名（.DS_Store 不得抢「最新一份」）")
@@ -1365,22 +1559,25 @@ def _():
     mb = _load_mb()
     with tempfile.TemporaryDirectory() as td:
         d = Path(td)
-        names = ["ai-autonomy-team-20261001-0001.bundle",
-                 "ai-autonomy-team-20261002-0002.bundle",
-                 "snapshots-archive-20261024-0044.tar.gz",
-                 "snapshots-archive-20261028-0048.tar.gz"]
+        names = [
+            "ai-autonomy-team-20261001-0001.bundle",
+            "ai-autonomy-team-20261002-0002.bundle",
+            "snapshots-archive-20261024-0044.tar.gz",
+            "snapshots-archive-20261028-0048.tar.gz",
+        ]
         for n in names:
             (d / n).write_bytes(b"x" * 10)
         (d / ".DS_Store").write_bytes(b"junk")
         (d / "notes.txt").write_bytes(b"junk")
         got = [p.name for p in mb._backup_files(d)]
-        assert got == sorted(names), got          # 异物被滤掉 + 按名排序（时间序）
+        assert got == sorted(names), got  # 异物被滤掉 + 按名排序（时间序）
 
 
 @check("make_backup: do_list / do_retention 三态退出码与「不删承诺」")
 def _():
     import contextlib
     import io as _io
+
     mb = _load_mb()
     with tempfile.TemporaryDirectory() as td:
         d = Path(td)
@@ -1393,11 +1590,13 @@ def _():
         assert mb.do_list(d) == mb.BAD
         assert mb.do_retention(d) == mb.BAD
         # 有备份 → 退出 0；retention 输出含 trash 命令，且**一个文件都不许动**
-        keep = ["ai-autonomy-team-20261101-0001.bundle",
-                "snapshots-archive-20261101-0001.tar.gz",
-                "snapshots-archive-20261102-0001.tar.gz",
-                "snapshots-archive-20261103-0001.tar.gz",
-                "snapshots-archive-20261104-0001.tar.gz"]   # 最旧一份 = 候选
+        keep = [
+            "ai-autonomy-team-20261101-0001.bundle",
+            "snapshots-archive-20261101-0001.tar.gz",
+            "snapshots-archive-20261102-0001.tar.gz",
+            "snapshots-archive-20261103-0001.tar.gz",
+            "snapshots-archive-20261104-0001.tar.gz",
+        ]  # 最旧一份 = 候选
         for n in keep:
             (d / n).write_bytes(b"x" * 10)
         buf = _io.StringIO()
@@ -1418,7 +1617,7 @@ def _():
     with tempfile.TemporaryDirectory() as td:
         assert mb.git_facts(Path(td)) is None, "非 git 目录必须返回 None"
         ok = mb.git_facts(ROOT)
-        assert ok and len(ok) == 3 and ok[1].isdigit(), ok     # 真仓库三项齐全
+        assert ok and len(ok) == 3 and ok[1].isdigit(), ok  # 真仓库三项齐全
 
 
 @check("make_backup: memory_sources 用 glob 解析三源且不写死账号 ID（写死即红）")
@@ -1466,8 +1665,9 @@ def _():
         assert ok and mt is not None, msg
         # 打包完成后篡改源（模拟并发写入）；tar 内应保持打包时的内容
         src.write_bytes(b"CHANGED-after-backup")
-        got = mb.verify_memory_tar(mt, {"user/MEM.md": __import__("hashlib").sha256(
-            b"original-content").hexdigest()})
+        got = mb.verify_memory_tar(
+            mt, {"user/MEM.md": __import__("hashlib").sha256(b"original-content").hexdigest()}
+        )
         assert got[0], "tar 应保留打包时的快照，不受源后续改动影响"
 
 
@@ -1476,15 +1676,19 @@ def _():
     gm = _load_gm()
     with tempfile.TemporaryDirectory() as td:
         d = Path(td)
-        cases = {"lf.txt": b"a\nb\n", "crlf.txt": b"a\r\nb\r\n",
-                 "mixed.txt": b"a\r\nb\n", "none.txt": b"abc"}
+        cases = {
+            "lf.txt": b"a\nb\n",
+            "crlf.txt": b"a\r\nb\r\n",
+            "mixed.txt": b"a\r\nb\n",
+            "none.txt": b"abc",
+        }
         for n, data in cases.items():
             (d / n).write_bytes(data)
         assert gm.detect_newline(d / "lf.txt") == "LF"
         assert gm.detect_newline(d / "crlf.txt") == "CRLF"
         assert gm.detect_newline(d / "mixed.txt") == "MIXED"
         assert gm.detect_newline(d / "none.txt") == "NONE"
-        assert gm.detect_newline(d / "missing.txt") == "unknown"   # OSError 路径
+        assert gm.detect_newline(d / "missing.txt") == "unknown"  # OSError 路径
 
 
 @check("gen_manifest: build 过滤与相对化（SKIP 名单/MANIFEST 自身排除/prefix 后 rel 仍相对 root）")
@@ -1501,9 +1705,9 @@ def _():
         (d / "MANIFEST.json").write_text("{}", encoding="utf-8")
         entries = gm.build(d)
         paths = [e["path"] for e in entries]
-        assert paths == ["a/x.txt", "b/y.txt"], paths        # 排除 + 排序 + rel 相对 root
+        assert paths == ["a/x.txt", "b/y.txt"], paths  # 排除 + 排序 + rel 相对 root
         sub = gm.build(d, path_prefixes=("b/",))
-        assert [e["path"] for e in sub] == ["b/y.txt"], sub   # 过滤后 rel 仍是 root 相对路径
+        assert [e["path"] for e in sub] == ["b/y.txt"], sub  # 过滤后 rel 仍是 root 相对路径
         globbed = gm.build(d, include_globs=("*.txt",))
         assert len(globbed) == 2, globbed
 
@@ -1513,28 +1717,33 @@ def _():
     gm = _load_gm()
     with tempfile.TemporaryDirectory() as td:
         cfg = Path(td) / "cfg.json"
-        cfg.write_text(json.dumps({
-            "allow": ["runs/round{n}/{seat}/", "runs/round", "runs/round"],
-            "deny": ["logs/{date}/app/"]
-        }), encoding="utf-8")
+        cfg.write_text(
+            json.dumps(
+                {
+                    "allow": ["runs/round{n}/{seat}/", "runs/round", "runs/round"],
+                    "deny": ["logs/{date}/app/"],
+                }
+            ),
+            encoding="utf-8",
+        )
         allow, deny = gm.load_domain_config(cfg)
         # 文档语义：占位符取第一个 '{' 之前的部分 → 后段一并截断（runs/round{n}/… → runs/round）
-        assert allow == ["runs/round"], allow                # 占位符剥掉 + 去重
-        assert deny == ["logs/"], deny                       # 若不剥，startswith 恒不匹配
+        assert allow == ["runs/round"], allow  # 占位符剥掉 + 去重
+        assert deny == ["logs/"], deny  # 若不剥，startswith 恒不匹配
 
 
 @check("gen_manifest: 写入域 baseline→check 往返（CLEAN/HIT-added/HIT-changed 三态）")
 def _():
     import contextlib
     import io as _io
+
     gm = _load_gm()
     with tempfile.TemporaryDirectory() as td:
         d = Path(td)
         (d / "runs" / "round1" / "S1").mkdir(parents=True)
         (d / "runs" / "round1" / "S1" / "v.json").write_text("v1\n", encoding="utf-8")
         cfg = d / "cfg.json"
-        cfg.write_text(json.dumps({"allow": [], "deny": ["runs/round1/"]}),
-                       encoding="utf-8")
+        cfg.write_text(json.dumps({"allow": [], "deny": ["runs/round1/"]}), encoding="utf-8")
         base = d / "baseline.json"
         buf = _io.StringIO()
         with contextlib.redirect_stdout(buf):
@@ -1559,16 +1768,20 @@ def _():
             assert gm.write_domain_check(d, cfg, base, rep) == 1
         report = json.loads(rep.read_text(encoding="utf-8"))
         assert report["verdict"] == "HIT", report
-        assert any(h["status"] == "added" and h["path"].endswith("extra.json")
-                   for h in report["changed_under_deny"]), report
-        assert report["changed_under_allow"] == [], report    # allow 域只对照不判定
+        assert any(
+            h["status"] == "added" and h["path"].endswith("extra.json")
+            for h in report["changed_under_deny"]
+        ), report
+        assert report["changed_under_allow"] == [], report  # allow 域只对照不判定
 
 
 @check("check_docs_consistency: G 类正文裸计数禁区（正样本必拦／负样本必放）")
 def _():
     import importlib.util
+
     spec = importlib.util.spec_from_file_location(
-        "cdc_ut", ROOT / "scripts/check_docs_consistency.py")
+        "cdc_ut", ROOT / "scripts/check_docs_consistency.py"
+    )
     cdc = importlib.util.module_from_spec(spec)
     sys.modules["cdc_ut"] = cdc
     spec.loader.exec_module(cdc)
@@ -1582,7 +1795,8 @@ def _():
             "| `_trash` 唯一副本 | 254 目录 |\n"
             "（254 个历史快照，138 个 git 里没有）\n"
             "自检总量约 388 项\n",
-            encoding="utf-8")
+            encoding="utf-8",
+        )
         probs = []
         n = cdc.check_forbidden_counts(probs, docs=[bad])
         assert n >= 4 and len(probs) >= 4, (n, probs)
@@ -1597,14 +1811,15 @@ def _():
             "（21 bundle + 13 tar，约 1003 MB；10-29 22:36 实测）\n"
             "| `_trash` 唯一副本 | 258 目录（10-29 22:36 实测） |\n"
             "其后 kit 自测 64→75→**83**（diff 记录）\n",
-            encoding="utf-8")
+            encoding="utf-8",
+        )
         probs2 = []
         cdc.check_forbidden_counts(probs2, docs=[good])
         assert not probs2, f"负样本被误报：{probs2}"
 
         # 变异击破①：把「时点豁免」写坏 → 带时点的负样本必须变红（证明豁免真的在起作用）
         saved = cdc.STAMP_RE
-        cdc.STAMP_RE = cdc.re.compile(r"(?!)")            # 永不匹配 = 时点豁免失效
+        cdc.STAMP_RE = cdc.re.compile(r"(?!)")  # 永不匹配 = 时点豁免失效
         try:
             probs3 = []
             cdc.check_forbidden_counts(probs3, docs=[good])
@@ -1624,12 +1839,13 @@ def _():
 
 # ── 运行器 ───────────────────────────────────────────────────────────────
 
+
 def main() -> int:
     fails = []
     for name, fn in CHECKS:
         try:
             fn()
-        except Exception as e:                       # 断言失败与意外异常都要报
+        except Exception as e:  # 断言失败与意外异常都要报
             fails.append((name, f"{type(e).__name__}: {e}"))
 
     # 报告项：只看不裁决（F1）。分界线在这里——
@@ -1647,13 +1863,20 @@ def main() -> int:
         report_lines.append(f"  · {name}\n{buf.getvalue().rstrip()}")
 
     if "--json" in sys.argv:
-        print(json.dumps({"checks": len(CHECKS), "reports": len(REPORTS),
-                          "failed": len(fails) + len(report_fails),
-                          "fails": [{"check": n, "err": e} for n, e in fails],
-                          "report_errors": [{"report": n, "err": e}
-                                            for n, e in report_fails],
-                          "report_lines": report_lines},
-                         ensure_ascii=False, indent=2))
+        print(
+            json.dumps(
+                {
+                    "checks": len(CHECKS),
+                    "reports": len(REPORTS),
+                    "failed": len(fails) + len(report_fails),
+                    "fails": [{"check": n, "err": e} for n, e in fails],
+                    "report_errors": [{"report": n, "err": e} for n, e in report_fails],
+                    "report_lines": report_lines,
+                },
+                ensure_ascii=False,
+                indent=2,
+            )
+        )
     else:
         print(f"[kit-test] {len(CHECKS) - len(fails)}/{len(CHECKS)} 通过")
         for n, e in fails:

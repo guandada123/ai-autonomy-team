@@ -39,6 +39,7 @@ v1 的冻结只校验**文件哈希**——证明"卷子没被改"，但证明�
 
 退出码：0 无漂移（允许存在 attested）｜1 有漂移或锚点缺失｜2 输入/环境错误
 """
+
 import argparse
 import ast
 import glob
@@ -52,7 +53,7 @@ import tempfile
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-ROOT = HERE.parent.parent.parent          # 仓库根
+ROOT = HERE.parent.parent.parent  # 仓库根
 TRUTH = HERE / "truth-v1.2.json"
 TOL = 0.005
 
@@ -84,8 +85,19 @@ def expand(p):
 def safe_arith(expr):
     """只允许数字与 + - * / ( )，用 ast 白名单校验后再算，不直接 eval 任意代码。"""
     node = ast.parse(expr, mode="eval")
-    allowed = (ast.Expression, ast.BinOp, ast.UnaryOp, ast.Constant,
-               ast.Add, ast.Sub, ast.Mult, ast.Div, ast.USub, ast.UAdd, ast.Load)
+    allowed = (
+        ast.Expression,
+        ast.BinOp,
+        ast.UnaryOp,
+        ast.Constant,
+        ast.Add,
+        ast.Sub,
+        ast.Mult,
+        ast.Div,
+        ast.USub,
+        ast.UAdd,
+        ast.Load,
+    )
     for n in ast.walk(node):
         if not isinstance(n, allowed):
             raise ValueError(f"表达式含不允许的节点：{type(n).__name__}")
@@ -114,7 +126,7 @@ def do_git_ls_count(spec):
     files = ls_tree(ref, path)
     out = []
     for f in files:
-        rel = f[len(path):].lstrip("/")
+        rel = f[len(path) :].lstrip("/")
         if depth is not None and rel.count("/") > depth - 1:
             continue
         if inc and inc not in f:
@@ -129,7 +141,7 @@ def do_git_dir_count(spec):
     ref, path, prefix = spec["ref"], spec["path"], spec.get("prefix", "")
     kids = set()
     for f in ls_tree(ref, path):
-        rel = f[len(path):].lstrip("/")
+        rel = f[len(path) :].lstrip("/")
         if "/" not in rel:
             continue
         child = rel.split("/")[0]
@@ -144,8 +156,7 @@ def do_git_md_count(spec):
 
 def do_git_last_dec(spec):
     ref, path = spec["ref"], spec["path"]
-    names = [Path(f).name for f in ls_tree(ref, path)
-             if f.endswith(".md") and "TEMPLATE" not in f]
+    names = [Path(f).name for f in ls_tree(ref, path) if f.endswith(".md") and "TEMPLATE" not in f]
     if not names:
         raise ValueError("找不到决策文件")
     return sorted(names)[-1].split("-")[0] + "-" + sorted(names)[-1].split("-")[1]
@@ -166,12 +177,14 @@ def do_bundle_count(spec):
     if got != spec["sha256"]:
         raise ValueError(f"bundle sha256 不符：文件已非锚定版本（{got[:12]}…）")
     with tempfile.TemporaryDirectory() as td:
-        r = subprocess.run(["git", "clone", "--bare", "-q", str(p), td + "/b"],
-                           capture_output=True, text=True)
+        r = subprocess.run(
+            ["git", "clone", "--bare", "-q", str(p), td + "/b"], capture_output=True, text=True
+        )
         if r.returncode != 0:
             raise RuntimeError(f"clone 失败：{r.stderr.strip()[:120]}")
-        c = subprocess.run(["git", "-C", td + "/b", "rev-list", "--count", "HEAD"],
-                           capture_output=True, text=True)
+        c = subprocess.run(
+            ["git", "-C", td + "/b", "rev-list", "--count", "HEAD"], capture_output=True, text=True
+        )
         return int(c.stdout.strip())
 
 
@@ -280,12 +293,24 @@ def main():
         (ok if close(got, it["v"]) else drift).append((q, it["v"], got))
 
     if args.json:
-        print(json.dumps({"ok": len(ok), "drift": drift, "broken": broken,
-                          "attested": [a[0] for a in attested], "n": len(items)},
-                         ensure_ascii=False, indent=2))
+        print(
+            json.dumps(
+                {
+                    "ok": len(ok),
+                    "drift": drift,
+                    "broken": broken,
+                    "attested": [a[0] for a in attested],
+                    "n": len(items),
+                },
+                ensure_ascii=False,
+                indent=2,
+            )
+        )
     else:
-        print(f"[recompute] 题库 v1.2 · 锚点 {t['anchor_ref']} · 共 {len(items)} 题"
-              f"（另有移出 {len(t.get('moved_out') or {})} 题，不参与本题库重算）")
+        print(
+            f"[recompute] 题库 v1.2 · 锚点 {t['anchor_ref']} · 共 {len(items)} 题"
+            f"（另有移出 {len(t.get('moved_out') or {})} 题，不参与本题库重算）"
+        )
         print(f"  ✅ 重算一致 {len(ok)}")
         if drift:
             print(f"  ❌ 漂移 {len(drift)}：")
@@ -303,8 +328,10 @@ def main():
     if bad:
         print(f"\n[FAIL] {bad} 项不能用于判分——先修题库（开 v1.2），不许出分", file=sys.stderr)
         return 1
-    print(f"\n[PASS] {len(ok)} 项可重算且一致；{len(attested)} 项须人工复核（不计入通过）",
-          file=sys.stderr)
+    print(
+        f"\n[PASS] {len(ok)} 项可重算且一致；{len(attested)} 项须人工复核（不计入通过）",
+        file=sys.stderr,
+    )
     return 0
 
 

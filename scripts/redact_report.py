@@ -32,6 +32,7 @@
 
 退出码：0 干净 / 1 有残留 / 2 读写出错
 """
+
 import argparse
 import re
 import sys
@@ -101,6 +102,7 @@ def _code_token(code, assigned):
         assigned[code] = f"标的{_FALLBACK_LETTERS[i]}" if i < len(_FALLBACK_LETTERS) else "标的?"
     return assigned[code]
 
+
 def banner(mask_amounts: bool) -> str:
     """抬头按**实际**是否打码金额来写。
 
@@ -110,7 +112,7 @@ def banner(mask_amounts: bool) -> str:
     if mask_amounts:
         rule = "账户级金额保留量级、抹掉精度"
     else:
-        rule = ("⚠️ **账户金额未打码**（生成时未加 `--mask-amounts`）：可内部传阅，**勿公开**")
+        rule = "⚠️ **账户金额未打码**（生成时未加 `--mask-amounts`）：可内部传阅，**勿公开**"
     return f"""> 🔒 **本文件为对外版**，由 `scripts/redact_report.py` 从正本自动生成，**请勿手工修改**。
 > 脱敏口径：绝对路径与券商名打码、持仓代码代号化（含清单外的六位代码兜底）；{rule}。
 > **差额 / 倍数 / 比率一律保留**（它们是结论本身，单独不具识别性）。
@@ -131,8 +133,11 @@ def redact(text: str, mask_amounts: bool = False) -> str:
     text = "".join(out_lines)
     if mask_amounts:
         # 兜底：仍带完整分位精度的万级金额再打码（不动已代号化的替身）
-        text = re.sub(r"(?<![\w.])(\d{2}),(\d{3})\.(\d{2})(?![\w])",
-                      lambda m: f"{m.group(1)},{m.group(2)[0]}xx.xx", text)
+        text = re.sub(
+            r"(?<![\w.])(\d{2}),(\d{3})\.(\d{2})(?![\w])",
+            lambda m: f"{m.group(1)},{m.group(2)[0]}xx.xx",
+            text,
+        )
     return text
 
 
@@ -142,8 +147,10 @@ def find_residue(text: str, mask_amounts: bool = False):
         n = text.count(token)
         if n:
             hits.append((token, n))
-    for pat, label in ((r"/Volumes/[A-Za-z]", "绝对路径 /Volumes/…"),
-                       (r"/Users/[A-Za-z]", "绝对路径 /Users/…")):
+    for pat, label in (
+        (r"/Volumes/[A-Za-z]", "绝对路径 /Volumes/…"),
+        (r"/Users/[A-Za-z]", "绝对路径 /Users/…"),
+    ):
         n = len(re.findall(pat, text))
         if n:
             hits.append((label, n))
@@ -173,7 +180,9 @@ def self_test() -> int:
     # 4) --check 审的是输入现状：脏输入必须 FAIL
     dirty = find_residue("仅 600036 有仓\n", mask_amounts=False)
     clean = find_residue("仅 标的D 有仓\n", mask_amounts=False)
-    cases.append(("脏输入可被检出 / 净输入放行", bool(dirty) and not clean, f"dirty={dirty} clean={clean}"))
+    cases.append(
+        ("脏输入可被检出 / 净输入放行", bool(dirty) and not clean, f"dirty={dirty} clean={clean}")
+    )
 
     # 5) 抬头必须与实际是否打码一致
     ok_banner = ("未打码" in banner(False)) and ("未打码" not in banner(True))
@@ -194,8 +203,11 @@ def main():
     ap.add_argument("--out", dest="dst", default="")
     ap.add_argument("--check", action="store_true", help="只检查输入文件的残留，不写文件")
     ap.add_argument("--self-test", action="store_true", help="跑内置自检（不读写任何报告）")
-    ap.add_argument("--mask-amounts", action="store_true",
-                    help="同时打码账户金额（含逐仓明细；默认不打码，见文件头说明）")
+    ap.add_argument(
+        "--mask-amounts",
+        action="store_true",
+        help="同时打码账户金额（含逐仓明细；默认不打码，见文件头说明）",
+    )
     args = ap.parse_args()
 
     if args.self_test:
@@ -241,7 +253,9 @@ def main():
 
     changed = sum(1 for a, b in LINKAGE + (AMOUNTS if args.mask_amounts else []) if a in raw)
     print(f"[OK] 已生成 {args.dst}")
-    print(f"     替换类别 {changed} 项；正本 {len(raw.splitlines())} 行 → 对外版 {len(out.splitlines())} 行")
+    print(
+        f"     替换类别 {changed} 项；正本 {len(raw.splitlines())} 行 → 对外版 {len(out.splitlines())} 行"
+    )
     if residue:
         print(f"[FAIL] 仍有残留：{residue}")
         return 1

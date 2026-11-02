@@ -22,6 +22,7 @@
 
 multi-answers.json 形如 {"T02": 35, "Q22": 4, ...}（缺题按"未作答=错"处理并单独列出）
 """
+
 import argparse
 import json
 import sys
@@ -53,8 +54,7 @@ def grade(answer, truth):
     if isinstance(answer, dict) and isinstance(truth, list):
         answer = list(answer.values())
     if isinstance(truth, list) and isinstance(answer, list):
-        return (len(answer) == len(truth)
-                and all(grade(a, t) for a, t in zip(answer, truth)))
+        return len(answer) == len(truth) and all(grade(a, t) for a, t in zip(answer, truth))
     if isinstance(truth, (int, float)) and isinstance(answer, (int, float)):
         return abs(answer - truth) <= max(abs(truth) * 0.005, 1e-9)
     return norm(answer) == norm(truth)
@@ -71,11 +71,16 @@ def main():
     gt1 = load_json("ground-truth-20261024.json")
     gt2 = load_json("ground-truth-round2.json")
     single = {}
-    single.update({k: v for k, v in load_json("single-agent-answers-20261024.json").items()
-                   if k.startswith("T")})
+    single.update(
+        {
+            k: v
+            for k, v in load_json("single-agent-answers-20261024.json").items()
+            if k.startswith("T")
+        }
+    )
     single.update(load_json("answers-round2-blind.json")["answers"])
 
-    frozen = load_json("frozen-v1.json")      # 作废清单的单一真源
+    frozen = load_json("frozen-v1.json")  # 作废清单的单一真源
     truth = {}
     for k, v in list(gt1.items()) + list(gt2.items()):
         if not str(k).startswith(("T", "Q")):
@@ -85,8 +90,11 @@ def main():
         #   用 == "excluded" 判不出来，导致 n=28（正确 27）、单 agent 对 21（正确 20）。
         truth[k] = None if k in frozen["excluded"] else v.get("v")
 
-    multi = load_json(Path(args.multi).name) if Path(args.multi).parent == BASE \
+    multi = (
+        load_json(Path(args.multi).name)
+        if Path(args.multi).parent == BASE
         else json.loads(Path(args.multi).read_text(encoding="utf-8"))
+    )
 
     rows, b, c, both_ok, both_bad, void, missing = [], 0, 0, 0, 0, 0, []
     for qid in sorted(truth):
@@ -108,9 +116,22 @@ def main():
             c += 1
         else:
             both_bad += 1
-        rows.append({"q": qid, "single": s_ok, "multi": m_ok,
-                     "delta": ("赢" if m_ok and not s_ok else
-                               "输" if s_ok and not m_ok else "同对" if s_ok else "同错")})
+        rows.append(
+            {
+                "q": qid,
+                "single": s_ok,
+                "multi": m_ok,
+                "delta": (
+                    "赢"
+                    if m_ok and not s_ok
+                    else "输"
+                    if s_ok and not m_ok
+                    else "同对"
+                    if s_ok
+                    else "同错"
+                ),
+            }
+        )
 
     n = b + c + both_ok + both_bad
     # ★ 自校验：本工具算出的"单 agent 成绩"必须复现冻结记录（20/27）。
@@ -118,23 +139,36 @@ def main():
     single_pass = both_ok + c
     expect = frozen["combined"]["pass"]
     if n != frozen["combined"]["valid_n"] or single_pass != expect:
-        print(f"[ERR] 判定器与冻结记录不一致：算得 {single_pass}/{n}，"
-              f"冻结为 {expect}/{frozen['combined']['valid_n']}——工具本身有问题，拒绝出结论",
-              file=sys.stderr)
+        print(
+            f"[ERR] 判定器与冻结记录不一致：算得 {single_pass}/{n}，"
+            f"冻结为 {expect}/{frozen['combined']['valid_n']}——工具本身有问题，拒绝出结论",
+            file=sys.stderr,
+        )
         return 2
     diff = (b - c) / n if n else 0.0
     ok = diff >= -args.margin
-    res = {"n": n, "b": b, "c": c, "both_ok": both_ok, "both_bad": both_bad,
-           "void": void, "missing": missing, "diff": round(diff, 4),
-           "margin": args.margin, "non_inferior": ok,
-           "verdict": ("非劣效成立" if ok else "非劣效不成立"),
-           "note": ("零个不一致对 = 零信息：只能说未观察到差异，不能宣称相等"
-                    if (b == 0 and c == 0) else ""),
-           "rows": rows}
+    res = {
+        "n": n,
+        "b": b,
+        "c": c,
+        "both_ok": both_ok,
+        "both_bad": both_bad,
+        "void": void,
+        "missing": missing,
+        "diff": round(diff, 4),
+        "margin": args.margin,
+        "non_inferior": ok,
+        "verdict": ("非劣效成立" if ok else "非劣效不成立"),
+        "note": (
+            "零个不一致对 = 零信息：只能说未观察到差异，不能宣称相等" if (b == 0 and c == 0) else ""
+        ),
+        "rows": rows,
+    }
 
     if args.json:
-        print(json.dumps({k: v for k, v in res.items() if k != "rows"},
-                         ensure_ascii=False, indent=2))
+        print(
+            json.dumps({k: v for k, v in res.items() if k != "rows"}, ensure_ascii=False, indent=2)
+        )
     else:
         print(f"[paired] n={n}  单agent对={both_ok + c}  多席位对={both_ok + b}")
         print(f"  一致：都对 {both_ok} / 都错 {both_bad}")

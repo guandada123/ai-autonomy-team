@@ -21,6 +21,7 @@
     python3 audit/kit/cite_rate.py --reports runs/R1-r1.json --json out.json
 退出码：0=正常；1=参数、库或报告不可读。
 """
+
 from __future__ import annotations
 
 import argparse
@@ -102,8 +103,18 @@ def score_report(data: dict, lib_ids: dict, alias: bool = False) -> dict:
 
 
 def aggregate(scores: dict) -> dict:
-    keys = ("total", "caliber", "cited_valid", "cited_valid_caliber", "refs_total",
-            "refs_valid", "exc_items", "exc_ok", "declared_items", "declared_consistent")
+    keys = (
+        "total",
+        "caliber",
+        "cited_valid",
+        "cited_valid_caliber",
+        "refs_total",
+        "refs_valid",
+        "exc_items",
+        "exc_ok",
+        "declared_items",
+        "declared_consistent",
+    )
     s = {k: 0 for k in keys}
     for v in scores.values():
         for k in keys:
@@ -114,7 +125,9 @@ def aggregate(scores: dict) -> dict:
         "cite_rate_evaluable": (s["cited_valid_caliber"] / s["caliber"]) if s["caliber"] else None,
         "ref_validity": (s["refs_valid"] / s["refs_total"]) if s["refs_total"] else None,
         "exception_scope_rate": (s["exc_ok"] / s["exc_items"]) if s["exc_items"] else None,
-        "declared_consistency": (s["declared_consistent"] / s["declared_items"]) if s["declared_items"] else None,
+        "declared_consistency": (s["declared_consistent"] / s["declared_items"])
+        if s["declared_items"]
+        else None,
     }
 
 
@@ -130,11 +143,17 @@ def check_thresholds(agg: dict, min_cite: float | None, min_consistency: float |
     也不能被当成合规：由调用方决定是否另行检查样本量。
     """
     out = []
-    if min_cite is not None and agg["cite_rate_conservative"] is not None \
-            and agg["cite_rate_conservative"] < min_cite:
+    if (
+        min_cite is not None
+        and agg["cite_rate_conservative"] is not None
+        and agg["cite_rate_conservative"] < min_cite
+    ):
         out.append(f"可举证率·保守 {agg['cite_rate_conservative']:.0%} < 门槛 {min_cite:.0%}")
-    if min_consistency is not None and agg["declared_consistency"] is not None \
-            and agg["declared_consistency"] < min_consistency:
+    if (
+        min_consistency is not None
+        and agg["declared_consistency"] is not None
+        and agg["declared_consistency"] < min_consistency
+    ):
         out.append(f"例外命中一致率 {agg['declared_consistency']:.0%} < 门槛 {min_consistency:.0%}")
     return out
 
@@ -149,10 +168,17 @@ def main() -> int:
     ap.add_argument("--reports", nargs="+", required=True, help="审查报告路径（可多个）")
     ap.add_argument("--json", default="", help="把逐份与汇总结果写入 JSON")
     ap.add_argument("--lib", default=str(LIB))
-    ap.add_argument("--min-cite", type=float, default=None, help="批次门槛：可举证率·保守下限（如 0.90）")
-    ap.add_argument("--min-consistency", type=float, default=None, help="批次门槛：例外命中一致率下限")
-    ap.add_argument("--alias", action="store_true",
-                    help="同时接受历史报告的同义字段 refs（宽松口径；与严格口径对照出数）")
+    ap.add_argument(
+        "--min-cite", type=float, default=None, help="批次门槛：可举证率·保守下限（如 0.90）"
+    )
+    ap.add_argument(
+        "--min-consistency", type=float, default=None, help="批次门槛：例外命中一致率下限"
+    )
+    ap.add_argument(
+        "--alias",
+        action="store_true",
+        help="同时接受历史报告的同义字段 refs（宽松口径；与严格口径对照出数）",
+    )
     args = ap.parse_args()
 
     try:
@@ -176,17 +202,23 @@ def main() -> int:
 
     agg = aggregate(scores)
     print("口径：" + ("宽松（含 refs 别名）" if args.alias else "严格（仅协议字段 caliber_refs）"))
-    print(f"{'报告':26s}{'结论':>6s}{'有效':>6s}{'保守':>7s}{'可评':>7s}{'引用有效':>9s}{'例外范围':>9s}{'命中一致':>9s}")
+    print(
+        f"{'报告':26s}{'结论':>6s}{'有效':>6s}{'保守':>7s}{'可评':>7s}{'引用有效':>9s}{'例外范围':>9s}{'命中一致':>9s}"
+    )
     for name, v in scores.items():
-        print(f"{name:26s}{v['total']:>6d}{v['cited_valid']:>6d}"
-              f"{fmt(v['cite_rate_conservative']):>7s}{fmt(v['cite_rate_evaluable']):>7s}"
-              f"{fmt(v['ref_validity']):>9s}{fmt(v['exception_scope_rate']):>9s}"
-              f"{fmt(v['declared_consistency']):>9s}")
+        print(
+            f"{name:26s}{v['total']:>6d}{v['cited_valid']:>6d}"
+            f"{fmt(v['cite_rate_conservative']):>7s}{fmt(v['cite_rate_evaluable']):>7s}"
+            f"{fmt(v['ref_validity']):>9s}{fmt(v['exception_scope_rate']):>9s}"
+            f"{fmt(v['declared_consistency']):>9s}"
+        )
     print("-" * 79)
-    print(f"{'合计':26s}{agg['total']:>6d}{agg['cited_valid']:>6d}"
-          f"{fmt(agg['cite_rate_conservative']):>7s}{fmt(agg['cite_rate_evaluable']):>7s}"
-          f"{fmt(agg['ref_validity']):>9s}{fmt(agg['exception_scope_rate']):>9s}"
-          f"{fmt(agg['declared_consistency']):>9s}")
+    print(
+        f"{'合计':26s}{agg['total']:>6d}{agg['cited_valid']:>6d}"
+        f"{fmt(agg['cite_rate_conservative']):>7s}{fmt(agg['cite_rate_evaluable']):>7s}"
+        f"{fmt(agg['ref_validity']):>9s}{fmt(agg['exception_scope_rate']):>9s}"
+        f"{fmt(agg['declared_consistency']):>9s}"
+    )
 
     misses = agg["total"] - agg["cited_valid"]
     ub = upper_bound_3_over_n(misses, agg["total"])
@@ -197,17 +229,29 @@ def main() -> int:
 
     thr = check_thresholds(agg, args.min_cite, args.min_consistency)
     if thr:
-        print("🔴 未达批次门槛：" + "；".join(thr) + "（该批报告不得进 dossier 判分，先补引用再入库）")
+        print(
+            "🔴 未达批次门槛：" + "；".join(thr) + "（该批报告不得进 dossier 判分，先补引用再入库）"
+        )
         return 1
     if thr == [] and (args.min_cite is not None or args.min_consistency is not None):
         print("✅ 达到批次门槛")
 
     if args.json:
         Path(args.json).write_text(
-            json.dumps({"pre_reg": "audit/baseline/v2/runs/cite-rate-prereg.json",
-                        "alias": args.alias, "per_report": scores, "aggregate": agg,
-                        "miss_upper_bound_3_over_n": ub, "bad_ids": bad},
-                       ensure_ascii=False, indent=1), encoding="utf-8")
+            json.dumps(
+                {
+                    "pre_reg": "audit/baseline/v2/runs/cite-rate-prereg.json",
+                    "alias": args.alias,
+                    "per_report": scores,
+                    "aggregate": agg,
+                    "miss_upper_bound_3_over_n": ub,
+                    "bad_ids": bad,
+                },
+                ensure_ascii=False,
+                indent=1,
+            ),
+            encoding="utf-8",
+        )
         print(f"结果已写入 {args.json}")
     return 0
 

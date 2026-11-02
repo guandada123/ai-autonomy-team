@@ -64,6 +64,7 @@ D-0045 定了「整库推私有远端」，但远端**不覆盖** `.gitignore` �
 
 退出码：0 成功且验证通过 / 1 验证失败或无可还原产物 / 2 环境错误
 """
+
 import argparse
 import hashlib
 import re
@@ -137,9 +138,11 @@ def tar_counts(path):
     """
     with tarfile.open(path, "r:gz") as tf:
         members = tf.getmembers()
-    return (sum(1 for m in members if m.isfile()),
-            len(members),
-            sum(1 for m in members if m.isdir()))
+    return (
+        sum(1 for m in members if m.isfile()),
+        len(members),
+        sum(1 for m in members if m.isdir()),
+    )
 
 
 def tar_names(path):
@@ -159,8 +162,10 @@ def verify_tar(path, src_file_count):
     except (OSError, tarfile.TarError) as e:
         return False, f"tar 不可读：{e}"
     if n_files != src_file_count:
-        return False, (f"文件数 {n_files} ≠ 源文件数 {src_file_count}"
-                       f"（条目 {n_entries} = 文件 {n_files} + 目录 {n_dirs}）")
+        return False, (
+            f"文件数 {n_files} ≠ 源文件数 {src_file_count}"
+            f"（条目 {n_entries} = 文件 {n_files} + 目录 {n_dirs}）"
+        )
     sample = next((n for n in names if n.endswith(".md")), names[0] if names else None)
     if not sample:
         return False, "tar 内没有文件"
@@ -174,8 +179,10 @@ def verify_tar(path, src_file_count):
         return False, f"抽样文件在源里找不到：{sample}"
     if hashlib.sha256(data).hexdigest() != hashlib.sha256(src.read_bytes()).hexdigest():
         return False, f"抽样 sha256 不一致：{sample}"
-    return True, (f"{n_files} 个文件 / {n_entries} 个条目（含 {n_dirs} 个目录）；"
-                  f"抽样 {Path(sample).name} sha256 一致")
+    return True, (
+        f"{n_files} 个文件 / {n_entries} 个条目（含 {n_dirs} 个目录）；"
+        f"抽样 {Path(sample).name} sha256 一致"
+    )
 
 
 # ── MEMORY.md 本地跨盘备份（2026-10-29）────────────────────────────────────
@@ -185,6 +192,7 @@ def verify_tar(path, src_file_count):
 #   备份目标 ~/Backups/ 在内置系统盘（disk3s5），这才是真正的跨物理盘副本。
 # 为什么全量校验而非抽样：MEMORY 只有 2~3 份，抽样的取样偏差没有收益，反而给"没抽到
 #   的那份可能坏了"留口子（D-0055「行数完整≠数值完整」的同族教训）。
+
 
 def memory_sources(base=None):
     """返回实际存在的 MEMORY 源列表 [(标签, Path)]。
@@ -244,6 +252,7 @@ def build_memory_tar(dest, stamp, sources):
     if not sources:
         return True, "跳过（无 MEMORY 源，可能外置盘未挂载）", None
     import io
+
     expect = {}
     payloads = []
     for label, src in sources:
@@ -256,10 +265,10 @@ def build_memory_tar(dest, stamp, sources):
         for arc, data in payloads:
             info = tarfile.TarInfo(arc)
             info.size = len(data)
-            info.mode = 0o600            # 归档内也标 600，还原后不变成可读
+            info.mode = 0o600  # 归档内也标 600，还原后不变成可读
             info.mtime = int(datetime.now().timestamp())
             tf.addfile(info, io.BytesIO(data))
-    tar.chmod(0o600)                     # 产物本身：仅属主可读
+    tar.chmod(0o600)  # 产物本身：仅属主可读
     ok, msg = verify_memory_tar(tar, expect)
     return ok, msg, tar
 
@@ -297,6 +306,7 @@ def self_test():
             info = tarfile.TarInfo("snapshots-archive/x/readme.md")
             info.size = len(payload)
             import io
+
             tf.addfile(info, io.BytesIO(payload))
         ok, _ = verify_tar(fake_tar, 999)
         cases.append(("tar 文件数不符应被拒", not ok))
@@ -304,77 +314,106 @@ def self_test():
         # ★ 2026-10-24 补：目录条目**不算**文件缺失。
         #   2348 那份 9,197 文件 / 10,024 条目（827 目录）；若过滤条件被改窄，
         #   会把"条目≠文件"误报成备份不完整——正是 D-0055 记的那个坑。
-        cases.append(("tar 计数口径：2 条目 = 1 文件 + 1 目录（目录不算文件）",
-                      tar_counts(fake_tar) == (1, 2, 1)))
+        cases.append(
+            (
+                "tar 计数口径：2 条目 = 1 文件 + 1 目录（目录不算文件）",
+                tar_counts(fake_tar) == (1, 2, 1),
+            )
+        )
 
         # ---- 保留策略（D-0078）：必须真的分类，不能是「一律保留」 ----
         #   判据三态都验：bundle 全留 / 同月只留最近 3 / 跨月留月度锚点。
         #   中间那条若被写成「全保留」，cand 会是 0 → 红；写成「只留 3」→ 跨月锚点丢 → 红。
         with tempfile.TemporaryDirectory() as td2:
             d2 = Path(td2)
-            same_month = ["ai-autonomy-team-20261001-0001.bundle",
-                          "ai-autonomy-team-20261002-0002.bundle",
-                          "snapshots-archive-20261024-0044.tar.gz",
-                          "snapshots-archive-20261027-2124.tar.gz",
-                          "snapshots-archive-20261028-0036.tar.gz",
-                          "snapshots-archive-20261028-0041.tar.gz",
-                          "snapshots-archive-20261028-0048.tar.gz"]
+            same_month = [
+                "ai-autonomy-team-20261001-0001.bundle",
+                "ai-autonomy-team-20261002-0002.bundle",
+                "snapshots-archive-20261024-0044.tar.gz",
+                "snapshots-archive-20261027-2124.tar.gz",
+                "snapshots-archive-20261028-0036.tar.gz",
+                "snapshots-archive-20261028-0041.tar.gz",
+                "snapshots-archive-20261028-0048.tar.gz",
+            ]
             for n in same_month:
                 (d2 / n).write_bytes(b"x" * 10)
             rows = classify([d2 / n for n in same_month])
             keep = [p.name for p, dec, _, _ in rows if dec == "keep"]
             cand = [p.name for p, dec, _, _ in rows if dec == "candidate"]
-            cases.append(("保留策略：bundle 全留（2/2，且不进候选）",
-                          len([n for n in keep if n.endswith(".bundle")]) == 2
-                          and not [n for n in cand if n.endswith(".bundle")]))
-            cases.append(("保留策略：同月 5 份 tar → 留最近 3 / 候选 2（「全保留」会判红）",
-                          len([n for n in keep if n.endswith(".tar.gz")]) == 3
-                          and len(cand) == 2))
+            cases.append(
+                (
+                    "保留策略：bundle 全留（2/2，且不进候选）",
+                    len([n for n in keep if n.endswith(".bundle")]) == 2
+                    and not [n for n in cand if n.endswith(".bundle")],
+                )
+            )
+            cases.append(
+                (
+                    "保留策略：同月 5 份 tar → 留最近 3 / 候选 2（「全保留」会判红）",
+                    len([n for n in keep if n.endswith(".tar.gz")]) == 3 and len(cand) == 2,
+                )
+            )
 
         with tempfile.TemporaryDirectory() as td3:
             d3 = Path(td3)
-            cross = ["snapshots-archive-20261031-0001.tar.gz",
-                     "snapshots-archive-20261105-0001.tar.gz",
-                     "snapshots-archive-20261110-0001.tar.gz",
-                     "snapshots-archive-20261120-0001.tar.gz",
-                     "snapshots-archive-20261125-0001.tar.gz"]
+            cross = [
+                "snapshots-archive-20261031-0001.tar.gz",
+                "snapshots-archive-20261105-0001.tar.gz",
+                "snapshots-archive-20261110-0001.tar.gz",
+                "snapshots-archive-20261120-0001.tar.gz",
+                "snapshots-archive-20261125-0001.tar.gz",
+            ]
             for n in cross:
                 (d3 / n).write_bytes(b"x" * 10)
             rows = classify([d3 / n for n in cross])
             keep = [p.name for p, dec, _, _ in rows if dec == "keep"]
             cand = [p.name for p, dec, _, _ in rows if dec == "candidate"]
             # 最近 3 = 1125/1120/1110；10-31 虽是全批最旧，但它是 10 月最新 → 月度锚点必留
-            cases.append(("保留策略：跨月留锚点（10-31 被留，11-05 才是候选；「只留 3」会判红）",
-                          "snapshots-archive-20261031-0001.tar.gz" in keep
-                          and cand == ["snapshots-archive-20261105-0001.tar.gz"]))
+            cases.append(
+                (
+                    "保留策略：跨月留锚点（10-31 被留，11-05 才是候选；「只留 3」会判红）",
+                    "snapshots-archive-20261031-0001.tar.gz" in keep
+                    and cand == ["snapshots-archive-20261105-0001.tar.gz"],
+                )
+            )
 
         # ★ 清理命令引用（2026-10-28 审查 P2-1）：含空格路径必须能被 shlex 无损拆回，
         #   否则人复制执行的 trash 命令会拆参 —— 纯字符串用例，不需要文件真实存在。
         import shlex as _shlex
+
         p_sp = Path("/tmp/x/space dir") / "snapshots-archive-20261024-0044.tar.gz"
         _, trash_cmd = cleanup_commands([(p_sp, "candidate", "x", 1)])
-        cases.append(("清理命令：空格路径经引用后可无损拆回（未引用=删除命令拼错）",
-                      _shlex.split(trash_cmd)[1:] == [str(p_sp)]
-                      and trash_cmd.startswith("trash ")))
+        cases.append(
+            (
+                "清理命令：空格路径经引用后可无损拆回（未引用=删除命令拼错）",
+                _shlex.split(trash_cmd)[1:] == [str(p_sp)] and trash_cmd.startswith("trash "),
+            )
+        )
 
         # ★ 月份解析防呆（2026-10-28 审查 P3-5）：非日期形文件名不得凭 split
         #   下标混进「月度锚点」——它连月份都读不出来。名字以 "0" 开头保证
         #   字符串排序时它最旧（否则 keep_recent 会先把它留下，用例失去区分力）。
         with tempfile.TemporaryDirectory() as td4:
             d4 = Path(td4)
-            weird_batch = ["snapshots-archive-0legacy.tar.gz",
-                           "snapshots-archive-20261101-0001.tar.gz",
-                           "snapshots-archive-20261102-0001.tar.gz",
-                           "snapshots-archive-20261103-0001.tar.gz"]
+            weird_batch = [
+                "snapshots-archive-0legacy.tar.gz",
+                "snapshots-archive-20261101-0001.tar.gz",
+                "snapshots-archive-20261102-0001.tar.gz",
+                "snapshots-archive-20261103-0001.tar.gz",
+            ]
             for n in weird_batch:
                 (d4 / n).write_bytes(b"x" * 10)
             rows = classify([d4 / n for n in weird_batch])
             dec = {p.name: dec for p, dec, _, _ in rows}
             # 区分点：0legacy 靠"月度锚点"留下（旧 split 实现）= keep → 红；
             # 新实现读不出月份 → 只能当 candidate。1101 是"最近 3 份"的正常保留，作对照。
-            cases.append(("月份解析：非日期形文件名不得当月度锚点（split 下标实现会判红）",
-                          dec.get("snapshots-archive-0legacy.tar.gz") == "candidate"
-                          and dec.get("snapshots-archive-20261101-0001.tar.gz") == "keep"))
+            cases.append(
+                (
+                    "月份解析：非日期形文件名不得当月度锚点（split 下标实现会判红）",
+                    dec.get("snapshots-archive-0legacy.tar.gz") == "candidate"
+                    and dec.get("snapshots-archive-20261101-0001.tar.gz") == "keep",
+                )
+            )
 
         # ── MEMORY.md 本地跨盘备份（2026-10-29）──
         # 夹具全是合成内容，绝不出现真实持仓/路径/凭据字面量（L-0035/L-0038）。
@@ -387,8 +426,12 @@ def self_test():
                 srcs.append((label, p))
             ok, _, mt = build_memory_tar(dm, "20261029-9999", srcs)
             cases.append(("MEMORY：3 份打包 + 逐份全量 sha256 校验通过", ok and mt is not None))
-            cases.append(("MEMORY：产物权限 600（仅属主可读，半敏感信息）",
-                          mt is not None and (mt.stat().st_mode & 0o777) == 0o600))
+            cases.append(
+                (
+                    "MEMORY：产物权限 600（仅属主可读，半敏感信息）",
+                    mt is not None and (mt.stat().st_mode & 0o777) == 0o600,
+                )
+            )
             # 负样本：key 与 tar 内一致但期望 sha 全错 → 必被拒（证明逐份比对在承重，
             #   不是文件集合不符的假拒）。
             wrong_expect = {f"{label}/src-{label}.md": "0" * 64 for label, _ in srcs}
@@ -400,8 +443,9 @@ def self_test():
             cases.append(("MEMORY：文件集合不符必被拒", not ok_fewer))
             # 正样本：空源降级跳过，不拖垮 bundle 主流程
             ok_empty, _, mt_empty = build_memory_tar(dm, "20261029-9998", [])
-            cases.append(("MEMORY：空源（外置盘未挂载）降级跳过且不算失败",
-                          ok_empty and mt_empty is None))
+            cases.append(
+                ("MEMORY：空源（外置盘未挂载）降级跳过且不算失败", ok_empty and mt_empty is None)
+            )
 
         # 两类 tar 各自独立算 retention，不共用「最近 3」预算
         with tempfile.TemporaryDirectory() as tdc:
@@ -416,25 +460,38 @@ def self_test():
             snap_keep = [n for n in names if n.startswith("snapshots-") and dec.get(n) == "keep"]
             mem_keep = [n for n in names if n.startswith("memory-") and dec.get(n) == "keep"]
             # 混算（错误实现）会让一类独占「最近 3」，另一类 keep 明显少于 3
-            cases.append(("MEMORY：两类 tar 各自独立保留（不共用最近 3 预算）",
-                          len(snap_keep) == 3 and len(mem_keep) == 3))
+            cases.append(
+                (
+                    "MEMORY：两类 tar 各自独立保留（不共用最近 3 预算）",
+                    len(snap_keep) == 3 and len(mem_keep) == 3,
+                )
+            )
 
         # _backup_files 纳入 memory-*.tar.gz 且仍滤 .DS_Store
         with tempfile.TemporaryDirectory() as tdb:
             db = Path(tdb)
-            for n in ("ai-autonomy-team-20261001-0001.bundle",
-                      "snapshots-archive-20261001-0001.tar.gz",
-                      "memory-20261001-0001.tar.gz", ".DS_Store"):
+            for n in (
+                "ai-autonomy-team-20261001-0001.bundle",
+                "snapshots-archive-20261001-0001.tar.gz",
+                "memory-20261001-0001.tar.gz",
+                ".DS_Store",
+            ):
                 (db / n).write_bytes(b"x")
             got = [p.name for p in _backup_files(db)]
-            cases.append(("MEMORY：_backup_files 纳入 memory-*.tar.gz 且滤 .DS_Store",
-                          "memory-20261001-0001.tar.gz" in got and ".DS_Store" not in got))
+            cases.append(
+                (
+                    "MEMORY：_backup_files 纳入 memory-*.tar.gz 且滤 .DS_Store",
+                    "memory-20261001-0001.tar.gz" in got and ".DS_Store" not in got,
+                )
+            )
 
     bad_n = 0
     for name, ok in cases:
         bad_n += 0 if ok else 1
         print(f"  {'PASS' if ok else 'FAIL'} {name}")
-    print(f"\n[{'PASS' if not bad_n else 'FAIL'}] 备份验证逻辑自检：{len(cases) - bad_n}/{len(cases)} 项")
+    print(
+        f"\n[{'PASS' if not bad_n else 'FAIL'}] 备份验证逻辑自检：{len(cases) - bad_n}/{len(cases)} 项"
+    )
     return OK if not bad_n else BAD
 
 
@@ -452,9 +509,17 @@ def _backup_files(dest):
       （2026-10-23 实测）——列目录是给人做删除决策的，混入异物等于给错依据。
     ★ 2026-10-29 加 memory-*.tar.gz（MEMORY 跨盘备份）。
     """
-    return sorted([p for pat in ("ai-autonomy-team-*.bundle", "snapshots-archive-*.tar.gz",
-                                 "memory-*.tar.gz")
-                   for p in dest.glob(pat)])
+    return sorted(
+        [
+            p
+            for pat in (
+                "ai-autonomy-team-*.bundle",
+                "snapshots-archive-*.tar.gz",
+                "memory-*.tar.gz",
+            )
+            for p in dest.glob(pat)
+        ]
+    )
 
 
 def do_list(dest):
@@ -474,7 +539,9 @@ def do_list(dest):
         print(f"  {p.name:44s} {human(size):>9s}  {age} 天前")
     newest = max(items, key=lambda p: p.stat().st_mtime)
     print(f"\n合计 {human(total)}（{len(items)} 个文件）")
-    print(f"最新一份：{newest.name}（{(datetime.now() - datetime.fromtimestamp(newest.stat().st_mtime)).days} 天前）")
+    print(
+        f"最新一份：{newest.name}（{(datetime.now() - datetime.fromtimestamp(newest.stat().st_mtime)).days} 天前）"
+    )
     return OK
 
 
@@ -490,22 +557,35 @@ def classify(items):
       用途（快照回滚 vs 记忆恢复）、生成频率都不同，混在一起算会让一类把另一类
       挤出保留集（例如一天内打了 5 份快照，MEMORY 当天那份就变 candidate）。
     """
-    bundles = sorted([p for p in items if p.name.endswith(".bundle")],
-                     key=lambda p: p.name)
+    bundles = sorted([p for p in items if p.name.endswith(".bundle")], key=lambda p: p.name)
 
-    out = [(p, "keep", "bundle 全留（代码历史唯一可还原副本，约 3MB/份）", p.stat().st_size)
-           for p in bundles]
+    out = [
+        (p, "keep", "bundle 全留（代码历史唯一可还原副本，约 3MB/份）", p.stat().st_size)
+        for p in bundles
+    ]
 
     # 按前缀分组，每组独立套用同一套保留策略（最近 3 + 月度锚点）
     groups = (
-        ("snapshots-archive", sorted([p for p in items
-                                      if p.name.startswith("snapshots-archive-")
-                                      and p.name.endswith(".tar.gz")],
-                                     key=lambda p: p.name, reverse=True)),
-        ("memory", sorted([p for p in items
-                           if p.name.startswith("memory-")
-                           and p.name.endswith(".tar.gz")],
-                          key=lambda p: p.name, reverse=True)),
+        (
+            "snapshots-archive",
+            sorted(
+                [
+                    p
+                    for p in items
+                    if p.name.startswith("snapshots-archive-") and p.name.endswith(".tar.gz")
+                ],
+                key=lambda p: p.name,
+                reverse=True,
+            ),
+        ),
+        (
+            "memory",
+            sorted(
+                [p for p in items if p.name.startswith("memory-") and p.name.endswith(".tar.gz")],
+                key=lambda p: p.name,
+                reverse=True,
+            ),
+        ),
     )
     for prefix, tars in groups:
         label = "快照归档" if prefix == "snapshots-archive" else "MEMORY"
@@ -568,18 +648,24 @@ def do_retention(dest):
 
     n_mem = len([r for r in rows if r[0].name.startswith("memory-")])
     print(f"备份目录：{dest}")
-    print(f"合计 {human(total)}（{len(rows)} 个文件，其中 MEMORY {n_mem} 份）"
-          f"｜策略：bundle 全留 / 快照归档与 MEMORY 各自「最近 3 + 每月最后一份」\n")
+    print(
+        f"合计 {human(total)}（{len(rows)} 个文件，其中 MEMORY {n_mem} 份）"
+        f"｜策略：bundle 全留 / 快照归档与 MEMORY 各自「最近 3 + 每月最后一份」\n"
+    )
     for p, dec, why, size in rows:
         mark = "保留  " if dec == "keep" else "可清理"
         print(f"  [{mark}] {p.name:44s} {human(size):>9s}  {why}")
-    print(f"\n保留 {len(keep)} 份（{human(total - reclaim)}）｜可清理 {len(cand)} 份（{human(reclaim)}）")
+    print(
+        f"\n保留 {len(keep)} 份（{human(total - reclaim)}）｜可清理 {len(cand)} 份（{human(reclaim)}）"
+    )
     if cand:
         ls_cmd, trash_cmd = cleanup_commands(cand)
         print("\n★ 本工具不会删除任何文件（删备份不可逆，且该删哪份取决于恢复场景，属人的决定）。")
         print("  确认要清理由人执行；执行前先复核每份都能解释「为什么它不需要」：")
         print(f"    {ls_cmd}")
-        print("  确认后（macOS 走废纸篓，可恢复；`trash` 非 macOS 自带，无则用 Finder 或 osascript）：")
+        print(
+            "  确认后（macOS 走废纸篓，可恢复；`trash` 非 macOS 自带，无则用 Finder 或 osascript）："
+        )
         print(f"    {trash_cmd}")
     else:
         print("\n无需清理：没有任何文件同时满足「超出最近 3 份」且「非月度锚点」。")
@@ -588,16 +674,23 @@ def do_retention(dest):
 
 def main():
     ap = argparse.ArgumentParser(
-        description="本地跨盘备份（可验证）：git bundle + 快照归档 tar + MEMORY.md")
+        description="本地跨盘备份（可验证）：git bundle + 快照归档 tar + MEMORY.md"
+    )
     ap.add_argument("--dest", default=str(DEFAULT_DEST), help=f"目标目录（默认 {DEFAULT_DEST}）")
     ap.add_argument("--no-archive", action="store_true", help="跳过 _trash/snapshots-archive")
     ap.add_argument("--no-memory", action="store_true", help="跳过 MEMORY.md 备份")
     ap.add_argument("--list", action="store_true", help="只列现有备份，不做新的")
-    ap.add_argument("--retention", action="store_true",
-                    help="按保留策略出「保留/可清理」报告（只读，不删任何文件）")
+    ap.add_argument(
+        "--retention",
+        action="store_true",
+        help="按保留策略出「保留/可清理」报告（只读，不删任何文件）",
+    )
     ap.add_argument("--self-test", action="store_true", help="只验证「验证逻辑」本身")
-    ap.add_argument("--memory-only", action="store_true",
-                    help="只备 MEMORY.md（跳过 bundle/快照归档，供手动快速跨盘）")
+    ap.add_argument(
+        "--memory-only",
+        action="store_true",
+        help="只备 MEMORY.md（跳过 bundle/快照归档，供手动快速跨盘）",
+    )
     args = ap.parse_args()
 
     # 浅克隆绝不能当备份源：Git 允许在 shallow 仓库里 `bundle create --all`，
@@ -608,8 +701,11 @@ def main():
     if not (args.list or args.retention or args.memory_only):
         rc, out = _run(["git", "rev-parse", "--is-shallow-repository"])
         if rc == 0 and out.strip() == "true":
-            print("[ERR] 当前是浅克隆（shallow）—— bundle 无法还原，拒绝生成。\n"
-                  "      修：git fetch --unshallow（或改用完整 clone）后重跑", file=sys.stderr)
+            print(
+                "[ERR] 当前是浅克隆（shallow）—— bundle 无法还原，拒绝生成。\n"
+                "      修：git fetch --unshallow（或改用完整 clone）后重跑",
+                file=sys.stderr,
+            )
             return ERR
 
     if args.self_test:
@@ -629,7 +725,10 @@ def main():
     if not args.memory_only:
         src = git_facts(ROOT)
         if not src:
-            print("[ERR] 取不到源仓库事实（HEAD/提交数/文件数），拒绝生成无法验证的备份", file=sys.stderr)
+            print(
+                "[ERR] 取不到源仓库事实（HEAD/提交数/文件数），拒绝生成无法验证的备份",
+                file=sys.stderr,
+            )
             return ERR
         bundle = dest / f"ai-autonomy-team-{stamp}.bundle"
         rc, err = _run(["git", "bundle", "create", str(bundle), "--all"])
@@ -670,7 +769,9 @@ def main():
         print(f"[FAIL] {failed} 份产物没通过还原验证 —— 别把它当备份", file=sys.stderr)
         return BAD
     print(f"[PASS] {stamp} 备份完成且逐份验证通过 → {dest}")
-    print("       提醒：本工具不会删旧备份。要清理先跑 --retention（按策略分类 + 给出复核/执行命令）。")
+    print(
+        "       提醒：本工具不会删旧备份。要清理先跑 --retention（按策略分类 + 给出复核/执行命令）。"
+    )
     return OK
 
 

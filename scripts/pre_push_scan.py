@@ -27,6 +27,7 @@
 
     0 干净（可推） / 1 有命中或远端非私有（拒绝） / 2 环境错误或自检失败
 """
+
 import argparse
 import json
 import subprocess
@@ -53,8 +54,11 @@ PROBES = {
     "Bearer token": "Authorization: Bearer " + "a" * 24,
     # 2026-10-23 补（C-3）：项目密钥/云厂商 secret/webhook/JWT 四类新模式的样本
     "项目密钥 sk-proj-/sk-ant-/sk-or-…": "sk-ant-api03-" + "a" * 32,
-    "AWS Secret Access Key 赋值": "aws_secret_access_key = " + "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
-    "Slack Incoming Webhook": "https://hooks.slack.com/services/" + "T00000000/B00000000/" + "a" * 24,
+    "AWS Secret Access Key 赋值": "aws_secret_access_key = "
+    + "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
+    "Slack Incoming Webhook": "https://hooks.slack.com/services/"
+    + "T00000000/B00000000/"
+    + "a" * 24,
     "JWT": "eyJ" + "a" * 20 + "." + "b" * 20 + "." + "c" * 20,
     "apiKey（JSON）": '{"apiKey": "' + "a" * 16 + '"}',
     "api_key（JSON）": '{"api_key": "' + "a" * 16 + '"}',
@@ -139,19 +143,20 @@ def scan_history():
     """
     hits = []
     objs = reachable_blobs()
-    proc = subprocess.Popen(["git", "cat-file", "--batch"], cwd=str(ROOT),
-                            stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+    proc = subprocess.Popen(
+        ["git", "cat-file", "--batch"], cwd=str(ROOT), stdin=subprocess.PIPE, stdout=subprocess.PIPE
+    )
     try:
         for oid, path in objs.items():
             proc.stdin.write((oid + "\n").encode())
             proc.stdin.flush()
             header = proc.stdout.readline().split()
-            if len(header) < 3:            # "<oid> missing" 之类
+            if len(header) < 3:  # "<oid> missing" 之类
                 continue
             kind, size = header[1], int(header[2])
             data = proc.stdout.read(size)
-            proc.stdout.read(1)            # 每条记录末尾的换行
-            if kind != b"blob":            # commit / tree 不含文件内容
+            proc.stdout.read(1)  # 每条记录末尾的换行
+            if kind != b"blob":  # commit / tree 不含文件内容
                 continue
             text = data.decode("utf-8", "ignore")
             for rx, label in SECRET_PATTERNS:
@@ -168,16 +173,24 @@ def scan_history():
 
 def check_remote_visibility():
     """远端必须 private。返回 (状态, 说明)；状态 ∈ {ok, public, unknown}。"""
-    remotes = [ln.split()[1] for ln in _git("remote", "-v").stdout.splitlines()
-               if ln.split()[0:1] == ["origin"] and ln.rstrip().endswith("(push)")]
+    remotes = [
+        ln.split()[1]
+        for ln in _git("remote", "-v").stdout.splitlines()
+        if ln.split()[0:1] == ["origin"] and ln.rstrip().endswith("(push)")
+    ]
     if not remotes:
         return "ok", "无 origin 远端（本地仓库，无需核对）"
     url = remotes[0]
     if "github.com" not in url:
         return "unknown", f"非 GitHub 远端，无法自动核对权限：{url}"
     try:
-        r = subprocess.run(["gh", "repo", "view", "--json", "visibility"], capture_output=True,
-                           text=True, timeout=20, cwd=str(ROOT))
+        r = subprocess.run(
+            ["gh", "repo", "view", "--json", "visibility"],
+            capture_output=True,
+            text=True,
+            timeout=20,
+            cwd=str(ROOT),
+        )
         if r.returncode != 0:
             return "unknown", f"gh 调用失败（离线或未登录？）：{r.stderr.strip()[:80]}"
         vis = json.loads(r.stdout).get("visibility", "")
@@ -203,7 +216,8 @@ def main():
             "# 由 scripts/pre_push_scan.py --install-hook 生成（本地文件，不入库）\n"
             "# 作用：推之前扫全部历史 + 核对远端是否 private（D-0045）\n"
             "exec python3 scripts/pre_push_scan.py --hook\n",
-            encoding="utf-8")
+            encoding="utf-8",
+        )
         hook.chmod(0o755)
         print(f"[OK] 已安装 {hook.relative_to(ROOT)}")
         print("     ⚠️ hook 是本地文件、不入库：换机 clone 后需重跑 make hooks")
@@ -239,13 +253,16 @@ def main():
     if loud:
         print(f"[3/3] 远端权限：{msg}", flush=True)
     if state == "public":
-        print(f"[FAIL] {msg}\n       误设 public 不可完全撤回，先改权限再推（D-0045）",
-              file=sys.stderr)
+        print(
+            f"[FAIL] {msg}\n       误设 public 不可完全撤回，先改权限再推（D-0045）",
+            file=sys.stderr,
+        )
         return BAD
     if state == "unknown":
         # 放弃核对而不是拦住推送：离线时不该把人锁死，但必须让人看见
-        print(f"[WARN] {msg}\n       未核到权限，无法保证不是 public —— 请自行确认",
-              file=sys.stderr)
+        print(
+            f"[WARN] {msg}\n       未核到权限，无法保证不是 public —— 请自行确认", file=sys.stderr
+        )
 
     if loud:
         print("[PASS] 可推送", flush=True)

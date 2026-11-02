@@ -63,6 +63,7 @@
 - 修复态样本：活数据 + `--date 2099-01-01` → C2 必须判 GONE（不得是 CONTRADICTION）。
   三条路径已实测；判据若坏（如把缺失当正常、或把已修当互撕），对应样本会翻绿或换分支。
 """
+
 from __future__ import annotations
 
 import argparse
@@ -76,8 +77,12 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 RUNS = ROOT / "migration-package" / "runs"
 LOG = ROOT / "outputs" / "inspection-watch.log"
-FLIP_THRESHOLD = 0.4          # 协议 docs/protocol/07：严格大于才告警
-PENDING_ROUNDS = [8, 9, 10]   # 2026-10-24 报告①：未终态三轮（round1 为历史残留，报告自标非在飞，不计）
+FLIP_THRESHOLD = 0.4  # 协议 docs/protocol/07：严格大于才告警
+PENDING_ROUNDS = [
+    8,
+    9,
+    10,
+]  # 2026-10-24 报告①：未终态三轮（round1 为历史残留，报告自标非在飞，不计）
 
 
 def log(msg: str) -> None:
@@ -90,14 +95,12 @@ def alert(msg: str) -> None:
     if not hook:
         log("（未设 FEISHU_WEBHOOK，仅本地日志）")
         return
-    body = json.dumps({"msg_type": "text",
-                       "content": {"text": f"[ai-autonomy] {msg}"}}).encode()
-    req = urllib.request.Request(hook, data=body,
-                                 headers={"Content-Type": "application/json"})
+    body = json.dumps({"msg_type": "text", "content": {"text": f"[ai-autonomy] {msg}"}}).encode()
+    req = urllib.request.Request(hook, data=body, headers={"Content-Type": "application/json"})
     try:
         urllib.request.urlopen(req, timeout=10).read()
         log("已发飞书告警")
-    except Exception as e:                      # 网络失败不能吞掉
+    except Exception as e:  # 网络失败不能吞掉
         log(f"⚠️ 告警发送失败：{e}")
 
 
@@ -133,14 +136,18 @@ def check_c2() -> tuple[str, str]:
         return "STILL", f"blocked={blocked} 且 inputs 含 EX-03（S8-1 违规仍在）"
     if in_inputs:
         # blocked 不含 + inputs 含：seat-check 没拦却进了聚合 —— 这才是两文件互撕
-        return "CONTRADICTION", (f"seat-check 未拦（blocked={blocked}）但 answer-final "
-                                 f"聚合输入含 EX-03——交人裁")
+        return "CONTRADICTION", (
+            f"seat-check 未拦（blocked={blocked}）但 answer-final 聚合输入含 EX-03——交人裁"
+        )
     # ★ 2026-10-27（D-0073）修正：blocked 含 + inputs 不含 = 【已修】，不是互撕。
     #   原实现写的是 `if in_blocked != in_inputs: CONTRADICTION`，把修复态判成
     #   CONTRADICTION，与本文档 §E2 预注册的语义相反 —— round13 两席重跑后
     #   （EX-03 移出 aggregation_inputs）每天 09:10 都会误报「交人裁」。
-    return "GONE", (f"blocked={blocked}，inputs 已不含 EX-03（已修）" if in_blocked
-                    else f"blocked={blocked}，inputs 亦不含 EX-03（已修或从未违规）")
+    return "GONE", (
+        f"blocked={blocked}，inputs 已不含 EX-03（已修）"
+        if in_blocked
+        else f"blocked={blocked}，inputs 亦不含 EX-03（已修或从未违规）"
+    )
 
 
 def check_c3() -> tuple[bool, str]:
@@ -159,13 +166,21 @@ def check_c3() -> tuple[bool, str]:
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--date", default=datetime.now().strftime("%Y-%m-%d"),
-                    help="核对日期（默认今天；YYYY-MM-DD）")
-    ap.add_argument("--dry-list", action="store_true",
-                    help="只打印判据复检明细，不写日志、不发告警")
-    ap.add_argument("--runs", default=None, metavar="DIR",
-                    help="覆盖 runs/ 目录（仅供回归构造阳性样本；生产与定时巡检不传，"
-                         "缺省为 migration-package/runs）")
+    ap.add_argument(
+        "--date",
+        default=datetime.now().strftime("%Y-%m-%d"),
+        help="核对日期（默认今天；YYYY-MM-DD）",
+    )
+    ap.add_argument(
+        "--dry-list", action="store_true", help="只打印判据复检明细，不写日志、不发告警"
+    )
+    ap.add_argument(
+        "--runs",
+        default=None,
+        metavar="DIR",
+        help="覆盖 runs/ 目录（仅供回归构造阳性样本；生产与定时巡检不传，"
+        "缺省为 migration-package/runs）",
+    )
     args = ap.parse_args()
 
     # ★ 2026-10-27（D-0073）：round13 的 S8-1 违规已修（EX-03 移出聚合输入），
@@ -211,11 +226,15 @@ def main() -> int:
     log(f"   C3 翻边率超阈值仍在？{c3}  {c3d}")
 
     if c2 == "CONTRADICTION":
-        line = (f"{datetime.now():%F %T}  {d}  CONTRADICTION  seat-check 未拦 EX-03 "
-                f"但 answer-final 含之，交人裁；报告缺失。{c2d}")
+        line = (
+            f"{datetime.now():%F %T}  {d}  CONTRADICTION  seat-check 未拦 EX-03 "
+            f"但 answer-final 含之，交人裁；报告缺失。{c2d}"
+        )
         log(f"⚠️ {line}")
         if not args.dry_list:
-            alert(f"巡检核对 {d}：seat-check 未拦 EX-03 但 answer-final 聚合输入含之，且当日无巡检报告，需人裁")
+            alert(
+                f"巡检核对 {d}：seat-check 未拦 EX-03 但 answer-final 聚合输入含之，且当日无巡检报告，需人裁"
+            )
             LOG.parent.mkdir(parents=True, exist_ok=True)
             with LOG.open("a", encoding="utf-8") as fh:
                 fh.write(line + "\n")
@@ -229,7 +248,9 @@ def main() -> int:
         log(f"   {c2d}")
         log(f"   {c3d}")
         if not args.dry_list:
-            alert(f"巡检产出核对 {d}：异常条件仍在（{detail}）但无巡检报告，疑似 08:05 巡检未跑或失败")
+            alert(
+                f"巡检产出核对 {d}：异常条件仍在（{detail}）但无巡检报告，疑似 08:05 巡检未跑或失败"
+            )
             LOG.parent.mkdir(parents=True, exist_ok=True)
             with LOG.open("a", encoding="utf-8") as fh:
                 fh.write(line + "\n")

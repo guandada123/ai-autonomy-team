@@ -34,6 +34,7 @@
     python3 scripts/verify_handover.py -q        # 只打印结论
     退出码：0 全通过 / 1 有失败 / 2 环境错误（不是工作区根）
 """
+
 import argparse
 import importlib.util
 import json
@@ -47,6 +48,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 PKG = ROOT / "migration-package"
 PY = sys.executable
+
 
 # 本项目声称"零第三方依赖"，用它来自证：这些包若被 import，说明有外部依赖混进来
 # ★ 2026-10-23 修（代码审查 C-4）：原来是一份 6 个包名的黑名单，
@@ -65,8 +67,10 @@ def _is_stdlib(name):
         return True
     try:
         origin = Path(spec.origin).resolve()
-        return origin.is_relative_to(Path(sysconfig.get_paths()["stdlib"]).resolve()) \
+        return (
+            origin.is_relative_to(Path(sysconfig.get_paths()["stdlib"]).resolve())
             and "site-packages" not in spec.origin
+        )
     except (OSError, ValueError):
         return False
 
@@ -81,7 +85,7 @@ def chk_runtime():
     ok_ver = (v.major, v.minor) >= (3, 9)
     # 扫一遍包内 import，确认没有第三方依赖混进来
     hits = set()
-    local = {p.stem for p in PKG.rglob("*.py")}      # 包内互 import 不算外部依赖
+    local = {p.stem for p in PKG.rglob("*.py")}  # 包内互 import 不算外部依赖
     pat = re.compile(r"^\s*(?:import|from)\s+([A-Za-z_][\w]*)", re.M)
     for p in PKG.rglob("*.py"):
         try:
@@ -94,9 +98,11 @@ def chk_runtime():
                 continue
             if not _is_stdlib(top):
                 hits.add(top)
-    return (ok_ver and not hits,
-            f"python {v.major}.{v.minor}.{v.micro}；非标准库 import 命中 {len(hits)}"
-            + (f"：{sorted(hits)}" if hits else "（符合标准库承诺）"))
+    return (
+        ok_ver and not hits,
+        f"python {v.major}.{v.minor}.{v.micro}；非标准库 import 命中 {len(hits)}"
+        + (f"：{sorted(hits)}" if hits else "（符合标准库承诺）"),
+    )
 
 
 def chk_precheck():
@@ -203,8 +209,11 @@ READING = """\
 def main():
     ap = argparse.ArgumentParser(description="接手验收：一条命令判断这套东西能不能用")
     ap.add_argument("-q", "--quiet", action="store_true")
-    ap.add_argument("--count", action="store_true",
-                    help="只打印检查项数（供门禁核对文档里的 N/N 声明，不跑任何检查）")
+    ap.add_argument(
+        "--count",
+        action="store_true",
+        help="只打印检查项数（供门禁核对文档里的 N/N 声明，不跑任何检查）",
+    )
     args = ap.parse_args()
 
     # 门禁要核对「接手自检 6/6」这类声明，但它不能为此再跑一遍回归（时长翻倍）。
@@ -237,7 +246,9 @@ def main():
         print(f"[FAIL] {len(failed)}/{len(rows)} 项未通过：{', '.join(failed)}", file=sys.stderr)
         return 1
 
-    print(f"[PASS] {len(rows)}/{len(rows)} 项通过" + ("" if args.quiet else "——这台机器可以直接接手"))
+    print(
+        f"[PASS] {len(rows)}/{len(rows)} 项通过" + ("" if args.quiet else "——这台机器可以直接接手")
+    )
     if not args.quiet:
         print()
         print(READING, end="")

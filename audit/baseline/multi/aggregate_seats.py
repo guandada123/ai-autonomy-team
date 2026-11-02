@@ -23,6 +23,7 @@
 
 退出码：0 正常 ｜ 2 输入有问题（题号不一致 / 文件缺 / 票数少于 3）
 """
+
 import argparse
 import json
 import sys
@@ -69,7 +70,7 @@ def main():
         print("[ERR] 席位之间题号无交集", file=sys.stderr)
         return 2
 
-    qids = sorted(common, key=lambda q: (q[0], int(''.join(c for c in q if c.isdigit()) or 0)))
+    qids = sorted(common, key=lambda q: (q[0], int("".join(c for c in q if c.isdigit()) or 0)))
     multi, ambiguous, detail = {}, [], {}
     for q in qids:
         raw = [a.get(q) for a, _ in loaded]
@@ -85,27 +86,40 @@ def main():
         #      一个猜出来的值会因为「唯一一票」变成多数票——等于让瞎猜统治结果。
         #   ② 多数票要占**实际投票**的过半，否则 3 席 3 个值也是"多数"。
         if len(votes) < 2:
-            ambiguous.append({"q": q, "reason": f"有效票仅 {len(votes)} 席（<2），不构成多数票",
-                              "raw": raw})
+            ambiguous.append(
+                {"q": q, "reason": f"有效票仅 {len(votes)} 席（<2），不构成多数票", "raw": raw}
+            )
             continue
         if n * 2 <= len(votes):
-            ambiguous.append({"q": q,
-                              "reason": f"未过半数：最高票 {n}/{len(votes)} 有效票"
-                                        f"（{len(cnt)} 个不同值、共 {len(loaded)} 席）",
-                              "raw": raw})
+            ambiguous.append(
+                {
+                    "q": q,
+                    "reason": f"未过半数：最高票 {n}/{len(votes)} 有效票"
+                    f"（{len(cnt)} 个不同值、共 {len(loaded)} 席）",
+                    "raw": raw,
+                }
+            )
             continue
         # 取该多数值对应的**原始**写法（保持类型，避免二次规范化影响判分）
         multi[q] = next(v for v in raw if canon(v) == top)
 
-    out = {"_note": f"多席位多数票汇总（{len(args.seats)} 席），由 aggregate_seats.py 生成",
-           "seats": [str(Path(p).name) for p in args.seats],
-           "n_questions": len(qids), "n_majority": len(multi),
-           "n_ambiguous": len(ambiguous), "ambiguous": ambiguous,
-           "answers": multi, "votes": detail}
-    Path(args.out).write_text(json.dumps(out, ensure_ascii=False, indent=2) + "\n",
-                             encoding="utf-8")
-    print(f"[agg] {len(args.seats)} 席 / {len(qids)} 题 → 有多数票 {len(multi)}，"
-          f"无多数票 {len(ambiguous)}")
+    out = {
+        "_note": f"多席位多数票汇总（{len(args.seats)} 席），由 aggregate_seats.py 生成",
+        "seats": [str(Path(p).name) for p in args.seats],
+        "n_questions": len(qids),
+        "n_majority": len(multi),
+        "n_ambiguous": len(ambiguous),
+        "ambiguous": ambiguous,
+        "answers": multi,
+        "votes": detail,
+    }
+    Path(args.out).write_text(
+        json.dumps(out, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+    )
+    print(
+        f"[agg] {len(args.seats)} 席 / {len(qids)} 题 → 有多数票 {len(multi)}，"
+        f"无多数票 {len(ambiguous)}"
+    )
     for a in ambiguous:
         print(f"  ⚠️ {a['q']}: {a['reason']}  原始={a['raw']}")
     return 0

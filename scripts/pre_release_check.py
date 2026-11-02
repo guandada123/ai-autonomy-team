@@ -33,6 +33,7 @@
     python3 scripts/pre_release_check.py --self-test # 门禁自身的自检（正负样本，不动真仓库）
     退出码：0 全通过 / 1 有失败项 / 2 环境错误
 """
+
 import argparse
 import json
 import os
@@ -117,7 +118,9 @@ def chk_selftest():
     m = re.search(r"(\d+)/(\d+) 项", out)
     if not m:
         # 注入测试时发现：self-test 失败会改变输出格式，初版只报「解析失败」不足以定位
-        tail = next((ln.strip() for ln in reversed(out.strip().splitlines()) if ln.strip()), "无输出")
+        tail = next(
+            (ln.strip() for ln in reversed(out.strip().splitlines()) if ln.strip()), "无输出"
+        )
         return False, f"输出无法解析（EXIT={rc}，末行：{tail[:90]}）"
     return (rc == 0 and m.group(1) == m.group(2)), f"{m.group(1)}/{m.group(2)}"
 
@@ -141,12 +144,27 @@ def chk_secrets():
     # 2026-10-29（F7）：audit/、templates/、outputs/ 原不在扫描范围。
     # 密钥防线是**按「哪些目录被扫到」定义的** —— 没被扫到的目录等于没有防线，
     # 而这三个目录恰恰装着评审输出与外发模板（最容易夹带的东西）。
-    for base in (SCRIPTS, DOCS, ROOT / "audit", ROOT / "templates", ROOT / "outputs",
-                 PKG / "judges", PKG / "config"):
+    for base in (
+        SCRIPTS,
+        DOCS,
+        ROOT / "audit",
+        ROOT / "templates",
+        ROOT / "outputs",
+        PKG / "judges",
+        PKG / "config",
+    ):
         if not base.is_dir():
             continue
         for p in base.rglob("*"):
-            if not p.is_file() or p.suffix.lower() not in {".md", ".py", ".json", ".sh", ".cmd", ".txt", ".env"}:
+            if not p.is_file() or p.suffix.lower() not in {
+                ".md",
+                ".py",
+                ".json",
+                ".sh",
+                ".cmd",
+                ".txt",
+                ".env",
+            }:
                 continue
             for label, frag in scan_file(p):
                 hits.append(f"{p.relative_to(ROOT)}::{label}")
@@ -159,18 +177,23 @@ INTENTIONAL_ABSENT = re.compile(r"D-\d{4}\s*[（(]?\s*(?:未建|未创建|缺失
 
 def chk_decision_ids():
     dec = DOCS / "decisions"
-    have = {m.group(0) for p in dec.glob("*.md")
-            for m in [re.search(r"D-\d{4}", p.name)] if m}
+    have = {m.group(0) for p in dec.glob("*.md") for m in [re.search(r"D-\d{4}", p.name)] if m}
     used, intentional = set(), set()
 
     # ★ 2026-10-23 修（D-0053）：根级四份文档原先**不在扫描范围**——README/ARCHITECTURE
     #   里写着「D-XXXX 未建」却从不被检查，等于这四份文档的引用是盲区。
-    targets = [ROOT / n for n in ("README.md", "ARCHITECTURE.md", "DEPENDENCIES.md", "M4-接续指南.md")
-               if (ROOT / n).is_file()]
+    targets = [
+        ROOT / n
+        for n in ("README.md", "ARCHITECTURE.md", "DEPENDENCIES.md", "M4-接续指南.md")
+        if (ROOT / n).is_file()
+    ]
     for base in (DOCS, SCRIPTS, PKG / "judges", PKG / "protocol", PKG / "config"):
         if base.is_dir():
-            targets += [p for p in base.rglob("*")
-                        if p.is_file() and p.suffix.lower() in {".md", ".py", ".json"}]
+            targets += [
+                p
+                for p in base.rglob("*")
+                if p.is_file() and p.suffix.lower() in {".md", ".py", ".json"}
+            ]
 
     for p in targets:
         try:
@@ -190,8 +213,11 @@ def chk_todo():
     # 2026-10-29（F7）：原先只扫 `docs/*.md`（顶层、非递归）——
     # docs 子目录里的待办、以及根级四份文档里的待办全是盲区。
     # F 项（决策编号）2026-10-23 已因同款问题修过（D-0053），G 项这次补齐。
-    targets = [ROOT / n for n in ("README.md", "ARCHITECTURE.md", "DEPENDENCIES.md",
-                                  "M4-接续指南.md") if (ROOT / n).is_file()]
+    targets = [
+        ROOT / n
+        for n in ("README.md", "ARCHITECTURE.md", "DEPENDENCIES.md", "M4-接续指南.md")
+        if (ROOT / n).is_file()
+    ]
     targets += [p for p in DOCS.rglob("*.md") if p.is_file()]
     hits = []
     for p in targets:
@@ -230,8 +256,9 @@ def chk_snapshot():
         # 2026-10-28（F3）：--verify 改为三向比对，输出行改以 A/B/C/D 分类开头
         # （A 真源改动 / B 副本缺失 / C 副本被改 / D 真源与副本互异）。
         # 仍按旧文案找「修改/新增」会抽到空串，失败信息就没有可操作内容。
-        kinds = [ln.strip() for ln in out.splitlines()
-                 if ln.strip().startswith(("A ", "B ", "C ", "D "))]
+        kinds = [
+            ln.strip() for ln in out.splitlines() if ln.strip().startswith(("A ", "B ", "C ", "D "))
+        ]
         tail = "；".join(kinds[:3]) or (out.strip().splitlines() or ["无详情"])[-1]
         return False, f"与最近快照 {dirs[-1].name} 不一致（三向比对命中）。{tail}"
     return True, f"最近快照: {dirs[-1].name}，与真源一致"
@@ -265,9 +292,20 @@ def chk_consistency_info():
     if not runs.is_dir():
         return "（无 runs 目录，跳过）"
     try:
-        rc, out = sh([PY, str(SCRIPTS / "check_consistency.py"),
-                      "--sweep", str(runs), "--scope", "final", "-q", "--warn-only"], timeout=120)
-    except Exception as e:                       # 信息项异常不拖垮整体
+        rc, out = sh(
+            [
+                PY,
+                str(SCRIPTS / "check_consistency.py"),
+                "--sweep",
+                str(runs),
+                "--scope",
+                "final",
+                "-q",
+                "--warn-only",
+            ],
+            timeout=120,
+        )
+    except Exception as e:  # 信息项异常不拖垮整体
         return f"（扫描异常：{type(e).__name__}，不影响门禁）"
     m = re.search(r"共 (\d+) 份\s+通过 (\d+) / 不自洽 (\d+)", out)
     if not m:
@@ -291,7 +329,7 @@ def chk_upgrade_info():
     try:
         rc, out = sh([PY, str(SCRIPTS / "upgrade_status.py"), "--json"], timeout=60)
         d = json.loads(out)
-    except Exception as e:                       # 信息项异常不拖垮整体
+    except Exception as e:  # 信息项异常不拖垮整体
         return f"（核对异常：{type(e).__name__}，不影响门禁）"
     if not d.get("rule_layer_exists"):
         # 2026-11-01 修正：规则层（用户级 MEMORY.md）不存在有两种含义，不能混为一谈——
@@ -300,13 +338,19 @@ def chk_upgrade_info():
         #   · 在本地就必须存在，缺了才是真问题。
         # 旧实现一律报 🔴，导致每次 CI 日志都挂一条不会消失的红字。
         if os.environ.get("GITHUB_ACTIONS") or os.environ.get("CI"):
-            return (f"⚪ 本环境无用户级规则层（{d.get('rule_layer')}）→ "
-                    "升级链路无法核查，非缺陷（CI/换机环境预期如此）")
-        return (f"🔴 规则层文件不存在（{d.get('rule_layer')}）——"
-                "本地应存在，升级链路必然空转；检查 HOME 是否正确或被覆盖")
-    return (f"{d['star']} 条 ★ / 已升级 {d['upgraded']} / 本地强制 {d.get('covered_locally', 0)}"
-            f" / 待升(预算阻塞) {d.get('deferred', 0)} / 待处置 {len(d['pending'])}"
-            f"（超期 {len(d['stale'])} 条；台账 docs/learnings-upgraded.json）")
+            return (
+                f"⚪ 本环境无用户级规则层（{d.get('rule_layer')}）→ "
+                "升级链路无法核查，非缺陷（CI/换机环境预期如此）"
+            )
+        return (
+            f"🔴 规则层文件不存在（{d.get('rule_layer')}）——"
+            "本地应存在，升级链路必然空转；检查 HOME 是否正确或被覆盖"
+        )
+    return (
+        f"{d['star']} 条 ★ / 已升级 {d['upgraded']} / 本地强制 {d.get('covered_locally', 0)}"
+        f" / 待升(预算阻塞) {d.get('deferred', 0)} / 待处置 {len(d['pending'])}"
+        f"（超期 {len(d['stale'])} 条；台账 docs/learnings-upgraded.json）"
+    )
 
 
 # ────────────────────── 门禁自身的守卫（--self-test） ──────────────────────
@@ -409,8 +453,11 @@ def self_test():
             (r / sub / "leak.md").write_text(f'token = "{KEY}"\n', encoding="utf-8")
             with at(r):
                 ok, d = chk_secrets()
-            label = (f"E 负样本：{sub}/ 藏密钥 → 拦截（F7 补的盲区）" if sub != "scripts"
-                     else "E 负样本：scripts/ 藏密钥 → 拦截")
+            label = (
+                f"E 负样本：{sub}/ 藏密钥 → 拦截（F7 补的盲区）"
+                if sub != "scripts"
+                else "E 负样本：scripts/ 藏密钥 → 拦截"
+            )
             expect(label, ok is False and "leak.md" in d, d)
 
         # ── G 待办扫描 ─────────────────────────────────────────────
@@ -427,8 +474,9 @@ def self_test():
             path.write_text("# 标题\n" + text, encoding="utf-8")
             with at(r):
                 ok, d = chk_todo()
-            expect(f"G 负样本：{label} → 拦截",
-                   ok is False and path.relative_to(r).as_posix() in d, d)
+            expect(
+                f"G 负样本：{label} → 拦截", ok is False and path.relative_to(r).as_posix() in d, d
+            )
             path.write_text("# 标题\n", encoding="utf-8")
 
         (r / "docs" / "会话审计-20261020.md").write_text("# TODO 历史记录\n", encoding="utf-8")
@@ -478,22 +526,31 @@ def self_test():
         with at(r):
             expect("D 负样本：MANIFEST 缺失 → 拦截", chk_manifest()[0] is False)
 
-        mp.write_text(json.dumps({"files": [{"path": "a", "size": 3}],
-                                  "stats": {"file_count": 1, "total_bytes": 3}}),
-                      encoding="utf-8")
+        mp.write_text(
+            json.dumps(
+                {"files": [{"path": "a", "size": 3}], "stats": {"file_count": 1, "total_bytes": 3}}
+            ),
+            encoding="utf-8",
+        )
         with at(r):
             expect("D 正样本：声明与实际一致 → 通过", chk_manifest()[0] is True)
 
-        mp.write_text(json.dumps({"files": [{"path": "a", "size": 3}],
-                                  "stats": {"file_count": 2, "total_bytes": 3}}),
-                      encoding="utf-8")
+        mp.write_text(
+            json.dumps(
+                {"files": [{"path": "a", "size": 3}], "stats": {"file_count": 2, "total_bytes": 3}}
+            ),
+            encoding="utf-8",
+        )
         with at(r):
             expect("D 负样本：file_count 与条目数不符 → 拦截", chk_manifest()[0] is False)
 
         # 历史 bug 回归：字段名是 size，写成 bytes 会让实际字节恒为 0
-        mp.write_text(json.dumps({"files": [{"path": "a", "bytes": 3}],
-                                  "stats": {"file_count": 1, "total_bytes": 3}}),
-                      encoding="utf-8")
+        mp.write_text(
+            json.dumps(
+                {"files": [{"path": "a", "bytes": 3}], "stats": {"file_count": 1, "total_bytes": 3}}
+            ),
+            encoding="utf-8",
+        )
         with at(r):
             ok, d = chk_manifest()
         expect("D 负样本：条目用 bytes 键（历史 bug）→ 拦截", ok is False, d)
@@ -506,12 +563,16 @@ def self_test():
             with with_sh(canned(0, "结果：55/56 通过\n")):
                 expect("B 负样本：55/56 → 拦截", chk_regress()[0] is False)
             with with_sh(canned(1, "结果：56/56 通过\n")):
-                expect("B 负样本：项数够但 EXIT=1 → 拦截（退出码也是判据）",
-                       chk_regress()[0] is False)
+                expect(
+                    "B 负样本：项数够但 EXIT=1 → 拦截（退出码也是判据）", chk_regress()[0] is False
+                )
             with with_sh(canned(0, "Traceback (most recent call last):\n")):
                 ok, d = chk_regress()
-            expect("B 负样本：输出不可解析 → 拦截（不把解析失败当过）",
-                   ok is False and "解析失败" in d, d)
+            expect(
+                "B 负样本：输出不可解析 → 拦截（不把解析失败当过）",
+                ok is False and "解析失败" in d,
+                d,
+            )
 
         # ── C 判据自检（外部依赖：verify.py + 本地语法扫描）────────
         r = make(t, "c")
@@ -528,15 +589,21 @@ def self_test():
             (r / "audit" / "bad.py").write_text("def f(\n", encoding="utf-8")
             with with_sh(canned(0, "……41/41 项\n")):
                 ok, d = chk_selftest()
-            expect("C 负样本：audit/ 下语法错 → 拦截（语法支路是活的）",
-                   ok is False and "bad.py" in d, d)
+            expect(
+                "C 负样本：audit/ 下语法错 → 拦截（语法支路是活的）",
+                ok is False and "bad.py" in d,
+                d,
+            )
 
         # ── H 真源快照（外部依赖：三向比对退出码 0/1/2）───────────
         r = make(t, "h-none")
         with at(r):
             ok, d = chk_snapshot()
-        expect("H 负样本：无 snapshots 目录 → 拦截且给出可执行指引",
-               ok is False and "无快照目录" in d, d)
+        expect(
+            "H 负样本：无 snapshots 目录 → 拦截且给出可执行指引",
+            ok is False and "无快照目录" in d,
+            d,
+        )
 
         r = make(t, "h-empty")
         (r / "snapshots").mkdir()
@@ -549,19 +616,22 @@ def self_test():
         with at(r):
             with with_sh(canned(2, "[ERR] 无可用快照\n")):
                 ok, d = chk_snapshot()
-            expect("H 负样本：rc=2 → 报「环境错误」而非「有差异」",
-                   ok is False and "环境错误" in d, d)
+            expect(
+                "H 负样本：rc=2 → 报「环境错误」而非「有差异」", ok is False and "环境错误" in d, d
+            )
             with with_sh(canned(1, "A scripts/ok.py 真源被改\nC x 副本被改\n")):
                 ok, d = chk_snapshot()
-            expect("H 负样本：三向比对命中 → 拦截且详情带 A/B/C 分类",
-                   ok is False and "A scripts/ok.py" in d, d)
+            expect(
+                "H 负样本：三向比对命中 → 拦截且详情带 A/B/C 分类",
+                ok is False and "A scripts/ok.py" in d,
+                d,
+            )
             with with_sh(canned(1, "无法归类的输出\n")):
                 ok, d = chk_snapshot()
             expect("H 负样本：无 A/B/C 行时不崩、详情有兜底", ok is False and bool(d), d)
             with with_sh(canned(0, "[PASS] 一致\n")):
                 ok, d = chk_snapshot()
-            expect("H 正样本：rc=0 → 通过且报出快照名",
-                   ok is True and "20260101-000000-x" in d, d)
+            expect("H 正样本：rc=0 → 通过且报出快照名", ok is True and "20260101-000000-x" in d, d)
 
         # ── A 文档一致性（ctx 是否真的传进子命令）──────────────────
         r = make(t, "a")
@@ -577,22 +647,29 @@ def self_test():
             with with_sh(sh_docs):
                 ok, d = chk_docs({"regress": 56, "criteria": 41, "gates": 8})
         got = " ".join(seen.get("cmd") or [])
-        expect("A 正样本：ctx 实测项数真的传给了文档校验（已配置≠被读取）",
-               ok is True and all(f"{k}={v}" in got for k, v in
-                                  (("regress", 56), ("criteria", 41),
-                                   ("gates", 8), ("handover", 6))), got[-90:])
+        expect(
+            "A 正样本：ctx 实测项数真的传给了文档校验（已配置≠被读取）",
+            ok is True
+            and all(
+                f"{k}={v}" in got
+                for k, v in (("regress", 56), ("criteria", 41), ("gates", 8), ("handover", 6))
+            ),
+            got[-90:],
+        )
 
         with at(r):
             with with_sh(canned(1, "  [A] 回归声明 50/56 与实测不符\n")):
                 ok, d = chk_docs({"regress": 56, "criteria": 41, "gates": 8})
-        expect("A 负样本：不一致 → 拦截并透出具体行（不是通用尾句）",
-               ok is False and "[A]" in d, d)
+        expect("A 负样本：不一致 → 拦截并透出具体行（不是通用尾句）", ok is False and "[A]" in d, d)
 
         # ── 对外契约：8 项、字母 A–H、无重名 ───────────────────────
         names = [n for n, _ in CHECKS]
         letters = "".join(n.split()[0] for n in names)
-        expect("契约：门禁固定 8 项（8/8 是本文件的对外基线）",
-               len(CHECKS) == 8, f"实为 {len(CHECKS)} 项")
+        expect(
+            "契约：门禁固定 8 项（8/8 是本文件的对外基线）",
+            len(CHECKS) == 8,
+            f"实为 {len(CHECKS)} 项",
+        )
         expect("契约：字母 A–H 连续且与名字首字母一致", letters == "ABCDEFGH", letters)
         expect("契约：检查项名不重复", len(set(names)) == len(names))
 
@@ -607,8 +684,9 @@ def self_test():
             raise RuntimeError("注入异常")
 
         # 聚合用例与真实 info 脚本无关：给 sh 一个确定性桩，否则自检输出随环境漂移
-        INFO = json.dumps({"rule_layer_exists": True, "star": 0, "upgraded": 0,
-                           "pending": [], "stale": []})
+        INFO = json.dumps(
+            {"rule_layer_exists": True, "star": 0, "upgraded": 0, "pending": [], "stale": []}
+        )
 
         r = make(t, "m")
         with at(r), with_sh(canned(0, INFO)):
@@ -618,18 +696,21 @@ def self_test():
 
             with with_checks([("A 甲", ok_stub), ("B 乙", bad_stub)]):
                 rc, out, err = run_main([])
-            expect("聚合：任一项失败 → exit 1 且点名该项", rc == 1 and "B 乙" in err,
-                   err.strip()[-60:])
+            expect(
+                "聚合：任一项失败 → exit 1 且点名该项", rc == 1 and "B 乙" in err, err.strip()[-60:]
+            )
 
             with with_checks([("A 甲", boom_stub), ("B 乙", ok_stub)]):
                 rc, out, err = run_main([])
-            expect("聚合：单项抛异常 → 记该项失败而非整体崩（exit 1）",
-                   rc == 1 and "A 甲" in err, err.strip()[-60:])
+            expect(
+                "聚合：单项抛异常 → 记该项失败而非整体崩（exit 1）",
+                rc == 1 and "A 甲" in err,
+                err.strip()[-60:],
+            )
 
             with with_checks([("A 甲", ok_stub)]):
                 rc, out, err = run_main(["-q"])
-            expect("聚合：-q 只打结论，不刷明细",
-                   rc == 0 and "✅" not in out and "[PASS]" in out)
+            expect("聚合：-q 只打结论，不刷明细", rc == 0 and "✅" not in out and "[PASS]" in out)
 
         nopkg = t / "nopkg"
         nopkg.mkdir()
@@ -651,14 +732,23 @@ def self_test():
 def _fingerprint() -> str:
     """git 版本 + 关键文件内容哈希：结论可回溯到具体版本，避免"报告与代码错位"。"""
     import hashlib
+
     rev, dirty = "unknown", "?"
     try:
-        r = subprocess.run(["git", "-C", str(ROOT), "rev-parse", "--short", "HEAD"],
-                           capture_output=True, text=True, timeout=10)
+        r = subprocess.run(
+            ["git", "-C", str(ROOT), "rev-parse", "--short", "HEAD"],
+            capture_output=True,
+            text=True,
+            timeout=10,
+        )
         if r.returncode == 0:
             rev = r.stdout.strip()
-        st = subprocess.run(["git", "-C", str(ROOT), "status", "--porcelain"],
-                            capture_output=True, text=True, timeout=10)
+        st = subprocess.run(
+            ["git", "-C", str(ROOT), "status", "--porcelain"],
+            capture_output=True,
+            text=True,
+            timeout=10,
+        )
         if st.returncode == 0:
             dirty = "yes" if st.stdout.strip() else "no"
     except Exception:
@@ -668,8 +758,12 @@ def _fingerprint() -> str:
     # 只读身份变量，不碰任何 *_KEY/*_TOKEN/*_PROXY。
     model_id = os.environ.get("CODEBUDDY_CURRENT_MODEL_ID", "")
     parts.append(f"model={model_id or 'UNKNOWN'}")
-    for rel in ("audit/kit/item_review.py", "audit/kit/caliber_lib.py",
-                "audit/baseline/v2/caliber-library.json", "docs/protocol/08-出题质检协议-v1.md"):
+    for rel in (
+        "audit/kit/item_review.py",
+        "audit/kit/caliber_lib.py",
+        "audit/baseline/v2/caliber-library.json",
+        "docs/protocol/08-出题质检协议-v1.md",
+    ):
         f = ROOT / rel
         if f.exists():
             h = hashlib.sha256(f.read_bytes()).hexdigest()[:8]
@@ -682,8 +776,11 @@ def _fingerprint() -> str:
 def main():
     ap = argparse.ArgumentParser(description="发布前一键检查（只读）")
     ap.add_argument("-q", "--quiet", action="store_true")
-    ap.add_argument("--self-test", action="store_true",
-                    help="门禁自身自检（正负样本，临时目录内构造，不动真仓库）")
+    ap.add_argument(
+        "--self-test",
+        action="store_true",
+        help="门禁自身自检（正负样本，临时目录内构造，不动真仓库）",
+    )
     args = ap.parse_args()
 
     if args.self_test:
@@ -707,8 +804,8 @@ def main():
     ctx = {"gates": len(CHECKS)}
     for name, fn in order:
         try:
-            ok, detail = (fn(ctx) if fn is chk_docs else fn())
-        except Exception as e:                       # 单项异常不拖垮整体
+            ok, detail = fn(ctx) if fn is chk_docs else fn()
+        except Exception as e:  # 单项异常不拖垮整体
             ok, detail = False, f"检查异常: {type(e).__name__}: {e}"
         results[name] = (ok, detail)
         # 把 B/C 的实测项数喂给 A

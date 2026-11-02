@@ -25,13 +25,14 @@
 1 = 存在实现与规格不符（须修代码或修规格）
 2 = 套件文件缺失/解析失败
 """
+
 import json
 import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT / "scripts"))
-import premise_probe as pp                                    # noqa: E402
+import premise_probe as pp  # noqa: E402
 
 CASES = ROOT / "audit" / "probes" / "premise" / "spec-cases.json"
 
@@ -63,14 +64,18 @@ def main() -> int:
     for c in cases:
         hits = pp.run_card(c["card"])
         act = verdict(hits)
-        rows.append((c["id"], c["spec"], act, c["semantic"], [h["id"] for h in hits], c.get("note", "")))
+        rows.append(
+            (c["id"], c["spec"], act, c["semantic"], [h["id"] for h in hits], c.get("note", ""))
+        )
         if act != c["spec"]:
             mis_impl.append((c["id"], c["spec"], act))
         if act != c["semantic"]:
             blind.append((c["id"], act, c["semantic"], c.get("note", "")))
 
-    print(f"套件 {len(cases)} 张｜spec 拦 {sum(1 for c in cases if c['spec']=='拦')}"
-          f" / 过 {sum(1 for c in cases if c['spec']=='过')}")
+    print(
+        f"套件 {len(cases)} 张｜spec 拦 {sum(1 for c in cases if c['spec'] == '拦')}"
+        f" / 过 {sum(1 for c in cases if c['spec'] == '过')}"
+    )
     print(f"\n{'id':<5}{'spec':<6}{'actual':<8}{'semantic':<10}{'命中':<26}说明")
     for cid, sp, ac, se, hh, note in rows:
         flag = " " if ac == sp else "❗"
@@ -89,7 +94,9 @@ def main() -> int:
         ("id 为奇数 → 拦", lambda i, n: i % 2 == 1),
         ("id 前一半 → 拦", lambda i, n: i <= n // 2),
     ]:
-        pairs = [(fn_pred(i, len(cases)), cases[i - 1]["spec"] == "拦") for i in range(1, len(cases) + 1)]
+        pairs = [
+            (fn_pred(i, len(cases)), cases[i - 1]["spec"] == "拦") for i in range(1, len(cases) + 1)
+        ]
         print(f"  {name}: F1 = {f1(pairs):.2f}（应 << 1.00）")
 
     print(f"\n规则盲区（actual ≠ semantic）{len(blind)} 张 —— 这是本套件的主要产出：")

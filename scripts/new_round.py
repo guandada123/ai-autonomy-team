@@ -45,7 +45,7 @@ from fsutil import write_text_atomic
 sys.path.insert(0, str(Path(__file__).resolve().parent / "judges"))
 try:
     from seat_check import load_read_domains  # noqa: E402
-except ImportError:                             # 缺 judges/ 时降级，不阻断开轮
+except ImportError:  # 缺 judges/ 时降级，不阻断开轮
     load_read_domains = None
 
 TZ_CN = timezone(timedelta(hours=8))
@@ -53,11 +53,11 @@ TZ_CN = timezone(timedelta(hours=8))
 EXIT_OK = 0
 EXIT_SCHEMA = 1
 EXIT_ERROR = 2
-EXIT_PENDING = 3      # 「未裁决」—— 判据侧 pending_adjudication（protocol/04 §退出码）
+EXIT_PENDING = 3  # 「未裁决」—— 判据侧 pending_adjudication（protocol/04 §退出码）
 # ★ P0-2（2026-10-22 修）：闸门拒绝**不**复用 3。
 #   3 在 protocol/05:50 与 protocol/04:81 已定义为「未裁决」，
 #   若闸门也返回 3，上游告警分不清「判据说没裁决」和「前置检查拦住」，会归错因。
-EXIT_BLOCKED = 4      # 「开轮前闸门拒绝」—— 本轮未开始，不是判据 pending
+EXIT_BLOCKED = 4  # 「开轮前闸门拒绝」—— 本轮未开始，不是判据 pending
 
 DEBATING_SEATS = ("EX-01", "EX-02", "EX-03")
 OTHER_SEATS = ("AD-01", "PM-01", "XJ-01")
@@ -88,9 +88,19 @@ def round_task(round_dir):
         return DEFAULT_TASK
     return str(m.get("task") or DEFAULT_TASK)
 
+
 # 匿名化：从同伴产出中剔除的身份字段
-IDENTITY_KEYS = ("seat", "round", "model", "model_id", "vendor", "provider",
-                 "agent_id", "session", "author")
+IDENTITY_KEYS = (
+    "seat",
+    "round",
+    "model",
+    "model_id",
+    "vendor",
+    "provider",
+    "agent_id",
+    "session",
+    "author",
+)
 
 DEFAULT_PARAMS = "config/params.json"
 
@@ -200,8 +210,9 @@ def read_domain_targets(prev_dir, round_name=None, rd_config=None):
     """
     if load_read_domains is None:
         return []
-    rd = load_read_domains(Path(rd_config) if rd_config else
-                           (Path.cwd() / "config/read_domains.json"), round_name)
+    rd = load_read_domains(
+        Path(rd_config) if rd_config else (Path.cwd() / "config/read_domains.json"), round_name
+    )
     if not rd:
         return []
     t = [p for p in (rd.get("deny_absolute") or []) if p]
@@ -271,8 +282,15 @@ def scrub_paths(payload, targets):
 #   整句替换会把「三包数字相同」这个实质论点一起毁掉。
 
 ANSWER_SOURCE_TOKENS = (
-    "truth", "truth.json", "expected", "rules", "adjudicated.json",
-    "verdict-layered", "pending-adjudication", "answer-baseline", "verdict-baseline",
+    "truth",
+    "truth.json",
+    "expected",
+    "rules",
+    "adjudicated.json",
+    "verdict-layered",
+    "pending-adjudication",
+    "answer-baseline",
+    "verdict-baseline",
 )
 
 # ★ 实测教训：这些词必须【单独触发】擦除，不能要求与答案数值同现。
@@ -281,7 +299,13 @@ ANSWER_SOURCE_TOKENS = (
 #   要求同现就会漏掉前半句，而那半句恰恰是更毒的（它把判断伪装成规则）。
 #   代价：可能擦掉「按协议规定」这类正当引述，损失一句话，不损失论点。
 ANSWER_AUTHORITY_TOKENS = (
-    "真值", "规则明定", "明定", "预先固化", "机器可读", "偏离即", "判定为 fail",
+    "真值",
+    "规则明定",
+    "明定",
+    "预先固化",
+    "机器可读",
+    "偏离即",
+    "判定为 fail",
 )
 
 # ★ 按【字段名】排除立场，不按「数值是否为整数」排除：
@@ -310,7 +334,7 @@ def answer_value_tokens(adj_spec):
                 if not isinstance(v, (int, float)):
                     continue
                 f = float(v)
-                if abs(f) < 1:      # 0.0 是 T106 的合法差额，不是答案
+                if abs(f) < 1:  # 0.0 是 T106 的合法差额，不是答案
                     continue
                 vals.add(f"{f:.2f}")
                 vals.add(repr(f))
@@ -366,8 +390,12 @@ def scrub_answer_citations(payload, adj_spec, targets=()):
     """
     values = answer_value_tokens(adj_spec)
     src_tokens = tuple(ANSWER_SOURCE_TOKENS) + tuple(t for t in targets if t)
-    stats = {"clauses_total": 0, "clauses_replaced": 0, "values": values,
-             "clauses_with_value_kept": 0}
+    stats = {
+        "clauses_total": 0,
+        "clauses_replaced": 0,
+        "values": values,
+        "clauses_with_value_kept": 0,
+    }
 
     def walk(o):
         if isinstance(o, dict):
@@ -404,7 +432,7 @@ def build_inputs(root, round_dir, prev_dir, params_path, task=None):
     seed = make_seed(round_dir.name, prev_dir.name if prev_dir else "none", params_sha)
 
     packs, anon_map = {}, {}
-    order = list(ANON_LABELS[:len(DEBATING_SEATS)])
+    order = list(ANON_LABELS[: len(DEBATING_SEATS)])
     random.Random(int(seed, 16)).shuffle(order)
 
     idx = 0
@@ -440,8 +468,7 @@ def build_inputs(root, round_dir, prev_dir, params_path, task=None):
     # ★ 任务参数化：判断项 spec 按本轮任务定位（001 在 fixtures/spec，002 在 fixtures/002/spec）
     _spec_p = round_dir.parent.parent / (task_fixtures_rel(task) + "/spec/adjudication.json")
     _adj = load_json(_spec_p) if _spec_p.is_file() else None
-    purge = {"clauses_total": 0, "clauses_replaced": 0, "values": [],
-             "clauses_with_value_kept": 0}
+    purge = {"clauses_total": 0, "clauses_replaced": 0, "values": [], "clauses_with_value_kept": 0}
     for label in list(packs):
         packs[label], st = scrub_answer_citations(packs[label], _adj, targets)
         purge["clauses_total"] += st["clauses_total"]
@@ -451,35 +478,51 @@ def build_inputs(root, round_dir, prev_dir, params_path, task=None):
 
     res = {}
     for label, payload in packs.items():
-        res[f"inputs/pack-{label}.json"] = write_json(round_dir / f"inputs/pack-{label}.json", payload)
+        res[f"inputs/pack-{label}.json"] = write_json(
+            round_dir / f"inputs/pack-{label}.json", payload
+        )
     # anon-map 不交给席位
     res["presentation/anon-map.json"] = write_json(
         round_dir / "presentation/anon-map.json",
-        {"_warning": "本文件【不得】交给任何席位 —— 它是匿名化的密钥", "map": anon_map})
+        {"_warning": "本文件【不得】交给任何席位 —— 它是匿名化的密钥", "map": anon_map},
+    )
     res["presentation/order.json"] = write_json(
         round_dir / "presentation/order.json",
-        {"seed": seed, "seed_source": "sha256(round|prev|params_sha)[:8]",
-         "order": [l for l in order if l in packs],
-         "note": "确定性乱序 —— 同轮同参数可复现"})
+        {
+            "seed": seed,
+            "seed_source": "sha256(round|prev|params_sha)[:8]",
+            "order": [l for l in order if l in packs],
+            "note": "确定性乱序 —— 同轮同参数可复现",
+        },
+    )
     res["presentation/redaction.json"] = write_json(
         round_dir / "presentation/redaction.json",
-        {"targets": targets, "replaced_counts": redaction,
-         "total": sum(redaction.values()),
-         "answer_purge": {
-             "policy": ("子句含 SOURCE（truth / expected / 禁读路径）→ 整子句替换；"
-                        "或含 VALUE（spec 选项里的非整数答案值）且含 AUTHORITY"
-                        "（真值 / 规则明定 / 偏离即 / 判定为 fail…）→ 整子句替换"),
-             "values_count": len(purge["values"]),
-             "values_sha256": hashlib.sha256(
-                 "|".join(purge["values"]).encode("utf-8")).hexdigest(),
-             "clauses_total": purge["clauses_total"],
-             "clauses_replaced": purge["clauses_replaced"],
-             "clauses_with_value_kept": purge["clauses_with_value_kept"],
-             "boundary": ("★ 只擦【对答案权威来源的引用】，不擦立场数值本身 —— "
-                          "500.02/180.00 就是 ADJ-001 的立场，擦掉等于让下一轮"
-                          "看不到同伴立场，辩论会被掏空。values_sha256 不写明文值。"),
-         },
-         "boundary": "只擦【路径字符串】，不是阻止读取；未申报的读取对脚本不可见。"})
+        {
+            "targets": targets,
+            "replaced_counts": redaction,
+            "total": sum(redaction.values()),
+            "answer_purge": {
+                "policy": (
+                    "子句含 SOURCE（truth / expected / 禁读路径）→ 整子句替换；"
+                    "或含 VALUE（spec 选项里的非整数答案值）且含 AUTHORITY"
+                    "（真值 / 规则明定 / 偏离即 / 判定为 fail…）→ 整子句替换"
+                ),
+                "values_count": len(purge["values"]),
+                "values_sha256": hashlib.sha256(
+                    "|".join(purge["values"]).encode("utf-8")
+                ).hexdigest(),
+                "clauses_total": purge["clauses_total"],
+                "clauses_replaced": purge["clauses_replaced"],
+                "clauses_with_value_kept": purge["clauses_with_value_kept"],
+                "boundary": (
+                    "★ 只擦【对答案权威来源的引用】，不擦立场数值本身 —— "
+                    "500.02/180.00 就是 ADJ-001 的立场，擦掉等于让下一轮"
+                    "看不到同伴立场，辩论会被掏空。values_sha256 不写明文值。"
+                ),
+            },
+            "boundary": "只擦【路径字符串】，不是阻止读取；未申报的读取对脚本不可见。",
+        },
+    )
     return seed, anon_map, res
 
 
@@ -492,21 +535,24 @@ def read_domain_block(seat, round_name=None, task=None):
       声明阻止不了读取，但把「不该读」从【不知者不怪】变成【明知故犯】，
       并给第 9 查一个可核对的基准。
     """
-    unavailable = ("## 你的读取域\n\n（读取域配置不可用 —— 本段降级，"
-                   "但不构成可读任意文件的许可）\n")
+    unavailable = "## 你的读取域\n\n（读取域配置不可用 —— 本段降级，但不构成可读任意文件的许可）\n"
     if load_read_domains is None:
         return unavailable
     rd = load_read_domains(Path.cwd() / "config/read_domains.json", round_name)
     if not rd:
         return unavailable
-    can = list(rd.get("allow") or []) + list(rd.get("allow_exceptions") or []) \
+    can = (
+        list(rd.get("allow") or [])
+        + list(rd.get("allow_exceptions") or [])
         + list((rd.get("allow_extra_by_seat") or {}).get(seat) or [])
+    )
     # ★ 任务参数化：allow 是全局的，但提示词只应列出【本轮任务】的输入。
     #   仅改写 fixtures/ 前缀项（runs/ 与 protocol/ 与任务无关，保持原样）。
     if task and str(task) != DEFAULT_TASK:
         fx = task_fixtures_rel(task)
-        can = [f"{fx}/{p.split('fixtures/', 1)[1]}" if p.startswith("fixtures/") else p
-               for p in can]
+        can = [
+            f"{fx}/{p.split('fixtures/', 1)[1]}" if p.startswith("fixtures/") else p for p in can
+        ]
     cannot = list(rd.get("deny_absolute") or []) + list(rd.get("deny_default") or [])
     lines = ["## 你的读取域", "", "**可读**："]
     lines += [f"- `{p}`" for p in can] or ["- （无）"]
@@ -533,27 +579,38 @@ def read_domain_block(seat, round_name=None, task=None):
 #   现在按 role 取段落，未知 role 显式告警而**不静默降级**（静默降级正是原 bug 的形态）。
 ROLE_BLOCKS = {
     "evidence_round": {
-        "lead": ["> 本轮**要求引入新证据**。你的 `evidence[]` 至少有一条指针指向此前各轮"
-                 "**未出现过**的 `(文件, 选择子)`；重复引用旧证据会被 `idle_detection` 计为空转。"],
-        "task": ["> 你的任务是：基于原始输入独立取证，给出可回读的证据链。",
-                 "> 同伴产出**仅供参考，不得作为你的证据来源**。"],
+        "lead": [
+            "> 本轮**要求引入新证据**。你的 `evidence[]` 至少有一条指针指向此前各轮"
+            "**未出现过**的 `(文件, 选择子)`；重复引用旧证据会被 `idle_detection` 计为空转。"
+        ],
+        "task": [
+            "> 你的任务是：基于原始输入独立取证，给出可回读的证据链。",
+            "> 同伴产出**仅供参考，不得作为你的证据来源**。",
+        ],
         "peer_head": "## 同伴产出（仅作对照，不作为证据来源）",
-        "idle": ["> `idle_detection` 与「零边际增益」终止条件**适用**"
-                 "（阈值见 `config/params.json`）。连续多轮无新证据会终止该分支。"],
+        "idle": [
+            "> `idle_detection` 与「零边际增益」终止条件**适用**"
+            "（阈值见 `config/params.json`）。连续多轮无新证据会终止该分支。"
+        ],
     },
     "revision_round": {
         "lead": ["> 本轮**不引入新证据** —— 你已掌握全部数据。"],
-        "task": ["> 你的任务是：阅读匿名同伴的产出，修正或坚持你的立场，"
-                 "并对至少一条同伴结论提出反对。"],
+        "task": [
+            "> 你的任务是：阅读匿名同伴的产出，修正或坚持你的立场，并对至少一条同伴结论提出反对。"
+        ],
         "peer_head": "## 你收到的匿名同伴产出",
-        "idle": ["> 本轮为 revision_round，`idle_detection` 与「零边际增益」终止条件**不适用**",
-                 "> （该轮按定义不引入新证据，套用会自证终止）。"],
+        "idle": [
+            "> 本轮为 revision_round，`idle_detection` 与「零边际增益」终止条件**不适用**",
+            "> （该轮按定义不引入新证据，套用会自证终止）。",
+        ],
     },
     "devils_advocate_round": {
-        "lead": ["> 本轮是**干预轮**，不是辩论轮：**不引入新证据**，"
-                 "且**不计入** `debate.max_rounds`。"],
-        "task": ["> 你的任务是：把**少数立场**物化为完整、合规、可裁决的产出"
-                 "（必须含 `falsification`）。"],
+        "lead": [
+            "> 本轮是**干预轮**，不是辩论轮：**不引入新证据**，且**不计入** `debate.max_rounds`。"
+        ],
+        "task": [
+            "> 你的任务是：把**少数立场**物化为完整、合规、可裁决的产出（必须含 `falsification`）。"
+        ],
         "peer_head": "## 被保留的少数立场（匿名）",
         "idle": ["> `idle_detection` 与「零边际增益」终止条件**不适用**。"],
     },
@@ -580,12 +637,16 @@ def build_prompts(root, round_dir, params, task=None):
     blk = ROLE_BLOCKS.get(role)
     if blk is None:
         # ★ 不静默降级：明确告诉席位「这个轮次声明有问题」。
-        sys.stderr.write(f"[WARN] 未知轮次类型 role={role!r} —— 提示词按【显式告警】生成，"
-                         f"不降级为 revision_round。请先修 round-manifest.json。\n")
+        sys.stderr.write(
+            f"[WARN] 未知轮次类型 role={role!r} —— 提示词按【显式告警】生成，"
+            f"不降级为 revision_round。请先修 round-manifest.json。\n"
+        )
         blk = {
-            "lead": [f"> ★ **轮次类型无法识别**：`role={role}`。这不是合法取值"
-                     f"（合法：{' / '.join(ROLE_BLOCKS)}）。",
-                     "> 请先修 `round-manifest.json` 再开轮，否则本轮的证据与终止条件均不可判定。"],
+            "lead": [
+                f"> ★ **轮次类型无法识别**：`role={role}`。这不是合法取值"
+                f"（合法：{' / '.join(ROLE_BLOCKS)}）。",
+                "> 请先修 `round-manifest.json` 再开轮，否则本轮的证据与终止条件均不可判定。",
+            ],
             "task": ["> 在轮次类型修正之前，请**不要**开始取证或表态。"],
             "peer_head": "## 同伴产出（本轮声明有误，仅供参考）",
             "idle": ["> 因 role 非法，`idle_detection` 的适用范围**未定义**。"],
@@ -593,40 +654,44 @@ def build_prompts(root, round_dir, params, task=None):
 
     usage_note = []
     if (params.get("cost_budget") or {}).get("usage", {}).get("required_for_new_rounds"):
-        usage_note = ["> 本轮要求申报 `usage: {tokens, minutes, source}`（见模板）；",
-                      "> 缺失将被判 `E_MISSING_USAGE`，挡在聚合之外。申报值为自述，脚本无法验证。"]
+        usage_note = [
+            "> 本轮要求申报 `usage: {tokens, minutes, source}`（见模板）；",
+            "> 缺失将被判 `E_MISSING_USAGE`，挡在聚合之外。申报值为自述，脚本无法验证。",
+        ]
 
     res = {}
     for seat in DEBATING_SEATS:
         t = tmpl_dir / f"{seat.lower()}.md"
         body = t.read_text(encoding="utf-8") if t.is_file() else f"# 席位 {seat}（模板缺失）"
-        head = "\n".join([
-            f"# 第 {round_dir.name} 轮 · 席位 {seat}",
-            "",
-            f"> 轮次类型：**{role}**",
-            *blk["lead"],
-            *blk["task"],
-            "",
-            blk["peer_head"],
-            "",
-            listing or "- （无）",
-            "",
-            "> 同伴身份已匿名化。**你的 `dissent[].against` / `strongest_counter_arguments[].target`",
-            "> 必须写匿名编号（如 ANON-A），写真实席位名会被契约校验判 E_PEER_IDENTIFIED。**",
-            "> 正文里也**不得**出现任何真实席位名（含 AD-01/PM-01/XJ-01）。",
-            "",
-            read_domain_block(seat, round_dir.name, task),
-            "## 终止条件对本轮的适用性",
-            "",
-            *blk["idle"],
-            "",
-            *usage_note,
-            "",
-            f"## 字数预算：{budget or '（未配置）'}",
-            "",
-            "---",
-            "",
-        ])
+        head = "\n".join(
+            [
+                f"# 第 {round_dir.name} 轮 · 席位 {seat}",
+                "",
+                f"> 轮次类型：**{role}**",
+                *blk["lead"],
+                *blk["task"],
+                "",
+                blk["peer_head"],
+                "",
+                listing or "- （无）",
+                "",
+                "> 同伴身份已匿名化。**你的 `dissent[].against` / `strongest_counter_arguments[].target`",
+                "> 必须写匿名编号（如 ANON-A），写真实席位名会被契约校验判 E_PEER_IDENTIFIED。**",
+                "> 正文里也**不得**出现任何真实席位名（含 AD-01/PM-01/XJ-01）。",
+                "",
+                read_domain_block(seat, round_dir.name, task),
+                "## 终止条件对本轮的适用性",
+                "",
+                *blk["idle"],
+                "",
+                *usage_note,
+                "",
+                f"## 字数预算：{budget or '（未配置）'}",
+                "",
+                "---",
+                "",
+            ]
+        )
         res[f"prompts/{seat}.md"] = write_text(round_dir / f"prompts/{seat}.md", head + body)
 
     # ---- F21：非辩论席位也要拿到本轮提示词 ----
@@ -640,37 +705,38 @@ def build_prompts(root, round_dir, params, task=None):
     for seat in OTHER_SEATS:
         t = tmpl_dir / f"{seat.lower()}.md"
         body = t.read_text(encoding="utf-8") if t.is_file() else f"# 席位 {seat}（模板缺失）"
-        head = "\n".join([
-            f"# 第 {round_dir.name} 轮 · 席位 {seat}",
-            "",
-            f"> 轮次类型：**{role}**",
-            f"> 你的职责：{NON_DEBATE_ROLE.get(seat, '（未定义）')}",
-            "",
-            read_domain_block(seat, round_dir.name, task),
-            "## 你必须申报的两项（契约 v2.0 起的轮次为硬字段）",
-            "",
-            "- `reads[]`：**≥1 项**，每项含 `path` 与非空 `purpose` —— 你实际读过的文件全集。",
-            "- `usage{}`：`tokens`(int ≥ 0) / `minutes`(number ≥ 0) / `source`"
-            "(`self_report` 或 `metered`)。",
-            "  缺任一项 → 你的产出被判不合格 → 本轮不验收。两个值都是申报值，脚本无法验证。",
-            "",
-            "## ★ 独立性声明（不可删，也不要试图绕过）",
-            "",
-            "本轮提示词**不包含任何席位的结论摘要**，也不告诉你去看哪几份匿名包。",
-            "这是刻意的：审计/评审/写作席位的独立性，依赖于你自己去读 "
-            f"`{round_dir.name}/` 下的**原始产出**，而不是读别人替你总结的东西。",
-            "若你发现自己引用的是某份「摘要」而不是原始文件，请停下来，回去读原文。",
-            "",
-            "---",
-            "",
-        ])
+        head = "\n".join(
+            [
+                f"# 第 {round_dir.name} 轮 · 席位 {seat}",
+                "",
+                f"> 轮次类型：**{role}**",
+                f"> 你的职责：{NON_DEBATE_ROLE.get(seat, '（未定义）')}",
+                "",
+                read_domain_block(seat, round_dir.name, task),
+                "## 你必须申报的两项（契约 v2.0 起的轮次为硬字段）",
+                "",
+                "- `reads[]`：**≥1 项**，每项含 `path` 与非空 `purpose` —— 你实际读过的文件全集。",
+                "- `usage{}`：`tokens`(int ≥ 0) / `minutes`(number ≥ 0) / `source`"
+                "(`self_report` 或 `metered`)。",
+                "  缺任一项 → 你的产出被判不合格 → 本轮不验收。两个值都是申报值，脚本无法验证。",
+                "",
+                "## ★ 独立性声明（不可删，也不要试图绕过）",
+                "",
+                "本轮提示词**不包含任何席位的结论摘要**，也不告诉你去看哪几份匿名包。",
+                "这是刻意的：审计/评审/写作席位的独立性，依赖于你自己去读 "
+                f"`{round_dir.name}/` 下的**原始产出**，而不是读别人替你总结的东西。",
+                "若你发现自己引用的是某份「摘要」而不是原始文件，请停下来，回去读原文。",
+                "",
+                "---",
+                "",
+            ]
+        )
         res[f"prompts/{seat}.md"] = write_text(round_dir / f"prompts/{seat}.md", head + body)
 
     return res
 
 
-def make_manifest(round_dir, role, prev_dir, seed, contract_version="1.0",
-                  usage_required=False):
+def make_manifest(round_dir, role, prev_dir, seed, contract_version="1.0", usage_required=False):
     roles = ("evidence_round", "revision_round", "devils_advocate_round")
     return {
         "round": round_dir.name,
@@ -702,8 +768,10 @@ def make_manifest(round_dir, role, prev_dir, seed, contract_version="1.0",
         "termination": {
             "condition": "pending_adjudication" if role == "evidence_round" else "rounds_exhausted",
             "declared_by": "orchestrator",
-            "note": ("evidence_round 以 adjudication 层 pending 为预期终态，人类签字为最终终止；"
-                     "protocol/02 §4.2 四选一。"),
+            "note": (
+                "evidence_round 以 adjudication 层 pending 为预期终态，人类签字为最终终止；"
+                "protocol/02 §4.2 四选一。"
+            ),
         },
         "note": "★ 子代理只能由主会话通过 Agent 工具发起，脚本无法代劳。本目录的 prompts/ 是提示词文件，不是已发起的会话。",
     }
@@ -755,8 +823,16 @@ def _commit_exception(round_dir, exc):
     return exc
 
 
-def preflight_gate(root, params_path, card_path, allow_unverified,
-                   round_dir=None, who="", reason="", skip_premise=False):
+def preflight_gate(
+    root,
+    params_path,
+    card_path,
+    allow_unverified,
+    round_dir=None,
+    who="",
+    reason="",
+    skip_premise=False,
+):
     """开轮前闸门（D-0034/D-0035）：家族 + 前提卡。
 
     返回 `(ok, lines, exception)`：
@@ -772,21 +848,25 @@ def preflight_gate(root, params_path, card_path, allow_unverified,
       已经写出的痕迹就成了假记录。故先收集、最后统一提交。
     """
     lines, ok = [], True
-    pending = None            # 待提交的放行记录
+    pending = None  # 待提交的放行记录
     try:
         params = json.loads(Path(params_path).read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as e:
         return False, [f"[preflight] 读不到 params：{e}"], None
-    fam = ((params.get("seat_contract") or {}).get("families") or {})
+    fam = (params.get("seat_contract") or {}).get("families") or {}
     if not fam.get("verified"):
         # D-0035：环境本身只有一个模型时，「未实测」是事实不是缺陷 → 不拦，但必须标注
         if int(fam.get("min_families", 3)) <= 1:
-            lines.append("[preflight] 单模型环境（min_families=1）：不拦，但六席视为同一模型，"
-                         "独立性记 0；结论须标注")
+            lines.append(
+                "[preflight] 单模型环境（min_families=1）：不拦，但六席视为同一模型，"
+                "独立性记 0；结论须标注"
+            )
             lines.append("[preflight] 降级路径：多采样多数票（self-consistency）")
         else:
-            msg = ("[preflight] 家族未实测（families.verified=false）——"
-                   "开轮前必须跑 inspect_agent_routing.py 并写回 params")
+            msg = (
+                "[preflight] 家族未实测（families.verified=false）——"
+                "开轮前必须跑 inspect_agent_routing.py 并写回 params"
+            )
             if allow_unverified:
                 pending = {
                     "who": who or "unspecified",
@@ -806,22 +886,29 @@ def preflight_gate(root, params_path, card_path, allow_unverified,
         lines.append("[preflight] 显式跳过前提审查（--skip-premise）：本轮不产出 L3 结论")
     elif not card_path:
         ok = False
-        lines.append("[preflight] 未提供前提卡（--premise-card）——L3 前提审查是开轮闸门的一部分；"
-                     "确需跳过请加 --skip-premise（会记录为显式跳过，不记为放行例外）")
+        lines.append(
+            "[preflight] 未提供前提卡（--premise-card）——L3 前提审查是开轮闸门的一部分；"
+            "确需跳过请加 --skip-premise（会记录为显式跳过，不记为放行例外）"
+        )
     else:
         try:
             card = json.loads(Path(card_path).expanduser().read_text(encoding="utf-8"))
         except (OSError, json.JSONDecodeError) as e:
             return False, lines + [f"[preflight] 前提卡读取失败：{e}"], None
         import importlib.util as _u
+
         helper = root / "scripts" / "premise_probe.py"
         if not helper.is_file():
             # 判据文件缺失时"跳过"等于静默关闸；这里直接失败，让人去修路径
-            return False, lines + [f"[preflight] 找不到前提审查器：{helper}"
-                                   "（缺文件不等于无需审查）"], None
+            return (
+                False,
+                lines + [f"[preflight] 找不到前提审查器：{helper}（缺文件不等于无需审查）"],
+                None,
+            )
         else:
             spec = _u.spec_from_file_location("_premise", helper)
-            mod = _u.module_from_spec(spec); spec.loader.exec_module(mod)
+            mod = _u.module_from_spec(spec)
+            spec.loader.exec_module(mod)
             hits = mod.run_card(card)
             if hits:
                 ok = False
@@ -842,33 +929,48 @@ def preflight_gate(root, params_path, card_path, allow_unverified,
 
 def main():
     ap = argparse.ArgumentParser(description="开轮器（约束层）")
-    ap.add_argument("--root", default=None,
-                    help="工作区根（默认：由脚本位置推断，即仓库根）")
-    ap.add_argument("--runs-dir", default=None,
-                    help="轮次目录（默认 <root>/migration-package/runs；相对路径按 "
-                         "<root>/migration-package 解析）")
+    ap.add_argument("--root", default=None, help="工作区根（默认：由脚本位置推断，即仓库根）")
+    ap.add_argument(
+        "--runs-dir",
+        default=None,
+        help="轮次目录（默认 <root>/migration-package/runs；相对路径按 "
+        "<root>/migration-package 解析）",
+    )
     ap.add_argument("--round", required=False, help="轮次号（如 2）")
-    ap.add_argument("--role", default="revision_round",
-                    choices=["evidence_round", "revision_round", "devils_advocate_round"])
+    ap.add_argument(
+        "--role",
+        default="revision_round",
+        choices=["evidence_round", "revision_round", "devils_advocate_round"],
+    )
     ap.add_argument("--from", dest="prev", default=None, help="上一轮目录名（如 round1）")
     ap.add_argument("--params", default=DEFAULT_PARAMS)
-    ap.add_argument("--task", default=DEFAULT_TASK,
-                    help=f"任务号（默认 {DEFAULT_TASK}）。001 = fixtures/ 根布局；"
-                         f"其余 = fixtures/<task>/ 下的夹具与判据")
+    ap.add_argument(
+        "--task",
+        default=DEFAULT_TASK,
+        help=f"任务号（默认 {DEFAULT_TASK}）。001 = fixtures/ 根布局；"
+        f"其余 = fixtures/<task>/ 下的夹具与判据",
+    )
     ap.add_argument("--emit-prompts", action="store_true")
     ap.add_argument("--check", default=None, help="校验指定轮次号的目录 schema")
     ap.add_argument("--self-test", action="store_true")
     # ★ D-0034/D-0035：开轮前闸门。auto = 仅当目标目录是本包 runs/ 时启用
     ap.add_argument("--preflight", choices=["auto", "on", "off"], default="auto")
     ap.add_argument("--premise-card", default="", help="前提卡 JSON（L3 前提审查的输入）")
-    ap.add_argument("--skip-premise", action="store_true",
-                    help="显式跳过前提审查（默认不跳：没卡即闸门不通过）")
+    ap.add_argument(
+        "--skip-premise", action="store_true", help="显式跳过前提审查（默认不跳：没卡即闸门不通过）"
+    )
     ap.add_argument("--allow-unverified-families", action="store_true")
     # ★ P0-1：放行必须可审计。who 默认取环境用户，reason 允许留空但会在记录里显式标注缺失
-    ap.add_argument("--who", default=os.environ.get("USER") or os.environ.get("USERNAME") or "",
-                    help="放行责任人（写入 preflight-exception.json，默认取环境用户）")
-    ap.add_argument("--reason", default="",
-                    help="放行理由（写入 preflight-exception.json；缺理由的放行不可审计）")
+    ap.add_argument(
+        "--who",
+        default=os.environ.get("USER") or os.environ.get("USERNAME") or "",
+        help="放行责任人（写入 preflight-exception.json，默认取环境用户）",
+    )
+    ap.add_argument(
+        "--reason",
+        default="",
+        help="放行理由（写入 preflight-exception.json；缺理由的放行不可审计）",
+    )
     args = ap.parse_args()
 
     if args.self_test:
@@ -922,14 +1024,22 @@ def main():
         if not params_path.is_absolute():
             params_path = Path.cwd() / params_path
         pf_ok, pf_lines, pf_exc = preflight_gate(
-            root, params_path, args.premise_card, args.allow_unverified_families,
-            round_dir=round_dir, who=args.who, reason=args.reason,
-            skip_premise=args.skip_premise)
+            root,
+            params_path,
+            args.premise_card,
+            args.allow_unverified_families,
+            round_dir=round_dir,
+            who=args.who,
+            reason=args.reason,
+            skip_premise=args.skip_premise,
+        )
         for ln in pf_lines:
             print(ln)
         if not pf_ok:
-            print(f"[preflight] 闸门未通过，拒绝开轮（退出码 {EXIT_BLOCKED} = 前置拦住，"
-                  f"区别于 {EXIT_PENDING} = 未裁决）")
+            print(
+                f"[preflight] 闸门未通过，拒绝开轮（退出码 {EXIT_BLOCKED} = 前置拦住，"
+                f"区别于 {EXIT_PENDING} = 未裁决）"
+            )
             return EXIT_BLOCKED
 
     prev_dir = (runs / args.prev) if args.prev else None
@@ -967,8 +1077,9 @@ def main():
     # 保持 created_at 稳定 —— 否则重跑会改写 manifest，破坏「幂等」这一可检验判据
     _existing = load_json(round_dir / "round-manifest.json") or {}
     _cver = str((params.get("seat_contract") or {}).get("contract_version") or "1.0")
-    _usage_req = bool(((params.get("cost_budget") or {}).get("usage") or {})
-                      .get("required_for_new_rounds"))
+    _usage_req = bool(
+        ((params.get("cost_budget") or {}).get("usage") or {}).get("required_for_new_rounds")
+    )
     _man = make_manifest(round_dir, args.role, prev_dir, seed, _cver, _usage_req)
     if _existing.get("created_at"):
         _man["created_at"] = _existing["created_at"]
@@ -996,11 +1107,24 @@ def main():
         res_inputs["wd-baseline.json"] = "unchanged(已存在，不重置)"
     elif gen.is_file() and wd.is_file():
         r = subprocess.run(
-            [sys.executable, str(gen), "--root", ".", "--write-domain",
-             "config/write_domains.json", "--out",
-             baseline_fp.relative_to(Path.cwd()).as_posix()],
-            cwd=str(Path.cwd()), capture_output=True, text=True, encoding="utf-8")
-        res_inputs["wd-baseline.json"] = "written" if r.returncode == 0 else f"FAILED rc={r.returncode}"
+            [
+                sys.executable,
+                str(gen),
+                "--root",
+                ".",
+                "--write-domain",
+                "config/write_domains.json",
+                "--out",
+                baseline_fp.relative_to(Path.cwd()).as_posix(),
+            ],
+            cwd=str(Path.cwd()),
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+        )
+        res_inputs["wd-baseline.json"] = (
+            "written" if r.returncode == 0 else f"FAILED rc={r.returncode}"
+        )
         if r.returncode != 0:
             sys.stderr.write(r.stdout + r.stderr)
     else:
@@ -1010,8 +1134,12 @@ def main():
 
     print(f"[OK] 开轮 {round_dir.name}  role={args.role}  seed={seed}")
     print(f"     匿名映射 {len(anon_map)} 条 → presentation/anon-map.json（不交给席位）")
-    written = sum(1 for v in list(res_inputs.values()) + list(res_prompts.values()) if v == "written")
-    unchanged = sum(1 for v in list(res_inputs.values()) + list(res_prompts.values()) if v == "unchanged")
+    written = sum(
+        1 for v in list(res_inputs.values()) + list(res_prompts.values()) if v == "written"
+    )
+    unchanged = sum(
+        1 for v in list(res_inputs.values()) + list(res_prompts.values()) if v == "unchanged"
+    )
     for k, v in sorted(list(res_inputs.items()) + list(res_prompts.items())):
         print(f"     [{v:9s}] {k}")
     print(f"     写入 {written} 个，未变 {unchanged} 个（幂等）")
@@ -1023,8 +1151,10 @@ def main():
 
 # ---------------------------------------------------------------- 自检
 
+
 def self_test():
     import tempfile
+
     n_ok, fails = 0, []
 
     def expect(label, cond, detail=""):
@@ -1041,8 +1171,14 @@ def self_test():
     print("=" * 68)
 
     print("\n【匿名化：只删标签，不删内容】")
-    src = {"seat": "EX-01", "round": 1, "model": "x", "conclusion": "c",
-           "nested": {"seat": "EX-99", "keep": 1}, "list": [{"agent_id": "a", "keep": 2}]}
+    src = {
+        "seat": "EX-01",
+        "round": 1,
+        "model": "x",
+        "conclusion": "c",
+        "nested": {"seat": "EX-99", "keep": 1},
+        "list": [{"agent_id": "a", "keep": 2}],
+    }
     out = strip_identity(src)
     expect("顶级 seat 被剔除", "seat" not in out)
     expect("model 被剔除", "model" not in out)
@@ -1063,19 +1199,32 @@ def self_test():
     with tempfile.TemporaryDirectory() as td:
         import contextlib
         import io
+
         old_argv, old_cwd = sys.argv, Path.cwd()
         try:
-            os.chdir(td)                      # 空目录里没有 config/params.json
-            sys.argv = ["new_round.py", "--round", "99",
-                        "--runs-dir", str(Path(td) / "runs"),
-                        "--params", "config/params.json", "--preflight", "off"]
+            os.chdir(td)  # 空目录里没有 config/params.json
+            sys.argv = [
+                "new_round.py",
+                "--round",
+                "99",
+                "--runs-dir",
+                str(Path(td) / "runs"),
+                "--params",
+                "config/params.json",
+                "--preflight",
+                "off",
+            ]
             buf = io.StringIO()
             with contextlib.redirect_stderr(buf):
                 rc = main()
-            expect("缺 params → EXIT_ERROR 且不建轮次目录",
-                   rc == EXIT_ERROR and not (Path(td) / "runs").exists(), f"rc={rc}")
-            expect("报错里给出包内正确路径",
-                   "migration-package/config/params.json" in buf.getvalue())
+            expect(
+                "缺 params → EXIT_ERROR 且不建轮次目录",
+                rc == EXIT_ERROR and not (Path(td) / "runs").exists(),
+                f"rc={rc}",
+            )
+            expect(
+                "报错里给出包内正确路径", "migration-package/config/params.json" in buf.getvalue()
+            )
         finally:
             os.chdir(old_cwd)
             sys.argv = old_argv
@@ -1100,14 +1249,21 @@ def self_test():
         for d in REQUIRED_DIRS:
             (rd / d).mkdir(parents=True, exist_ok=True)
             (rd / d / "placeholder").write_text("x", encoding="utf-8")
-        write_json(rd / "round-manifest.json",
-                   {"round": "round9", "role": "revision_round",
-                    "expected_seats": list(DEBATING_SEATS), "seed": "abcd1234"})
+        write_json(
+            rd / "round-manifest.json",
+            {
+                "round": "round9",
+                "role": "revision_round",
+                "expected_seats": list(DEBATING_SEATS),
+                "seed": "abcd1234",
+            },
+        )
         write_json(rd / "wd-baseline.json", {"files": []})
         rc = do_check(Path(td), rd)
         expect("完整结构 → exit 0", rc == EXIT_OK)
         import io
         import contextlib
+
         buf = io.StringIO()
         with contextlib.redirect_stdout(buf):
             do_check(Path(td), rd)
@@ -1117,67 +1273,97 @@ def self_test():
     #   ① 放行必须真落盘且三字段可审计；② 拒绝/非例外一律不产文件；③ 拒绝码不再复用 3。
     print("\n【开轮闸门：放行必须留痕（P0-1 / P0-2）】")
     import inspect
-    expect("闸门拒绝码 4 ≠ 未裁决码 3",
-           EXIT_BLOCKED == 4 and EXIT_PENDING == 3,
-           f"EXIT_BLOCKED={EXIT_BLOCKED} EXIT_PENDING={EXIT_PENDING}")
-    expect("死参数 runs 已从 preflight_gate 移除",
-           "runs" not in inspect.signature(preflight_gate).parameters)
+
+    expect(
+        "闸门拒绝码 4 ≠ 未裁决码 3",
+        EXIT_BLOCKED == 4 and EXIT_PENDING == 3,
+        f"EXIT_BLOCKED={EXIT_BLOCKED} EXIT_PENDING={EXIT_PENDING}",
+    )
+    expect(
+        "死参数 runs 已从 preflight_gate 移除",
+        "runs" not in inspect.signature(preflight_gate).parameters,
+    )
 
     with tempfile.TemporaryDirectory() as td:
         tdp = Path(td)
         p_unv = tdp / "p_unverified.json"
-        write_json(p_unv, {"seat_contract": {"families": {"verified": False,
-                                                          "min_families": 3}}})
+        write_json(p_unv, {"seat_contract": {"families": {"verified": False, "min_families": 3}}})
         p_one = tdp / "p_single.json"
-        write_json(p_one, {"seat_contract": {"families": {"verified": False,
-                                                          "min_families": 1}}})
+        write_json(p_one, {"seat_contract": {"families": {"verified": False, "min_families": 1}}})
         p_vfy = tdp / "p_verified.json"
-        write_json(p_vfy, {"seat_contract": {"families": {"verified": True,
-                                                          "verified_at": "2026-10-22T10:00"}}})
+        write_json(
+            p_vfy,
+            {"seat_contract": {"families": {"verified": True, "verified_at": "2026-10-22T10:00"}}},
+        )
 
         rd = tdp / "runs" / "round90"
-        ok, lines, exc = preflight_gate(tdp, p_unv, "", False, round_dir=rd, who="tester",
-                              skip_premise=True)
+        ok, lines, exc = preflight_gate(
+            tdp, p_unv, "", False, round_dir=rd, who="tester", skip_premise=True
+        )
         expect("未实测且不放行 → 拒绝", ok is False)
-        expect("拒绝时不产 exception（不留下「开过」的假象）",
-               not (rd / "preflight-exception.json").exists() and exc is None)
+        expect(
+            "拒绝时不产 exception（不留下「开过」的假象）",
+            not (rd / "preflight-exception.json").exists() and exc is None,
+        )
 
-        ok, lines, exc = preflight_gate(tdp, p_unv, "", True, round_dir=rd, who="tester",
-                                        reason="单模型环境临时放行", skip_premise=True)
+        ok, lines, exc = preflight_gate(
+            tdp,
+            p_unv,
+            "",
+            True,
+            round_dir=rd,
+            who="tester",
+            reason="单模型环境临时放行",
+            skip_premise=True,
+        )
         fp = rd / "preflight-exception.json"
         expect("放行 → 通过", ok is True)
         expect("放行 → 文件真的落盘（原实现只 print）", fp.is_file())
         _d = load_json(fp) or {}
-        expect("放行 → who/when/reason 三字段非空",
-               all(_d.get(k) for k in ("who", "when", "reason")), str(_d))
+        expect(
+            "放行 → who/when/reason 三字段非空",
+            all(_d.get(k) for k in ("who", "when", "reason")),
+            str(_d),
+        )
         expect("放行 → gate 标明是哪道闸门", _d.get("gate") == "families_unverified")
         expect("放行 → 返回值即落盘内容（不另存一份）", exc == _d)
 
         rd2 = tdp / "runs" / "round91"
-        ok, lines, exc = preflight_gate(tdp, p_one, "", False, round_dir=rd2, who="tester",
-                              skip_premise=True)
+        ok, lines, exc = preflight_gate(
+            tdp, p_one, "", False, round_dir=rd2, who="tester", skip_premise=True
+        )
         expect("单模型环境（min_families=1）不拦", ok is True)
-        expect("单模型不算例外，不产 exception",
-               not (rd2 / "preflight-exception.json").exists())
+        expect("单模型不算例外，不产 exception", not (rd2 / "preflight-exception.json").exists())
 
         rd3 = tdp / "runs" / "round92"
-        ok, lines, exc = preflight_gate(tdp, p_vfy, "", False, round_dir=rd3, who="tester",
-                              skip_premise=True)
-        expect("家族已实测 → 通过且无 exception",
-               ok is True and not (rd3 / "preflight-exception.json").exists())
+        ok, lines, exc = preflight_gate(
+            tdp, p_vfy, "", False, round_dir=rd3, who="tester", skip_premise=True
+        )
+        expect(
+            "家族已实测 → 通过且无 exception",
+            ok is True and not (rd3 / "preflight-exception.json").exists(),
+        )
 
         rd4 = tdp / "runs" / "deep" / "round93"
-        ok, lines, exc = preflight_gate(tdp, p_unv, "", True, round_dir=rd4, who="",
-                              skip_premise=True)
-        expect("目标目录多级不存在也不崩（自动建目录）",
-               ok is True and (rd4 / "preflight-exception.json").is_file())
-        expect("who 缺省时写 unspecified 而非空串",
-               (load_json(rd4 / "preflight-exception.json") or {}).get("who") == "unspecified")
+        ok, lines, exc = preflight_gate(
+            tdp, p_unv, "", True, round_dir=rd4, who="", skip_premise=True
+        )
+        expect(
+            "目标目录多级不存在也不崩（自动建目录）",
+            ok is True and (rd4 / "preflight-exception.json").is_file(),
+        )
+        expect(
+            "who 缺省时写 unspecified 而非空串",
+            (load_json(rd4 / "preflight-exception.json") or {}).get("who") == "unspecified",
+        )
 
-        ok, lines, exc = preflight_gate(tdp, p_unv, "", True, round_dir=None, who="t",
-                              skip_premise=True)
-        expect("放行但无 round_dir → 显式告警而非假装写过",
-               ok is True and any("无法留痕" in x for x in lines))
+        ok, lines, exc = preflight_gate(
+            tdp, p_unv, "", True, round_dir=None, who="t", skip_premise=True
+        )
+        expect(
+            "放行但无 round_dir → 显式告警而非假装写过",
+            ok is True and any("无法留痕" in x for x in lines),
+        )
 
     print("\n" + "-" * 68)
     total = n_ok + len(fails)

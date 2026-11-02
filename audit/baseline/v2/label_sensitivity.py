@@ -27,6 +27,7 @@
 它说明答案不依赖于标签书写方式。反过来，「不一致」不能直接判为能力差——
 也可能是第四轮读材料更仔细、发现了第三轮漏掉的点。故本脚本只报事实，不下判决。
 """
+
 from __future__ import annotations
 
 import argparse
@@ -51,8 +52,11 @@ def main() -> int:
     ap = argparse.ArgumentParser(description="标签敏感性：同材料两轮标签相反的一致性")
     ap.add_argument("--r3", nargs="+", required=True, help="第三轮每席作答（按席对齐）")
     ap.add_argument("--r4", nargs="+", required=True, help="第四轮每席作答（顺序与 --r3 对齐）")
-    ap.add_argument("--swapped", default="audit/baseline/v2/adjudication-r4.json",
-                    help="第四轮裁决表（含 label_swapped 标记）")
+    ap.add_argument(
+        "--swapped",
+        default="audit/baseline/v2/adjudication-r4.json",
+        help="第四轮裁决表（含 label_swapped 标记）",
+    )
     args = ap.parse_args()
 
     if len(args.r3) != len(args.r4):
@@ -71,8 +75,7 @@ def main() -> int:
     detail = {}
     for p3, p4 in zip(args.r3, args.r4):
         a3, a4 = load(p3), load(p4)
-        name = (json.loads(Path(p3).read_text(encoding="utf-8")).get("seat")
-                or Path(p3).stem)
+        name = json.loads(Path(p3).read_text(encoding="utf-8")).get("seat") or Path(p3).stem
         same = follow = regress = both_ok = 0
         rows = {}
         for q in qs:
@@ -80,7 +83,7 @@ def main() -> int:
             if v3 not in FLIP or v4 not in FLIP:
                 rows[q] = {"r3": v3 or "缺", "r4": v4 or "缺", "note": "缺答"}
                 continue
-            act4 = FLIP[v4]                     # 还原成第三轮口径的动作
+            act4 = FLIP[v4]  # 还原成第三轮口径的动作
             ok3 = v3 == doc[q]["verdict_original"]
             ok4 = v4 == doc[q]["verdict"]
             s = act4 == v3
@@ -95,13 +98,20 @@ def main() -> int:
         n = sum(1 for r in rows.values() if "note" not in r)
         print(f"{name:<6}{same:>5}/{n:<2}{follow:>9}{regress:>11}{both_ok:>11}")
         for k in tot:
-            tot[k] += {"same": same, "follow": follow, "regress": regress,
-                       "both_ok": both_ok, "n": n}[k]
+            tot[k] += {
+                "same": same,
+                "follow": follow,
+                "regress": regress,
+                "both_ok": both_ok,
+                "n": n,
+            }[k]
         detail[name] = rows
 
     print("-" * len(hdr) * 2)
-    print(f"{'合计':<6}{tot['same']:>5}/{tot['n']:<2}{tot['follow']:>9}"
-          f"{tot['regress']:>11}{tot['both_ok']:>11}")
+    print(
+        f"{'合计':<6}{tot['same']:>5}/{tot['n']:<2}{tot['follow']:>9}"
+        f"{tot['regress']:>11}{tot['both_ok']:>11}"
+    )
     rate = tot["same"] / tot["n"] if tot["n"] else 0
     print(f"\n动作一致率 {rate:.1%}（{tot['same']}/{tot['n']}）")
     if tot["follow"]:
@@ -111,8 +121,13 @@ def main() -> int:
     print("\n注：两轮是不同会话/批次，故「不一致」不等于能力差；本表只报事实。")
 
     out = Path(args.r4[0]).parent / "label-sensitivity.json"
-    out.write_text(json.dumps({"rate": round(rate, 3), "totals": tot, "detail": detail},
-                              ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    out.write_text(
+        json.dumps(
+            {"rate": round(rate, 3), "totals": tot, "detail": detail}, ensure_ascii=False, indent=2
+        )
+        + "\n",
+        encoding="utf-8",
+    )
     print(f"明细已写：{out}")
     return 0
 

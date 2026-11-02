@@ -38,6 +38,7 @@
 
     hits = scan_text(text)         # → [(label, 命中片段)]
 """
+
 import re
 
 SECRET_PATTERNS = [
@@ -46,19 +47,24 @@ SECRET_PATTERNS = [
     (re.compile(r"AKIA[0-9A-Z]{16}"), "AWS Access Key"),
     # 2026-10-23 收紧：只认「表头 + ≥100 字符正文」。裸表头不含任何密钥material，
     # 却会被快照/测试数据误命中（实测：本仓一个历史快照因此被拦推）。
-    (re.compile(r"-----BEGIN [A-Z ]*PRIVATE KEY-----[\r\n]+[A-Za-z0-9+/=\r\n]{100,}"),
-     "私钥块（表头+正文）"),
+    (
+        re.compile(r"-----BEGIN [A-Z ]*PRIVATE KEY-----[\r\n]+[A-Za-z0-9+/=\r\n]{100,}"),
+        "私钥块（表头+正文）",
+    ),
     (re.compile(r"\bBearer\s+[A-Za-z0-9\-_.]{20,}"), "Bearer token"),
-
     # ---- 2026-10-23 补（代码审查 C-3）----
     # OpenAI 项目/服务账号密钥形如 `sk-proj-…`，前缀后有连字符，
     # 原 `sk-[A-Za-z0-9]{20,}` 数不到 20 位就断，**整类漏检**（实测未命中）。
-    (re.compile(r"\bsk-(?:proj|svcacct|admin|ant|or)-[A-Za-z0-9_-]{20,}"), "项目密钥 sk-proj-/sk-ant-/sk-or-…"),
-    (re.compile(r"(?i)\baws_secret_access_key\s*[:=]\s*[\"']?[A-Za-z0-9/+=]{40}"),
-     "AWS Secret Access Key 赋值"),
+    (
+        re.compile(r"\bsk-(?:proj|svcacct|admin|ant|or)-[A-Za-z0-9_-]{20,}"),
+        "项目密钥 sk-proj-/sk-ant-/sk-or-…",
+    ),
+    (
+        re.compile(r"(?i)\baws_secret_access_key\s*[:=]\s*[\"']?[A-Za-z0-9/+=]{40}"),
+        "AWS Secret Access Key 赋值",
+    ),
     (re.compile(r"https://hooks\.slack\.com/services/[A-Za-z0-9/]{20,}"), "Slack Incoming Webhook"),
     (re.compile(r"\beyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\b"), "JWT"),
-
     # ---- 代码托管 / 云厂商令牌（2026-10-23 新增：原盲区）----
     # 只收带固定前缀的高置信度形态；不做「长 hex」宽匹配（会命中 commit sha）。
     (re.compile(r"\b(?:ghp|gho|ghu|ghs|ghr)_[A-Za-z0-9]{30,}\b"), "GitHub token ghp_/gho_…"),
@@ -67,18 +73,19 @@ SECRET_PATTERNS = [
     (re.compile(r"\bxox[baprs]-[A-Za-z0-9\-]{10,}\b"), "Slack token xox?-"),
     (re.compile(r"\bAKID[A-Za-z0-9]{13,}\b"), "腾讯云 SecretId AKID…"),
     (re.compile(r"\bLTAI[A-Za-z0-9]{12,}\b"), "阿里云 AccessKey LTAI…"),
-
     # ---- JSON 风格 ----
     (re.compile(r'"apiKey"\s*:\s*"[^"]{12,}"'), "apiKey（JSON）"),
     (re.compile(r'"api_key"\s*:\s*"[^"]{12,}"'), "api_key（JSON）"),
-
     # ---- YAML / ENV / 通用赋值（2026-10-21 新增：原盲区）----
-    (re.compile(r"""(?i)\bapi[_-]?key\s*[:=]\s*["']?[A-Za-z0-9_\-]{16,}"""),
-     "api_key 赋值（YAML/ENV/通用）"),
-
+    (
+        re.compile(r"""(?i)\bapi[_-]?key\s*[:=]\s*["']?[A-Za-z0-9_\-]{16,}"""),
+        "api_key 赋值（YAML/ENV/通用）",
+    ),
     # ---- 口令类（要求带引号且值 ≥8，降低误报）----
-    (re.compile(r"""(?i)\b(?:secret|password|passwd|pwd)\s*[:=]\s*["'][^"']{8,}["']"""),
-     "口令类赋值"),
+    (
+        re.compile(r"""(?i)\b(?:secret|password|passwd|pwd)\s*[:=]\s*["'][^"']{8,}["']"""),
+        "口令类赋值",
+    ),
 ]
 
 

@@ -39,6 +39,7 @@
 
 退出码：0 正常 ｜ 2 输入/对齐错误 ｜ 3 文件为空或无有效配对
 """
+
 from __future__ import annotations
 
 import argparse
@@ -161,8 +162,9 @@ def main() -> int:
         print(f"[kappa] 参考标签不存在：{ref_path}", file=sys.stderr)
         return 2
     ref_data = json.loads(ref_path.read_text(encoding="utf-8"))
-    ref_labels = {k.upper(): (1 if v["label"] == "拦" else 0)
-                  for k, v in ref_data["labels"].items()}
+    ref_labels = {
+        k.upper(): (1 if v["label"] == "拦" else 0) for k, v in ref_data["labels"].items()
+    }
 
     raters: list[dict[str, int]] = []
     for lp in args.labels:
@@ -194,7 +196,7 @@ def main() -> int:
 
     for ri, vec in enumerate(rater_vecs):
         agree = sum(1 for x, y in zip(ref_vec, vec) if x == y) / len(ids)
-        print(f"  标注者 {ri+1}（{args.labels[ri]}）：与参考一致率 = {agree:.3f}")
+        print(f"  标注者 {ri + 1}（{args.labels[ri]}）：与参考一致率 = {agree:.3f}")
 
     if len(raters) == 1:
         k = cohen_kappa(ref_vec, rater_vecs[0])
@@ -210,8 +212,10 @@ def main() -> int:
         k = fleiss_kappa(matrix)
         print(f"\n  Fleiss κ（{len(raters)} 名标注者间）= {k:.3f} → {band(k)}")
 
-    print("\n★ κ < 0.6：先回头改「premise-labeling-sheet.md」的标注标准，"
-          "不要动题或改探针规则。κ ≥ 0.8：标注标准站得住，可据此重算 D-0052。")
+    print(
+        "\n★ κ < 0.6：先回头改「premise-labeling-sheet.md」的标注标准，"
+        "不要动题或改探针规则。κ ≥ 0.8：标注标准站得住，可据此重算 D-0052。"
+    )
     return 0
 
 

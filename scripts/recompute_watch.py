@@ -36,6 +36,7 @@ v1.3 的 25 道事实题靠锚点定真值，`make recompute` 能重算但要手
     cp scripts/launchd/com.guan.aiteam.recompute.plist ~/Library/LaunchAgents/
     launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.guan.aiteam.recompute.plist
 """
+
 from __future__ import annotations
 
 import json
@@ -77,15 +78,13 @@ def alert(msg: str) -> bool:
     if not hook:
         log("⚠️ 告警未送达：未配置 FEISHU_WEBHOOK —— 本条只写进本地日志，不会有人收到")
         return False
-    body = json.dumps({"msg_type": "text",
-                       "content": {"text": f"[ai-autonomy] {msg}"}}).encode()
-    req = urllib.request.Request(hook, data=body,
-                                 headers={"Content-Type": "application/json"})
+    body = json.dumps({"msg_type": "text", "content": {"text": f"[ai-autonomy] {msg}"}}).encode()
+    req = urllib.request.Request(hook, data=body, headers={"Content-Type": "application/json"})
     try:
         urllib.request.urlopen(req, timeout=10).read()
         log("已发飞书告警")
         return True
-    except Exception as e:                      # 网络失败不能吞掉
+    except Exception as e:  # 网络失败不能吞掉
         log(f"⚠️ 告警发送失败：{e}")
         return False
 
@@ -100,14 +99,19 @@ def main() -> int:
             log("🔴 本条同样无人收到 —— 需人工确认外置卷挂载状态")
         return 2
 
-    rc = subprocess.run([sys.executable, str(ROOT / "audit/baseline/v1.3/recompute_truth.py")],
-                        cwd=ROOT, capture_output=True, text=True)
+    rc = subprocess.run(
+        [sys.executable, str(ROOT / "audit/baseline/v1.3/recompute_truth.py")],
+        cwd=ROOT,
+        capture_output=True,
+        text=True,
+    )
     # 汇总行是中间的 [PASS]/[FAIL] 那行，不是末行——末行是「不可重算」明细清单。
     # 首版取 tail[-1]，结果把「T06 ← docs/...」当成结论写进日志（实测踩到）。
     lines = ((rc.stdout or "") + "\n" + (rc.stderr or "")).strip().splitlines()
-    summary = next((ln.strip() for ln in reversed(lines)
-                    if ln.strip().startswith(("[PASS]", "[FAIL]"))),
-                   lines[-1].strip() if lines else "无输出")
+    summary = next(
+        (ln.strip() for ln in reversed(lines) if ln.strip().startswith(("[PASS]", "[FAIL]"))),
+        lines[-1].strip() if lines else "无输出",
+    )
     if rc.returncode != 0:
         log(f"❌ 真值漂移或重算失败（EXIT={rc.returncode}）：{summary}")
         delivered = alert(f"v1.3 真值重算未通过：{summary}")

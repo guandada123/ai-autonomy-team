@@ -104,6 +104,7 @@ R1 错。故每题可带 `options_sha256`（对 `options` 做规范化 JSON 后�
   结果，因此能在出题时点跑、比前两者更早。C6 用的盲答是「冷读作答」，是题目可解性的
   证据，不参与判分（D-0085 §五）。
 """
+
 from __future__ import annotations
 
 import argparse
@@ -189,7 +190,9 @@ def validate_items(items: list, errors: list[str]) -> tuple[list[dict], int]:
             errors.append(f"{qid}: 缺 options 或不是对象（{type(options).__name__}）")
         else:
             if len(options) < 2:
-                errors.append(f"{qid}: options 少于 2 项（{len(options)} 项），无干扰项可比，长度判据不成立")
+                errors.append(
+                    f"{qid}: options 少于 2 项（{len(options)} 项），无干扰项可比，长度判据不成立"
+                )
             bad = sorted(k for k, v in options.items() if not isinstance(v, str))
             if bad:
                 errors.append(f"{qid}: options 文本须为字符串，异常键 {bad}")
@@ -201,9 +204,11 @@ def validate_items(items: list, errors: list[str]) -> tuple[list[dict], int]:
         blank_sha = want_sha is None or (isinstance(want_sha, str) and not want_sha.strip())
         if blank_sha:
             item_unbound = True
-        elif options_ok and not (isinstance(want_sha, str)
-                                 # 十六进制大小写/首尾空白不影响取值，归一化后再比；非字符串一律不符
-                                 and want_sha.strip().lower() == options_sha256(options)):
+        elif options_ok and not (
+            isinstance(want_sha, str)
+            # 十六进制大小写/首尾空白不影响取值，归一化后再比；非字符串一律不符
+            and want_sha.strip().lower() == options_sha256(options)
+        ):
             errors.append(f"{qid}: options_sha256 与选项内容不符（疑似手工篡改档案）")
 
         correct = it.get("correct")
@@ -218,8 +223,9 @@ def validate_items(items: list, errors: list[str]) -> tuple[list[dict], int]:
         if not isinstance(r1, dict):
             errors.append(f"{qid}: 缺 r1 或不是对象")
         elif r1.get("verdict") not in R1_VERDICTS:
-            errors.append(f"{qid}: r1.verdict 非法（{r1.get('verdict')!r}，须为 "
-                          f"{'/'.join(R1_VERDICTS)}）")
+            errors.append(
+                f"{qid}: r1.verdict 非法（{r1.get('verdict')!r}，须为 {'/'.join(R1_VERDICTS)}）"
+            )
 
         r2 = it.get("r2")
         if not isinstance(r2, dict):
@@ -232,10 +238,14 @@ def validate_items(items: list, errors: list[str]) -> tuple[list[dict], int]:
             errors.append(f"{qid}: 缺 r3 或不是对象")
         elif not isinstance(r3.get("veto"), bool):
             # 必须是 JSON 的 true/false，"true" 这种字符串会静默绕过 C2
-            errors.append(f"{qid}: r3.veto 须为布尔值（实为 {type(r3.get('veto')).__name__} "
-                          f"{r3.get('veto')!r}），字符串会静默绕过 C2")
+            errors.append(
+                f"{qid}: r3.veto 须为布尔值（实为 {type(r3.get('veto')).__name__} "
+                f"{r3.get('veto')!r}），字符串会静默绕过 C2"
+            )
         elif r3.get("basis") is not None and not isinstance(r3.get("basis"), str):
-            errors.append(f"{qid}: r3.basis 须为字符串或 null（实为 {type(r3.get('basis')).__name__}）")
+            errors.append(
+                f"{qid}: r3.basis 须为字符串或 null（实为 {type(r3.get('basis')).__name__}）"
+            )
 
         blind = it.get("blind")
         if not isinstance(blind, dict):
@@ -246,12 +256,22 @@ def validate_items(items: list, errors: list[str]) -> tuple[list[dict], int]:
             # 格式错必须在此拦下：R4 若写成「选项D」「D.」，C6 会全判 miss → 批次按
             # 「不可解：题面推不出答案」报红，把**格式错**诊成**命题不可解**、指错方向。
             # 这不是判据，是把误导性报错前移成明确的 schema 错。
-            errors.append(f"{qid}: blind.verdict={blind['verdict'].strip()!r} {BLIND_OUT_OF_OPTIONS}")
+            errors.append(
+                f"{qid}: blind.verdict={blind['verdict'].strip()!r} {BLIND_OUT_OF_OPTIONS}"
+            )
 
         if len(errors) == mark:
-            clean.append({"qid": qid, "options": options, "correct": correct.strip(),
-                          "r1": r1, "r2": r2, "r3": r3,
-                          "blind": blind["verdict"].strip()})
+            clean.append(
+                {
+                    "qid": qid,
+                    "options": options,
+                    "correct": correct.strip(),
+                    "r1": r1,
+                    "r2": r2,
+                    "r3": r3,
+                    "blind": blind["verdict"].strip(),
+                }
+            )
             unbound += item_unbound
     if errors:
         # clean 只在「整批无错」时可用：有错则整批不判定（半份结果比没有结果更危险）。
@@ -280,13 +300,19 @@ def review_item(it: dict) -> tuple[dict | None, dict | None]:
 
     # C1 题面事实矛盾：R1 已核出题面自相矛盾，题面不改就没有可讨论的余地
     if r1["verdict"] == "contradicted":
-        reject = {"qid": qid, "code": "C1",
-                  "reason": _one_line(r1.get("detail"), DETAIL_CLIP) or "R1 判 contradicted"}
+        reject = {
+            "qid": qid,
+            "code": "C1",
+            "reason": _one_line(r1.get("detail"), DETAIL_CLIP) or "R1 判 contradicted",
+        }
 
     # C2 命题程序性否决：R3 的否决理由已写明，直接引用，不再自行改写（否定裁决要可追溯）
     elif r3.get("veto") is True:
-        reject = {"qid": qid, "code": "C2",
-                  "reason": _one_line(r3.get("reason")) or f"R3 否决（basis={r3.get('basis')}）"}
+        reject = {
+            "qid": qid,
+            "code": "C2",
+            "reason": _one_line(r3.get("reason")) or f"R3 否决（basis={r3.get('basis')}）",
+        }
 
     # C3（含 C5）长度泄漏：正确项最长且比其余均值长 ≥1.3× → 不读题、数一下字数就能选
     else:
@@ -294,12 +320,17 @@ def review_item(it: dict) -> tuple[dict | None, dict | None]:
         c_len = lens[correct]
         others = [n for k, n in lens.items() if k != correct]
         s_others, n_others = sum(others), len(others)
-        if c_len > 0 and c_len == max(lens.values()) and \
-                c_len * n_others * LEN_RATIO_DEN >= s_others * LEN_RATIO_NUM:
+        if (
+            c_len > 0
+            and c_len == max(lens.values())
+            and c_len * n_others * LEN_RATIO_DEN >= s_others * LEN_RATIO_NUM
+        ):
             avg = s_others / n_others
             ratio = "∞" if avg == 0 else f"{c_len / avg:.2f}"
-            reason = (f"长度泄漏：正确项 {correct} {c_len} 字居最长，其余均值 {avg:.1f} 字，"
-                      f"比值 {ratio}× ≥ {LEN_RATIO}×（不看题面数选项长度即可反推）")
+            reason = (
+                f"长度泄漏：正确项 {correct} {c_len} 字居最长，其余均值 {avg:.1f} 字，"
+                f"比值 {ratio}× ≥ {LEN_RATIO}×（不看题面数选项长度即可反推）"
+            )
             if r2.get("type") == "reverse_inferable":
                 # C5：R2 的独立结论与长度线索同向，一并写进 C3 理由（不单列 code）
                 reason += "（R2 亦判 reverse_inferable，佐证）"
@@ -309,11 +340,15 @@ def review_item(it: dict) -> tuple[dict | None, dict | None]:
     # 只 WARN：这类题还能作答，泄漏强度不足以一票否决（D-0085 预注册即如此）
     hits = [w for w in META_WORDS if w in options[correct]]
     warn = None
-    if hits and not any(w in text for k, text in options.items()
-                        if k != correct for w in META_WORDS):
-        warn = {"qid": qid, "code": "C4",
-                "reason": f"元话语泄漏：正确项 {correct} 含「{'/'.join(hits)}」，"
-                          f"其余选项全不含（措辞即线索，记档待改）"}
+    if hits and not any(
+        w in text for k, text in options.items() if k != correct for w in META_WORDS
+    ):
+        warn = {
+            "qid": qid,
+            "code": "C4",
+            "reason": f"元话语泄漏：正确项 {correct} 含「{'/'.join(hits)}」，"
+            f"其余选项全不含（措辞即线索，记档待改）",
+        }
     return reject, warn
 
 
@@ -325,20 +360,33 @@ def batch_check(items: list[dict]) -> dict:
     acc = hits / n
     base = {"blind_acc": round(acc, 4), "hits": hits, "n": n}
     if acc < BLIND_MIN_ACC:
-        return {**base, "verdict": "REJECT", "level": "reject",
-                "reason": f"不可解：盲答正确率 {acc * 100:.1f}%<30%（{hits}/{n} 题，"
-                          f"题面推不出答案或真值有问题）"}
+        return {
+            **base,
+            "verdict": "REJECT",
+            "level": "reject",
+            "reason": f"不可解：盲答正确率 {acc * 100:.1f}%<30%（{hits}/{n} 题，"
+            f"题面推不出答案或真值有问题）",
+        }
     if acc >= BLIND_SATURATED:
-        return {**base, "verdict": "WARN", "level": "warn",
-                "reason": "饱和：盲答全对，需 item_gate 复核区分度"}
-    return {**base, "verdict": "PASS", "level": "",
-            "reason": f"盲答正确率 {acc * 100:.1f}%（{hits}/{n} 题）：可解且未饱和"}
+        return {
+            **base,
+            "verdict": "WARN",
+            "level": "warn",
+            "reason": "饱和：盲答全对，需 item_gate 复核区分度",
+        }
+    return {
+        **base,
+        "verdict": "PASS",
+        "level": "",
+        "reason": f"盲答正确率 {acc * 100:.1f}%（{hits}/{n} 题）：可解且未饱和",
+    }
 
 
 def main() -> int:
     ap = argparse.ArgumentParser(
         description="出题质检闸 v1：C0 题面哈希自校验 / C1 题面矛盾 / C2 命题否决 / "
-                    "C3 长度泄漏 / C4 元话语 / C6 盲答基线")
+        "C3 长度泄漏 / C4 元话语 / C6 盲答基线"
+    )
     ap.add_argument("--dossier", required=True, help="命题档案 dossier.json 路径")
     ap.add_argument("--json", dest="json_out", action="store_true", help="输出机器可读 JSON")
     args = ap.parse_args()
@@ -389,20 +437,36 @@ def main() -> int:
         exit_code = 1 if rejects else 0
     else:
         # 输入坏时不产出任何判定：半份结果比没有结果更危险
-        bc = {"blind_acc": 0.0, "verdict": "REJECT",
-              "reason": "输入/schema 错误，未做批次判定（fail-safe）"}
+        bc = {
+            "blind_acc": 0.0,
+            "verdict": "REJECT",
+            "reason": "输入/schema 错误，未做批次判定（fail-safe）",
+        }
         exit_code = 2
 
     summary = {"reject": len(rejects), "warn": len(warns)}
 
     if args.json_out:
-        print(json.dumps({"exit": exit_code, "batch": batch, "n_items": len(items),
-                          "rejects": rejects, "warns": warns,
-                          "batch_checks": {"blind_acc": bc["blind_acc"],
-                                           "verdict": bc["verdict"],
-                                           "reason": bc["reason"]},
-                          "summary": summary, "errors": errors},
-                         ensure_ascii=False, indent=2))
+        print(
+            json.dumps(
+                {
+                    "exit": exit_code,
+                    "batch": batch,
+                    "n_items": len(items),
+                    "rejects": rejects,
+                    "warns": warns,
+                    "batch_checks": {
+                        "blind_acc": bc["blind_acc"],
+                        "verdict": bc["verdict"],
+                        "reason": bc["reason"],
+                    },
+                    "summary": summary,
+                    "errors": errors,
+                },
+                ensure_ascii=False,
+                indent=2,
+            )
+        )
         return exit_code
 
     # ── 人读输出：中文，逐条一行（含 qid 与 code），末行总结 + 批次判定 ────────
@@ -419,26 +483,34 @@ def main() -> int:
     elif bc["verdict"] == "PASS":
         print(f"  批次 C6：{bc['reason']} → PASS")
     else:
-        print(f"  批次 C6 盲答基线 {bc['hits']}/{bc['n']} = {bc['blind_acc'] * 100:.1f}% → "
-              f"{bc['verdict']}")
+        print(
+            f"  批次 C6 盲答基线 {bc['hits']}/{bc['n']} = {bc['blind_acc'] * 100:.1f}% → "
+            f"{bc['verdict']}"
+        )
 
     if exit_code == 0:
         verdict_line = f"✅ PASS 无 REJECT（WARN {summary['warn']} 条记档）"
     elif exit_code == 1:
-        verdict_line = (f"🔴 FAIL 有 {summary['reject']} 条 REJECT，"
-                        f"改造后复检（选项均衡化 / 改题面 / 重判立场互斥）")
+        verdict_line = (
+            f"🔴 FAIL 有 {summary['reject']} 条 REJECT，"
+            f"改造后复检（选项均衡化 / 改题面 / 重判立场互斥）"
+        )
     else:
         verdict_line = f"❌ exit 2 输入/schema 错误 {len(errors)} 条，未产出任何判定"
     batch_word = "未判定" if errors else bc["verdict"]
-    print(f"总结：REJECT {summary['reject']} ｜ WARN {summary['warn']} ｜ "
-          f"批次 {batch_word} ｜ exit {exit_code}")
+    print(
+        f"总结：REJECT {summary['reject']} ｜ WARN {summary['warn']} ｜ "
+        f"批次 {batch_word} ｜ exit {exit_code}"
+    )
     print(verdict_line)
     # C0 末行提示：档案没带 options_sha256 时不报错（选填），但结论无法与题面版本对齐，
     # 报告引用时必须写明「本题面版本未绑定」。只在**有判定**时打：exit 2 的屏上已经写了
     # 「未产出任何判定」，再补一句「本报告的结论…」是自相矛盾（qa 报的 UX 缺陷）。
     if unbound and not errors:
-        print(f"⚠️ 未绑定题面版本（{unbound} 题）：dossier 无 options_sha256，"
-              f"本报告的结论不可与具体题面版本对齐（改题后须重跑，勿复用）")
+        print(
+            f"⚠️ 未绑定题面版本（{unbound} 题）：dossier 无 options_sha256，"
+            f"本报告的结论不可与具体题面版本对齐（改题后须重跑，勿复用）"
+        )
     return exit_code
 
 

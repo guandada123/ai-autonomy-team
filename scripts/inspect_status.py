@@ -44,6 +44,7 @@ LEAK SUMMARY、缺 aggregation_inputs 的轮次、人类闸门、flip_rate 明�
 2 = 参数/目录错误（`--runs` 指向不存在目录）—— 加了参数就要有参数错误，
     否则「路径写错」会静默变成「0 轮、一切正常」。
 """
+
 import argparse, json, os, glob, re, sys
 from pathlib import Path
 
@@ -66,9 +67,12 @@ def round_key(rn):
     round34 排到 round4 前面（2026-10-28 审查 P3-1），按序阅读时易误判相邻关系。"""
     m = re.search(r"\d+", rn)
     return (int(m.group()) if m else 0, rn)
+
+
 if not RUNS.is_dir():
     print(f"[ERR] runs 目录不存在：{RUNS}", file=sys.stderr)
     sys.exit(2)
+
 
 def load(p):
     try:
@@ -77,12 +81,14 @@ def load(p):
     except Exception as e:
         return {"__error__": str(e)}
 
+
 def read_all_jsons(d, prefix):
     out = []
     for fn in sorted(os.listdir(d)):
         if fn.startswith(prefix) and fn.endswith(".json"):
             out.append(load(os.path.join(d, fn)))
     return out
+
 
 results = {}
 for d in sorted(glob.glob(os.path.join(RUNS, "round*"))):
@@ -108,10 +114,12 @@ for d in sorted(glob.glob(os.path.join(RUNS, "round*"))):
     info["pending_adjudication"] = load(os.path.join(d, "pending-adjudication.json"))
     results[rn] = info
 
+
 def get_aggregation_inputs(af):
     if isinstance(af, dict) and "aggregation_inputs" in af:
         return af["aggregation_inputs"]
     return None
+
 
 def collect_seat_violations(scs):
     # gather all seat entries with status != valid / errors
@@ -144,6 +152,7 @@ def collect_seat_violations(scs):
                         viol.setdefault(item.get("seat"), []).append(("blocked", k))
     return viol
 
+
 # ---- ② detect S8-1 leak: vetoed seat sha present in aggregation_inputs ----
 def detect_leak(info):
     af = info["answer_final"]
@@ -162,6 +171,7 @@ def detect_leak(info):
             leaks.append((seat, input_shas[seat], entries))
     return leaks
 
+
 # ---- ①b current state: answer-status.json 是当前状态的唯一真源 ----
 # ★ 两套版式并存（2026-10-28 实测）：
 #   (a) verify.py 输出：`adjudication_state`（adjudicated / fail / pending / not_applicable）
@@ -179,12 +189,18 @@ def current_state(info):
         return (None, "无 answer-status.json")
     st = as_.get("adjudication_state")
     if st:
-        return (st, f"provenance={as_.get('provenance')}, ts={as_.get('ts')}，"
-                    f"源 answer-status.json[adjudication_state]")
+        return (
+            st,
+            f"provenance={as_.get('provenance')}, ts={as_.get('ts')}，"
+            f"源 answer-status.json[adjudication_state]",
+        )
     st2 = as_.get("status")
     if st2:
-        return (st2, f"ts={as_.get('ts')}，源 answer-status.json[status]"
-                     "（非 verify.py 版式：人工闸门记录，见其 resolution 段）")
+        return (
+            st2,
+            f"ts={as_.get('ts')}，源 answer-status.json[status]"
+            "（非 verify.py 版式：人工闸门记录，见其 resolution 段）",
+        )
     return (None, "answer-status.json 存在但无 adjudication_state / status 字段（版式未知）")
 
 
@@ -202,7 +218,7 @@ def annotate_verdict(v, cur_state):
 
 
 # ---- iterate ----
-print("="*80)
+print("=" * 80)
 for rn in sorted(results, key=round_key):
     info = results[rn]
     af = info["answer_final"]
@@ -215,7 +231,9 @@ for rn in sorted(results, key=round_key):
     print(f"  answer-final present: {isinstance(af, dict) and 'error' not in af}")
     print(f"  aggregation_inputs: {None if inputs is None else len(inputs)}")
     if inputs is not None:
-        print(f"    seats: {[ (i.get('seat'), i.get('seat_check_status')) for i in inputs if isinstance(i,dict)]}")
+        print(
+            f"    seats: {[(i.get('seat'), i.get('seat_check_status')) for i in inputs if isinstance(i, dict)]}"
+        )
     print(f"  answer-status: {as_ if isinstance(as_, dict) else as_}")
     cur_state, cur_detail = current_state(info)
     print(f"  current state: {cur_state or '未终态'}（{cur_detail}）")
@@ -236,20 +254,29 @@ for rn in sorted(results, key=round_key):
             #   明细永远在 verdict-*.json 里，这里给"去哪个文件看什么 id"就够了。
             _p = v.get("pending")
             _ids = [x.get("id") for x in _p if isinstance(x, dict)] if isinstance(_p, list) else _p
-            print(f"  verdict[{v.get('spec_layer','?')}]: {v.get('verdict')} pending_ids={_ids} veto_deadline={v.get('veto_deadline')} {annotate_verdict(v, cur_state)}")
+            print(
+                f"  verdict[{v.get('spec_layer', '?')}]: {v.get('verdict')} pending_ids={_ids} veto_deadline={v.get('veto_deadline')} {annotate_verdict(v, cur_state)}"
+            )
     if leak:
         print(f"  *** S8-1 LEAK: {leak}")
     if viol:
         print(f"  seat violations: {viol}")
 
-print("\n" + "="*80)
+print("\n" + "=" * 80)
 print("CURRENT STATE SUMMARY（当前状态以 answer-status.json 为准，非 verdict 行）:")
-_adj = [rn for rn in sorted(results, key=round_key) if current_state(results[rn])[0] in RESOLVED_STATES]
+_adj = [
+    rn for rn in sorted(results, key=round_key) if current_state(results[rn])[0] in RESOLVED_STATES
+]
 _unterm = [rn for rn in sorted(results, key=round_key) if not current_state(results[rn])[0]]
-_stale = [rn for rn in sorted(results, key=round_key)
-          if current_state(results[rn])[0] in RESOLVED_STATES
-          and any(isinstance(v, dict) and str(v.get("verdict")) == "pending_adjudication"
-                  for v in results[rn]["verdicts"])]
+_stale = [
+    rn
+    for rn in sorted(results, key=round_key)
+    if current_state(results[rn])[0] in RESOLVED_STATES
+    and any(
+        isinstance(v, dict) and str(v.get("verdict")) == "pending_adjudication"
+        for v in results[rn]["verdicts"]
+    )
+]
 print(f"  已 resolved（adjudicated / resolved_by_human / not_applicable）: {len(_adj)} 轮")
 print(f"  未终态（拿不到 answer-status 状态）: {len(_unterm)} 轮 → {_unterm or '无'}")
 print(f"  verdict 行自称 pending 但当前态已裁决: {len(_stale)} 轮 → {_stale or '无'}")
@@ -280,8 +307,10 @@ for rn in sorted(results, key=round_key):
         tag = ""
         if notes:
             n0 = notes[0]
-            tag = (f"  ← 已留痕({n0.get('severity','?')}/{n0.get('id','?')}"
-                   f"/disposition={n0.get('disposition','?')})，见 integrity-notes.json")
+            tag = (
+                f"  ← 已留痕({n0.get('severity', '?')}/{n0.get('id', '?')}"
+                f"/disposition={n0.get('disposition', '?')})，见 integrity-notes.json"
+            )
             if len(notes) > 1:
                 tag += f" 等 {len(notes)} 项"
         print(f"  {rn}: {leak}{tag}")
@@ -306,7 +335,9 @@ for rn in sorted(results, key=round_key):
         if isinstance(m, dict) and "flip_rate" in m:
             fr = m["flip_rate"]
             v = fr.get("value") if isinstance(fr, dict) else None
-            print(f"  {rn}: status={m.get('metrics_status')} flip_rate.value={v} threshold={fr.get('threshold') if isinstance(fr,dict) else None}")
+            print(
+                f"  {rn}: status={m.get('metrics_status')} flip_rate.value={v} threshold={fr.get('threshold') if isinstance(fr, dict) else None}"
+            )
 
 print("\nanswer-final ABSENT rounds:")
 for rn in sorted(results, key=round_key):

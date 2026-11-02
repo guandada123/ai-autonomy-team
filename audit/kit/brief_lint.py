@@ -37,6 +37,7 @@ v3 首轮四席在 4 道题上一致地不同于用户裁决。我最初怀疑�
 
 退出码：0 全过 ｜ 1 有 FAIL（或 --strict 下有 WARN） ｜ 2 路径错
 """
+
 from __future__ import annotations
 
 import argparse
@@ -132,9 +133,14 @@ def main() -> int:
 
     if args.json:
         import json as _j
-        print(_j.dumps({"files": len(files), "issues": all_issues,
-                        "fail": len(fails), "warn": len(warns)},
-                       ensure_ascii=False, indent=2))
+
+        print(
+            _j.dumps(
+                {"files": len(files), "issues": all_issues, "fail": len(fails), "warn": len(warns)},
+                ensure_ascii=False,
+                indent=2,
+            )
+        )
     else:
         print(f"[brief-lint] 检查 {len(files)} 份 ｜ FAIL {len(fails)} ｜ WARN {len(warns)}")
         for i in fails + warns:
@@ -142,8 +148,10 @@ def main() -> int:
             print(f"  {mark} {i['q']} {i['rule']}: {i['msg']}")
         if not fails and not warns:
             print("  ✅ 全部通过")
-        print("\n★ 通过 lint ≠ 题目有效。它只查「题面里有没有写着答案」，"
-              "查不了「题有没有区分度」——后者归 item_gate。")
+        print(
+            "\n★ 通过 lint ≠ 题目有效。它只查「题面里有没有写着答案」，"
+            "查不了「题有没有区分度」——后者归 item_gate。"
+        )
 
     if fails:
         return 1

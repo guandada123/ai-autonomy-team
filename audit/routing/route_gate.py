@@ -33,6 +33,7 @@ S1 的判据是「最挤的那个标签占了多大比例」，与 audit/kit/ite
     python3 audit/routing/route_gate.py --manifest audit/routing/manifest-v1.3-L1.json [--json]
     python3 audit/routing/route_gate.py --manifest <path> --emit-decision-table <out.json>
 """
+
 from __future__ import annotations
 
 import argparse
@@ -46,6 +47,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "kit"))
 try:
     from item_gate import constant_baseline
+
     _ITEM_GATE_OK, _ITEM_GATE_ERR = True, ""
 except Exception as e:  # 闸门依赖缺失必须报 exit 2，不能静默放行
     constant_baseline = None
@@ -93,7 +95,8 @@ def validate_items(items, errors: list[str]) -> Counter:
             if verification not in L1_VERIFICATIONS:
                 errors.append(
                     f"{qid}: L1 判据不满足——verification={verification!r} "
-                    f"须为 machine/attested（无重算锚点的判断题应改判 L2）")
+                    f"须为 machine/attested（无重算锚点的判断题应改判 L2）"
+                )
         elif level == "L2":
             ref = it.get("ref_label")
             if not isinstance(ref, str) or not ref.strip():
@@ -112,25 +115,35 @@ def skew_precheck(l2_items: list[dict]) -> dict | None:
     labels = [it["ref_label"].strip() for it in l2_items]
     base = constant_baseline(labels)
     top_share = round(base["top_share"], 4)
-    return {"n_l2": base["n"], "distribution": base["distribution"],
-            "max_label": base["top_label"], "max_share": top_share,
-            "threshold": S1_THRESHOLD,
-            "verdict": "RED" if top_share > S1_THRESHOLD else "PASS"}
+    return {
+        "n_l2": base["n"],
+        "distribution": base["distribution"],
+        "max_label": base["top_label"],
+        "max_share": top_share,
+        "threshold": S1_THRESHOLD,
+        "verdict": "RED" if top_share > S1_THRESHOLD else "PASS",
+    }
 
 
 def main() -> int:
     ap = argparse.ArgumentParser(description="任务路由分诊器 v0（三档判据 + S1 偏斜预筛）")
     ap.add_argument("--manifest", required=True, help="路由标注 manifest（JSON）路径")
     ap.add_argument("--json", dest="json_out", action="store_true", help="输出机器可读 JSON")
-    ap.add_argument("--emit-decision-table", dest="decision_table", default="",
-                    help="路由成功（exit 0）时写出 decision-table，供 downstream 的 "
-                         "aggregate_seats / paired_compare.grade 消费；非 0 退出码拒绝写出")
+    ap.add_argument(
+        "--emit-decision-table",
+        dest="decision_table",
+        default="",
+        help="路由成功（exit 0）时写出 decision-table，供 downstream 的 "
+        "aggregate_seats / paired_compare.grade 消费；非 0 退出码拒绝写出",
+    )
     args = ap.parse_args()
 
     errors: list[str] = []
     items: list = []
     if not _ITEM_GATE_OK:
-        errors.append(f"item_gate 不可用：{_ITEM_GATE_ERR}（audit/kit/item_gate.py 无法导入，闸门依赖缺失）")
+        errors.append(
+            f"item_gate 不可用：{_ITEM_GATE_ERR}（audit/kit/item_gate.py 无法导入，闸门依赖缺失）"
+        )
 
     manifest = None
     try:
@@ -150,8 +163,7 @@ def main() -> int:
     routes = validate_items(items, errors) if not errors else Counter({"L1": 0, "L2": 0, "L3": 0})
     skew = None
     if not errors:
-        l2_items = [it for it in items
-                    if isinstance(it, dict) and it.get("level") == "L2"]
+        l2_items = [it for it in items if isinstance(it, dict) and it.get("level") == "L2"]
         skew = skew_precheck(l2_items)
 
     if errors:
@@ -167,30 +179,47 @@ def main() -> int:
         if exit_code != 0:
             print(f"⛔ 未写出 decision-table：exit={exit_code}（只有 exit 0 的批次可下游消费）")
         else:
-            dt = {"manifest": str(Path(args.manifest).resolve()),
-                  "generated_at": datetime.now().astimezone().isoformat(timespec="seconds"),
-                  "aggregate_contract": {"seats_input": "aggregate_seats.py",
-                                         "grade": "paired_compare.grade"},
-                  "items": {}}
+            dt = {
+                "manifest": str(Path(args.manifest).resolve()),
+                "generated_at": datetime.now().astimezone().isoformat(timespec="seconds"),
+                "aggregate_contract": {
+                    "seats_input": "aggregate_seats.py",
+                    "grade": "paired_compare.grade",
+                },
+                "items": {},
+            }
             for it in items:
                 if not isinstance(it, dict):
                     continue
                 qid = str(it.get("qid"))
-                dt["items"][qid] = {"level": it.get("level"), "route": it.get("route"),
-                                    "answer": None,        # 路由阶段尚无作答，由 R4 席位填充
-                                    "veto": None,          # 由 R3 风险裁判填充
-                                    "debate": False,       # 由 P2 交叉比对填充
-                                    "source_manifest": str(Path(args.manifest).resolve())}
+                dt["items"][qid] = {
+                    "level": it.get("level"),
+                    "route": it.get("route"),
+                    "answer": None,  # 路由阶段尚无作答，由 R4 席位填充
+                    "veto": None,  # 由 R3 风险裁判填充
+                    "debate": False,  # 由 P2 交叉比对填充
+                    "source_manifest": str(Path(args.manifest).resolve()),
+                }
             Path(args.decision_table).write_text(
-                json.dumps(dt, ensure_ascii=False, indent=2), encoding="utf-8")
+                json.dumps(dt, ensure_ascii=False, indent=2), encoding="utf-8"
+            )
             dt_path = str(args.decision_table)
 
     if args.json_out:
-        print(json.dumps({"exit": exit_code, "n_items": len(items),
-                          "routes": {"L1": routes["L1"], "L2": routes["L2"], "L3": routes["L3"]},
-                          "skew": skew, "errors": errors,
-                          "decision_table": dt_path or None},
-                         ensure_ascii=False, indent=2))
+        print(
+            json.dumps(
+                {
+                    "exit": exit_code,
+                    "n_items": len(items),
+                    "routes": {"L1": routes["L1"], "L2": routes["L2"], "L3": routes["L3"]},
+                    "skew": skew,
+                    "errors": errors,
+                    "decision_table": dt_path or None,
+                },
+                ensure_ascii=False,
+                indent=2,
+            )
+        )
         return exit_code
 
     # ── 人读输出：中文，逐档统计 + 每个异常 item 一行 ─────────────────────────
@@ -202,13 +231,17 @@ def main() -> int:
         print(f"  ❌ {err}")
     if skew is not None:
         dist_s = " ".join(f"{k}={v}" for k, v in sorted(skew["distribution"].items()))
-        print(f"  S1 偏斜预筛：分布 {dist_s} ｜ 最高 {skew['max_label']} 占比 "
-              f"{skew['max_share']:.2f}（阈值 {skew['threshold']:.2f}）")
+        print(
+            f"  S1 偏斜预筛：分布 {dist_s} ｜ 最高 {skew['max_label']} 占比 "
+            f"{skew['max_share']:.2f}（阈值 {skew['threshold']:.2f}）"
+        )
     if exit_code == 0:
         print("✅ PASS 全部路由成功且预筛通过")
     elif exit_code == 1:
-        print(f"🔴 RED S1 报红：标签 {skew['max_label']} 占比 {skew['max_share']:.2f} > "
-              f"{skew['threshold']:.2f} → 该批不可入库（重排选项/补对侧真值后复检）")
+        print(
+            f"🔴 RED S1 报红：标签 {skew['max_label']} 占比 {skew['max_share']:.2f} > "
+            f"{skew['threshold']:.2f} → 该批不可入库（重排选项/补对侧真值后复检）"
+        )
     else:
         print(f"❌ exit 2 输入/判据自身问题，共 {len(errors)} 条（见上方逐条）")
     return exit_code

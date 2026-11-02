@@ -129,8 +129,8 @@ def scan_subagent_file(fp):
 def collect(project_dir, name_filter=None):
     """收集子代理记录。兼容两种层级：
 
-      1) 项目目录  <proj>/<session>/subagents/agent-*.jsonl
-      2) 会话目录  <session>/subagents/agent-*.jsonl
+    1) 项目目录  <proj>/<session>/subagents/agent-*.jsonl
+    2) 会话目录  <session>/subagents/agent-*.jsonl
     """
     rows = []
     root = Path(project_dir) if project_dir else None

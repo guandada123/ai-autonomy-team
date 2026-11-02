@@ -34,6 +34,7 @@ v2 的 26 道题四臂全对（D-0063），v3 的 10 道题常数基准 0.700 �
 
 退出码：0 = 全部通过准入；1 = 有题不通过（可用于门禁或 pre-flight）。
 """
+
 from __future__ import annotations
 
 import argparse
@@ -74,17 +75,26 @@ def constant_baseline(labels) -> dict:
         return {"n": 0, "distribution": {}, "top_label": None, "top_share": 0.0}
     dist = Counter(values)
     top_label, top_hits = dist.most_common(1)[0]
-    return {"n": len(values), "distribution": dict(dist),
-            "top_label": top_label, "top_share": top_hits / len(values)}
+    return {
+        "n": len(values),
+        "distribution": dict(dist),
+        "top_label": top_label,
+        "top_share": top_hits / len(values),
+    }
 
 
 def main() -> int:
     ap = argparse.ArgumentParser(description="题目准入闸：饱和 / 全错 / 常数胜出 / pass^k")
     ap.add_argument("--adjudication", required=True)
-    ap.add_argument("--arm", action="append", required=True,
-                    help="name=path[,path...]；多个 path 且加 --as-repeat 时算 pass^k")
-    ap.add_argument("--as-repeat", action="store_true",
-                    help="把同一臂的多个文件当作重复运行，而不是多个席位")
+    ap.add_argument(
+        "--arm",
+        action="append",
+        required=True,
+        help="name=path[,path...]；多个 path 且加 --as-repeat 时算 pass^k",
+    )
+    ap.add_argument(
+        "--as-repeat", action="store_true", help="把同一臂的多个文件当作重复运行，而不是多个席位"
+    )
     ap.add_argument("--json", dest="json_out", default="")
     args = ap.parse_args()
 
@@ -114,12 +124,14 @@ def main() -> int:
             votes = [verdict_of(r.get(q)) for r in runs]
             if args.as_repeat and len(votes) > 1:
                 hits = [v == gold for v in votes]
-                per_repeat[name] = {"pass^1": round(sum(hits) / len(hits), 3),
-                                    "pass^k": 1.0 if all(hits) else 0.0,
-                                    # 自己跟自己不一致 = 题目在它眼里有歧义，
-                                    # 与「答对没答对」是两件事，必须单独记。
-                                    "stable": len({v for v in votes if v}) <= 1,
-                                    "votes": "".join(v.upper() for v in votes)}
+                per_repeat[name] = {
+                    "pass^1": round(sum(hits) / len(hits), 3),
+                    "pass^k": 1.0 if all(hits) else 0.0,
+                    # 自己跟自己不一致 = 题目在它眼里有歧义，
+                    # 与「答对没答对」是两件事，必须单独记。
+                    "stable": len({v for v in votes if v}) <= 1,
+                    "votes": "".join(v.upper() for v in votes),
+                }
                 per[name] = per_repeat[name]["pass^k"]
                 continue
             # 口径统一走 score.resolve：单票直接采用，多票走多数制。
@@ -127,11 +139,15 @@ def main() -> int:
             win = resolve(votes, valid_labels)
             per[name] = None if win is None else (1.0 if win == gold else 0.0)
         vals = [v for v in per.values() if v is not None]
-        rows[q] = {"gold": gold, "per_arm": per, "pass": per_repeat,
-                   "ambiguous": any(v is None for v in per.values()),
-                   "unstable": any(not pr["stable"] for pr in per_repeat.values()),
-                   "saturated": bool(vals) and all(v == 1.0 for v in vals),
-                   "all_wrong": bool(vals) and all(v == 0.0 for v in vals)}
+        rows[q] = {
+            "gold": gold,
+            "per_arm": per,
+            "pass": per_repeat,
+            "ambiguous": any(v is None for v in per.values()),
+            "unstable": any(not pr["stable"] for pr in per_repeat.values()),
+            "saturated": bool(vals) and all(v == 1.0 for v in vals),
+            "all_wrong": bool(vals) and all(v == 0.0 for v in vals),
+        }
 
     def acc_of(name: str) -> float:
         """把每题 0/1 平均；未成票的题不计入分母（与 score_v2 一致）。"""
@@ -153,7 +169,10 @@ def main() -> int:
     print(f"常数基准：全答 {const_label} = {const_hits}/{n} = {const_acc:.3f}")
     for name in groups:
         amb = sum(1 for q in refs if rows[q]["per_arm"][name] is None)
-        print(f"  {name:<10} {arm_acc[name]:.3f}" + (f"  （未成票 {amb} 题，不计分母）" if amb else ""))
+        print(
+            f"  {name:<10} {arm_acc[name]:.3f}"
+            + (f"  （未成票 {amb} 题，不计分母）" if amb else "")
+        )
 
     sat = [q for q, r in rows.items() if r["saturated"]]
     dead = [q for q, r in rows.items() if r["all_wrong"]]
@@ -169,7 +188,9 @@ def main() -> int:
     verdicts = []
     if constant_wins:
         verdicts.append(f"常数基准 {const_acc:.3f} ≥ 最好的臂 {best_arm} {best_acc:.3f}")
-        print(f"🔴 常数胜出：{verdicts[-1]}\n   含义：这个臂不如「不看材料永远答同一项」，分数不可用于决策。")
+        print(
+            f"🔴 常数胜出：{verdicts[-1]}\n   含义：这个臂不如「不看材料永远答同一项」，分数不可用于决策。"
+        )
     else:
         print(f"✅ 最好的臂 {best_arm} {best_acc:.3f} 高于常数基准 {const_acc:.3f}")
     if sat:
@@ -178,8 +199,9 @@ def main() -> int:
     if flip:
         print(f"🟡 有 {len(flip)} 道题同一臂重复运行答案会变（题目有歧义，应先改题面）：")
         for q in flip:
-            tags = " ｜ ".join(f"{k}:{v['votes']}" for k, v in rows[q]["pass"].items()
-                               if not v["stable"])
+            tags = " ｜ ".join(
+                f"{k}:{v['votes']}" for k, v in rows[q]["pass"].items() if not v["stable"]
+            )
             print(f"    {q}: {tags}")
     if dead:
         print(f"🔴 有 {len(dead)} 道题所有臂都错，先查题面与真值（不要归因为模型差）")
@@ -191,15 +213,31 @@ def main() -> int:
             p1 = [rows[q]["pass"][name]["pass^1"] for q in rows if name in rows[q]["pass"]]
             pk = [rows[q]["pass"][name]["pass^k"] for q in rows if name in rows[q]["pass"]]
             if p1:
-                print(f"  {name:<10} pass^1 {sum(p1)/len(p1):.3f} ｜ pass^k {sum(pk)/len(pk):.3f}"
-                      f"（差 {sum(p1)/len(p1) - sum(pk)/len(pk):+.3f}，差距大=靠运气）")
+                print(
+                    f"  {name:<10} pass^1 {sum(p1) / len(p1):.3f} ｜ pass^k {sum(pk) / len(pk):.3f}"
+                    f"（差 {sum(p1) / len(p1) - sum(pk) / len(pk):+.3f}，差距大=靠运气）"
+                )
 
     if args.json_out:
-        Path(args.json_out).write_text(json.dumps(
-            {"n": n, "distribution": dict(dist), "constant": {"label": const_label, "acc": const_acc},
-             "best_arm": {"name": best_arm, "acc": best_acc}, "constant_wins": constant_wins,
-             "saturated": sat, "all_wrong": dead, "unstable": flip, "rows": rows},
-            ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        Path(args.json_out).write_text(
+            json.dumps(
+                {
+                    "n": n,
+                    "distribution": dict(dist),
+                    "constant": {"label": const_label, "acc": const_acc},
+                    "best_arm": {"name": best_arm, "acc": best_acc},
+                    "constant_wins": constant_wins,
+                    "saturated": sat,
+                    "all_wrong": dead,
+                    "unstable": flip,
+                    "rows": rows,
+                },
+                ensure_ascii=False,
+                indent=2,
+            )
+            + "\n",
+            encoding="utf-8",
+        )
         print(f"\n明细：{args.json_out}")
 
     ok = (not sat) and (not dead) and (not constant_wins)

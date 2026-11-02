@@ -111,8 +111,13 @@ def check_manifest():
     man = PKG / "MANIFEST.json"
     if not gen.is_file() or not man.is_file():
         return False, "缺少 gen_manifest.py 或 MANIFEST.json"
-    r = subprocess.run([sys.executable, str(gen), "--root", ".", "--check", "MANIFEST.json"],
-                       cwd=str(PKG), capture_output=True, text=True, encoding="utf-8")
+    r = subprocess.run(
+        [sys.executable, str(gen), "--root", ".", "--check", "MANIFEST.json"],
+        cwd=str(PKG),
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+    )
     tail = ((r.stdout or "") + (r.stderr or "")).strip().splitlines()
     return r.returncode == 0, tail[-1] if tail else f"rc={r.returncode}"
 
@@ -120,7 +125,16 @@ def check_manifest():
 def check_secrets(files):
     hits = []
     for rel, p in files:
-        if p.suffix.lower() not in {".md", ".py", ".json", ".csv", ".txt", ".cmd", ".sh", ".example"}:
+        if p.suffix.lower() not in {
+            ".md",
+            ".py",
+            ".json",
+            ".csv",
+            ".txt",
+            ".cmd",
+            ".sh",
+            ".example",
+        }:
             continue
         try:
             text = p.read_text(encoding="utf-8", errors="replace")
@@ -161,8 +175,10 @@ def main():
 
     files = iter_files()
     hits = check_secrets(files)
-    print(f"  [{'OK  ' if not hits else 'FAIL'}] 密钥模式扫描 —— "
-          f"{'无命中' if not hits else f'{len(hits)} 处待复核'}")
+    print(
+        f"  [{'OK  ' if not hits else 'FAIL'}] 密钥模式扫描 —— "
+        f"{'无命中' if not hits else f'{len(hits)} 处待复核'}"
+    )
     for h in hits[:10]:
         print(f"          ! {h}")
 
@@ -177,8 +193,11 @@ def main():
         print("\n[OK] 仅预检模式，未生成 zip。")
         return 0
 
-    out = Path(args.out) if args.out else (
-        ROOT / "outputs" / f"transfer-m4-{datetime.now().strftime('%Y%m%d')}.zip")
+    out = (
+        Path(args.out)
+        if args.out
+        else (ROOT / "outputs" / f"transfer-m4-{datetime.now().strftime('%Y%m%d')}.zip")
+    )
     out.parent.mkdir(parents=True, exist_ok=True)
 
     with zipfile.ZipFile(out, "w", zipfile.ZIP_DEFLATED, compresslevel=9) as z:

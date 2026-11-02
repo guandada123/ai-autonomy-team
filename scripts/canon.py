@@ -25,6 +25,7 @@
     python3 scripts/canon.py --check migration-package     # 报告现状（含未解析项）
     python3 scripts/canon.py --tid "TASK-BROKER-013/T-13"  # 单值解析
 """
+
 import argparse
 import json
 import re
@@ -103,7 +104,7 @@ def _scan(root: Path):
             for k in ("task_id", "task"):
                 if isinstance(d.get(k), str):
                     vals.append(d[k])
-            for c in ((d.get("summary") or {}).get("excluded_categories") or []):
+            for c in (d.get("summary") or {}).get("excluded_categories") or []:
                 if isinstance(c, str):
                     cat_forms[c] += 1
         for v in vals:
@@ -157,7 +158,9 @@ def main():
     for c, n in cat_forms.items():
         canon_cats[canonical_category(c)] += n
     merged = len(cat_forms) - len(canon_cats)
-    print(f"\n② excluded_categories：原文 {len(cat_forms)} 种 → 机械归一并掉 {merged} 种 → {len(canon_cats)} 种")
+    print(
+        f"\n② excluded_categories：原文 {len(cat_forms)} 种 → 机械归一并掉 {merged} 种 → {len(canon_cats)} 种"
+    )
     if merged:
         groups = {}
         for c in cat_forms:

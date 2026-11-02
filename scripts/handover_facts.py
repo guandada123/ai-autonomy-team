@@ -29,6 +29,7 @@
     python3 scripts/handover_facts.py --json          # 机器可读
     python3 scripts/handover_facts.py --self-test     # 临时文档上自测 emit/check 往返
 """
+
 from __future__ import annotations
 
 import importlib.util
@@ -40,7 +41,9 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 PY = sys.executable
-BEGIN = "<!-- BEGIN:handover-facts（由 scripts/handover_facts.py 生成，勿手改；门禁 F 类校验本块） -->"
+BEGIN = (
+    "<!-- BEGIN:handover-facts（由 scripts/handover_facts.py 生成，勿手改；门禁 F 类校验本块） -->"
+)
 END = "<!-- END:handover-facts -->"
 
 
@@ -77,7 +80,8 @@ def collect() -> dict:
 
     try:
         facts["coverage_baseline"] = int(
-            (ROOT / "tools/coverage-baseline.txt").read_text(encoding="utf-8").strip())
+            (ROOT / "tools/coverage-baseline.txt").read_text(encoding="utf-8").strip()
+        )
     except (OSError, ValueError):
         facts["coverage_baseline"] = -1
 
@@ -134,8 +138,10 @@ def check(doc: Path) -> int:
         return 1
     want = render_inner(collect())
     if m.group(1) != want:
-        print(f"[FAIL] {doc.name} 生成块已过期 → python3 scripts/handover_facts.py --emit {doc}",
-              file=sys.stderr)
+        print(
+            f"[FAIL] {doc.name} 生成块已过期 → python3 scripts/handover_facts.py --emit {doc}",
+            file=sys.stderr,
+        )
         return 1
     print(f"[PASS] {doc.name} 生成块与真源一致")
     return 0
@@ -145,6 +151,7 @@ def main():
     args = sys.argv[1:]
     if "--self-test" in args:
         import tempfile
+
         with tempfile.TemporaryDirectory() as td:
             doc = Path(td) / "doc.md"
             doc.write_text("# 标题\n\n正文\n", encoding="utf-8")

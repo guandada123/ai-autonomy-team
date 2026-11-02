@@ -43,6 +43,7 @@ D-0059 的结论是：v1 的两臂信息条件不等价，`c` 测的是信息差
 
 退出码：0 非劣效成立 ｜ 1 不成立 ｜ 2 输入错误 ｜ 3 题库未通过重算检查
 """
+
 import argparse
 import importlib.util
 import json
@@ -55,7 +56,8 @@ ROOT = HERE.parent.parent.parent
 
 # ── 判分口径：从 v1 的判定器导入，绝不复制 ────────────────────────────────
 _spec = importlib.util.spec_from_file_location(
-    "paired_compare", ROOT / "audit" / "baseline" / "paired_compare.py")
+    "paired_compare", ROOT / "audit" / "baseline" / "paired_compare.py"
+)
 _pc = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(_pc)
 grade = _pc.grade
@@ -68,8 +70,9 @@ def load_arm(path):
 
 
 def run_recompute():
-    r = subprocess.run([sys.executable, str(HERE / "recompute_truth.py")],
-                       capture_output=True, text=True)
+    r = subprocess.run(
+        [sys.executable, str(HERE / "recompute_truth.py")], capture_output=True, text=True
+    )
     return r.returncode, (r.stdout + r.stderr)
 
 
@@ -121,27 +124,53 @@ def main():
             c += 1
         else:
             both_bad += 1
-        rows.append({"q": q, "truth": t, "single": single.get(q), "multi": multi.get(q),
-                     "single_ok": s_ok, "multi_ok": m_ok,
-                     "delta": ("多席赢" if m_ok and not s_ok else
-                               "多席输" if s_ok and not m_ok else
-                               "同对" if s_ok else "同错")})
+        rows.append(
+            {
+                "q": q,
+                "truth": t,
+                "single": single.get(q),
+                "multi": multi.get(q),
+                "single_ok": s_ok,
+                "multi_ok": m_ok,
+                "delta": (
+                    "多席赢"
+                    if m_ok and not s_ok
+                    else "多席输"
+                    if s_ok and not m_ok
+                    else "同对"
+                    if s_ok
+                    else "同错"
+                ),
+            }
+        )
 
     n = len(rows)
     diff = (b - c) / n if n else 0.0
     ok = diff >= -args.margin
-    res = {"n": n, "b": b, "c": c, "both_ok": both_ok, "both_bad": both_bad,
-           "single_pass": both_ok + c, "multi_pass": both_ok + b,
-           "diff": round(diff, 4), "margin": args.margin, "non_inferior": ok,
-           "verdict": "非劣效成立" if ok else "非劣效不成立",
-           "missing_single": missing_s, "missing_multi": missing_m,
-           "note": ("零个不一致对 = 零信息：只能说未观察到差异，不能宣称相等"
-                    if b == 0 and c == 0 else ""),
-           "rows": rows}
+    res = {
+        "n": n,
+        "b": b,
+        "c": c,
+        "both_ok": both_ok,
+        "both_bad": both_bad,
+        "single_pass": both_ok + c,
+        "multi_pass": both_ok + b,
+        "diff": round(diff, 4),
+        "margin": args.margin,
+        "non_inferior": ok,
+        "verdict": "非劣效成立" if ok else "非劣效不成立",
+        "missing_single": missing_s,
+        "missing_multi": missing_m,
+        "note": (
+            "零个不一致对 = 零信息：只能说未观察到差异，不能宣称相等" if b == 0 and c == 0 else ""
+        ),
+        "rows": rows,
+    }
 
     if args.json:
-        print(json.dumps({k: v for k, v in res.items() if k != "rows"},
-                         ensure_ascii=False, indent=2))
+        print(
+            json.dumps({k: v for k, v in res.items() if k != "rows"}, ensure_ascii=False, indent=2)
+        )
     else:
         print(f"[v1.3] n={n}  单席对={res['single_pass']}  多席对={res['multi_pass']}")
         print(f"  一致：都对 {both_ok} / 都错 {both_bad}")
@@ -157,7 +186,9 @@ def main():
         if dis:
             print("  分歧题：")
             for r in dis:
-                print(f"      {r['q']}: 真值={r['truth']} 单席={r['single']} 多席={r['multi']} → {r['delta']}")
+                print(
+                    f"      {r['q']}: 真值={r['truth']} 单席={r['single']} 多席={r['multi']} → {r['delta']}"
+                )
     return 0 if ok else 1
 
 

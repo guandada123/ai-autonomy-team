@@ -4,6 +4,7 @@
 判据刻意用"反证"方式写：每条都必须能因为实现被改坏而变红（见 .learnings/L-0042）。
 例如把"模型相同就不追加"改成"总是追加"，用例 2 立刻红。
 """
+
 from __future__ import annotations
 
 import json
@@ -23,8 +24,13 @@ def run(args: list[str], model: str | None, log: Path) -> subprocess.CompletedPr
     env.pop(MODEL_ENV, None)
     if model is not None:
         env[MODEL_ENV] = model
-    return subprocess.run([sys.executable, str(SCRIPT), "--log", str(log), *args],
-                          capture_output=True, text=True, env=env, timeout=30)
+    return subprocess.run(
+        [sys.executable, str(SCRIPT), "--log", str(log), *args],
+        capture_output=True,
+        text=True,
+        env=env,
+        timeout=30,
+    )
 
 
 def rows(log: Path) -> list[dict]:
@@ -81,13 +87,17 @@ def main() -> int:
         rs = rows(log)
         check("变成 2 条", len(rs) == 2, str(len(rs)))
         check("changed=True", rs[-1]["changed"] is True)
-        check("prev_model_id=model-a", rs[-1]["prev_model_id"] == "model-a", str(rs[-1].get("prev_model_id")))
+        check(
+            "prev_model_id=model-a",
+            rs[-1]["prev_model_id"] == "model-a",
+            str(rs[-1].get("prev_model_id")),
+        )
         check("note 落盘", rs[-1]["note"] == "用户切换")
         check("输出含箭头", "model-a → model-b" in r.stdout, r.stdout)
 
         group("用例 4：读不到模型 → 退出码 1，且不污染日志")
         before = len(rows(log))
-        r = run([], None, log)          # 环境里没有 MODEL_ENV
+        r = run([], None, log)  # 环境里没有 MODEL_ENV
         check("退出码 1", r.returncode == 1, str(r.returncode))
         check("日志未变", len(rows(log)) == before, f"{before} -> {len(rows(log))}")
         check("stderr 有提示", "取证失败" in r.stderr, r.stderr)
@@ -113,15 +123,20 @@ def main() -> int:
         hist = [x for x in rs if x.get("type") == "history-testimony"]
         check("type=history-testimony", len(hist) == 1)
         check("machine_verified=False", hist and hist[0]["machine_verified"] is False)
-        check("history 三段有序", hist and hist[0]["history"] == ["model-a", "model-x", "model-a"],
-              str(hist[0].get("history") if hist else None))
+        check(
+            "history 三段有序",
+            hist and hist[0]["history"] == ["model-a", "model-x", "model-a"],
+            str(hist[0].get("history") if hist else None),
+        )
 
         group("用例 8：口述条目不得干扰机器去重（关键回归）")
         # 此时最后一条"机器探测"记录是 model-b（用例 3 所写），口述条目紧随其后。
         # 若去重逻辑错误地拿 rows[-1]（口述条目，无 model_id）来比，会误判为"变化"而多写一条。
         before_n = len(rows(log))
         r = run([], "model-b", log)
-        check("未新增（仍判为未变化）", len(rows(log)) == before_n, f"{before_n} -> {len(rows(log))}")
+        check(
+            "未新增（仍判为未变化）", len(rows(log)) == before_n, f"{before_n} -> {len(rows(log))}"
+        )
         check("输出含『未变化』", "未变化" in r.stdout, r.stdout)
 
         group("用例 9：--history 段数不足 → 退出码 1 且不写")
@@ -132,7 +147,9 @@ def main() -> int:
 
     print()
     if failures:
-        print(f"🔴 {len(failures)} 项失败（共 {stats['groups']} 组 / {stats['checks']} 项断言）：{failures}")
+        print(
+            f"🔴 {len(failures)} 项失败（共 {stats['groups']} 组 / {stats['checks']} 项断言）：{failures}"
+        )
         return 1
     print(f"✅ 全部通过（{stats['groups']} 组、{stats['checks']} 项断言）")
     return 0

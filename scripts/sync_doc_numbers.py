@@ -28,6 +28,7 @@ r"""sync_doc_numbers.py —— 把文档中的「当前 MANIFEST 数字」同步
 
 退出码：0 无需改动或已改完 / 1 --check 模式下发现过期值 / 2 环境错误
 """
+
 import argparse
 import json
 import re
@@ -64,10 +65,14 @@ def _near_manifest(line, hit):
     i = line.find(hit)
     if i < 0:
         return False
-    head = line[max(0, i - 6):i]
-    tail = line[i + len(hit):i + len(hit) + 6]
-    return ("字节" in head or "包体" in head or "MANIFEST" in head
-            or bool(re.match(r"\s*(?:字节|B\b)", tail)))
+    head = line[max(0, i - 6) : i]
+    tail = line[i + len(hit) : i + len(hit) + 6]
+    return (
+        "字节" in head
+        or "包体" in head
+        or "MANIFEST" in head
+        or bool(re.match(r"\s*(?:字节|B\b)", tail))
+    )
 
 
 def fmt(n):
@@ -202,7 +207,9 @@ def main():
 
     for p, out in changes:
         p.write_text("".join(out), encoding="utf-8", newline="\n")
-    print(f"[OK] 已同步 {len(changes)} 份文档 → {fmt(real_b)} 字节；代码行数表 {len(arch_stale)} 处")
+    print(
+        f"[OK] 已同步 {len(changes)} 份文档 → {fmt(real_b)} 字节；代码行数表 {len(arch_stale)} 处"
+    )
     return 0
 
 

@@ -13,6 +13,7 @@
     python3 audit/kit/check_stance.py audit/baseline/v2/runs/real-incident-4.json
 退出码：0=全部一致；1=有指错或重复立场；2=文件/结构错误。
 """
+
 from __future__ import annotations
 
 import argparse
@@ -46,7 +47,9 @@ def check_batch(data: dict) -> tuple[list[str], list[str]]:
             continue
         dup = [k for k, v in opts.items() if k != exp and stance in v]
         if dup:
-            errs.append(f"{qid}: 立场词「{stance}」同时出现在 {dup}——两选项同立场，题面不互斥（欠定）")
+            errs.append(
+                f"{qid}: 立场词「{stance}」同时出现在 {dup}——两选项同立场，题面不互斥（欠定）"
+            )
 
         # 附加提示：选项长度（只提示，不判死——长度阈值由 item_review 的 C3 负责）
         lens = {k: len(v) for k, v in opts.items()}

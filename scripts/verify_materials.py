@@ -19,6 +19,7 @@
     python3 scripts/verify_materials.py --quiet    # 只输出结论
 退出码：0=一致；1=哈希不符 / 含占位 owner / 清单缺失。
 """
+
 from __future__ import annotations
 
 import argparse
@@ -36,7 +37,9 @@ MATERIAL_WORKFLOW_SUFFIX = (".yml", ".yaml")
 ACTIVE_CODEOWNERS = ("CODEOWNERS", ".github/CODEOWNERS", "docs/CODEOWNERS")
 # CODEOWNERS 里的"占位 owner"：模板带来的示例团队/账号。
 # 这些在本仓库不存在，GitHub 会当作"无人负责"→ PR 路由失效（不报错，只是静默不指派）。
-PLACEHOLDER_OWNER_RE = re.compile(r"@(?:team/[\w-]+|alice\b|bob\b|carol\b|example\b|your-[\w-]+)", re.I)
+PLACEHOLDER_OWNER_RE = re.compile(
+    r"@(?:team/[\w-]+|alice\b|bob\b|carol\b|example\b|your-[\w-]+)", re.I
+)
 
 
 def main() -> int:
@@ -83,13 +86,19 @@ def main() -> int:
                     " —— 若是有意调整，请同步更新清单里的 activated_sha256"
                 )
         elif h != it["sha256"]:
-            problems.append(f"哈希不符：{it['target_path']}（期望 {it['sha256'][:8]}，实际 {h[:8]}）")
+            problems.append(
+                f"哈希不符：{it['target_path']}（期望 {it['sha256'][:8]}，实际 {h[:8]}）"
+            )
 
     # ② 未被启用：工作流目录不得出现"素材同名"或"素材同内容"的文件
-    material_names = {Path(it["target_path"]).name for it in items
-                      if it["target_path"].endswith(MATERIAL_WORKFLOW_SUFFIX)}
-    material_hashes = {it["sha256"] for it in items
-                       if it["target_path"].endswith(MATERIAL_WORKFLOW_SUFFIX)}
+    material_names = {
+        Path(it["target_path"]).name
+        for it in items
+        if it["target_path"].endswith(MATERIAL_WORKFLOW_SUFFIX)
+    }
+    material_hashes = {
+        it["sha256"] for it in items if it["target_path"].endswith(MATERIAL_WORKFLOW_SUFFIX)
+    }
     wf_dir = ROOT / ".github" / "workflows"
     activated = []
     if wf_dir.exists():
@@ -120,7 +129,9 @@ def main() -> int:
         # 用来解释为什么不用占位——若判据不分注释，会把"说明自己没用占位"误判成"用了占位"，
         # 逼人删掉解释性注释（那才是真正的信息损失）。
         # 注意 CODEOWNERS 不支持行内注释，故只按行首判断，不切 # 之后。
-        effective = [ln for ln in txt.splitlines() if ln.strip() and not ln.lstrip().startswith("#")]
+        effective = [
+            ln for ln in txt.splitlines() if ln.strip() and not ln.lstrip().startswith("#")
+        ]
         eff_txt = "\n".join(effective)
         hits = sorted({m.group(0) for m in PLACEHOLDER_OWNER_RE.finditer(eff_txt)})
         if hits:
@@ -133,7 +144,9 @@ def main() -> int:
 
     # ④ 本地钩子只是提示，不算失败（CI 环境本来就没有；本地装了是用户自己的选择）
     if (ROOT / ".git" / "hooks" / "pre-commit").exists():
-        warns.append("本地已安装 pre-commit 钩子（若是有意启用，请在 MATERIALS-SOURCES.md §四 记一笔）")
+        warns.append(
+            "本地已安装 pre-commit 钩子（若是有意启用，请在 MATERIALS-SOURCES.md §四 记一笔）"
+        )
 
     if not args.quiet:
         n_act = sum(1 for it in items if it.get("activated"))

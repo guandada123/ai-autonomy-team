@@ -45,15 +45,25 @@ PATTERNS = [
     # Authorization: Bearer xxx / Basic xxx
     (re.compile(r"(?i)\b(Bearer|Basic)(\s+)([A-Za-z0-9._~+/=\-]{8,})"), r"\1\2" + MASK),
     # key=value 形态（含 --token=、'token': 'v'、TOKEN=v）
-    (re.compile(r"(?i)\b(token|password|passwd|secret|api[_-]?key|access[_-]?key)"
-                r"(['\"]?\s*[:=]\s*['\"]?)([A-Za-z0-9._~+/=\-]{8,})"), r"\1\2" + MASK),
+    (
+        re.compile(
+            r"(?i)\b(token|password|passwd|secret|api[_-]?key|access[_-]?key)"
+            r"(['\"]?\s*[:=]\s*['\"]?)([A-Za-z0-9._~+/=\-]{8,})"
+        ),
+        r"\1\2" + MASK,
+    ),
     # URL 内嵌凭据 scheme://user:pass@host
     (re.compile(r"(?i)\b([a-z][a-z0-9+.\-]*://[^/\s:@]+):([^/\s@]{8,})@"), r"\1:" + MASK + "@"),
     # 常见前缀密钥（无 key= 上下文也危险）
-    (re.compile(r"\b(" + _P_ANTHROPIC + r"[A-Za-z0-9_\-]{8,}"
-                r"|" + _P_OPENAI + r"[A-Za-z0-9]{20,}"
-                r"|" + _P_GITHUB + r"[A-Za-z0-9]{20,}"
-                r"|" + _P_SLACK + r"[A-Za-z0-9\-]{10,})"), MASK),
+    (
+        re.compile(
+            r"\b(" + _P_ANTHROPIC + r"[A-Za-z0-9_\-]{8,}"
+            r"|" + _P_OPENAI + r"[A-Za-z0-9]{20,}"
+            r"|" + _P_GITHUB + r"[A-Za-z0-9]{20,}"
+            r"|" + _P_SLACK + r"[A-Za-z0-9\-]{10,})"
+        ),
+        MASK,
+    ),
 ]
 
 
@@ -79,15 +89,21 @@ def self_test():
 
     # 正样本：(名称, 输入, 必须消失的秘密)
     positive = [
-        ("ps 输出 Bearer", '--mcp-config {"Authorization": "Bearer ' + fake_bearer + '"}', fake_bearer),
+        (
+            "ps 输出 Bearer",
+            '--mcp-config {"Authorization": "Bearer ' + fake_bearer + '"}',
+            fake_bearer,
+        ),
         ("env 形态 TOKEN=", "GITHUB_TOKEN=" + fake_github, fake_github),
         ("URL 内嵌凭据", "postgres://app:" + fake_pass + "@127.0.0.1:5432/db", fake_pass),
         ("Anthropic 前缀", "key " + fake_anthropic, fake_anthropic),
     ]
     # 负样本：(名称, 必须原样保留的文本)
     negative = [
-        ("普通进程行不得改动",
-         "Electron 4689 guan cwd DIR 1,24 160 1944199 /Volumes/ZHITAI/WorkBuddy/2026-08-12"),
+        (
+            "普通进程行不得改动",
+            "Electron 4689 guan cwd DIR 1,24 160 1944199 /Volumes/ZHITAI/WorkBuddy/2026-08-12",
+        ),
         ("短值/端口不得误伤", "port=8088 timeout=120s token="),
         ("版本号不得误伤", "python3.11.9 node22.22.2 go1.22.1"),
     ]
@@ -123,7 +139,11 @@ def main():
     if args.self_test:
         return self_test()
 
-    text = open(args.file, encoding="utf-8", errors="replace").read() if args.file else sys.stdin.read()
+    text = (
+        open(args.file, encoding="utf-8", errors="replace").read()
+        if args.file
+        else sys.stdin.read()
+    )
     out, n = mask(text)
     sys.stdout.write(out)
     if not args.quiet:

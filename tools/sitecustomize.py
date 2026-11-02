@@ -13,6 +13,7 @@ Python 启动时会自动 import 名为 `sitecustomize` 的模块（若在 sys.p
 
 不要直接调用本文件；用 `tools/coverage_run.sh`。
 """
+
 import os
 
 if os.environ.get("COVERAGE_PROCESS_START"):
@@ -20,5 +21,5 @@ if os.environ.get("COVERAGE_PROCESS_START"):
         import coverage
 
         coverage.process_startup()
-    except Exception:          # 覆盖率是旁路，绝不能因为它挂掉被测进程
+    except Exception:  # 覆盖率是旁路，绝不能因为它挂掉被测进程
         pass

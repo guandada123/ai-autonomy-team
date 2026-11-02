@@ -11,6 +11,7 @@
 用法: python3 audit/baseline/v2/score_v2_passk.py
 退出码：0 正常 ｜ 2 输入/产物缺失
 """
+
 from __future__ import annotations
 
 import argparse
@@ -64,8 +65,9 @@ def balanced_recall(rows: dict, truth: dict, scored: dict) -> float | None:
 
 def main() -> int:
     ap = argparse.ArgumentParser(description="v2 四角色对照实验 pass^k 汇总")
-    ap.add_argument("--multi-name", default="r4",
-                    help="臂 M 作答文件名前缀：r4=一审，r4b=二审（默认 r4）")
+    ap.add_argument(
+        "--multi-name", default="r4", help="臂 M 作答文件名前缀：r4=一审，r4b=二审（默认 r4）"
+    )
     ap.add_argument("--out", default="score-summary.json", help="输出文件名（相对本目录）")
     args = ap.parse_args()
     adj = json.loads((HERE / "adjudication-v2.json").read_text(encoding="utf-8"))
@@ -91,9 +93,14 @@ def main() -> int:
         s_ok = {q for q in s if s[q] == truth[q]}
         m_scored = {q for q in m if q not in veto}
         m_ok = {q for q in m_scored if m[q] == truth[q]}
-        per_round[r] = {"s_ok": s_ok, "m_ok": m_ok, "m_scored": m_scored,
-                        "veto": veto, "s_rows": {q: s[q] == truth[q] for q in s},
-                        "m_rows": {q: (m[q] == truth[q]) if q in m_scored else None for q in m}}
+        per_round[r] = {
+            "s_ok": s_ok,
+            "m_ok": m_ok,
+            "m_scored": m_scored,
+            "veto": veto,
+            "s_rows": {q: s[q] == truth[q] for q in s},
+            "m_rows": {q: (m[q] == truth[q]) if q in m_scored else None for q in m},
+        }
     if errs:
         print("🔴 输入不完整：", errs)
         return 2
@@ -115,26 +122,53 @@ def main() -> int:
                 ms.append(f"{q}-r{r}")
     net_m_loss = len(sm) - len(ms)
 
-    bal_s = balanced_recall(per_round[1]["s_rows"] | per_round[2]["s_rows"] | per_round[3]["s_rows"],
-                            truth, {q for r in ROUNDS for q in per_round[r]["m_scored"]})
+    bal_s = balanced_recall(
+        per_round[1]["s_rows"] | per_round[2]["s_rows"] | per_round[3]["s_rows"],
+        truth,
+        {q for r in ROUNDS for q in per_round[r]["m_scored"]},
+    )
     summary = {
-        "pass1": {"single": round(s1, 4), "multi": round(m1, 4), "constant_A": round(len(const_right) / N_Q, 4)},
-        "pass3": {"single": round(s3, 4), "multi": round(m3, 4), "constant_A": round(len(const_right) / N_Q, 4)},
-        "hits": {"pass1": {"single": s1h, "multi": m1h},
-                 "pass3": {"single": s3h, "multi": m3h, "constant_A": len(const_right)}},
-        "inconsistent_pairs": {"S_right_M_wrong": sm, "M_right_S_wrong": ms, "net_M_loss": net_m_loss},
+        "pass1": {
+            "single": round(s1, 4),
+            "multi": round(m1, 4),
+            "constant_A": round(len(const_right) / N_Q, 4),
+        },
+        "pass3": {
+            "single": round(s3, 4),
+            "multi": round(m3, 4),
+            "constant_A": round(len(const_right) / N_Q, 4),
+        },
+        "hits": {
+            "pass1": {"single": s1h, "multi": m1h},
+            "pass3": {"single": s3h, "multi": m3h, "constant_A": len(const_right)},
+        },
+        "inconsistent_pairs": {
+            "S_right_M_wrong": sm,
+            "M_right_S_wrong": ms,
+            "net_M_loss": net_m_loss,
+        },
         "r3_vetoes_total": sum(len(per_round[r]["veto"]) for r in ROUNDS),
         "r3_vetoes_detail": {f"r{r}": sorted(per_round[r]["veto"]) for r in ROUNDS},
-        "balanced_accuracy": {"single": bal_s,
-                              "multi": balanced_recall(
-                                  {k: v for r in ROUNDS for k, v in per_round[r]["m_rows"].items()},
-                                  truth, {q for r in ROUNDS for q in per_round[r]["m_scored"]})},
-        "acceptance": ("multi_better" if -net_m_loss >= 2 else
-                       "non_inferior" if net_m_loss <= 1 else "inferior"),
+        "balanced_accuracy": {
+            "single": bal_s,
+            "multi": balanced_recall(
+                {k: v for r in ROUNDS for k, v in per_round[r]["m_rows"].items()},
+                truth,
+                {q for r in ROUNDS for q in per_round[r]["m_scored"]},
+            ),
+        },
+        "acceptance": (
+            "multi_better"
+            if -net_m_loss >= 2
+            else "non_inferior"
+            if net_m_loss <= 1
+            else "inferior"
+        ),
     }
     summary["multi_name"] = args.multi_name
     (HERE / args.out).write_text(
-        json.dumps(summary, ensure_ascii=False, indent=1), encoding="utf-8")
+        json.dumps(summary, ensure_ascii=False, indent=1), encoding="utf-8"
+    )
     print(json.dumps(summary, ensure_ascii=False, indent=1))
     return 0
 

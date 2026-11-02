@@ -47,6 +47,7 @@
 
 退出码：0 自洽 / 1 不自洽或有违规 / 2 环境错误 / 3 无声明可查（跳过）
 """
+
 import argparse
 import csv
 import json
@@ -175,19 +176,25 @@ def check_partition(answer, task_dir):
             problems.append(
                 "X_PARTITION: excluded_categories 下逐单号差额合计 = %s，"
                 "但 excluded_amount_total = %r（该字段是「被排除」类别的金额，应相等）"
-                % (in_exc, got_exc))
+                % (in_exc, got_exc)
+            )
         if got_amt is not None and not equal(in_amt, got_amt):
             problems.append(
                 "X_PARTITION: excluded_categories 之外的逐单号差额合计 = %s，"
-                "但 amount_diff_total = %r（该字段应只含「计入」类别）"
-                % (in_amt, got_amt))
+                "但 amount_diff_total = %r（该字段应只含「计入」类别）" % (in_amt, got_amt)
+            )
 
     # 勾稽闭合：与声明无关，纯字段间恒等
-    a, e, g = dec(summ.get("amount_diff_total")), dec(summ.get("excluded_amount_total")), dec(summ.get("raw_total_gap"))
+    a, e, g = (
+        dec(summ.get("amount_diff_total")),
+        dec(summ.get("excluded_amount_total")),
+        dec(summ.get("raw_total_gap")),
+    )
     if None not in (a, e, g) and not equal(a + e, g):
         problems.append(
             "X_GAP_NOT_CLOSED: amount_diff_total(%s) + excluded_amount_total(%s) = %s，"
-            "但 raw_total_gap = %s" % (a, e, a + e, g))
+            "但 raw_total_gap = %s" % (a, e, a + e, g)
+        )
     return problems, notes
 
 
@@ -195,16 +202,22 @@ def check_partition(answer, task_dir):
 def declared_from(answer, adj_path):
     if adj_path:
         rec = load(Path(adj_path).expanduser()) or {}
-        d = {x["id"]: x.get("chosen") for x in (rec.get("decisions") or [])
-             if isinstance(x, dict) and x.get("id")}
+        d = {
+            x["id"]: x.get("chosen")
+            for x in (rec.get("decisions") or [])
+            if isinstance(x, dict) and x.get("id")
+        }
         if d:
             return d, f"裁决记录 {Path(adj_path).name}"
     if isinstance(answer.get("declared_adjudication"), dict):
         return dict(answer["declared_adjudication"]), "answer.declared_adjudication"
     stance = answer.get("stance")
     if isinstance(stance, list):
-        d = {s.get("axis"): str(s.get("choice")) for s in stance
-             if isinstance(s, dict) and s.get("axis")}
+        d = {
+            s.get("axis"): str(s.get("choice"))
+            for s in stance
+            if isinstance(s, dict) and s.get("axis")
+        }
         if d:
             return d, "answer.stance（席位自报）"
     return {}, ""
@@ -236,11 +249,12 @@ def check_one(task, answer_path, adj_path="", quiet=False, note_holder=None):
             for path, expect in (opt.get("implies") or {}).items():
                 got = resolve(answer, path)
                 if got is None:
-                    continue          # 字段缺失不算矛盾（历史席位普遍缺 fee_diff_total）
+                    continue  # 字段缺失不算矛盾（历史席位普遍缺 fee_diff_total）
                 checked += 1
                 if not equal(got, expect):
                     problems.append(
-                        f"{aid} 声称选 {chosen!r}，但 {path} = {got!r}（应为 {expect!r}）")
+                        f"{aid} 声称选 {chosen!r}，但 {path} = {got!r}（应为 {expect!r}）"
+                    )
 
     # —— 检查 2/3：分桶 + 闭合
     p2, n2 = check_partition(answer, task_dir)
@@ -265,7 +279,9 @@ def check_one(task, answer_path, adj_path="", quiet=False, note_holder=None):
 def sweep(root, scope, quiet, warn_only):
     root = Path(root).expanduser()
     rows = []
-    for rd in sorted(root.glob("round*"), key=lambda p: int(re.search(r"(\d+)$", p.stem).group(1) or 0)):
+    for rd in sorted(
+        root.glob("round*"), key=lambda p: int(re.search(r"(\d+)$", p.stem).group(1) or 0)
+    ):
         man = load(rd / "round-manifest.json") or {}
         task = norm_task(man.get("task_id") or man.get("task"))
         if not task:
@@ -288,9 +304,11 @@ def sweep(root, scope, quiet, warn_only):
     for r in rows:
         agg[r[3]] = agg.get(r[3], 0) + 1
     print()
-    print(f"[sweep] scope={scope}  共 {len(rows)} 份  "
-          f"通过 {agg.get('pass', 0)} / 不自洽 {agg.get('fail', 0)} / "
-          f"跳过 {agg.get('skip', 0)} / 读取失败 {agg.get('error', 0)}")
+    print(
+        f"[sweep] scope={scope}  共 {len(rows)} 份  "
+        f"通过 {agg.get('pass', 0)} / 不自洽 {agg.get('fail', 0)} / "
+        f"跳过 {agg.get('skip', 0)} / 读取失败 {agg.get('error', 0)}"
+    )
     if agg.get("fail"):
         print("  不以失败码阻断（历史已签字产出不回溯改判）" if warn_only else "")
     return 0 if (warn_only or not agg.get("fail")) else 1
@@ -306,10 +324,23 @@ def self_test():
     """
     runs = ROOT / "migration-package" / "runs" / "round18"
     cases = [
-        ("r18/T-13 answer-final 应被抓出分桶矛盾", "T-13", runs / "answer-final.json",
-         runs / "adjudication-record.json", "fail", "X_PARTITION"),
+        (
+            "r18/T-13 answer-final 应被抓出分桶矛盾",
+            "T-13",
+            runs / "answer-final.json",
+            runs / "adjudication-record.json",
+            "fail",
+            "X_PARTITION",
+        ),
         ("r18/EX-02 应完全通过", "T-13", runs / "EX-02.json", "", "pass", None),
-        ("r18/EX-01 应只因 implies 失败、分桶无问题", "T-13", runs / "EX-01.json", "", "fail", "NO_PARTITION"),
+        (
+            "r18/EX-01 应只因 implies 失败、分桶无问题",
+            "T-13",
+            runs / "EX-01.json",
+            "",
+            "fail",
+            "NO_PARTITION",
+        ),
     ]
     ok = 0
     for name, task, ans, adj, want, mode in cases:
@@ -336,8 +367,12 @@ def main():
     ap.add_argument("--answer", help="answer/席位产出 JSON 路径")
     ap.add_argument("--adj", default="", help="adjudication-record.json 路径（可选）")
     ap.add_argument("--sweep", default="", help="批量扫描目录（如 migration-package/runs）")
-    ap.add_argument("--scope", choices=["final", "seat"], default="final",
-                    help="sweep 范围：final=answer-final；seat=席位产出")
+    ap.add_argument(
+        "--scope",
+        choices=["final", "seat"],
+        default="final",
+        help="sweep 范围：final=answer-final；seat=席位产出",
+    )
     ap.add_argument("--warn-only", action="store_true", help="只报告，不以失败码阻断")
     ap.add_argument("--self-test", action="store_true", help="用正负样本验证检查本身")
     ap.add_argument("-q", "--quiet", action="store_true")
@@ -358,7 +393,9 @@ def main():
         print(f"[ERR] {problems[0]}", file=sys.stderr)
         return 2
     if status == "skip":
-        print(f"[SKIP] 无声明可查（{args.task}）——未提供 --adj，answer 也无 declared_adjudication/stance")
+        print(
+            f"[SKIP] 无声明可查（{args.task}）——未提供 --adj，answer 也无 declared_adjudication/stance"
+        )
         return 3
     if status == "fail":
         print(f"[FAIL] 判断与算术不自洽（{len(problems)} 处）：", file=sys.stderr)

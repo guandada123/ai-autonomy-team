@@ -120,8 +120,10 @@ def do_check(root: Path):
             drift.append((s, t, sha256_of(sp), sha256_of(tp)))
 
     print(f"单一真实源一致性校验   {root}")
-    print(f"  映射 {len(pairs)} 条 | 一致 {len(ok)} | 目标缺失 {len(missing_dst)} "
-          f"| 源缺失 {len(missing_src)} | 内容漂移 {len(drift)}")
+    print(
+        f"  映射 {len(pairs)} 条 | 一致 {len(ok)} | 目标缺失 {len(missing_dst)} "
+        f"| 源缺失 {len(missing_src)} | 内容漂移 {len(drift)}"
+    )
     for x in missing_src:
         print(f"    [源缺失]   {x}")
     for x in missing_dst:
@@ -182,7 +184,9 @@ def do_manifest(root: Path):
     r = subprocess.run(
         [sys.executable, str(gen), "--root", ".", "--out", "MANIFEST.json"],
         cwd=str(root / "migration-package"),
-        capture_output=True, text=True, encoding="utf-8",
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
     )
     sys.stdout.write(r.stdout)
     if r.returncode != 0:

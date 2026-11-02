@@ -28,6 +28,7 @@
 
 退出码：0 无僵尸 / 1 存在僵尸
 """
+
 import argparse
 import json
 import re
@@ -103,8 +104,14 @@ def main():
     ap.add_argument("--json", required=True, help="账本 JSON 路径")
     ap.add_argument("--repo", required=True, help="代码库根目录")
     ap.add_argument("--only-zombie", action="store_true", help="只列 🔴")
-    ap.add_argument("--consumer-file", default="", help="前端文件（如 dashboard.html），审计它读的字段是否真的存在")
-    ap.add_argument("--consumer-prefix", default="ls.", help="该文件里引用 summary 字段的前缀，默认 ls.")
+    ap.add_argument(
+        "--consumer-file",
+        default="",
+        help="前端文件（如 dashboard.html），审计它读的字段是否真的存在",
+    )
+    ap.add_argument(
+        "--consumer-prefix", default="ls.", help="该文件里引用 summary 字段的前缀，默认 ls."
+    )
     args = ap.parse_args()
 
     path = Path(args.json).expanduser()
@@ -149,8 +156,9 @@ def main():
         reads = sorted(set(_consumer_reads(src, args.consumer_prefix)))
         have = set((data.get("summary") or {}).keys())
         missing = [k for k in reads if k not in have]
-        print(f"[consumer] {cp.name} 读取 {len(reads)} 个 summary 字段"
-              f"（前缀 {args.consumer_prefix}）")
+        print(
+            f"[consumer] {cp.name} 读取 {len(reads)} 个 summary 字段（前缀 {args.consumer_prefix}）"
+        )
         if missing:
             print(f"  🔴 读但账本里不存在 {len(missing)} 个（前端会静默显示 0/undefined）：")
             for k in missing:
@@ -160,9 +168,11 @@ def main():
         print()
 
     print(f"[field_provenance] {path.name}  数值字段 {len(rows)} 个（仓库：{args.repo}）")
-    print(f"  🔴 僵尸 {sum(1 for r in rows if r[0]=='🔴')} ｜ 🟡 仅一次性写入 "
-          f"{sum(1 for r in rows if r[0]=='🟡')} ｜ 🟢 正常 {sum(1 for r in rows if r[0]=='🟢')} ｜ ⚪ 只读 "
-          f"{sum(1 for r in rows if r[0]=='⚪')}")
+    print(
+        f"  🔴 僵尸 {sum(1 for r in rows if r[0] == '🔴')} ｜ 🟡 仅一次性写入 "
+        f"{sum(1 for r in rows if r[0] == '🟡')} ｜ 🟢 正常 {sum(1 for r in rows if r[0] == '🟢')} ｜ ⚪ 只读 "
+        f"{sum(1 for r in rows if r[0] == '⚪')}"
+    )
     print()
     for level, key, na, no, nr, writers in rows:
         if args.only_zombie and level != "🔴":

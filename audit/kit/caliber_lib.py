@@ -27,6 +27,7 @@
 
 退出码：0 通过 ｜ 1 有不足项/库不合格 ｜ 2 输入不可读
 """
+
 from __future__ import annotations
 
 import argparse
@@ -50,8 +51,11 @@ def _src_exists(src: str) -> tuple[bool, str]:
     paths = PATH_RE.findall(src)
     if not paths:
         return False, f"source 未含可追溯的文件路径：{src[:40]}"
-    missing = [p for p in paths
-               if not (ROOT / p).exists() and not (ROOT / "migration-package" / p).exists()]
+    missing = [
+        p
+        for p in paths
+        if not (ROOT / p).exists() and not (ROOT / "migration-package" / p).exists()
+    ]
     if missing:
         return False, f"source 指向的文件不存在：{missing}"
     return True, ""
@@ -113,7 +117,9 @@ def check_library(path: Path = LIB) -> tuple[list[str], list[str]]:
         md_txt = md.read_text(encoding="utf-8")
         for eid in ids:
             if eid not in md_txt:
-                errs.append(f"{eid}: 人读手册 CALIBER-LIBRARY.md 未收录该条目（手册与 JSON 不一致）")
+                errs.append(
+                    f"{eid}: 人读手册 CALIBER-LIBRARY.md 未收录该条目（手册与 JSON 不一致）"
+                )
     else:
         warns.append("未找到人读手册 CALIBER-LIBRARY.md，无法校验手册一致性")
 
@@ -148,17 +154,23 @@ def check_item_refs(item: dict, lib_ids: dict, alias: bool = False) -> dict:
     refs = list(refs or [])
     good = [r for r in refs if r in lib_ids]
     bad = [r for r in refs if r not in lib_ids]
-    valid = bool(refs) and len(good) == len(refs)   # 含任一编造编号 → 整条无效
+    valid = bool(refs) and len(good) == len(refs)  # 含任一编造编号 → 整条无效
     exc = [r for r in refs if lib_ids.get(r, {}).get("type") == "exception"]
     scope = str(item.get("exception_hit") or "") + " " + str(item.get("detail") or "")
     scope_ok = bool(SCOPE_RE.search(scope)) if exc else None
     # 声明了 exception_hit 却没把该例外写进 caliber_refs → 引用集合不完整（下游会漏判）
     declared = EXC_HIT_ID_RE.findall(str(item.get("exception_hit") or ""))
     declared_missing = sorted(set(declared) - set(refs))
-    return {"refs": refs, "good": good, "bad": bad, "valid": valid,
-            "exception_ids": exc, "scope_ok": scope_ok,
-            "declared_exception_ids": declared,
-            "declared_not_cited": declared_missing}
+    return {
+        "refs": refs,
+        "good": good,
+        "bad": bad,
+        "valid": valid,
+        "exception_ids": exc,
+        "scope_ok": scope_ok,
+        "declared_exception_ids": declared,
+        "declared_not_cited": declared_missing,
+    }
 
 
 def audit_review(paths: list[Path], lib_path: Path = LIB) -> tuple[list[str], list[str], int]:
@@ -183,7 +195,9 @@ def audit_review(paths: list[Path], lib_path: Path = LIB) -> tuple[list[str], li
             total += 1
             c = check_item_refs(it, lib_ids)
             if not c["refs"]:
-                problems.append(f"{qid}: 口径证据不足——无 caliber_refs（M-001：只写『存在歧义』不算证据）")
+                problems.append(
+                    f"{qid}: 口径证据不足——无 caliber_refs（M-001：只写『存在歧义』不算证据）"
+                )
                 continue
             if c["bad"]:
                 problems.append(f"{qid}: 引用了不存在的条目 {c['bad']}")
@@ -193,7 +207,8 @@ def audit_review(paths: list[Path], lib_path: Path = LIB) -> tuple[list[str], li
             if c["declared_not_cited"]:
                 problems.append(
                     f"{qid}: 声明命中 {c['declared_not_cited']} 但未写入 caliber_refs"
-                    f"（引用集合不完整，下游按引用判断会漏判）")
+                    f"（引用集合不完整，下游按引用判断会漏判）"
+                )
     if problems:
         notes.append("以上为「证据不足」项：这类结论不能作为口径证据使用")
     return problems, notes, total
@@ -202,8 +217,9 @@ def audit_review(paths: list[Path], lib_path: Path = LIB) -> tuple[list[str], li
 def main() -> int:
     ap = argparse.ArgumentParser(description="口径库校验 / 审查报告口径证据审计")
     ap.add_argument("--check", action="store_true", help="校验口径库自身")
-    ap.add_argument("--audit-review", nargs="+", metavar="REVIEW_JSON",
-                    help="审计审查报告的口径证据充分性")
+    ap.add_argument(
+        "--audit-review", nargs="+", metavar="REVIEW_JSON", help="审计审查报告的口径证据充分性"
+    )
     ap.add_argument("--lib", default=str(LIB), help="口径库路径")
     ap.add_argument("--json", dest="json_out", action="store_true")
     args = ap.parse_args()
@@ -214,8 +230,13 @@ def main() -> int:
         out = {"mode": "check", "exit": 1 if errs else 0, "errors": errs, "warns": warns}
     elif args.audit_review:
         problems, notes, total = audit_review([Path(p) for p in args.audit_review], lib)
-        out = {"mode": "audit-review", "exit": 1 if problems else 0,
-               "n_items": total, "problems": problems, "notes": notes}
+        out = {
+            "mode": "audit-review",
+            "exit": 1 if problems else 0,
+            "n_items": total,
+            "problems": problems,
+            "notes": notes,
+        }
     else:
         print("需要 --check 或 --audit-review（见 --help）", file=sys.stderr)
         return 2
@@ -228,15 +249,25 @@ def main() -> int:
                 print(f"  🔴 {e}")
             for w in out["warns"]:
                 print(f"  🟡 {w}")
-            print(("✅ 口径库校验通过" if out["exit"] == 0
-                   else f"🔴 FAIL {len(out['errors'])} 项不合格（库本身不可信，审查结论不可用）"))
+            print(
+                (
+                    "✅ 口径库校验通过"
+                    if out["exit"] == 0
+                    else f"🔴 FAIL {len(out['errors'])} 项不合格（库本身不可信，审查结论不可用）"
+                )
+            )
         else:
             for p in out["problems"]:
                 print(f"  🔴 {p}")
             for n in out["notes"]:
                 print(f"  ℹ️  {n}")
-            print(("✅ 口径证据充分" if out["exit"] == 0
-                   else f"🔴 FAIL {len(out['problems'])} 条证据不足 / 共 {out['n_items']} 条"))
+            print(
+                (
+                    "✅ 口径证据充分"
+                    if out["exit"] == 0
+                    else f"🔴 FAIL {len(out['problems'])} 条证据不足 / 共 {out['n_items']} 条"
+                )
+            )
     return out["exit"]
 
 
