@@ -44,6 +44,14 @@ repos:
         # 本钩子只拦**新加入**的大文件，不会对存量报错。
         args: [--maxkb=500]
       - id: check-merge-conflict
+        # 🔴 必须加 --assume-in-merge（2026-11-02 实测踩中）
+        #   pre-commit-hooks v4+ 默认**只在 git 处于 merge 状态时才检查**，
+        #   非 merge 时直接 return 0 —— 于是这个钩子在日常提交里恒真通过。
+        #   实测：造一个含 <<<<<<< / ======= / >>>>>>> 的文件，默认参数下
+        #   钩子本体直跑 exit=0；加 --assume-in-merge 后立刻报 3 处并 exit=1。
+        #   冲突标记不只 merge 会产生：手工编辑、cherry-pick、rebase、复制粘贴都会留。
+        #   日常提交恰恰是最该拦的场景——那时人最容易顺手 commit。
+        args: [--assume-in-merge]
       - id: detect-private-key
       - id: mixed-line-ending
         args: [--fix=lf]

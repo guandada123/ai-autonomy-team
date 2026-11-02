@@ -12,8 +12,8 @@
    "sha256": "64a77207a947f29a9f3948ef75e2d7a9533574707eb9116920d06491bd10292b",
    "purpose": "填缺口：本项目无 pre-commit。标准钩子+ruff+本地 gitleaks（未启用，需 pre-commit install）",
    "activated": true,
-   "activated_sha256": "28d347e7ae8d8aaa92f983131473fb09d8c6af5916a65491e4045a7e88527442",
-   "activated_note": "2026-11-02 启用（一次性全量格式化后）。模板原样在本仓库跑不通两处：① gitleaks 钩子缺 pass_filenames:false，pre-commit 把 311 个文件名塞进参数→『accepts at most 1 arg(s), received 311』直接崩；② 未排除存档目录，首跑改了 443 个文件（其中 331 个在 snapshots/ 与 migration-package/，属篡改历史快照与产物）+ docs/templates/ 下的外部素材副本（改了就无法再用哈希证明是原件）。已加 exclude 排除五类：快照/产物/运行输出/归档/素材副本。格式化 110 个文件单独成提交，便于 git blame 时一次跳过。｜2026-11-02 二次修复：gitleaks 钩子 --pre-commit 改 --staged。原参数扫的是工作树 diff，而 commit 时改动全在暂存区、工作树无差异 → 日志「0 commits scanned / 0 bytes」，钩子从装上起**从未检查过任何东西**，只在日志里 print 一个 Passed。用含 AKIA 前缀的样本实测：改 --staged 后scanned 40 bytes / leaks found 1 / exit=1，commit 被真正拦下。"
+   "activated_sha256": "954f714bfe641ac30de4ccf9c731ef24b142b196fa48fc16584163f3be75fe92",
+   "activated_note": "2026-11-02 启用（一次性全量格式化后）。模板原样在本仓库跑不通两处：① gitleaks 钩子缺 pass_filenames:false，pre-commit 把 311 个文件名塞进参数→『accepts at most 1 arg(s), received 311』直接崩；② 未排除存档目录，首跑改了 443 个文件（其中 331 个在 snapshots/ 与 migration-package/，属篡改历史快照与产物）+ docs/templates/ 下的外部素材副本（改了就无法再用哈希证明是原件）。已加 exclude 排除五类：快照/产物/运行输出/归档/素材副本。格式化 110 个文件单独成提交，便于 git blame 时一次跳过。｜2026-11-02 二次修复：gitleaks 钩子 --pre-commit 改 --staged。原参数扫的是工作树 diff，而 commit 时改动全在暂存区、工作树无差异 → 日志「0 commits scanned / 0 bytes」，钩子从装上起**从未检查过任何东西**，只在日志里 print 一个 Passed。用含 AKIA 前缀的样本实测：改 --staged 后scanned 40 bytes / leaks found 1 / exit=1，commit 被真正拦下。｜同日三修：check-merge-conflict 加 --assume-in-merge。pre-commit-hooks v4+ 默认只在 git merge 状态才检查，非 merge 时恒真通过；实测含冲突标记的文件默认 exit=0、加参数后报 3 处 exit=1。"
   },
   {
    "source_repo": "https://github.com/guandada123/engineering-audit-kit.git",
