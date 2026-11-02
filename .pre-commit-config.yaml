@@ -61,7 +61,14 @@ repos:
     hooks:
       - id: gitleaks
         name: Gitleaks (secret scan)
-        entry: gitleaks git --pre-commit --verbose --redact --config .gitleaks.toml
+        # 🔴 必须用 --staged，不能用 --pre-commit（2026-11-02 实测踩中）
+        #   `--pre-commit` 的参数说明写着 "scan using git diff"，但它扫的是**工作树 diff**；
+        #   而 git commit 时所有改动都已进暂存区、工作树相对 index 无差异
+        #   → 日志显示「0 commits scanned / scanned ~0 bytes」→ 恒真通过。
+        #   于是这个钩子从装上那天起**没检查过任何东西**，只在日志里print一个 Passed。
+        #   这是最坏的一类失效：不是报错，是安静的空转（绿灯从不被正样本击破）。
+        #   实测：改用 --staged 后同一份含 AKIA 前缀的样本 → scanned 40 bytes、leaks found 1、exit=1。
+        entry: gitleaks git --staged --verbose --redact --config .gitleaks.toml
         language: system
         # stage 名用 `pre-commit` 而不是旧名 `commit`：pre-commit 4.x 对旧名告警
         # "deprecated stage names ... will be removed in a future version" ——

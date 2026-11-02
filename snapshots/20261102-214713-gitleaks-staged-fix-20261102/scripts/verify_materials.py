@@ -142,11 +142,11 @@ def main() -> int:
             owners = sorted({m.group(0) for m in re.finditer(r"@[\w./-]+", eff_txt)})
             live_info.append(f"{lv}（生效 owner: {', '.join(owners) or '无'}）")
 
-    # ④ 本地钩子只是提示，不算失败（CI 环境本来就没有；本地装了是用户自己的选择）
-    if (ROOT / ".git" / "hooks" / "pre-commit").exists():
-        warns.append(
-            "本地已安装 pre-commit 钩子（若是有意启用，请在 MATERIALS-SOURCES.md §四 记一笔）"
-        )
+    # ④ 本地钩子：2026-11-02 起**不再报警**。
+    #   原判据是"装了钩子就提示去文档记一笔"——那是默认状态为"不启用"时的规矩。
+    #   三项正式启用后，钩子装着才是正确状态，这条提示恒亮 = 噪音
+    #   （恒亮警告会训练人忽略警告，正是本仓反复批的那类）。
+    #   启用状态改由 manifest 的 activated 字段表达，人身说明在 MATERIALS-SOURCES.md §四。
 
     if not args.quiet:
         n_act = sum(1 for it in items if it.get("activated"))
