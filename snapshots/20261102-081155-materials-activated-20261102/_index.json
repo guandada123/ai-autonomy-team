@@ -1,6 +1,6 @@
 {
- "created_at": "2026-11-01T22:21:35",
- "label": "rules95-20261101",
+ "created_at": "2026-11-02T08:11:55",
+ "label": "materials-activated-20261102",
  "file_count": 481,
  "files": {
   "scripts/build_package.py": {
@@ -76,8 +76,8 @@
    "bytes": 1750
   },
   "scripts/make_backup.py": {
-   "sha256": "58891e8c50216224c599800a0e60dc1ee35f6d90753da36eb658a4cbaef07fc0",
-   "bytes": 35151
+   "sha256": "b6bb1831f1b2644ecd6717845f27bf69a7d82de104862d56b66193d80a23a996",
+   "bytes": 36010
   },
   "scripts/make_fixtures.py": {
    "sha256": "1f7329d2cc180b6e9bfe982b65b9f519bfb31c513444f5207359faaae4cdff2e",
@@ -180,8 +180,8 @@
    "bytes": 10989
   },
   "scripts/verify_materials.py": {
-   "sha256": "7f75c79119815e5438f75d4aa2c06ebbe23d311de78d60917a194b5ea3b5bfdf",
-   "bytes": 3986
+   "sha256": "fb21cbb96ee0f5b552650dc1298292bf5f8e97e7c7db8e1cf581240b5e6ea922",
+   "bytes": 8515
   },
   "scripts/veto_sweep.py": {
    "sha256": "72e0f40cf7e3b4f0c46f04ccc3580b1af6a3baba153cb82d21c783b05437ee34",
@@ -1929,8 +1929,8 @@
   }
  },
  "caller": {
-  "pid": 35431,
-  "ppid": 35375,
-  "parent_cmd": "/bin/zsh -c . '/Users/guan/.workbuddy/shell-snapshots/snapshot-zsh-1793542656983-pfslqm.sh' && if [ -n \"${CODEBUDDY_SAFE_DELETE_BIN_DIR:-}\" ]; then unalias rm unlink rmdir 2>/dev/null || true; unset -"
+  "pid": 12338,
+  "ppid": 12330,
+  "parent_cmd": "/bin/zsh -c . '/Users/guan/.workbuddy/shell-snapshots/snapshot-zsh-1793577818303-y962ky.sh' && if [ -n \"${CODEBUDDY_SAFE_DELETE_BIN_DIR:-}\" ]; then unalias rm unlink rmdir 2>/dev/null || true; unset -"
  }
 }

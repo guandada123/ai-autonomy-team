@@ -3,9 +3,9 @@
  "_generated_by": "scripts/snapshot_sources.py --catalog",
  "count": {
   "in_git": 3,
-  "archived": 309,
+  "archived": 311,
   "missing": 0,
-  "total": 312
+  "total": 314
  },
  "snapshots": [
   {
@@ -2482,16 +2482,16 @@
   },
   {
    "name": "20261101-211319-real4-20261101",
-   "location": "snapshots",
-   "in_git": true,
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
    "label": "real4-20261101",
    "created_at": "2026-11-01T21:13:20",
    "file_count": 481
   },
   {
    "name": "20261101-222135-rules95-20261101",
-   "location": "snapshots",
-   "in_git": true,
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
    "label": "rules95-20261101",
    "created_at": "2026-11-01T22:21:35",
    "file_count": 481
@@ -2502,6 +2502,22 @@
    "in_git": true,
    "label": "ledger-audit-20261101",
    "created_at": "2026-11-01T22:31:42",
+   "file_count": 481
+  },
+  {
+   "name": "20261102-081155-materials-activated-20261102",
+   "location": "snapshots",
+   "in_git": true,
+   "label": "materials-activated-20261102",
+   "created_at": "2026-11-02T08:11:55",
+   "file_count": 481
+  },
+  {
+   "name": "20261102-081241-materials-act2-20261102",
+   "location": "snapshots",
+   "in_git": true,
+   "label": "materials-act2-20261102",
+   "created_at": "2026-11-02T08:12:41",
    "file_count": 481
   }
  ]

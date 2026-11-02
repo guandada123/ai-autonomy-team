@@ -1,0 +1,38 @@
+# CODEOWNERS — ai-autonomy-team
+#
+# 来历：2026-11-01 从 engineering-audit-kit 导入模板（CODEOWNERS.sample，
+#       内容是 @team/leads / @alice / @bob 等占位团队 + app/** src/** infra/**
+#       这些本仓库根本不存在的路径）。2026-11-02 改为适配本仓库真实结构后启用。
+#
+# ⚠️ 启用前先读这段（避免误解它的作用）：
+#   1) 当前只有 1 个协作者（@guandada123），且 main **未开分支保护、无 PR 流程**
+#      → 本文件**眼下不生效**，直接 push 到 main 的路径不受它约束。
+#   2) 它的真实价值在"未来"：加协作者、或开分支保护时，review 会自动指派给对的人，
+#      而不是等出事才发现没人负责。
+#   3) 🔴 开「Require review from Code Owners」之前，**必须先至少再加 1 个协作者**：
+#      GitHub 规则是 PR 作者不能 approve 自己的 PR，单人仓库开了会永久卡死
+#      （自己的 PR 永远等不到别人的 approve）。这是启用 CODEOWNERS 最容易踩的坑。
+#
+# 语法要点：路径从仓库根起算；同一文件被多条规则匹配时，**最后一条生效**
+#          （所以越具体的写在越后面）。行内不要写注释——GitHub 会把 # 之后当作 owner。
+
+# ── 默认：全部归主理人 ──────────────────────────────────────────────
+*                           @guandada123
+
+# ── 以下路径定义"系统行为"，改错的代价最高（未来多人时必须有审查）────
+# CI 门禁本身
+/.github/workflows/         @guandada123
+
+# 工具链配置：改动会同时影响本地与 CI 的判定口径
+/pyproject.toml             @guandada123
+/Makefile                   @guandada123
+/.pre-commit-config.yaml    @guandada123
+/.gitleaks.toml             @guandada123
+
+# 闸门实现（判据代码，改一处可能让一批闸门失效）
+/scripts/                   @guandada123
+/audit/kit/                 @guandada123
+
+# 协议与决策留痕（口径的唯一真源）
+/docs/protocol/             @guandada123
+/docs/decisions/            @guandada123

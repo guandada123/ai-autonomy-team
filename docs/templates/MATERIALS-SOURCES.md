@@ -48,21 +48,40 @@
 
 | 缺口 | 状态 | 说明 |
 |---|---|---|
-| 无 pre-commit | ✅ 件已到位 | 文件在根目录，但**未执行 `pre-commit install`**，提交不受影响 |
-| 无 gitleaks 规则 | ✅ 件已到位 | 本项目另有自定义「E 密钥扫描」闸（`pre_release_check`），二者**并行不冲突** |
-| 无 CODEOWNERS | ✅ 样例已到位 | 仅 `.sample`，不参与生效 |
+| 无 gitleaks 规则 | ✅ **2026-11-02 已启用** | 配置按本仓库修正（title / allowlist / 引号支持），实测 0 误报且能抓高熵串与 AWS 前缀；详见 §四 |
+| 无 CODEOWNERS | ✅ **2026-11-02 已启用** | 占位样例已删，改为适配本仓库真实结构的 `CODEOWNERS`，owner 全为 `@guandada123`。**当前单人 + main 未保护 → 眼下不生效**，价值在"未来加人时自动指派对的审查人" |
+| 无 pre-commit | ⏳ 待启用（需决策） | 文件就位、工具已装。**唯一卡点是 `ruff-format` 钩子**：本仓库实测会重排 **79 个 py 文件**（不是早前抄来的 280，那是 Claw 的数字），需先定"要不要一次性格式化" |
 | ruff 配了但 CI 不跑 | ✅ **2026-11-01 已解决** | 独立 CI 步骤（固定 ruff 0.15.17），本地 `make lint`；接入时存量 6 处已全修 |
 | RESULT 报告格式不统一 | ⚠️ 模板已到位 | 未强制套用；需要时可把新报告按模板写 |
 | 依赖漂移（ruff/bandit 版本） | ⚠️ 参考已到位 | 本项目 `pyproject.toml` 未改，版本仍以自身为准 |
 
-## 四、启用方法（都需你点头，我未执行）
+## 四、启用记录（2026-11-02）
 
-| 要做的事 | 命令 / 改动 | 影响与风险 |
+2026-11-01 的"只导入不启用"是当时的决定；2026-11-02 用户要求启用，逐项执行如下。
+
+| 项 | 实际做了什么 | 验证方式与结果 |
 |---|---|---|
-| 启用本地钩子 | `pip install pre-commit gitleaks && pre-commit install` | 之后每次 commit 先跑检查。**注意**：配置含 `ruff-format`，首次 `--all-files` 会**重排 280 个 py 文件**，建议先 `ruff format --diff` 看规模 |
-| ~~让 CI 跑 ruff~~ | **已于 2026-11-01 执行** | 存量只有 6 处且全可自动修，未红；规则仍为 F+E9 |
-| 启用 CODEOWNERS | 改名 `CODEOWNERS.sample` → `.github/CODEOWNERS`，并把 `@team/*` 换成真实账号 | 占位团队不存在会导致 PR 评审请求异常，**改名之前必须换人** |
-| 用 gitleaks 规则 | `.gitleaks.toml` 已就位，被调用才生效 | **文件标题还写着 `Claw Monorepo Secret Scan`**，改成本项目名再对外用 |
+| **gitleaks** | ① title `Claw Monorepo Secret Scan` → 本项目；② allowlist **最小化**排除扫描器自指（`pre_push_scan.py`，密钥检测器源码必然含密钥模式）与非源码缓存（`__pycache__`/`_trash`，均未被 git 跟踪）；③ `generic-api-key` 正则补引号支持（常见写法 `KEY = "value"` 原本抓不到） | 首跑命中 5 处（当前 4 + 历史 1）**全是自指误报**，真泄露 0；改后 `gitleaks dir` / `gitleaks git`（197 commits）**均 no leaks**；正样本注入（40 位高熵串、`AKIA...`）**能抓到**，证明 0 误报不是靠关规则换来的 |
+| **CODEOWNERS** | 删除占位样例（`@team/leads`/`@alice`/`@bob` + 本仓库不存在的 `app/**`/`src/**`/`infra/**`），改写为真实结构：默认 `*` + 8 条关键路径（CI/工具链配置/闸门实现/协议决策） | `verify_materials.py` 查"生效行里的 owner"（跳过 `#` 注释），只认 `@guandada123`；反证：把占位内容真放进去 → 报红并点名三个占位账号 |
+| **pre-commit** | **未启用**（见上表） | — |
+
+### 🔴 启用 CODEOWNERS 前必须知道的一件事
+
+开 GitHub 分支保护的「Require review from Code Owners」之前，**必须先至少再加 1 个协作者**。
+原因是 GitHub 不允许 PR 作者 approve 自己的 PR——单人仓库开了这项，自己的 PR 会**永久卡在等 approve**，
+且不报错、只是永远等不到。这条已写进 `CODEOWNERS` 文件头的注释里。
+
+## 五、若要启用 pre-commit（决策项，尚未执行）
+
+| 选项 | 做法 | 代价 |
+|---|---|---|
+| A 一次性格式化 | `pre-commit run --all-files` → 单独提交一次 | 79 个 py 文件重排，`git blame` 被污染；之后提交不再被打断 |
+| B 去掉 format 钩子 | 从 `.pre-commit-config.yaml` 删 `ruff-format`，保留 lint + 空白类 + gitleaks | 无大 diff；格式不强制统一（`ruff check` 仍保证质量） |
+| C 原样启用不预格式化 | 直接 `pre-commit install` | 每个含未格式化代码的提交都会被钩子改写并中断，需手动 re-add |
+
+其余钩子（trailing-whitespace / end-of-file-fixer / check-yaml / check-toml / check-json /
+check-added-large-files / check-merge-conflict / detect-private-key / mixed-line-ending /
+ruff --fix / gitleaks）均已验证可运行，且 gitleaks 钩子命令 `gitleaks git --pre-commit` 语法有效。
 
 ## 五、检查过但**未采用**的内容（以及为什么）
 

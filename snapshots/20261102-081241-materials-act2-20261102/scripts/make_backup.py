@@ -88,10 +88,21 @@ def _run(args, cwd=None, text=True):
 
 
 def git_facts(repo):
-    """返回 (HEAD, 提交数, 受控文件数)。三项都取不到则视为不可用。"""
+    """返回 (HEAD, 提交数, 受控文件数)。三项都取不到则视为不可用。
+
+    ⚠️ 文件数取 **HEAD 的 tree**（`git ls-tree -r --name-only HEAD`），
+    不是索引（`git ls-files`）。2026-11-02 实测踩中：
+        本函数原用 ls-files，而 `git bundle create --all` 打的是 **HEAD**。
+        只要有 staged 但未提交的改动（例如 `git rm` 一个文件后还没 commit），
+        索引就比 HEAD 少一个文件 → 自检里的「完好的 bundle 应通过」立刻 FAIL，
+        报错却指向 bundle 验证逻辑 —— **症状与病因完全对不上**，
+        会让人去查 verify_bundle，而真实原因是"你有未提交的暂存改动"。
+    口径依据：备份产物里装的永远是 HEAD 的内容，所以"这个 bundle 有几个文件"
+    必须数 HEAD。数索引等于把"工作树此刻的状态"混进"备份里有什么"。
+    """
     rc1, head = _run(["git", "rev-parse", "--short", "HEAD"], cwd=repo)
     rc2, cnt = _run(["git", "rev-list", "--count", "HEAD"], cwd=repo)
-    rc3, files = _run(["git", "ls-files"], cwd=repo)
+    rc3, files = _run(["git", "ls-tree", "-r", "--name-only", "HEAD"], cwd=repo)
     if rc1 or rc2 or rc3:
         return None
     return head.strip(), cnt.strip(), len(files.splitlines())
