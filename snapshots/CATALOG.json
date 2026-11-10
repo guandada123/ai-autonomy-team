@@ -3,9 +3,9 @@
  "_generated_by": "scripts/snapshot_sources.py --catalog",
  "count": {
   "in_git": 3,
-  "archived": 321,
+  "archived": 322,
   "missing": 0,
-  "total": 324
+  "total": 325
  },
  "snapshots": [
   {
@@ -2578,8 +2578,8 @@
   },
   {
    "name": "20261102-214713-gitleaks-staged-fix-20261102",
-   "location": "snapshots",
-   "in_git": true,
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
    "label": "gitleaks-staged-fix-20261102",
    "created_at": "2026-11-02T21:47:13",
    "file_count": 482
@@ -2598,6 +2598,14 @@
    "in_git": true,
    "label": "L0047-20261102",
    "created_at": "2026-11-02T21:54:34",
+   "file_count": 483
+  },
+  {
+   "name": "20261110-184827-docs-calibration-cifix-20261110",
+   "location": "snapshots",
+   "in_git": true,
+   "label": "docs-calibration-cifix-20261110",
+   "created_at": "2026-11-10T18:48:27",
    "file_count": 483
   }
  ]

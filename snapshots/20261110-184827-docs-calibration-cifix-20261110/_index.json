@@ -1,7 +1,7 @@
 {
- "created_at": "2026-11-02T21:47:13",
- "label": "gitleaks-staged-fix-20261102",
- "file_count": 482,
+ "created_at": "2026-11-10T18:48:27",
+ "label": "docs-calibration-cifix-20261110",
+ "file_count": 483,
  "files": {
   "scripts/build_package.py": {
    "sha256": "817d850485ee69ae775cfeb19614b77ad29cf93197826ee448f12fc3e763e132",
@@ -1883,6 +1883,10 @@
    "sha256": "782f5cf004ca721585f537b3d7027c164b2130cc2d31470a555d83bccf384ad8",
    "bytes": 3296
   },
+  ".learnings/L-0047-Passed不等于在工作-钩子空转识别.md": {
+   "sha256": "597cbbb2e8998bb5bbe0e9f0eec00b80448da22d1df4540f99506655d1fc637b",
+   "bytes": 3391
+  },
   ".github/workflows/selftest.yml": {
    "sha256": "b113880dde4e8175b477ce0fe21b1c206745d225792f0f3bbbf134fa293aad9a",
    "bytes": 2982
@@ -1916,12 +1920,12 @@
    "bytes": 15803
   },
   "README.md": {
-   "sha256": "52375c86aeba33429b0df9f7f729cd6a7ea353d5ec1059eb131e5cb95b4b037e",
+   "sha256": "e2c9ce199f915478d118d6c5abbbac1bbac67e2d6876133c172b39e342680041",
    "bytes": 5178
   },
   "ARCHITECTURE.md": {
-   "sha256": "3fab7c76733d0880a3820463773a31bb639fb661bb2e64d3dba66f1656ed1c4d",
-   "bytes": 23250
+   "sha256": "117d011f59047376413f1372dca024ff2619caa1d27f8f687405cc1d2f8114b4",
+   "bytes": 23594
   },
   "DEPENDENCIES.md": {
    "sha256": "eb3b836ad3fd4a392ce54eff7c01daf55ca1a8d3c17a4b52337b2af12892f077",
@@ -1933,8 +1937,8 @@
   }
  },
  "caller": {
-  "pid": 98835,
-  "ppid": 98784,
-  "parent_cmd": "/bin/zsh -c . '/Users/guan/.workbuddy/shell-snapshots/snapshot-zsh-1793627052204-vzlthx.sh' && if [ -n \"${CODEBUDDY_SAFE_DELETE_BIN_DIR:-}\" ]; then unalias rm unlink rmdir 2>/dev/null || true; unset -"
+  "pid": 23932,
+  "ppid": 23713,
+  "parent_cmd": "/bin/zsh -c . '/Users/guan/.workbuddy/shell-snapshots/snapshot-zsh-1794300602151-0swl3r.sh' && if [ -n \"${CODEBUDDY_SAFE_DELETE_BIN_DIR:-}\" ]; then unalias rm unlink rmdir 2>/dev/null || true; unset -"
  }
 }
