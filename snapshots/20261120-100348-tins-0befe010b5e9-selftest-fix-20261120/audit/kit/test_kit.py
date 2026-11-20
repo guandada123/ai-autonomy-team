@@ -744,9 +744,19 @@ def _():
         iw.check_c1 = lambda: (False, "")
         iw.check_c2 = lambda: ("GONE", "")
         iw.check_c3 = lambda: (False, "")
+        # 上游反证/连续拍打桩：本用例只验「冒名 → 复检 → 判 PASS 不告警」，
+        # 不依赖本机 workbuddy.db（CI 无库时不可复现）。
+        iw.load_upstream = lambda _d, _p: (iw.U_STALL, "注入：上游当日未派发")
+        iw.c1_streak = lambda _d: (0, "注入：无日志")
         rc, out = _iw_run(iw, ["--date", "2099-01-01"])
         assert rc == 0, f"exit={rc}\n{out}"
-        assert "全部消失" in out, out  # 冒名 → 复检 → 条件已消失 → 不告警
+        # T-018（378e356）重构 E2 后 PASS 措辞由「全部消失」改为 c1_note() 的
+        # 「C1 已消失」，本断言原先钉死旧字符串 → 判据一改就红。
+        # 现改为钉语义：锚点取实现真源 c1_note(False, ...)，措辞再改也不会假红；
+        # 同时确认不走告警通道（rc=0 由上面断言）。
+        assert "PASS" in out, out
+        assert iw.c1_note(False, 0, iw.U_STALL) in out, out
+        assert "告警发送失败" not in out and "❌" not in out, out
 
 
 @check("inspection_watch: 异常仍在+报告缺失 → exit 2 且告警侧真的执行（B7 假绿方向）")

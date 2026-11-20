@@ -3,9 +3,9 @@
  "_generated_by": "scripts/snapshot_sources.py --catalog",
  "count": {
   "in_git": 3,
-  "archived": 322,
+  "archived": 323,
   "missing": 0,
-  "total": 325
+  "total": 326
  },
  "snapshots": [
   {
@@ -2586,8 +2586,8 @@
   },
   {
    "name": "20261102-215204-merge-conflict-fix-20261102",
-   "location": "snapshots",
-   "in_git": true,
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
    "label": "merge-conflict-fix-20261102",
    "created_at": "2026-11-02T21:52:04",
    "file_count": 482
@@ -2606,6 +2606,14 @@
    "in_git": true,
    "label": "docs-calibration-cifix-20261110",
    "created_at": "2026-11-10T18:48:27",
+   "file_count": 483
+  },
+  {
+   "name": "20261120-100348-tins-0befe010b5e9-selftest-fix-20261120",
+   "location": "snapshots",
+   "in_git": true,
+   "label": "tins-0befe010b5e9-selftest-fix-20261120",
+   "created_at": "2026-11-20T10:03:48",
    "file_count": 483
   }
  ]
