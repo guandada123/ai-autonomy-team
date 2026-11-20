@@ -1,6 +1,6 @@
 {
- "created_at": "2026-11-02T21:54:34",
- "label": "L0047-20261102",
+ "created_at": "2026-11-20T17:07:37",
+ "label": "",
  "file_count": 483,
  "files": {
   "scripts/build_package.py": {
@@ -40,8 +40,8 @@
    "bytes": 15617
   },
   "scripts/inspection_watch.py": {
-   "sha256": "92def141a695a4ca36b4e5d17a6a1bd5c02fef3d0330e31c56f8c76018bc0b62",
-   "bytes": 12435
+   "sha256": "50852b3c1477d0afa79f0564ed489e3c603f23d019e946cc7f594275ffecf6d5",
+   "bytes": 27575
   },
   "scripts/install_launchd.sh": {
    "sha256": "3a082afc1b708f04f0bd31325b7ac85cd42d7fe425605a5d2491da4e6f08d60e",
@@ -1652,8 +1652,8 @@
    "bytes": 48258
   },
   "audit/kit/test_kit.py": {
-   "sha256": "2535cc4a100bc0f4765df1c1e9548e14a3ee23a68e1f4ca005918d5da79b797d",
-   "bytes": 75471
+   "sha256": "c3ec88f43d421c8ba5074dea8eae41562bb3b264181e6238a673b2729ceb7ccb",
+   "bytes": 76230
   },
   "audit/probes/premise/spec-cases.json": {
    "sha256": "d552c79e28bd10e2b02f776f31f49df6b24cce34618e8d489214d93d29cded41",
@@ -1920,12 +1920,12 @@
    "bytes": 15803
   },
   "README.md": {
-   "sha256": "e2c9ce199f915478d118d6c5abbbac1bbac67e2d6876133c172b39e342680041",
-   "bytes": 5178
+   "sha256": "f6ecee020f3f0864966eb7ebaf4cfbec8e418d8f0fd68a607a1317ec0f7bd4da",
+   "bytes": 5286
   },
   "ARCHITECTURE.md": {
-   "sha256": "3839c82061e61721eacf97c9bb8c1b1578164c93a5e1c6dd949de5f9057a3165",
-   "bytes": 23250
+   "sha256": "117d011f59047376413f1372dca024ff2619caa1d27f8f687405cc1d2f8114b4",
+   "bytes": 23594
   },
   "DEPENDENCIES.md": {
    "sha256": "eb3b836ad3fd4a392ce54eff7c01daf55ca1a8d3c17a4b52337b2af12892f077",
@@ -1937,8 +1937,8 @@
   }
  },
  "caller": {
-  "pid": 4759,
-  "ppid": 4746,
-  "parent_cmd": "/bin/zsh -c . '/Users/guan/.workbuddy/shell-snapshots/snapshot-zsh-1793627052204-vzlthx.sh' && if [ -n \"${CODEBUDDY_SAFE_DELETE_BIN_DIR:-}\" ]; then unalias rm unlink rmdir 2>/dev/null || true; unset -"
+  "pid": 22466,
+  "ppid": 22464,
+  "parent_cmd": "/Library/Developer/CommandLineTools/usr/bin/make snapshot"
  }
 }

@@ -127,3 +127,7 @@ make check          # 8 项门禁
 
 **不要**直接改 `migration-package/` 下的文件——它是产物。
 **例外**：`migration-package/gen_manifest.py` 与 `precheck.py` 是包内独有的源码，改它们要同时记到 `build_package.py` 的说明里。
+
+## 许可
+
+MIT License（见 [LICENSE](LICENSE)）。发布流程见 [docs/RELEASE.md](docs/RELEASE.md)。
