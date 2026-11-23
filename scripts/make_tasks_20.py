@@ -764,9 +764,7 @@ def write_csv(path, header, rows):
 
 
 def write_json(path, obj):
-    Path(path).write_text(
-        json.dumps(obj, ensure_ascii=False, indent=2) + "\n", encoding="utf-8", newline="\n"
-    )
+    Path(path).write_bytes((json.dumps(obj, ensure_ascii=False, indent=2) + "\n").encode("utf-8"))
 
 
 TASK_MD = """# 任务 {task_id} · 券商交割单与自记账核对（A股）
@@ -911,9 +909,7 @@ def emit(out_dir, idx, t):
     (tdir / "spec").mkdir(parents=True, exist_ok=True)
     write_csv(tdir / "ledger.csv", LEDGER_HEADER, t["ledger"])
     write_csv(tdir / "bill.csv", BILL_HEADER, t["bill"])
-    (tdir / "TASK.md").write_text(
-        TASK_MD.format(task_id=t["task_id"]), encoding="utf-8", newline="\n"
-    )
+    (tdir / "TASK.md").write_bytes((TASK_MD.format(task_id=t["task_id"])).encode("utf-8"))
     truth = {
         "task_id": t["task_id"],
         "data_note": "全部为合成数据，不含任何真实账户或持仓信息",

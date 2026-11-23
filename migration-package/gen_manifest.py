@@ -123,8 +123,7 @@ def write_domain_baseline(root, cfg_path, out_path):
         "note": "轮次前的共享目录快照。轮次后用 --write-domain <cfg> --check <本文件> 比对。",
         "files": files,
     }
-    Path(out_path).write_text(json.dumps(snap, ensure_ascii=False, indent=2) + "\n",
-                              encoding="utf-8", newline="\n")
+    Path(out_path).write_bytes((json.dumps(snap, ensure_ascii=False, indent=2) + "\n").encode("utf-8"))
     print(f"[OK] 写入域基线 -> {out_path}  ({len(files)} 条, 覆盖 {len(deny)} 个禁止前缀)")
     return 0
 
@@ -169,8 +168,7 @@ def write_domain_check(root, cfg_path, baseline_path, out_path):
         ),
     }
     if out_path:
-        Path(out_path).write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n",
-                                  encoding="utf-8", newline="\n")
+        Path(out_path).write_bytes((json.dumps(report, ensure_ascii=False, indent=2) + "\n").encode("utf-8"))
 
     print(f"[第8查] 写入域检查    verdict={report['verdict']}")
     print(f"  禁止前缀 {len(deny)} 个 | 命中 {len(hits)} 条")
@@ -241,8 +239,7 @@ def main():
         "files": files,
     }
     out = Path(args.out)
-    out.write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n",
-                   encoding="utf-8", newline="\n")
+    out.write_bytes((json.dumps(manifest, ensure_ascii=False, indent=2) + "\n").encode("utf-8"))
     print(f"[OK] {out} 写入 {len(files)} 条")
     print(f"     总字节 {manifest['stats']['total_bytes']}")
     if mixed:

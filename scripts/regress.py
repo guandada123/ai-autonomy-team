@@ -1293,9 +1293,7 @@ def main():
     ):
         _srcf = PKG / "runs/round3" / _fn
         if _srcf.is_file():
-            (_sdir / _fn).write_text(
-                _srcf.read_text(encoding="utf-8"), encoding="utf-8", newline="\n"
-            )
+            (_sdir / _fn).write_bytes((_srcf.read_text(encoding="utf-8")).encode("utf-8"))
     # ① 副本上重生成状态文件（无 --record → pending 四态），sha 绑定必须自洽
     run(
         [
@@ -1325,8 +1323,8 @@ def main():
     # ② 篡改副本 answer 的绑定 sha → --verify-final 必拒
     _stbad = json.loads(json.dumps(_st)) if _st else {}
     _stbad.setdefault("answer", {})["sha256"] = "0" * 64
-    (_sdir / "answer-status.json").write_text(
-        json.dumps(_stbad, ensure_ascii=False, indent=2) + "\n", encoding="utf-8", newline="\n"
+    (_sdir / "answer-status.json").write_bytes(
+        (json.dumps(_stbad, ensure_ascii=False, indent=2) + "\n").encode("utf-8")
     )
     rc_st, out_st = run(SC + ["--round-dir", str(_sdir), "--verify-final"], PKG)
     ok42 = _st_ok and rc_st == 1 and "answer.sha256 不匹配" in out_st
@@ -1453,8 +1451,8 @@ def main():
         "categories": {"待裁决": _t002["diff_ids"]},
         "falsification": "若券商费率口径与自记账一致且不存在未入账费用，则本结论不成立。",
     }
-    (TMP / "answer-002.json").write_text(
-        json.dumps(_a002, ensure_ascii=False) + "\n", encoding="utf-8", newline="\n"
+    (TMP / "answer-002.json").write_bytes(
+        (json.dumps(_a002, ensure_ascii=False) + "\n").encode("utf-8")
     )
     rc, out = run(
         [
@@ -1573,25 +1571,23 @@ def main():
     ):
         _srcf = PKG / "runs/round3" / _fn
         if _srcf.is_file():
-            (_sdir48 / _fn).write_text(
-                _srcf.read_text(encoding="utf-8"), encoding="utf-8", newline="\n"
-            )
+            (_sdir48 / _fn).write_bytes((_srcf.read_text(encoding="utf-8")).encode("utf-8"))
 
     def _fam48(xj_mid, ex_mid):
         rt = {"seat-xj01": xj_mid, "seat-ex01": ex_mid, "seat-ex02": ex_mid}
-        (TMP / "p48-routing.json").write_text(
-            json.dumps(
-                {
-                    "subagents": [
-                        {"raw": {"providerData.agent": n, "providerData.requestModelId": m}}
-                        for n, m in rt.items()
-                    ]
-                },
-                ensure_ascii=False,
-            )
-            + "\n",
-            encoding="utf-8",
-            newline="\n",
+        (TMP / "p48-routing.json").write_bytes(
+            (
+                json.dumps(
+                    {
+                        "subagents": [
+                            {"raw": {"providerData.agent": n, "providerData.requestModelId": m}}
+                            for n, m in rt.items()
+                        ]
+                    },
+                    ensure_ascii=False,
+                )
+                + "\n"
+            ).encode("utf-8")
         )
         run(
             SC + ["--round-dir", str(_sdir48), "--routing-json", f"{TMP_REL}/p48-routing.json"], PKG

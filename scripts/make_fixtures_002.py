@@ -647,18 +647,14 @@ def main():
             "它只是一条历史口径的锚，不是真值 —— 签署人可另行裁决，判 fail 是正确结果。"
         ),
     }
-    (out / "truth.json").write_text(
-        json.dumps(truth, ensure_ascii=False, indent=2) + "\n", encoding="utf-8", newline="\n"
+    (out / "truth.json").write_bytes(
+        (json.dumps(truth, ensure_ascii=False, indent=2) + "\n").encode("utf-8")
     )
-    (out / "spec" / "arithmetic.json").write_text(
-        json.dumps(build_arithmetic(t), ensure_ascii=False, indent=2) + "\n",
-        encoding="utf-8",
-        newline="\n",
+    (out / "spec" / "arithmetic.json").write_bytes(
+        (json.dumps(build_arithmetic(t), ensure_ascii=False, indent=2) + "\n").encode("utf-8")
     )
-    (out / "spec" / "adjudication.json").write_text(
-        json.dumps(build_adjudication(t), ensure_ascii=False, indent=2) + "\n",
-        encoding="utf-8",
-        newline="\n",
+    (out / "spec" / "adjudication.json").write_bytes(
+        (json.dumps(build_adjudication(t), ensure_ascii=False, indent=2) + "\n").encode("utf-8")
     )
 
     print(f"[OK] 002 夹具 -> {out}")
