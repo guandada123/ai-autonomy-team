@@ -44,6 +44,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 SCAN_DIRS = ["scripts", "audit", "tools", "migration-package"]
 SKIP_PARTS = {"__pycache__", "_trash", "snapshots", ".git"}
+# 运行数据不是交付源码：build_package 与 ruff 都排除 migration-package/runs，
+# 里面还有故意写坏的负样本 fixture（3.9 下 SyntaxError 会误报成越线）。
+SKIP_PREFIXES = ("migration-package/runs",)
 
 # 3.10+ 才有 newline 参数的两个方法；open() 是 3.9 就支持的，不在判据里
 TEXT_IO_WITH_NEWLINE = {"write_text", "read_text"}
@@ -52,6 +55,9 @@ ATTR_FLOOR = {
     "pairwise": "3.10（itertools.pairwise）",
     "bit_count": "3.10（int.bit_count）",
 }
+# 本脚本要在 3.9 上也能跑（它就是替 3.9 把关的），所以新语法节点必须 getattr 兜底：
+# 直接写 ast.Match 会在 3.9 抛 AttributeError —— 首版就栽在这，属自证其罪。
+MATCH_NODE = getattr(ast, "Match", None)
 
 
 def _iter_py(base):
@@ -64,6 +70,11 @@ def _iter_py(base):
             continue
         for f in sorted(p.rglob("*.py")):
             if any(part in SKIP_PARTS for part in f.parts):
+                continue
+            if any(part.startswith(".") for part in f.parts):
+                continue
+            rel = f.relative_to(base).as_posix()
+            if any(rel.startswith(pref + "/") or rel == pref for pref in SKIP_PREFIXES):
                 continue
             yield f
 
@@ -105,8 +116,9 @@ def scan(base):
                             f"{attr} 需 {ATTR_FLOOR[attr]}",
                         )
                     )
-            # ④ match 语句（3.10）
-            if isinstance(node, ast.Match):
+            # ④ match 语句（3.10）。3.9 的 ast 没这个类，必须 getattr 兜底；
+            #    3.9 上这类文件连 parse 都过不了，由上面的 SyntaxError 分支记「无法解析」。
+            if MATCH_NODE is not None and isinstance(node, MATCH_NODE):
                 hits.append((str(f.relative_to(base)), node.lineno, "match 语句需 3.10+"))
             # ⑤ except*（3.11）——3.9 的 ast 里没有这个节点类型，用 getattr 兜底
             try_star = getattr(ast, "TryStar", None)
@@ -143,7 +155,8 @@ def self_test():
         )
         expect("负样本：open(newline=) / write_bytes / zip 无 strict → 0 命中", scan(base) == [])
 
-        # 正样本：逐条判据各造一例
+        # 正样本：逐条判据各造一例。match 单列一个文件 —— 3.9 下它连 parse 都过不了，
+        # 混在一起会让其余命中全部消失（因为整文件解析失败），反而测不出东西。
         (base / "scripts" / "bad.py").write_text(
             "from pathlib import Path\n"
             'Path("x").write_text("a", encoding="utf-8", newline="\\n")\n'
@@ -154,12 +167,11 @@ def self_test():
             "def p(xs):\n"
             "    return list(itertools.pairwise(xs))\n"
             "def c(n):\n"
-            "    return n.bit_count()\n"
-            "def m(v):\n"
-            "    match v:\n"
-            "        case 1:\n"
-            "            return 1\n"
-            "    return 0\n",
+            "    return n.bit_count()\n",
+            encoding="utf-8",
+        )
+        (base / "scripts" / "matchcase.py").write_text(
+            "def m(v):\n    match v:\n        case 1:\n            return 1\n    return 0\n",
             encoding="utf-8",
         )
         got = scan(base)
@@ -173,8 +185,21 @@ def self_test():
         expect("正样本：zip(strict=) 命中", "zip(strict=)" in reasons)
         expect("正样本：itertools.pairwise 命中", "pairwise" in reasons)
         expect("正样本：bit_count 命中", "bit_count" in reasons)
-        expect("正样本：match 语句命中", "match" in reasons)
-        expect("正样本：行号非零且可定位", all(ln > 0 for _, ln, _ in got), str(got[:2]))
+        if MATCH_NODE is not None:
+            expect("正样本：match 语句命中", "match" in reasons)
+        else:
+            # 3.9 跑本脚本时：match 文件根本解析不了 → 必须记成命中，不许静默跳过
+            expect(
+                "3.9 下 match 语法解析失败 → 记为命中（不静默跳过）",
+                any("无法解析" in r and "matchcase" in p for p, _, r in got),
+                reasons,
+            )
+        # 解析失败的条目是文件级、没有行号，单独排除；其余必须能定位到行
+        expect(
+            "正样本：行号非零且可定位",
+            all(ln > 0 for _, ln, r in got if "无法解析" not in r),
+            str(got[:2]),
+        )
 
         # 反证：把坏行改成等价 3.9 写法 → 必须归零（防「永久红」式假绿）
         (base / "scripts" / "bad.py").write_text(
@@ -184,7 +209,11 @@ def self_test():
             "        f.write(s)\n",
             encoding="utf-8",
         )
-        expect("反证：改成 open(newline=) 后归零", scan(base) == [], str(scan(base)))
+        # matchcase.py 也要一并改成干净内容，否则反证永远测不出归零
+        (base / "scripts" / "matchcase.py").write_text(
+            "def m(v):\n    return 1 if v == 1 else 0\n", encoding="utf-8"
+        )
+        expect("反证：全部改成 3.9 写法后归零", scan(base) == [], str(scan(base)))
 
     print()
     if fails:
