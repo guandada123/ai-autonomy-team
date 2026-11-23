@@ -31,11 +31,12 @@ jobs:
       PYTHONIOENCODING: utf-8
       # 不生成 __pycache__：门禁 D 项会数包内文件，缓存属交付卫生问题
       PYTHONDONTWRITEBYTECODE: "1"
-      # 用 Claw runner 已有的工具缓存：self-hosted macOS 上 setup-python 首次安装需要 sudo
-      # （实测 3.12 走了 "Install Python binaries from prebuilt package" → sudo: a password is required），
-      # 而缓存里已有 3.13 就直接命中、不需要提权。与 Claw 共用 = 少装一份、两仓版本一致。
-      RUNNER_TOOL_CACHE: /Users/guan/actions-runner/_work/_tool
-      AGENT_TOOLSDIRECTORY: /Users/guan/actions-runner/_work/_tool
+      # 工具缓存由 runner 自己声明（本机 .env 指向与 Claw 共用的 _work/_tool）。
+      # 两条理由：① 不写死 /Users/<某人>/...，否则换机或别人 clone 必错；
+      # ② 缓存必须已预热——self-hosted macOS 上现场装 Python 会卡 sudo（实测 3.12 报
+      #    "sudo: a password is required"），共用 Claw 那份 3.13 就命中缓存、免提权。
+      RUNNER_TOOL_CACHE: ${{ runner.tool_cache }}
+      AGENT_TOOLSDIRECTORY: ${{ runner.tool_cache }}
     steps:
       - name: 检出
         # 固定 commit SHA（v4.2.2），不用浮动 tag —— tag 漂移会静默改变结论
