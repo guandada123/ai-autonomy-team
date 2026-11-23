@@ -1,6 +1,6 @@
 {
- "created_at": "2026-11-23T16:43:38",
- "label": "py39-h-basis",
+ "created_at": "2026-11-23T16:48:49",
+ "label": "py39-final2",
  "file_count": 483,
  "files": {
   "scripts/build_package.py": {
@@ -152,8 +152,8 @@
    "bytes": 5070
   },
   "scripts/snapshot_sources.py": {
-   "sha256": "1d93de42ed1ab335219322661f6a397bfaddf73eaa372276b0612ae14f9b6be3",
-   "bytes": 54252
+   "sha256": "e7011ae18c51fcd0e4d27e9dbb47186c1f1e1c74c22a1ee9fe96f1a5280610d9",
+   "bytes": 54585
   },
   "scripts/spec_conformance.py": {
    "sha256": "198858f4e629632809cb6ef35584e0ef6c3ff2873438c477a1cd152ef12b081e",
@@ -1924,8 +1924,8 @@
    "bytes": 5286
   },
   "ARCHITECTURE.md": {
-   "sha256": "117d011f59047376413f1372dca024ff2619caa1d27f8f687405cc1d2f8114b4",
-   "bytes": 23594
+   "sha256": "0b04510efc1a999d3fa2d52fb4f75b7172f98233cd457a3e0055975dd900e2f3",
+   "bytes": 23459
   },
   "DEPENDENCIES.md": {
    "sha256": "c0dd3c01e515238fff37e84c49cd3834a0ca7c01e1c3e15977651078717e8647",
@@ -1937,8 +1937,8 @@
   }
  },
  "caller": {
-  "pid": 98103,
-  "ppid": 98101,
-  "parent_cmd": "/Library/Developer/CommandLineTools/usr/bin/make snapshot LABEL=py39-h-basis"
+  "pid": 8545,
+  "ppid": 8537,
+  "parent_cmd": "/Library/Developer/CommandLineTools/usr/bin/make snapshot LABEL=py39-final2"
  }
 }
