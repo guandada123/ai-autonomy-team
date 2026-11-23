@@ -56,7 +56,7 @@ make test           # 等价于 python3 scripts/regress.py
 | 本地备份 | `make backup`（bundle + 归档 tar，逐份还原验证）；`make backup-list` 只列不生成；另有月度自动化。还原验证报**两个口径**：「N 个文件 / M 个条目（含 K 个目录）」——`tar tzf \| wc -l` 会数进目录，两者差约 8% 属正常 |
 | 覆盖率基线（开发期） | `make coverage`（零依赖承诺不受影响；需自备 coverage，见 `tools/README.md`） |
 | 改完源码同步到包 | `make package-apply` |
-| 打真源快照 | `make snapshot LABEL='改口径'` |
+| 打真源快照 | `make snapshot LABEL='改口径'`。**基准是 git HEAD，不是工作区**（2026-11-23 起），所以顺序是三步、不能合成一次提交：① 提交源码 → ② `make snapshot` → ③ 提交快照。合成一次提交会自相矛盾（快照拍的是提交前的 HEAD），H 门禁立刻红 |
 | 全部入口 | `make help` |
 
 ---
