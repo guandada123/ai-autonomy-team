@@ -31,9 +31,11 @@ jobs:
       PYTHONIOENCODING: utf-8
       # 不生成 __pycache__：门禁 D 项会数包内文件，缓存属交付卫生问题
       PYTHONDONTWRITEBYTECODE: "1"
-      # 与 ~/actions-runner-autonomy/.env 一致；自带工具缓存，别与 Claw 的 _work 混用
-      RUNNER_TOOL_CACHE: /Users/guan/actions-runner-autonomy/_work/_tool
-      AGENT_TOOLSDIRECTORY: /Users/guan/actions-runner-autonomy/_work/_tool
+      # 用 Claw runner 已有的工具缓存：self-hosted macOS 上 setup-python 首次安装需要 sudo
+      # （实测 3.12 走了 "Install Python binaries from prebuilt package" → sudo: a password is required），
+      # 而缓存里已有 3.13 就直接命中、不需要提权。与 Claw 共用 = 少装一份、两仓版本一致。
+      RUNNER_TOOL_CACHE: /Users/guan/actions-runner/_work/_tool
+      AGENT_TOOLSDIRECTORY: /Users/guan/actions-runner/_work/_tool
     steps:
       - name: 检出
         # 固定 commit SHA（v4.2.2），不用浮动 tag —— tag 漂移会静默改变结论
@@ -48,11 +50,12 @@ jobs:
         # 换成 self-hosted 后必须显式装 Python：macOS 自带的 /usr/bin/python3 是 3.9，
         # 而本项目声明 target-version=py39 却用了 3.10+ API（Path.write_text(newline=)），
         # 3.9 下 audit/kit 自检会红 2 项 —— 那是「声明与实现不符」的独立问题，
-        # 不该借换 runner 混进本次变更里。这里钉 3.12（原 ubuntu-24.04 默认版本），
-        # 保证「换执行位置、不换验证口径」。
+        # 不该借换 runner 混进本次变更里。钉 3.13 的理由：本机工具缓存已有 3.13.17
+        # （Claw 同版本），命中缓存即免提权；3.12 需现场安装、在 self-hosted 上会卡 sudo。
+        # 换版本前先在干净 clone 上跑过 make selftest：3.13 下 8/8 PASS。
         uses: actions/setup-python@v7
         with:
-          python-version: "3.12"
+          python-version: "3.13"
 
       - name: 环境自述
         run: |
