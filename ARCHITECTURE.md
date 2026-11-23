@@ -149,8 +149,7 @@
 
 | 模块 | 行数 | 职责 |
 |---|---|---|
-| `snapshot_sources.py` | 1221 |## 四、目录结构
-
+| `snapshot_sources.py` | 1226 |
 ```
 ai-autonomy-team/
 ├── README.md                  ← 入口
