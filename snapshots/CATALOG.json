@@ -3,9 +3,9 @@
  "_generated_by": "scripts/snapshot_sources.py --catalog",
  "count": {
   "in_git": 3,
-  "archived": 330,
+  "archived": 331,
   "missing": 0,
-  "total": 333
+  "total": 334
  },
  "snapshots": [
   {
@@ -2650,8 +2650,8 @@
   },
   {
    "name": "20261123-164726-py39-final",
-   "location": "snapshots",
-   "in_git": true,
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
    "label": "py39-final",
    "created_at": "2026-11-23T16:47:27",
    "file_count": 483
@@ -2670,6 +2670,14 @@
    "in_git": true,
    "label": "tool-cache-context",
    "created_at": "2026-11-23T19:02:35",
+   "file_count": 483
+  },
+  {
+   "name": "20261123-190600-revert-runner-ctx",
+   "location": "snapshots",
+   "in_git": true,
+   "label": "revert-runner-ctx",
+   "created_at": "2026-11-23T19:06:00",
    "file_count": 483
   }
  ]
