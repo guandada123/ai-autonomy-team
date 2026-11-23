@@ -31,12 +31,11 @@ jobs:
       PYTHONIOENCODING: utf-8
       # 不生成 __pycache__：门禁 D 项会数包内文件，缓存属交付卫生问题
       PYTHONDONTWRITEBYTECODE: "1"
-      # 工具缓存由 runner 自己声明（本机 .env 指向与 Claw 共用的 _work/_tool）。
-      # 两条理由：① 不写死 /Users/<某人>/...，否则换机或别人 clone 必错；
-      # ② 缓存必须已预热——self-hosted macOS 上现场装 Python 会卡 sudo（实测 3.12 报
-      #    "sudo: a password is required"），共用 Claw 那份 3.13 就命中缓存、免提权。
-      RUNNER_TOOL_CACHE: ${{ runner.tool_cache }}
-      AGENT_TOOLSDIRECTORY: ${{ runner.tool_cache }}
+      # 工具缓存位置不在这里声明：runner 的 .env 已导出 RUNNER_TOOL_CACHE（本机指向与 Claw
+      # 共用的 _work/_tool，已预热 3.13）；缓存必须预热，否则 self-hosted macOS 上现场装
+      # Python 会卡 sudo（实测 3.12 报 "sudo: a password is required"）。
+      # 曾试过写 ${{ runner.tool_cache }}：runner 上下文在 job 级 env 不合法，
+      # 整个 workflow 校验失败、job 一个都不创建（run 45161631162）。
     steps:
       - name: 检出
         # 固定 commit SHA（v4.2.2），不用浮动 tag —— tag 漂移会静默改变结论
