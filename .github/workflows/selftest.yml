@@ -18,8 +18,12 @@ concurrency:
 
 jobs:
   selftest:
-    # 固定版本而非 ubuntu-latest：浮动镜像会让「哪天开始红的」不可归因
-    runs-on: ubuntu-24.04
+    # 2026-11-23 换本机 self-hosted：本仓是私有仓，hosted runner 吃私有分钟额度，
+    # 计费未通过时 job 直接 steps=0 不启动（annotation 原文 "recent account payments
+    # have failed or your spending limit needs to be increased"）——11-20 起 4 次 run
+    # 全部如此，等于这个仓从未真正验证过。改用本机 runner（与 Claw 同一台、同一标签），零成本。
+    # 代价：机器关机/runner 服务停了就不跑；靠本机可用性，不再依赖 GitHub 侧额度。
+    runs-on: [self-hosted, mac-local]
     timeout-minutes: 15
     env:
       LANG: C.UTF-8
@@ -27,6 +31,9 @@ jobs:
       PYTHONIOENCODING: utf-8
       # 不生成 __pycache__：门禁 D 项会数包内文件，缓存属交付卫生问题
       PYTHONDONTWRITEBYTECODE: "1"
+      # 与 ~/actions-runner-autonomy/.env 一致；自带工具缓存，别与 Claw 的 _work 混用
+      RUNNER_TOOL_CACHE: /Users/guan/actions-runner-autonomy/_work/_tool
+      AGENT_TOOLSDIRECTORY: /Users/guan/actions-runner-autonomy/_work/_tool
     steps:
       - name: 检出
         # 固定 commit SHA（v4.2.2），不用浮动 tag —— tag 漂移会静默改变结论
@@ -36,6 +43,16 @@ jobs:
           # 必须是完整历史：默认 --depth 1 的浅克隆里 `git bundle create --all`
           # 产出不可还原的包，备份自检会红（2026-10-23 首跑即因此失败，D-0046）
           fetch-depth: 0
+
+      - name: 固定 Python
+        # 换成 self-hosted 后必须显式装 Python：macOS 自带的 /usr/bin/python3 是 3.9，
+        # 而本项目声明 target-version=py39 却用了 3.10+ API（Path.write_text(newline=)），
+        # 3.9 下 audit/kit 自检会红 2 项 —— 那是「声明与实现不符」的独立问题，
+        # 不该借换 runner 混进本次变更里。这里钉 3.12（原 ubuntu-24.04 默认版本），
+        # 保证「换执行位置、不换验证口径」。
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
 
       - name: 环境自述
         run: |
