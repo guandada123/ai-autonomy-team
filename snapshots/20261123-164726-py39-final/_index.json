@@ -1,6 +1,6 @@
 {
- "created_at": "2026-11-23T13:11:11",
- "label": "20261123-1310-selftest-self-hosted",
+ "created_at": "2026-11-23T16:47:27",
+ "label": "py39-final",
  "file_count": 483,
  "files": {
   "scripts/build_package.py": {
@@ -84,20 +84,20 @@
    "bytes": 28295
   },
   "scripts/make_fixtures_002.py": {
-   "sha256": "b019106b6bddda64554b06f76d47bf606e7e2dac89d97ef6748ea434d847bb3a",
-   "bytes": 22909
+   "sha256": "782db444223c8d9cc2e0192fba1842c3b97d52140565880cc5078cf639a9e067",
+   "bytes": 22836
   },
   "scripts/make_round_fixtures.py": {
    "sha256": "213581100125a22065206a4160c6a7f653a3777c05ea8413c00b5cfb679aa354",
    "bytes": 15359
   },
   "scripts/make_tasks_20.py": {
-   "sha256": "d71e51e123cfcb9e7a0eaa738235118342ea345c2a0ab08ceefddae37bd50d95",
-   "bytes": 48040
+   "sha256": "6f132defdf54f93128cae45b3daa7212561273ace9e15ea2f44290ae4b8b4c41",
+   "bytes": 47986
   },
   "scripts/make_transfer.py": {
-   "sha256": "ed032c797c88e33a994aea7ab6701cd8ccfc05d34ad55a2e1fdc4dc1022e47d8",
-   "bytes": 8191
+   "sha256": "9f0bc03cd1c3464a4f8c7b05da7c630626c3b2129819b3b5087136c19c9aeb84",
+   "bytes": 8178
   },
   "scripts/mask_secrets.py": {
    "sha256": "1a49135a416b2202af05b53776026954942cb97d5b80327c89a5571b99c09e6b",
@@ -144,24 +144,24 @@
    "bytes": 11771
   },
   "scripts/regress.py": {
-   "sha256": "3d64f189afe45e5094a879fce7a0e727ffdffde6862fecdc69ffb7f9364196a8",
-   "bytes": 80937
+   "sha256": "d7de7d8c2eeb91c11df0e6788c6fb015b71d9e31fd242bea1a1656741638cfde",
+   "bytes": 80853
   },
   "scripts/secret_patterns.py": {
    "sha256": "93bf9c7b09fa44c1b6d90c4cf32423cb50429d71478e138d4f992a065faee681",
    "bytes": 5070
   },
   "scripts/snapshot_sources.py": {
-   "sha256": "d00c5c5fe0da2e0628059512859a9e4ab3031344f15a7fcf3fceb430b399198b",
-   "bytes": 45662
+   "sha256": "e7011ae18c51fcd0e4d27e9dbb47186c1f1e1c74c22a1ee9fe96f1a5280610d9",
+   "bytes": 54585
   },
   "scripts/spec_conformance.py": {
    "sha256": "198858f4e629632809cb6ef35584e0ef6c3ff2873438c477a1cd152ef12b081e",
    "bytes": 4220
   },
   "scripts/sync_doc_numbers.py": {
-   "sha256": "6e3f7968c8ba8353df13f93d69a809c694ad6e0dad8bff4ccc34302c215dc5c0",
-   "bytes": 8319
+   "sha256": "c4b7120518c14d662d824ff71b4d6d2deeb89038e53fed8a539a4c8bf90bfd1b",
+   "bytes": 8306
   },
   "scripts/team_metrics.py": {
    "sha256": "643eb8ec498f7465f9c16c16a9866d8c66917c2bdee36bc4808ee75dbebe6953",
@@ -1924,12 +1924,12 @@
    "bytes": 5286
   },
   "ARCHITECTURE.md": {
-   "sha256": "117d011f59047376413f1372dca024ff2619caa1d27f8f687405cc1d2f8114b4",
-   "bytes": 23594
+   "sha256": "c555e11999fb4f4fd3cd68e4525575c40ea4e3fc30d68550b68346b93ec67215",
+   "bytes": 23481
   },
   "DEPENDENCIES.md": {
-   "sha256": "eb3b836ad3fd4a392ce54eff7c01daf55ca1a8d3c17a4b52337b2af12892f077",
-   "bytes": 10248
+   "sha256": "c0dd3c01e515238fff37e84c49cd3834a0ca7c01e1c3e15977651078717e8647",
+   "bytes": 10504
   },
   "M4-接续指南.md": {
    "sha256": "39d381279b040d4f8b7c0070eb2e091a8284c6bdb8598b12d8e267f1a7d0f57d",
@@ -1937,8 +1937,8 @@
   }
  },
  "caller": {
-  "pid": 18027,
-  "ppid": 18025,
-  "parent_cmd": "/Library/Developer/CommandLineTools/usr/bin/make snapshot LABEL=20261123-1310-selftest-self-hosted"
+  "pid": 5632,
+  "ppid": 5630,
+  "parent_cmd": "/Library/Developer/CommandLineTools/usr/bin/make snapshot LABEL=py39-final"
  }
 }

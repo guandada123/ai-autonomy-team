@@ -206,7 +206,7 @@ def main():
         return 0
 
     for p, out in changes:
-        p.write_text("".join(out), encoding="utf-8", newline="\n")
+        p.write_bytes(("".join(out)).encode("utf-8"))
     print(
         f"[OK] 已同步 {len(changes)} 份文档 → {fmt(real_b)} 字节；代码行数表 {len(arch_stale)} 处"
     )

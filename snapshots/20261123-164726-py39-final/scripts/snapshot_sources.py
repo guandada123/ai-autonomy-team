@@ -3,9 +3,22 @@
 
 ## 为什么存在
 
-本项目**没有 git**，备份是唯一的回滚路径。2026-10-20 会话审计发现：改了
-`make_tasks_20.py` / `new_round.py` / `build_package.py` 却**没有任何备份**，
-只能靠事后补。靠人记得备份不可靠，故做成命令。
+2026-10-20 会话审计发现：改了 `make_tasks_20.py` / `new_round.py` / `build_package.py`
+却**没有任何备份**，只能靠事后补。靠人记得备份不可靠，故做成命令。
+（建仓前本项目没有 git；现在有 git 了，快照的职责变成「H 项的比对基准」+ 参考备份。）
+
+## 基准是什么（2026-11-23 改）
+
+打快照与 `--verify` **都以 git HEAD（已提交版本）为基准**，不看工作区。
+原因：原判据「磁盘 vs 快照」会被未提交的编辑顶死——实测另一个自动化
+（auto-promote）往 `.learnings` 追加标注却从不 commit，25 个文件常驻脏状态，
+门禁天天红，真正的信号反被噪音淹没。门禁该守的是「要发布的版本有没有配快照」，
+不是「我正在编辑的草稿」。非 git 环境自动回退工作区并明确提示，不静默降级。
+
+**因此操作顺序是三段，不能合并成一次提交**：
+    ① 提交源码 → ② make snapshot → ③ 提交快照
+把源码改动与快照放进同一个 commit 会自相矛盾（快照拍的是提交前的 HEAD）。
+2026-11-23 首次改判据时就踩了这个坑：H 报「ARCHITECTURE.md 与快照不一致」。
 
 ## 快照对象（真源全集，取自 build_package.py 的定义）
 
@@ -49,6 +62,7 @@
 """
 
 import argparse
+import contextlib
 import hashlib
 import json
 import os
@@ -56,6 +70,7 @@ import re
 import shutil
 import subprocess
 import sys
+import tempfile
 from datetime import datetime
 from pathlib import Path
 
@@ -166,8 +181,77 @@ def caller_info() -> dict:
     return info
 
 
+@contextlib.contextmanager
+def head_tree(root=None):
+    """以 git HEAD（已提交版本）为基准的真源树，上下文管理器。
+
+    ## 为什么基准是 HEAD 而不是工作区（2026-11-23，用户决策）
+
+    H 门禁原判据是「磁盘 vs 快照」。只要工作区有未提交改动，这个判据就必然红 ——
+    而改动可能来自**另一个正在工作的自动化**（实测：auto-promote 往 `.learnings`
+    追加标注却从不 commit，25 个文件常驻脏状态）。门禁被「进行中的编辑」顶死，
+    真正的信号（改了代码没重打快照）反而淹没在噪音里。
+
+    改为以「已提交版本」为基准：门禁要守的是**要发布的那个版本**有没有配快照，
+    编辑中的草稿不该触发它。快照同样取自 HEAD —— 同一判据，口径一致。
+
+    非 git 仓库 / 尚无提交 / 导出失败 → yield 工作区并给出提示，绝不静默降级。
+    产出 (基准路径, 回退说明)。临时目录由 TemporaryDirectory 管，不写显式删除调用
+    （regress 第 20 项：项目禁止删除调用）。
+    """
+    base = Path(root) if root is not None else ROOT
+    with tempfile.TemporaryDirectory(prefix="snap-head-") as td:
+        tmp = Path(td)
+        # 先看 HEAD 里有哪些真源路径：git archive 对不存在的 pathspec 直接 fatal，
+        # 而不同仓的真源子集不同（迷你仓/新建仓常常只有 scripts）。
+        # -z + NUL 分隔：默认会按 core.quotePath 把中文路径转义成 "docs/protocol/01-\346\236..."，
+        # 于是下面的前缀匹配全部落空、中文名真源被静默漏掉（实测漏了 9 个文件）。
+        listed = subprocess.run(
+            ["git", "-C", str(base), "ls-tree", "-rz", "--name-only", "HEAD"],
+            capture_output=True,
+        )
+        if listed.returncode != 0:
+            yield base, "非 git 仓库或尚无提交，基准回退为工作区"
+            return
+        present = listed.stdout.decode("utf-8", "replace").split("\0")
+        paths = [
+            q
+            for q in (*SOURCES, *ROOT_FILES)
+            if any(f == q or f.startswith(q + "/") for f in present)
+        ]
+        if not paths:
+            yield base, "HEAD 中没有真源路径，基准回退为工作区"
+            return
+        try:
+            arch = subprocess.run(
+                ["git", "-C", str(base), "archive", "HEAD", *paths],
+                capture_output=True,
+            )
+            if arch.returncode == 0:
+                untar = subprocess.run(
+                    ["tar", "-x", "-C", str(tmp)], input=arch.stdout, capture_output=True
+                )
+            else:
+                untar = None
+        except OSError as exc:
+            yield base, f"git 不可用（{type(exc).__name__}），基准回退为工作区"
+            return
+        if untar is None or untar.returncode != 0:
+            yield base, "HEAD 导出失败，基准回退为工作区"
+            return
+        yield tmp, ""
+
+
 def snapshot(label="", snap_root=None, root=None):
-    base_root = Path(root) if root is not None else ROOT
+    if root is not None:
+        return _snapshot_into(Path(root), label, snap_root)
+    with head_tree() as (base_root, note):
+        if note:
+            print(f"[注意] {note}", file=sys.stderr)
+        return _snapshot_into(base_root, label, snap_root)
+
+
+def _snapshot_into(base_root, label="", snap_root=None):
     sr = Path(snap_root) if snap_root is not None else SNAP_ROOT
     ts = datetime.now().strftime("%Y%m%d-%H%M%S")
     safe = safe_label(label)
@@ -194,10 +278,8 @@ def snapshot(label="", snap_root=None, root=None):
         ),
         encoding="utf-8",
     )
-    print(
-        f"[OK] 快照 {name}：{len(index)} 个文件 → "
-        f"{dst.relative_to(base_root) if dst.is_relative_to(base_root) else dst}"
-    )
+    shown = dst.relative_to(ROOT) if dst.is_relative_to(ROOT) else dst
+    print(f"[OK] 快照 {name}：{len(index)} 个文件 → {shown}")
     return dst
 
 
@@ -479,11 +561,21 @@ def _resolve_snap(target, snap_root=None):
 
 
 def verify(snap_root=None, root=None, quiet=False):
+    if root is not None:
+        return _verify_against(Path(root), snap_root, quiet, "工作区（显式指定）")
+    with head_tree() as (base_root, note):
+        basis = "git HEAD（已提交版本）"
+        if note:
+            print(f"[注意] {note}", file=sys.stderr)
+            basis = "工作区（回退，见上）"
+        return _verify_against(base_root, snap_root, quiet, basis)
+
+
+def _verify_against(base_root, snap_root, quiet, basis):
     snap = _resolve_snap("latest", snap_root)
     if snap is None:
         print("[ERR] 无可用快照，先跑一次不带 --verify 的 snapshot_sources.py", file=sys.stderr)
         return 2
-    base_root = Path(root) if root is not None else ROOT
     tw = three_way(snap, base_root)
 
     def _line(tag, items, why):
@@ -492,8 +584,8 @@ def verify(snap_root=None, root=None, quiet=False):
 
     if not quiet:
         print(
-            f"[verify] 三向比对 {snap.name}（索引 {tw['index_count']} 文件 / "
-            f"真源 {tw['source_count']} 文件）"
+            f"[verify] 基准 {basis} ↔ 快照 {snap.name}（索引 {tw['index_count']} 文件 / "
+            f"基准 {tw['source_count']} 文件）"
         )
     if tw["clean"]:
         if not quiet:
@@ -504,7 +596,7 @@ def verify(snap_root=None, root=None, quiet=False):
             _line(
                 "A 真源改动",
                 tw["source_changed"] + tw["source_added"] + tw["source_removed"],
-                "真源相对快照变了（正常迭代则打新快照）",
+                "已提交版本相对快照变了（有意改动则重打快照；未提交的编辑不算）",
             )
         if tw["copy_missing"]:
             _line("B 副本缺失", tw["copy_missing"], "回滚来源缺件 —— 这份快照已不能完整回滚")
@@ -951,6 +1043,89 @@ def self_test():
         expect(
             "verify：无快照目录 → rc=2", _quiet(verify, snap_root=td / "no-such-dir", root=r) == 2
         )
+
+        # ⑨ 基准 = git HEAD（2026-11-23，用户决策）：门禁不该被"进行中的编辑"顶死，
+        #    但"提交了改动却没重打快照"必须照样红。两方向都要反证，否则改动等于把门禁改瞎。
+        gr = td / "gitrepo"
+        (gr / "scripts").mkdir(parents=True)
+        (gr / "Makefile").write_text("all:\n\techo v1\n", encoding="utf-8")
+        (gr / "scripts" / "a.py").write_text("V1\n", encoding="utf-8")
+        # 中文名真源要单独立两个「只有中文文件」的形状，否则 ASCII 兄弟会把目录带进来、掩盖问题：
+        # ① 中文根文件（靠精确名匹配）；② 整目录只有中文文件（靠前缀匹配）
+        (gr / "M4-接续指南.md").write_text("Z\n", encoding="utf-8")
+        (gr / "docs" / "protocol").mkdir(parents=True)
+        (gr / "docs" / "protocol" / "01-架构.md").write_text("Z\n", encoding="utf-8")
+
+        def _git(*args):
+            return subprocess.run(
+                ["git", "-c", "user.email=t@t", "-c", "user.name=t", *args],
+                cwd=str(gr),
+                capture_output=True,
+                text=True,
+            )
+
+        if _git("init", "-q").returncode != 0:
+            expect("基准=HEAD：环境缺 git，跳过本组", False, "git init 失败")
+        else:
+            _git("add", "-A")
+            _git("commit", "-q", "-m", "v1")
+            gsr = td / "git-snaps"
+            gsr.mkdir()
+
+            with head_tree(gr) as (tree1, note1):
+                expect(
+                    "基准=HEAD：干净仓 → 拿到已提交内容",
+                    note1 == ""
+                    and (tree1 / "scripts" / "a.py").read_text(encoding="utf-8") == "V1\n",
+                    note1,
+                )
+                _quiet(snapshot, "t", snap_root=gsr, root=tree1)
+                expect(
+                    "基准=HEAD：由 HEAD 树打快照 → verify rc=0（正样本）",
+                    _quiet(verify, snap_root=gsr, root=tree1) == 0,
+                )
+                expect(
+                    "基准=HEAD：中文名真源必须进基准（ls-tree 转义坑）",
+                    (tree1 / "M4-接续指南.md").exists()
+                    and (tree1 / "docs" / "protocol" / "01-架构.md").exists(),
+                )
+
+            # 方向一：脏工作区（改了但没提交）不得进基准 —— 这正是 auto-promote 的形态
+            (gr / "scripts" / "a.py").write_text("V2-DIRTY\n", encoding="utf-8")
+            (gr / "scripts" / "untracked.py").write_text("U\n", encoding="utf-8")
+            with head_tree(gr) as (tree2, _):
+                expect(
+                    "基准=HEAD：未提交的改动不进基准（脏工作区不顶门禁）",
+                    (tree2 / "scripts" / "a.py").read_text(encoding="utf-8") == "V1\n",
+                )
+                expect(
+                    "基准=HEAD：未跟踪文件不进基准",
+                    not (tree2 / "scripts" / "untracked.py").exists(),
+                )
+                expect(
+                    "基准=HEAD：脏工作区下旧快照仍判一致（rc=0，不再假红）",
+                    _quiet(verify, snap_root=gsr, root=tree2) == 0,
+                )
+
+            # 方向二（反证）：提交了改动但没重打快照 → 必须红
+            _git("add", "-A")
+            _git("commit", "-q", "-m", "v2")
+            with head_tree(gr) as (tree3, _):
+                expect(
+                    "反证：已提交改动没重打快照 → verify rc=1（否则门禁形同虚设）",
+                    _quiet(verify, snap_root=gsr, root=tree3) == 1,
+                )
+
+        # 非 git 目录 → 回退工作区且必须明说，不许静默
+        plain = td / "plain-dir"
+        (plain / "scripts").mkdir(parents=True)
+        (plain / "scripts" / "a.py").write_text("P\n", encoding="utf-8")
+        with head_tree(plain) as (fb_root, fb_note):
+            expect(
+                "基准=HEAD：非 git 目录 → 回退工作区并给提示（不静默降级）",
+                Path(fb_root) == plain and "回退" in fb_note,
+                fb_note,
+            )
 
     print()
     if fails:

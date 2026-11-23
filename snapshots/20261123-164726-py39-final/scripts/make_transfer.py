@@ -207,7 +207,7 @@ def main():
     zb = out.stat().st_size
     digest = sha256_file(out)
     side = out.with_suffix(out.suffix + ".sha256")
-    side.write_text(f"{digest}  {out.name}\n", encoding="utf-8", newline="\n")
+    side.write_bytes((f"{digest}  {out.name}\n").encode("utf-8"))
 
     print("\n" + "=" * 72)
     print("[OK] 转移包已生成")
