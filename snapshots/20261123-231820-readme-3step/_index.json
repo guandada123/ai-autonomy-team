@@ -1,6 +1,6 @@
 {
- "created_at": "2026-11-23T22:54:10",
- "label": "py39-floor-gate",
+ "created_at": "2026-11-23T23:18:21",
+ "label": "readme-3step",
  "file_count": 484,
  "files": {
   "scripts/build_package.py": {
@@ -20,8 +20,8 @@
    "bytes": 21269
   },
   "scripts/check_py39_floor.py": {
-   "sha256": "90f1d7c3334426e6e5b5739a024135fe507168f8edebc5f278edc45cfda28bd5",
-   "bytes": 9196
+   "sha256": "f7b2cd4656c553dcfcf49750e1fd66e04e6eb560e2efb5bcc610db73644b5275",
+   "bytes": 11643
   },
   "scripts/field_provenance.py": {
    "sha256": "f03bc6a2d40e5f07072b991f889775eb785780d2b898b2abd0db74613275a6a4",
@@ -1924,16 +1924,16 @@
    "bytes": 16010
   },
   "README.md": {
-   "sha256": "f6ecee020f3f0864966eb7ebaf4cfbec8e418d8f0fd68a607a1317ec0f7bd4da",
-   "bytes": 5286
+   "sha256": "af477e0f73b004ca06ca9cbeeff5b29a87d20bd9b3f81093d0aaa057eed03cc3",
+   "bytes": 5558
   },
   "ARCHITECTURE.md": {
    "sha256": "0b04510efc1a999d3fa2d52fb4f75b7172f98233cd457a3e0055975dd900e2f3",
    "bytes": 23459
   },
   "DEPENDENCIES.md": {
-   "sha256": "4ee3fb7a1b66b2e11a5ba2eadbaed832b856972b8212c5608ed7dd6e508c8be1",
-   "bytes": 10770
+   "sha256": "a2d147e4aac80564dec5fc6ed5357800a65abb6267ee102f63a9656f054adbd7",
+   "bytes": 11119
   },
   "M4-接续指南.md": {
    "sha256": "39d381279b040d4f8b7c0070eb2e091a8284c6bdb8598b12d8e267f1a7d0f57d",
@@ -1941,8 +1941,8 @@
   }
  },
  "caller": {
-  "pid": 49003,
-  "ppid": 49001,
-  "parent_cmd": "/Library/Developer/CommandLineTools/usr/bin/make snapshot LABEL=py39-floor-gate"
+  "pid": 95393,
+  "ppid": 95391,
+  "parent_cmd": "/Library/Developer/CommandLineTools/usr/bin/make snapshot LABEL=readme-3step"
  }
 }
