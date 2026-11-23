@@ -9,7 +9,7 @@
 
 | 项 | 要求 | 实测环境 | 说明 |
 |---|---|---|---|
-| Python | **≥ 3.9** | 3.13.12 | 代码未用 `match`、未用 `X \| Y` 类型联合；`regress` 有一项专门校验 py39 兼容。**2026-11-23 补修**：15 处 `Path.write_text(..., newline=)`（3.10+ API）改为 `write_bytes(...encode("utf-8"))`，此前 3.9 下 `audit/kit` 自检红 2 项——声明与实现不符，属真缺陷；现 3.9.6 实跑 `regress` 56/56 + kit 全过 |
+| Python | **≥ 3.9** | 3.13.12 | 代码未用 `match`、未用 `X \| Y` 类型联合；`regress` 有一项专门校验 py39 兼容。**2026-11-23 补修**：15 处 `Path.write_text(..., newline=)`（3.10+ API）改为 `write_bytes(...encode("utf-8"))`，此前 3.9 下 `audit/kit` 自检红 2 项——声明与实现不符，属真缺陷；现 3.9.6 实跑 `regress` 56/56 + kit 全过。**同日起由 `scripts/check_py39_floor.py` 常驻把关**（`make selftest` 内跑）：静态查 `write_text/read_text(newline=)`、`zip(strict=)`、`itertools.pairwise`、`int.bit_count`、`match`、`except*`，命中即红——这条边界不再靠人眼。**它的边界要说清**：只覆盖「静态可判」的 6 类；**属性访问类**越线（如 `ast.Match` 在 3.9 不存在）静态判不出来，CI 又只跑 3.13，所以「闸门绿」≠「3.9 必绿」。要确认下限真没问题，仍需在 3.9 上实跑一次（2026-11-23 当天就靠这一步抓到检查器自己也崩在 3.9）。 |
 | 操作系统 | macOS / Linux | macOS（APFS + 外置盘） | 未在 Windows 验证。`judges/run.cmd` 暗示曾考虑过，但未测 |
 | 第三方包 | **无** | — | 见 §2 |
 | 磁盘 | ≥ 50 MB | 源码+证据 9.6 MB，`_trash` 另占 71 MB（可删） | — |

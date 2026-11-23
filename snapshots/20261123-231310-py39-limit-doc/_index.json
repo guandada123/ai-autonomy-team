@@ -1,7 +1,7 @@
 {
- "created_at": "2026-11-23T19:06:00",
- "label": "revert-runner-ctx",
- "file_count": 483,
+ "created_at": "2026-11-23T23:13:10",
+ "label": "py39-limit-doc",
+ "file_count": 484,
  "files": {
   "scripts/build_package.py": {
    "sha256": "817d850485ee69ae775cfeb19614b77ad29cf93197826ee448f12fc3e763e132",
@@ -18,6 +18,10 @@
   "scripts/check_docs_consistency.py": {
    "sha256": "a3e939e4ebcee4020d8f43ede32167bc13d4255ffc7b50775eae2af9b43a3ea3",
    "bytes": 21269
+  },
+  "scripts/check_py39_floor.py": {
+   "sha256": "f7b2cd4656c553dcfcf49750e1fd66e04e6eb560e2efb5bcc610db73644b5275",
+   "bytes": 11643
   },
   "scripts/field_provenance.py": {
    "sha256": "f03bc6a2d40e5f07072b991f889775eb785780d2b898b2abd0db74613275a6a4",
@@ -1916,8 +1920,8 @@
    "bytes": 916
   },
   "Makefile": {
-   "sha256": "25dd1f4690e53c99233ff0c73ba2f492d1943a828b1ca7c448dd6aa00d550afa",
-   "bytes": 15803
+   "sha256": "1c62458bc573ab95fc216316c7e500d4e029d385b1128272037aff0d53ac8e19",
+   "bytes": 16010
   },
   "README.md": {
    "sha256": "f6ecee020f3f0864966eb7ebaf4cfbec8e418d8f0fd68a607a1317ec0f7bd4da",
@@ -1928,8 +1932,8 @@
    "bytes": 23459
   },
   "DEPENDENCIES.md": {
-   "sha256": "c0dd3c01e515238fff37e84c49cd3834a0ca7c01e1c3e15977651078717e8647",
-   "bytes": 10504
+   "sha256": "a2d147e4aac80564dec5fc6ed5357800a65abb6267ee102f63a9656f054adbd7",
+   "bytes": 11119
   },
   "M4-接续指南.md": {
    "sha256": "39d381279b040d4f8b7c0070eb2e091a8284c6bdb8598b12d8e267f1a7d0f57d",
@@ -1937,8 +1941,8 @@
   }
  },
  "caller": {
-  "pid": 42443,
-  "ppid": 42441,
-  "parent_cmd": "/Library/Developer/CommandLineTools/usr/bin/make snapshot LABEL=revert-runner-ctx"
+  "pid": 84077,
+  "ppid": 84075,
+  "parent_cmd": "/Library/Developer/CommandLineTools/usr/bin/make snapshot LABEL=py39-limit-doc"
  }
 }

@@ -83,6 +83,10 @@ selftest:
 	@echo "── 备份验证逻辑自检 ──"
 	$(PY) $(SCRIPTS)/make_backup.py --self-test
 	@echo ""
+	@echo "── 声明最低版本边界（DEPENDENCIES 承诺 3.9，这里查实现有没有越线）──"
+	$(PY) $(SCRIPTS)/check_py39_floor.py --self-test
+	$(PY) $(SCRIPTS)/check_py39_floor.py
+	@echo ""
 	@echo "── 判定工具自检（多数票边界 / 覆盖率语义 / κ 已知值 / 与 score_v2 交叉）──"
 	$(PY) audit/kit/test_kit.py
 	@echo ""
