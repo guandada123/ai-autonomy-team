@@ -3,9 +3,9 @@
  "_generated_by": "scripts/snapshot_sources.py --catalog",
  "count": {
   "in_git": 3,
-  "archived": 326,
+  "archived": 327,
   "missing": 0,
-  "total": 329
+  "total": 330
  },
  "snapshots": [
   {
@@ -2618,8 +2618,8 @@
   },
   {
    "name": "20261120-170737",
-   "location": "snapshots",
-   "in_git": true,
+   "location": "_trash/snapshots-archive",
+   "in_git": false,
    "label": "",
    "created_at": "2026-11-20T17:07:37",
    "file_count": 483
@@ -2638,6 +2638,14 @@
    "in_git": true,
    "label": "py39-h-basis",
    "created_at": "2026-11-23T16:43:38",
+   "file_count": 483
+  },
+  {
+   "name": "20261123-164558-py39-h-basis2",
+   "location": "snapshots",
+   "in_git": true,
+   "label": "py39-h-basis2",
+   "created_at": "2026-11-23T16:45:58",
    "file_count": 483
   }
  ]
